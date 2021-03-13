@@ -21,6 +21,10 @@ PATH_SEPERATOR = ';' if sys.platform == 'win32' else ':'
 HEADER = f"Bench Eye {__release__}"
 HEADER += '\n' + len(HEADER) * '=' + '\n'
 
+DOC_HTML = 'https://thocoo.github.io/benchy-doc/docs'
+
+HEADER += DOC_HTML + '\n'
+
 epilog = f"""\
 Examples
 --------
