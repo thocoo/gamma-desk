@@ -5,9 +5,21 @@
 |logo| Welcome to Bench Eye
 ===========================
 
-.. |logo| image:: ../../resources/logo/bench_eye_32px.png
+.. |logo| image:: ../../../benchy/resources/logo/bench_eye_32px.png
 
-
+Api
+===
+   
+.. toctree::
+   :maxdepth: 2
+   
+   modules
+   
+Release
+=======
+   
 .. toctree::
 
     release_notes
+    
+    
