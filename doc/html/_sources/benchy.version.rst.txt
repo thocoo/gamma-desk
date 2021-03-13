@@ -1,0 +1,7 @@
+benchy.version module
+=====================
+
+.. automodule:: benchy.version
+   :members:
+   :undoc-members:
+   :show-inheritance:

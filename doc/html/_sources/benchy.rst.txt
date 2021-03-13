@@ -1,0 +1,18 @@
+benchy package
+==============
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   benchy.version
+
+Module contents
+---------------
+
+.. automodule:: benchy
+   :members:
+   :undoc-members:
+   :show-inheritance:
