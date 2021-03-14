@@ -4,3 +4,4 @@
 /doc/sphinx/source/benchy*.rst
 /doc/html/.buildinfo
 /doc/sphinx/sphinx-*.log
+/benchy/*/__pycache__/*.pyc
