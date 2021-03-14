@@ -55,4 +55,7 @@ def argexec(argv=None, **config_kwargs):
     from .core.shellmod import Shell
     shell = Shell()
     
+    from .gcore.guiapp import eventloop           
+    eventloop(shell, init_file=config['init_file'], pictures=args.pictures)
+    
     return shell
