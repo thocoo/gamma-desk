@@ -5,8 +5,8 @@ import sys
 import logging
 import argparse
 
-import benchy
-from benchy import __release__
+from . import __release__
+from . import configure, config
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def argparser():
     parser.add_argument("-c", "--config_file", help="Use this configuration file")
     parser.add_argument("-i", "--init_file", help="Run this init file in console 1")
     parser.add_argument("-d", "--debug", action='store_true', help="Set logging level to debug")
-    parser.add_argument("pictures", nargs='*', help="Image file to load")
+    parser.add_argument("pictures", nargs='*', help="Image file to load")    
 
     return parser
 
@@ -48,3 +48,11 @@ def argparser():
 def argexec(argv=None, **config_kwargs):    
     parser = argparser()
     args = parser.parse_args(argv)
+    
+    configure(**config_kwargs)
+    
+    #Configure has to be done before import other modules    
+    from .core.shellmod import Shell
+    shell = Shell()
+    
+    return shell
