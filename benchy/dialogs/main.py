@@ -12,7 +12,7 @@ import numpy as np
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
 
-from .. import config, gui, __release__, progname
+from .. import config, gui, __release__, progname, doc_html
 from ..core import conf
 
 from .about import AboutScreen
@@ -318,9 +318,10 @@ class MainDialog(QtWidgets.QMainWindow):
         conf.save_config_json(path)        
         
     def help(self):        
-        index_html = Path(__file__).parent.parent / 'doc' / 'html' / 'index.html'
-        print("Opening %s" % index_html)
-        os.system('start "help" "%s"' % index_html)        
+        #index_html = Path(__file__).parent.parent / 'doc' / 'html' / 'index.html'
+        #index_html = 'https://thocoo.github.io/benchy-doc/docs'
+        print("Opening %s" % doc_html)
+        os.system('start "help" "%s"' % doc_html)        
         
     def about(self):
         aboutScreen = AboutScreen()

@@ -6,7 +6,7 @@ import logging
 import argparse
 
 from . import __release__
-from . import configure, config
+from . import configure, config, doc_html
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,7 @@ PATH_SEPERATOR = ';' if sys.platform == 'win32' else ':'
 HEADER = f"Bench Eye {__release__}"
 HEADER += '\n' + len(HEADER) * '=' + '\n'
 
-DOC_HTML = 'https://thocoo.github.io/benchy-doc/docs'
-
-HEADER += DOC_HTML + '\n'
+HEADER += doc_html + '\n'
 
 epilog = f"""\
 Examples

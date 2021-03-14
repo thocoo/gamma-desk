@@ -22,6 +22,7 @@ from .core.gui_proxy import gui
 from .live import use
 
 progname = 'Bency Eye'
+doc_html = 'https://thocoo.github.io/benchy-doc/docs'
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
 __version__ = ".".join(map(str, VERSION_INFO[:3]))
 
