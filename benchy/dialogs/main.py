@@ -12,7 +12,7 @@ import numpy as np
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
 
-from .. import config, gui, __release__
+from .. import config, gui, __release__, progname
 from ..core import conf
 
 from .about import AboutScreen
@@ -224,12 +224,10 @@ class LayoutMenu(QtWidgets.QMenu):
 class MainDialog(QtWidgets.QMainWindow):
     def __init__(self, panels):
         super().__init__()
-        self.setWindowTitle(f'Gamma Hawk {__release__}')
+        self.setWindowTitle(f'{progname} {__release__}')
         self.panels = panels
         self.tabs = QtWidgets.QTabWidget(self)
-        #self.setLayout(QtWidgets.QGridLayout(self))
         self.setCentralWidget(self.tabs)
-        #self.layout().addWidget(self.tabs,0,0)
 
         self.panels_layout = PanelsLayout(self, panels)
         self.tabs.addTab(self.panels_layout, 'Layout')
@@ -250,11 +248,11 @@ class MainDialog(QtWidgets.QMainWindow):
 
         act = QtWidgets.QAction("Restart", self,
             triggered=self.restart,
-            statusTip="Restart Gamma Hawk")        
+            statusTip=f"Restart {progname}")
         self.appMenu.addAction(act)
         
         act = QtWidgets.QAction("Exit", self, shortcut=QtGui.QKeySequence.Quit,
-            statusTip="Exit the application",
+            statusTip=f"Exit {progname}",
             triggered=self.qapp.quit, 
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'door_out.png')))
                         
@@ -284,7 +282,7 @@ class MainDialog(QtWidgets.QMainWindow):
         helpAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'help.png')))
         self.helpMenu.addAction(helpAct)
         
-        aboutGhQtAct = QtWidgets.QAction("&About Gamma Hawk", self, triggered=self.about)
+        aboutGhQtAct = QtWidgets.QAction(f"About {progname}", self, triggered=self.about)
         self.helpMenu.addAction(aboutGhQtAct)                           
         
         self.helpMenu.addAction(QtWidgets.QAction("License", self, triggered=self.license))     

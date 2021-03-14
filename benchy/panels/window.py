@@ -43,8 +43,7 @@ class DragState(enum.Enum):
         
 class MainWindow(QMainWindow):
     """
-    The Main QT Window.
-    
+    The Main QT Window.    
     """
     
     moveQueued = QtCore.Signal(object)

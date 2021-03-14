@@ -3,6 +3,10 @@ import pathlib
 
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
+
+from .. import config, __version__, __release__, progname 
+
+respath = pathlib.Path(config['respath'])
        
 class TextEditLinks(QtWidgets.QTextBrowser):
     def __init__(self, *args, **kwargs):
@@ -20,11 +24,7 @@ class AboutScreen(QtWidgets.QDialog):
         super().__init__()        
         self.initUI()
         
-    def initUI(self):    
-        from ghawk2 import config, __version__, __release__, gui
-        
-        respath = pathlib.Path(config['respath'])
-        
+    def initUI(self):                               
         desktop = QtWidgets.QApplication.instance().desktop()        
         
         self.setMinimumWidth(500)
@@ -33,12 +33,12 @@ class AboutScreen(QtWidgets.QDialog):
         self.setWindowTitle('About')
         self.setWindowFlags(Qt.WindowStaysOnTopHint)       
         
-        logopixmap = QtGui.QPixmap(str(respath / 'hawk2_sm.png'))
+        logopixmap = QtGui.QPixmap(str(respath / 'logo' / 'bench_eye_128px.png'))
         
         logo = QtWidgets.QLabel()
         logo.setPixmap(logopixmap)                                
                             
-        message = f"""<center><h2>Gamma Hawk 2 Dusky</h2>
+        message = f"""<center><h2>{progname}</h2>
             <p>Version {__release__}</p>
             """
 

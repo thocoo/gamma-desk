@@ -49,9 +49,22 @@ def argexec(argv=None, **config_kwargs):
     parser = argparser()
     args = parser.parse_args(argv)
     
-    configure(**config_kwargs)
+    if args.debug:
+        config_kwargs['logging_level'] = 'DEBUG'
+        logging.root.setLevel(config_kwargs['logging_level'])      
     
-    #Configure has to be done before import other modules    
+    config_kwargs['qapp'] = True
+    
+    if args.config_file:
+        config_kwargs['config_file'] = args.config_file
+
+    if args.init_file:
+        config_kwargs['init_file'] = args.init_file
+        
+    configure(**config_kwargs)        
+        
+    
+    # Configure has to be done before import other modules    
     from .core.shellmod import Shell
     shell = Shell()
     

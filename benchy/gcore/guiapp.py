@@ -80,7 +80,7 @@ class GuiApplication(QApplication):
         self.panels = Panels(self)  
         #self.panelsDialog = PanelsDialog(self.panels)
         self.panelsDialog = MainDialog(self.panels)
-        self.appIcon = QIcon(str(respath / 'hawk2_sm.png'))
+        self.appIcon = QIcon(str(respath / 'logo' / 'bench_eye_32px.png'))
         self.setWindowIcon(self.appIcon)        
         self.handover = HandOver(self)
                 
@@ -288,11 +288,7 @@ class GuiApplication(QApplication):
         visibles = [win.isVisible() for win in self.windows.values()]
         
         if sum(visibles) == 0:
-            self.panelsDialog.showNormal()
-                
-    # def closeAllWindows(self):                
-        # super().closeAllWindows()     
-        # self.panelsDialog.close()        
+            self.panelsDialog.showNormal()                   
         
 
 def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None):
@@ -304,8 +300,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp = GuiApplication(shell, sys.argv)           
     qapp.setShortCuts()
     qapp.newWindow('main')
-    
-        
+            
     #To run in a new thread but on the same gui process
     #panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
