@@ -6,3 +6,4 @@
 /doc/sphinx/sphinx-*.log
 /benchy/*/__pycache__/*.pyc
 /benchy/*/*/__pycache__/*.pyc
+/stderr.log*
