@@ -34,12 +34,15 @@ here = Path(__file__).absolute().parent
 logger = logging.getLogger(__name__) 
   
 class Shell(object):
+    instance = None
+    
     def __init__(self, workspace=None):
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
         
         # import ghawk2        
         # ghawk2.shell = self        
+        Shell.instance = self
         self.wsdict['shell'] = self        
         self.wsdict['gui'] = gui
         self.wsdict['use'] = use     
@@ -78,10 +81,10 @@ class Shell(object):
 
         return ports
 
-    # @property
-    # def _qapp(self):
-        # from qtpy.QtWidgets import QApplication
-        # return QApplication.instance()
+    @property
+    def _qapp(self):
+        from qtpy.QtWidgets import QApplication
+        return QApplication.instance()
             
     def redirect_input(self):        
         #ProcessStdInput is missing some function
@@ -205,7 +208,8 @@ class Shell(object):
                     
     @staticmethod
     def new_interactive_thread(cqs, guiproxy=None, client=True):
-        from ghawk2 import shell
+        #from ghawk2 import shell
+        shell = Shell.instance
         
         if client and type(cqs).__name__ == 'ZmqQueues':
             cqs.setup_as_client()
@@ -317,7 +321,8 @@ class Shell(object):
         
     @staticmethod
     def get_completer_data(text, max=1000, wild=False):
-        from ghawk2 import shell
+        #from ghawk2 import shell
+        shell = Shell.instance
         
         items = []
         for state in range(max):
