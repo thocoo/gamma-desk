@@ -137,9 +137,9 @@ def configure(**overwrites):
     #matplotlib.use(config['matplotlib']['backend'])
     
     #Configure plugins
-    #import ghawk2.panels.dialog
-    #import ghawk2.panels.stdio
-    #import ghawk2.panels.imgview
+    from ..panels import dialog
+    from ..panels import console
+    from ..panels import imgview
     #import ghawk2.panels.matplot
     #import ghawk2.panels.levels
     #import ghawk2.panels.values    
