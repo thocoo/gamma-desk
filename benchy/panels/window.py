@@ -191,21 +191,7 @@ class MainWindow(QMainWindow):
         pixmap = self.grab()
         qimage = pixmap.toImage()
         clipboard =  self.qapp.clipboard()
-        clipboard.setImage(qimage)
-        
-    def toggleStatOnTop(self, enforce=None):
-        if enforce is None:
-            if (self.windowFlags() & Qt.WindowStaysOnTopHint) == Qt.WindowStaysOnTopHint:
-                enforce = False
-            else:
-                enforce = True
-        if enforce:
-            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-            self.onTopAction.setChecked(True)
-        else:
-            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)            
-            self.onTopAction.setChecked(False)
-        self.show()
+        clipboard.setImage(qimage)        
         
     def asToolWindow(self, windowName=None):
     

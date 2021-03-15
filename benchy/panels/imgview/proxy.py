@@ -50,9 +50,11 @@ class ImageGuiProxy(GuiProxyBase):
         panel = gui.qapp.panels.selected('image')        
         panel.openImage(filepath)                
         window = panel.get_container().parent()
-        window.toggleStatOnTop(True)
+        #window.toggleStatOnTop(True)
+        window.raise_()
         gui.qapp.processEvents()
-        window.toggleStatOnTop(False)
+        #window.toggleStatOnTop(False)
+        
         
     @StaticGuiCall    
     def get_clipboard_image():
