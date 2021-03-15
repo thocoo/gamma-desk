@@ -14,13 +14,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../benchy'))
+sys.path.insert(0, os.path.abspath('../../..'))
 
 print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'Bench Eye'
+project = 'benchy'
 copyright = '2021, Thomas Cools'
 author = 'Thomas Cools'
 
