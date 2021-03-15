@@ -21,8 +21,9 @@ from .core.conf import config, configure
 from .core.gui_proxy import gui
 from .live import use
 
-progname = 'Bency Eye'
+progname = 'Bench Eye'
 doc_html = 'https://thocoo.github.io/benchy-doc/docs'
+
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
 __version__ = ".".join(map(str, VERSION_INFO[:3]))
 
