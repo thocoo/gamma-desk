@@ -290,9 +290,6 @@ class QtAnsiCodeProcessor(AnsiCodeProcessor):
     """
     Translates ANSI escape codes into QTextCharFormats.
     """
-
-    # A map from ANSI color codes to SVG color names or RGB(A) tuples.
-    # see ghawk\resources\Xterm_256color_chart.svg
    
     color_plot_demo = '''for i in range(32):
     s = ''
