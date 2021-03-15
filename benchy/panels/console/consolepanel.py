@@ -11,25 +11,15 @@ from qtpy.QtGui import QFont, QFontMetrics, QTextCursor, QTextOption, QPainter, 
 from qtpy.QtWidgets import (QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QTextEdit, QWidget, QStyle, QStyleFactory, QApplication, QCompleter, QComboBox)
 
-# from benchy import config, gui
-# from benchy.core import tasks
-# from benchy.core.shellmod import Shell
-# from benchy.panels.base import BasePanel, selectThisPanel, CheckMenu
-# from benchy.dialogs.formlayout import fedit
-# from benchy.dialogs.base import messageBox
-# from benchy.dialogs.editpaths import EditPaths
-# from benchy.utils.syntax_light import analyze_python, ansi_highlight
-# from benchy.utils.ansi_code_processor import QtAnsiCodeProcessor
-
-from .. import config, gui
-from .. import BasePanel, selectThisPanel, CheckMenu
-from .. import tasks
-from .. import Shell
-from .. import fedit
-from .. import messageBox
-from .. import EditPaths
-from .. import analyze_python, ansi_highlight
-from .. import QtAnsiCodeProcessor
+from ... import config, gui
+from ...core import tasks
+from ...core.shellmod import Shell
+from ...panels.base import BasePanel, selectThisPanel, CheckMenu
+from ...dialogs.formlayout import fedit
+from ...dialogs.base import messageBox
+from ...dialogs.editpaths import EditPaths
+from ...utils.syntax_light import analyze_python, ansi_highlight
+from ...utils.ansi_code_processor import QtAnsiCodeProcessor
 
 respath = Path(config['respath'])
 
