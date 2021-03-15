@@ -246,36 +246,36 @@ class GuiApplication(QApplication):
             if window.container.is_empty(check):                
                 self.deleteWindow(winname)
              
-    def start_image_path_receiver(self):
-        threading.Thread(target=self.receive_image_paths, daemon=True).start()
+    # def start_image_path_receiver(self):
+        # threading.Thread(target=self.receive_image_paths, daemon=True).start()
                 
-    def receive_image_paths(self):
-        channel_lock = NamedMutex('ghawk2 channel lock')                
-        buf = mmap.mmap(-1, 16, 'Gamma Hawk 2.0 Channel')
+    # def receive_image_paths(self):
+        # channel_lock = NamedMutex('ghawk2 channel lock')                
+        # buf = mmap.mmap(-1, 16, 'Gamma Hawk 2.0 Channel')
         
-        with channel_lock:
-            struct.pack_into('llll', buf, 0, 0, 0, 0, 0)            
+        # with channel_lock:
+            # struct.pack_into('llll', buf, 0, 0, 0, 0, 0)            
         
-        def open_image(image_path):
-            gui.img.open(image_path)
+        # def open_image(image_path):
+            # gui.img.open(image_path)
             
-        while True:
-            with channel_lock:
-                reader, writer = Pipe(duplex=False)
+        # while True:
+            # with channel_lock:
+                # reader, writer = Pipe(duplex=False)
             
-                read_handle = reader._handle
-                write_handle = writer._handle
+                # read_handle = reader._handle
+                # write_handle = writer._handle
 
-                pid = os.getpid()
-                rh = duplicate(read_handle)
-                wh = duplicate(write_handle)            
+                # pid = os.getpid()
+                # rh = duplicate(read_handle)
+                # wh = duplicate(write_handle)            
             
-                struct.pack_into('llll', buf, 0, 1, pid, rh, wh)
+                # struct.pack_into('llll', buf, 0, 1, pid, rh, wh)
             
-            while True:
-                close_pipe, image_path = reader.recv()                
-                if close_pipe: break
-                self.handover.send(True, open_image, image_path)
+            # while True:
+                # close_pipe, image_path = reader.recv()                
+                # if close_pipe: break
+                # self.handover.send(True, open_image, image_path)
                 
     def waitCursor(self, message=None):
         return WaitCursorContext(self, message)
