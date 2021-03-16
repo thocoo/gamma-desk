@@ -1,7 +1,7 @@
 import sys
 import threading
-from benchy.core.gui_proxy import GuiProxyBase, StaticGuiCall
-from benchy import gui
+
+from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
        
 class ConsoleGuiProxy(GuiProxyBase):    
     category = 'console'

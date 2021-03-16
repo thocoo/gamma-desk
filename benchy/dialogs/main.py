@@ -318,8 +318,6 @@ class MainDialog(QtWidgets.QMainWindow):
         conf.save_config_json(path)        
         
     def help(self):        
-        #index_html = Path(__file__).parent.parent / 'doc' / 'html' / 'index.html'
-        #index_html = 'https://thocoo.github.io/benchy-doc/docs'
         print("Opening %s" % doc_html)
         os.system('start "help" "%s"' % doc_html)        
         

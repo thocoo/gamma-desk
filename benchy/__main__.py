@@ -15,5 +15,5 @@
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    from benchy.console import argexec    
+    from .console import argexec    
     shell = argexec()
