@@ -1,9 +1,9 @@
-/benchy/__pycache__/*.pyc
 /doc/sphinx/build/*/*
 /doc/sphinx/source/modules.rst
 /doc/sphinx/source/benchy*.rst
 /doc/html/.buildinfo
 /doc/sphinx/sphinx-*.log
-/benchy/*/__pycache__/*.pyc
-/benchy/*/*/__pycache__/*.pyc
+/gdesk/__pycache__/*.pyc
+/gdesk/*/__pycache__/*.pyc
+/gdesk/*/*/__pycache__/*.pyc
 /stderr.log*
