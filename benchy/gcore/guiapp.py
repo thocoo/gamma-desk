@@ -13,9 +13,9 @@ from multiprocessing.connection import Pipe
 from multiprocessing.reduction import duplicate
 
 from qtpy import QtGui, QtWidgets, QtCore
-from qtpy.QtWidgets import QApplication, QShortcut, QDesktopWidget, QMenu, QWidget, QPlainTextEdit
+from qtpy.QtWidgets import QApplication, QShortcut, QDesktopWidget
 from qtpy.QtGui import QIcon, QKeySequence
-from qtpy.QtCore import QByteArray, Qt
+from qtpy.QtCore import Qt
 
 from .. import gui, config, progname
 
