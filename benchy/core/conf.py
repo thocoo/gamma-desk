@@ -130,18 +130,17 @@ def configure(**overwrites):
     #from ghawk2.core.gui_proxy import register_objects_in_ghawk2_init
     #register_objects_in_ghawk2_init()
     
-    #TO DO: Configure Matplotlib
     # Importing matplotlib takes some time !
     # It also imports numpy
     import matplotlib
-    #matplotlib.use(config['matplotlib']['backend'])
+    matplotlib.use(config['matplotlib']['backend'])
     
     #Configure plugins
     from ..panels import dialog
     from ..panels import console
-    from ..panels import imgview
-    #import ghawk2.panels.matplot
-    #import ghawk2.panels.levels
+    from ..panels import matplot
+    from ..panels import imgview    
+    from ..panels import levels
     #import ghawk2.panels.values    
     
     for panel_class_module in config["panel_class_modules"]:
