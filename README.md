@@ -1,12 +1,12 @@
-# Bench Eye 
+# Gamma Desk
 
-![Bench Eye Logo](./gdesk/resources/logo/eye_128px.png)
+![Gamma Desk Logo](./gdesk/resources/logo/eye_128px.png)
 
-A Python work environment with image viewer
+A Python work environment with image viewers & Plots
 
 # Usage
 
-python -m benchy
+python -m gdesk
 
 # Dependencies 
 
