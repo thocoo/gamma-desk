@@ -42,8 +42,9 @@ def get_resources():
 
     found_resources.append(str(modpath / 'config' / 'defaults.json'))
 
-    for path in modpath.glob('resources'):
-        print(path)
+    for path in modpath.glob('resources/**/*'):
+        if path.is_dir(): continue
+        found_resources.append(str(path))
 
     return found_resources
 
