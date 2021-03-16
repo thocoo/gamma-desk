@@ -77,11 +77,10 @@ class GuiApplication(QApplication):
         super().__init__(argv)                
         
         self.windows = dict()
-        self.panels = Panels(self)  
-        #self.panelsDialog = PanelsDialog(self.panels)
+        self.panels = Panels(self)
         self.panelsDialog = MainDialog(self.panels)
         self.appIcon = QIcon(str(respath / 'logo' / 'bench_eye_128px.png'))
-        self.setWindowIcon(self.appIcon)        
+        self.setWindowIcon(self.appIcon)
         self.handover = HandOver(self)
                 
         self.history = History(self.shell.logdir.logpath)
@@ -94,7 +93,7 @@ class GuiApplication(QApplication):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)    
             
         self.gc = QGarbageCollector(self)
-        self.gc.enable()                
+        self.gc.enable()
 
         self.selected_group = dict()
         self.radio_group = dict()
