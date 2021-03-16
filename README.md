@@ -1,6 +1,6 @@
 # Bench Eye 
 
-![Bench Eye Logo](./benchy/resources/logo/eye_128px.png)
+![Bench Eye Logo](./gdesk/resources/logo/eye_128px.png)
 
 A Python work environment with image viewer
 
