@@ -93,13 +93,13 @@ def configure(**overwrites):
     
     if configured:
         name = sys._getframe(1).f_globals['__name__']
-        if not name in ['ghawk2.core.tasks']:
+        if not name in ['gdesk.core.tasks']:
             logging.warning(f'configure unexpected called from {name} but already configured, no reconfiguring done')
         return
     else:    
         configured = True
     
-    os.environ['BENCHYROOT'] = str(here.parent.absolute())
+    os.environ['GDESKROOT'] = str(here.parent.absolute())
     
     config_file = FIRST_CONFIG_FILE   
     deep_update(config, load_config(config_file))
