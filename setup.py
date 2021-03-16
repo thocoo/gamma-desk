@@ -35,7 +35,7 @@ REQUIRED = [
     'toml'
 ]
 
-PYTHON_REQUIRED = '~=3.6'
+PYTHON_REQUIRED = '>=3.6'
 
 def get_resources():
     found_resources = []    
