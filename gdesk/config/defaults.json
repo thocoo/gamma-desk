@@ -62,7 +62,7 @@
   "roi color": [255,0,0],
   "image color map": "grey",
   "matplotlib": {
-    "backend": "module://benchy.matplotbe"
+    "backend": "module://gdesk.matplotbe"
   },
   "shortcutmenu": {
     "Ctrl+Shift+N": {"image": ["File", "New..."]},
@@ -123,7 +123,7 @@
           "bindings": [],
           "category": "console",
           "id": 0,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "MainThreadConsole",
           "title": "console#0"
         }
@@ -146,7 +146,7 @@
           "bindings": [],
           "category": "console",
           "id": 1,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "SubThreadConsole",
           "title": "console#1"
         }
@@ -169,7 +169,7 @@
           "bindings": [],
           "category": "console",
           "id": 0,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "MainThreadConsole",
           "title": "console#0"
         },
@@ -177,7 +177,7 @@
           "bindings": [],
           "category": "console",
           "id": 1,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "SubThreadConsole",
           "title": "console#1"
         },
@@ -190,7 +190,7 @@
           ],
           "category": "levels",
           "id": 1,
-          "module": "benchy.panels.levels.panel",
+          "module": "gdesk.panels.levels.panel",
           "qualname": "LevelsPanel",
           "title": "levels#1"
         },
@@ -203,7 +203,7 @@
           ],
           "category": "image",
           "id": 1,
-          "module": "benchy.panels.imgview.imgview",
+          "module": "gdesk.panels.imgview.imgview",
           "qualname": "ImageProfilePanel",
           "title": "image#1"
         }
@@ -278,7 +278,7 @@
           "bindings": [],
           "category": "console",
           "id": 0,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "MainThreadConsole",
           "title": "console#0"
         },
@@ -286,7 +286,7 @@
           "bindings": [],
           "category": "console",
           "id": 1,
-          "module": "benchy.panels.console.consolepanel",
+          "module": "gdesk.panels.console.consolepanel",
           "qualname": "SubThreadConsole",
           "title": "console#1"
         },
@@ -299,7 +299,7 @@
           ],
           "category": "levels",
           "id": 1,
-          "module": "benchy.panels.levels",
+          "module": "gdesk.panels.levels",
           "qualname": "LevelsPanel",
           "title": "levels#1"
         },
@@ -312,7 +312,7 @@
           ],
           "category": "image",
           "id": 1,
-          "module": "benchy.panels.imgview.imgview",
+          "module": "gdesk.panels.imgview.imgview",
           "qualname": "ImageProfilePanel",
           "title": "image#1"
         },
@@ -320,7 +320,7 @@
           "bindings": [],
           "category": "image",
           "id": 4,
-          "module": "benchy.panels.imgview.imgview",
+          "module": "gdesk.panels.imgview.imgview",
           "qualname": "ImageProfilePanel",
           "title": "image#4"
         },
@@ -328,7 +328,7 @@
           "bindings": [],
           "category": "image",
           "id": 3,
-          "module": "benchy.panels.imgview.imgview",
+          "module": "gdesk.panels.imgview.imgview",
           "qualname": "ImageProfilePanel",
           "title": "image#3"
         },
@@ -336,7 +336,7 @@
           "bindings": [],
           "category": "image",
           "id": 2,
-          "module": "benchy.panels.imgview.imgview",
+          "module": "gdesk.panels.imgview.imgview",
           "qualname": "ImageProfilePanel",
           "title": "image#2"
         }

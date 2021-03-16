@@ -1,2 +1,2 @@
 cd ..
-python -m benchy
+python -m gdesk

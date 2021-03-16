@@ -30,7 +30,7 @@ REQUIRED = [
     ('psutil', 'psutil'),
     ('numba', 'numba'),
     ('pyzmq', 'zmq'),
-    ('benchy', 'benchy'),
+    ('gdesk', 'gdesk'),
 ]
 
 PATHPATTERN = re.compile('path_\w*')
