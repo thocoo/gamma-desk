@@ -23,6 +23,7 @@ from .live import use
 
 progname = 'Gamma Desk'
 doc_html = 'https://thocoo.github.io/benchy-doc/docs'
+doc_html_extra = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
 __version__ = ".".join(map(str, VERSION_INFO[:3]))
