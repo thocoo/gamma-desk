@@ -23,7 +23,7 @@ def gcf_set_active(manager):
     # Note that this function is called by pyplot
     # - when the user clicks on the canvas (callback needed on canvas object?)
     # - on pyplot.figure(number)
-    if pylab.get_backend() == 'module://ghawk2.matplotbe':
+    if pylab.get_backend() == config.get("matplotlib", {}).get("backend", None):
         gui.plot.select(manager.num)
     else:
         set_active_backup(manager)

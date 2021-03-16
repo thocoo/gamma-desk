@@ -135,15 +135,15 @@ class Node(object):
         return self.log()
 
     def data(self, column):
-        if   column is 0:
+        if   column == 0:
             return self.name
-        elif column is 1:
+        elif column == 1:
             return self.value
 
     def setData(self, column, value):
-        if column is 0:
+        if column == 0:
             self.name = value
-        if column is 1:
+        if column == 1:
             self.value = value
 
     def resource(self):

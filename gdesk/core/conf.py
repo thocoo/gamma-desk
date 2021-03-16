@@ -134,11 +134,13 @@ def configure(**overwrites):
     # It also imports numpy
     import matplotlib
     matplotlib.use(config['matplotlib']['backend'])
+    #This will also import ..panels.matplot
+    import pylab
     
     #Configure plugins
     from ..panels import dialog
     from ..panels import console
-    from ..panels import matplot
+    #from ..panels import matplot
     from ..panels import imgview    
     from ..panels import levels
     #import ghawk2.panels.values    
