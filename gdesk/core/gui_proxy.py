@@ -471,7 +471,7 @@ class GuiMap(object):
 gui = GuiMap()
 
 def register_objects_in_ghawk2_init():
-    import ghawk2
-    ghawk2.GuiMap = GuiMap
-    ghawk2.gui = gui
-    ghawk2.StaticGuiCall = StaticGuiCall
+    import gdesk
+    gdesk.GuiMap = GuiMap
+    gdesk.gui = gui
+    gdesk.StaticGuiCall = StaticGuiCall

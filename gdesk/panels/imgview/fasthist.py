@@ -5,7 +5,7 @@ import logging
 import numpy as np
 
 try:
-    import ...utils.numba_func as numba_func
+    from ...utils import numba_func
     has_numba = True
 except:
     has_numba = False    

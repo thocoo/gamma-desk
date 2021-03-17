@@ -82,7 +82,7 @@ class CommandServer(object):
             
     @staticmethod        
     def connect_process(cqs_config=None):
-        from ghawk2.core.tasks import ZmqQueues
+        from .tasks import ZmqQueues
         print(f'cqs_config:{cqs_config}')
         
         if cqs_config is None:        
@@ -98,7 +98,7 @@ class CommandServer(object):
         
     @staticmethod        
     def connect_zmq_process(cqs_config=None):
-        from ghawk2.core.tasks import ZmqQueues       
+        from .tasks import ZmqQueues       
         
         if cqs_config is None:       
             cqs = ZmqQueues()

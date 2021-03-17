@@ -58,7 +58,7 @@ class ImageGuiProxy(GuiProxyBase):
         
     @StaticGuiCall    
     def get_clipboard_image():
-        from ghawk2.utils.imconvert import qimage_to_ndarray
+        from ...utils.imconvert import qimage_to_ndarray
         
         cb = gui.qapp.clipboard()
         md = cb.mimeData()

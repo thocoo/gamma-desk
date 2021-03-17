@@ -40,8 +40,6 @@ class Shell(object):
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
         
-        # import ghawk2        
-        # ghawk2.shell = self        
         Shell.instance = self
         self.wsdict['shell'] = self        
         self.wsdict['gui'] = gui
@@ -208,7 +206,6 @@ class Shell(object):
                     
     @staticmethod
     def new_interactive_thread(cqs, guiproxy=None, client=True):
-        #from ghawk2 import shell
         shell = Shell.instance
         
         if client and type(cqs).__name__ == 'ZmqQueues':
@@ -321,7 +318,6 @@ class Shell(object):
         
     @staticmethod
     def get_completer_data(text, max=1000, wild=False):
-        #from ghawk2 import shell
         shell = Shell.instance
         
         items = []

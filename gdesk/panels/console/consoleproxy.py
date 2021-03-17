@@ -2,6 +2,7 @@ import sys
 import threading
 
 from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
+from ...core.shellmod import Shell
        
 class ConsoleGuiProxy(GuiProxyBase):    
     category = 'console'
@@ -39,13 +40,13 @@ class ConsoleGuiProxy(GuiProxyBase):
         
     def set_mode(self, mode='input', panid=None):
         if panid is None:
-            from ghawk2 import shell
+            shell = Shell.instance
             ident = threading.get_ident()
             panid = shell.interpreters[ident].console_id            
         return ConsoleGuiProxy._gui_set_console_mode(mode, panid)
         
     def show_me(self):
-        from ghawk2 import shell
+        shell = Shell.instance
         this_panid = shell.this_interpreter().console_id  
         self.show(this_panid)
     
@@ -67,7 +68,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         task.release_control()
         
     def execute_code(self, code_string, panid=None):
-        from ghawk2 import shell
+        shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
         if panid is None or this_panid == panid:
             exec(code_string, shell.wsdict)
@@ -83,7 +84,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         console.stdio.stdInputPanel.execute_commands(code_string)        
         
     def execute_file(self, filepath, panid=None):
-        from ghawk2 import shell
+        shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
         if panid is None or this_panid == panid:
             shell.execfile(filepath, shell.wsdict)
@@ -103,7 +104,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         """
         Syncing sys.path and the live paths from source to target.
         """
-        from ghawk2.core.shellmod import Shell
+        from ...core.shellmod import Shell
         
         source_task = gui.qapp.panels['console'][source_panid].task
         target_task = gui.qapp.panels['console'][target_panid].task
