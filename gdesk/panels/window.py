@@ -186,8 +186,7 @@ class MainWindow(QMainWindow):
             if isinstance(child, QMenu):         
                 self.menuBar().addMenu(child)  
 
-    def screenShot(self):
-        #pixmap = QPixmap.grabWidget(self)        
+    def screenShot(self):      
         pixmap = self.grab()
         qimage = pixmap.toImage()
         clipboard =  self.qapp.clipboard()

@@ -1771,7 +1771,7 @@ class ImageViewerBase(BasePanel):
         baypatn = baypatns[ind-1]
         
         code = f"""\
-        from ghawk2.utils.demosaic import demosaicing_CFA_Bayer_bilinear
+        from gdesk.panels.imgview.demosaic import demosaicing_CFA_Bayer_bilinear
         procarr = demosaicing_CFA_Bayer_bilinear(gui.vs, '{baypatn}')        
         gui.show(procarr)"""
         
