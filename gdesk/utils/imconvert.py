@@ -6,7 +6,7 @@ from qtpy import QtGui, QtCore
 from .shared import SharedArray
 
 try:
-    from ghawk2.utils.numba_func import map_values_mono, map_values_rgbswap, map_values_rgb, nb_float_offset_gain_gamma_8bit
+    from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb, nb_float_offset_gain_gamma_8bit
     has_numba = True
     
 except:
