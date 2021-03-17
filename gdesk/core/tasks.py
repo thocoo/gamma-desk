@@ -248,7 +248,9 @@ class TaskBase(object):
 class ThreadTask(TaskBase):  
     cmd_queues = dict()    
     
-    def __init__(self, mainshell, new_thread=True):        
+    def __init__(self, mainshell, new_thread=True):    
+        self.new_thread = new_thread    
+        
         if new_thread:
             super().__init__('thread')    
         else:
@@ -263,7 +265,8 @@ class ThreadTask(TaskBase):
             self.cqs.gui_return_queue, #None
             self.process_ready)
 
-        if new_thread:                              
+    def start(self):
+        if self.new_thread:                              
             self.mainshell.new_interactive_thread(self.cqs, self.gui_proxy)
 
         else:
@@ -293,19 +296,20 @@ class ProcessTask(TaskBase):
         
         if cqs is None:
             self.cqs = CommQueues(multiprocessing.Queue, process=True)
-            start_child = True
+            self.start_child = True
         else:
             self.cqs = cqs            
-            start_child = False            
+            self.start_child = False            
         
         self.gui_proxy = GuiProxy(mainshell._qapp,
             self.cqs.gui_call_queue,
             self.cqs.gui_return_queue,
             self.process_ready)        
         
+    def start(self):
         #no existing queue from an existing master process
         #Start a new child process
-        if start_child:
+        if self.start_child:
             self.process = Process(target=ProcessTask.start_child_process, args=(self.cqs, ), daemon=True)
             self.process.start()                   
         
@@ -337,10 +341,10 @@ class ProcessThreadTask(TaskBase):
             
         self.gui_proxy = GuiProxy(mainshell._qapp, self.cqs.gui_call_queue, self.cqs.gui_return_queue)        
         self.gui_proxy.set_func_hook(-2, self.process_ready)
-                
+          
+    def start(self):          
         #Problems if master_process_task didn't not yet finished prior command
         #For example master_process_task is still queues flushes of a big print loop
         #The master_process_task.return_queue still contains the prior return result
-        from .shellmod import Shell
         master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs,), queue='flow')
         

@@ -957,7 +957,8 @@ class MainThreadConsole(Console):
     def __init__(self, mainWindow, panid):
         shell = QApplication.instance().shell
         task = tasks.ThreadTask(shell, new_thread=False)
-        super().__init__(mainWindow, panid, task)        
+        super().__init__(mainWindow, panid, task)     
+        task.start()
         self.stdio.stdInputPanel.styles['interprete'] = "background-color:#CBE9FF;" 
         self.stdio.stdInputPanel.set_mode('interprete')
         self.stdio.stdInputPanel.heightHint = 0
@@ -973,6 +974,7 @@ class SubThreadConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ThreadTask(shell, new_thread=True)
         super().__init__(mainWindow, panid, task)
+        task.start()
 
 
 class ChildProcessConsole(Console):
@@ -983,6 +985,7 @@ class ChildProcessConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ProcessTask(shell, cqs)
         super().__init__(mainWindow, panid, task)
+        task.start()
         
     def duplicate(self, floating=False):
         newpanel = gui.qapp.panels.new_panel(ChildThreadConsole, None, None, floating=floating,
@@ -1009,7 +1012,8 @@ class ChildThreadConsole(Console):
         master = next(iter(tasks.PROCESSES[pid].values()))        
         shell = QApplication.instance().shell
         task = tasks.ProcessThreadTask(shell, master, queue_type)
-        super().__init__(mainWindow, panid, task)     
+        super().__init__(mainWindow, panid, task)  
+        task.start()        
 
     def duplicate(self, floating=False):
         newpanel = gui.qapp.panels.new_panel(ChildThreadConsole, None, None, floating=floating,
