@@ -8,3 +8,4 @@
 /gdesk/*/*/__pycache__/*.pyc
 /stderr.log*
 /build/*/*
+/test/venv/**/*
