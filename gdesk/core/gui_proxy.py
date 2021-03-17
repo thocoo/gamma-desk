@@ -352,11 +352,14 @@ class GuiProxy(object):
         """        
         objcount = len(args)
         panids = argv.get('select', range(-objcount, 0))
+        panid = None
         
         for obj, panid in zip(args, panids):
             if isinstance(obj, np.ndarray):   
                 self.img.select(panid)              
-                self.img.show(obj)                                                                       
+                panid = self.img.show(obj)                                                                                 
+                
+        return panid
     
     @property
     def vs(self):

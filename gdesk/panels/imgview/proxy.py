@@ -88,10 +88,10 @@ class ImageGuiProxy(GuiProxyBase):
         if config['image']['queue_array_shared_mem']:
             sharr = SharedArray(array.shape, array.dtype)
             sharr[:] = array          
-            ImageGuiProxy.show_array(sharr, cmap)
+            return ImageGuiProxy.show_array(sharr, cmap)
                 
         else:
-            ImageGuiProxy.show_array(array, cmap)
+            return ImageGuiProxy.show_array(array, cmap)
 
     @StaticGuiCall
     def show_array(array=None, cmap=None):
@@ -100,7 +100,8 @@ class ImageGuiProxy(GuiProxyBase):
         if not cmap is None:
             panel.colormap = cmap        
 
-        panel.show_array(array)          
+        panel.show_array(array)
+        return panel.panid
     
     @StaticGuiCall    
     def show_mask(array=None, composition='sourceover'):
