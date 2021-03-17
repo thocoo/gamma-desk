@@ -20,11 +20,11 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'benchy'
+project = 'gdesk'
 copyright = '2021, Thomas Cools'
 author = 'Thomas Cools'
 
-from benchy import __version__, __release__
+from gdesk import __version__, __release__
 
 # The short X.Y version
 version = __version__
@@ -139,7 +139,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'benchy.tex', 'Bench Eye Documentation',
+    (master_doc, 'gdesk.tex', 'Gamma Desk Documentation',
      'Thomas Cools', 'manual'),
 ]
 
@@ -149,7 +149,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'benchy', 'Bench Eye Documentation',
+    (master_doc, 'gdesk', 'Gamma Desk Documentation',
      [author], 1)
 ]
 
@@ -160,8 +160,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'benchy', 'Benchy Eye Documentation',
-     author, 'benchy', 'One line description of project.',
+    (master_doc, 'gdesk', 'Gamma Desk Documentation',
+     author, 'gdesk', 'One line description of project.',
      'Miscellaneous'),
 ]
 

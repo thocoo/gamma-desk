@@ -4,7 +4,7 @@ SET PYTHONPATH=%PYTHONPATH%;%~dp0\..\..\..\..\image_sensor_specs\pypack
 set sphinxdir=C:\tools\python\python36\scripts
 
 set doc_root=.
-set code_source=..
+set code_source=..\..\gdesk
 
 set doc_source=%doc_root%\source
 set doc_html=%doc_root%\build\html
