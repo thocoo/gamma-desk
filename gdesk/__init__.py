@@ -28,3 +28,5 @@ doc_html_extra = ['https://test.pypi.org/project/gamma-desk']
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
 __version__ = ".".join(map(str, VERSION_INFO[:3]))
 
+shell = None
+#shell will be set by gdesk.core.shellmod.Shell()

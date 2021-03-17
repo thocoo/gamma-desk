@@ -40,6 +40,8 @@ class Shell(object):
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
         
+        import gdesk
+        gdesk.shell = self        
         Shell.instance = self
         self.wsdict['shell'] = self        
         self.wsdict['gui'] = gui
