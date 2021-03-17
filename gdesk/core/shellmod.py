@@ -39,9 +39,7 @@ class Shell(object):
     def __init__(self, workspace=None):
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
-        
-        import gdesk
-        gdesk.shell = self        
+             
         Shell.instance = self
         self.wsdict['shell'] = self        
         self.wsdict['gui'] = gui
@@ -53,7 +51,7 @@ class Shell(object):
         
         self.comp = Completer(self.wsdict)
         self.interpreters = dict()
-        self.logdir = LogDir(config['path_log'])        
+        self.logdir = LogDir(config['path_log'])    
         
     def redirect_stdout(self):
         if not config['debug']['skip_main_stdout_redirect']:

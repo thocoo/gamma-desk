@@ -5,7 +5,7 @@ import sys
 import logging
 import argparse
 
-from . import __release__
+from . import __release__, refer_shell_instance
 from . import configure, config, doc_html
 
 logger = logging.getLogger(__name__)
@@ -65,6 +65,7 @@ def argexec(argv=None, **config_kwargs):
     # Configure has to be done before import other modules    
     from .core.shellmod import Shell
     shell = Shell()
+    refer_shell_instance(shell)
     
     from .gcore.guiapp import eventloop           
     eventloop(shell, init_file=config['init_file'], pictures=args.pictures)
