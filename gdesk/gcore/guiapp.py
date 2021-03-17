@@ -79,7 +79,7 @@ class GuiApplication(QApplication):
         self.windows = dict()
         self.panels = Panels(self)
         self.panelsDialog = MainDialog(self.panels)
-        self.appIcon = QIcon(str(respath / 'logo' / 'eye_128px.png'))
+        self.appIcon = QIcon(str(respath / 'logo' / 'logo_32px.png'))
         self.setWindowIcon(self.appIcon)
         self.handover = HandOver(self)
                 

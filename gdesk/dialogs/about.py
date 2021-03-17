@@ -33,7 +33,7 @@ class AboutScreen(QtWidgets.QDialog):
         self.setWindowTitle('About')
         self.setWindowFlags(Qt.WindowStaysOnTopHint)       
         
-        logopixmap = QtGui.QPixmap(str(respath / 'logo' / 'eye_128px.png'))
+        logopixmap = QtGui.QPixmap(str(respath / 'logo' / 'logo_128px.png'))
         
         logo = QtWidgets.QLabel()
         logo.setPixmap(logopixmap)                                
