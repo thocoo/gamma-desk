@@ -13,3 +13,5 @@
 /dist/*
 /gamma_desk.egg*/*
 /test/venv/**/*
+/doc/sphinx/source/gdesk.*.rst
+/doc/sphinx/source/gdesk.rst
