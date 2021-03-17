@@ -79,8 +79,8 @@ class PlotPanel(BasePanel):
         self.statusBar().hide()
         #self.statusBar().addWidget(self.nav)
         
-    def showNewFigure(self, figure):
-        from ghawk2.matplotbe import FigureCanvasGh2
+    def showNewFigure(self, figure):     
+        from ...matplotbe import FigureCanvasGh2    
         
         mgr = self.canvas.manager
         self.figure = figure

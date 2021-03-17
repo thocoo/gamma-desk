@@ -75,7 +75,7 @@ class PlotGuiProxy(GuiProxyBase):
         
     @StaticGuiCall
     def restore_gcf_set_active():
-        from ghawk2.panels.matplot import plotpanel
+        from . import plotpanel
         plotpanel.restore_gcf_set_active()
 
     @StaticGuiCall
@@ -110,7 +110,7 @@ class PlotGuiProxy(GuiProxyBase):
         #All callbacks related to gui calls where removed by the pickling
         #
         
-        from ghawk2.matplotbe import new_figure_manager_given_figure
+        from ...matplotbe import new_figure_manager_given_figure
         
         import matplotlib.pyplot as plt
         import matplotlib._pylab_helpers as pylab_helpers
@@ -138,7 +138,7 @@ class PlotGuiProxy(GuiProxyBase):
         else:
             #Use the current figure mamaner and plot panel
             # Try to replace the figure on the current plot panel with this new figure
-            from ghawk2.matplotbe import FigureCanvasGh2
+            from ...matplotbe import FigureCanvasGh2
             panids = gui.get_panel_ids('plot')                       
             
             if not hold or len(panids) == 0:
