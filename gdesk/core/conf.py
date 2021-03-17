@@ -111,7 +111,8 @@ def configure(**overwrites):
         config_file = Path(next_config_file).expanduser()       
         if not config_file.exists(): break 
         if prior_config_file == config_file:
-            logger.warn(f'config file {config_file} is loading itself')
+            logger.warn(f'config file {config_file} is loading itself, breaking it...')
+            logger.warn(f'Set "next_config_file": null in {prior_config_file}')
             break
         logger.info(f'Loading config: {config_file}')
         deep_update(config, load_config(config_file))        
