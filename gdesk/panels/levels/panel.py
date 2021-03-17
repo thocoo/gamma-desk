@@ -520,7 +520,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'zoom_width_16px.png')), 'Zoom to black white indicators', self.levels.indicZoom)        
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom)        
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
         fontHeight = self.fontMetrics().height()
