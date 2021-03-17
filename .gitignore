@@ -6,6 +6,10 @@
 /gdesk/__pycache__/*.pyc
 /gdesk/*/__pycache__/*.pyc
 /gdesk/*/*/__pycache__/*.pyc
+/gdesk/utils/__pycache__/*.nbc
+/gdesk/utils/__pycache__/*.nbi
 /stderr.log*
 /build/*/*
+/dist/*
+/gamma_desk.egg*/*
 /test/venv/**/*
