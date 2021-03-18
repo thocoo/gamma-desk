@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="13.000001mm"
+   height="13mm"
+   viewBox="0 0 13.000001 13"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="gamma_desk_logo.svg"
+   inkscape:export-filename="C:\proj\git\gamma-desk\gdesk\resources\logo\logo_128px.png"
+   inkscape:export-xdpi="250.09232"
+   inkscape:export-ydpi="250.09232">
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5060">
+      <stop
+         style="stop-color:#0000ff;stop-opacity:1;"
+         offset="0"
+         id="stop5056" />
+      <stop
+         style="stop-color:#0000ff;stop-opacity:0;"
+         offset="1"
+         id="stop5058" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4981">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1"
+         offset="0"
+         id="stop4977" />
+      <stop
+         style="stop-color:#00ff00;stop-opacity:0;"
+         offset="1"
+         id="stop4979" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4929-5-3-6">
+      <stop
+         style="stop-color:#00ff00;stop-opacity:1;"
+         offset="0"
+         id="stop4925" />
+      <stop
+         style="stop-color:#00ff00;stop-opacity:0;"
+         offset="1"
+         id="stop4927" />
+    </linearGradient>
+    <rect
+       x="60.098213"
+       y="29.198662"
+       width="43.939732"
+       height="50.365326"
+       id="rect3972" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4929-5-3-6"
+       id="linearGradient4945"
+       gradientUnits="userSpaceOnUse"
+       x1="49.010548"
+       y1="41.56041"
+       x2="36.482288"
+       y2="28.731474"
+       gradientTransform="matrix(0.9621018,0,0,0.93955263,-34.626407,-26.521462)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4981"
+       id="linearGradient4974"
+       gradientUnits="userSpaceOnUse"
+       x1="36.482288"
+       y1="28.731474"
+       x2="49.010548"
+       y2="41.56041"
+       gradientTransform="matrix(0.9621018,0,0,0.93955263,-34.626407,-26.521462)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5060"
+       id="linearGradient5062"
+       x1="43.130619"
+       y1="41.627228"
+       x2="42.930164"
+       y2="32.673698"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.96210176,0,0,0.9395526,-34.626406,-26.521456)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="18.41907"
+     inkscape:cx="24.56693"
+     inkscape:cy="24.566929"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:snap-global="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1137"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="font-variation-settings:'wdth' 100, 'wght' 400;opacity:0.997;mix-blend-mode:normal;fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient4945);stroke-width:0.94654;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3976-9"
+       width="12.05346"
+       height="12.05346"
+       x="0.47326982"
+       y="0.47326982" />
+    <rect
+       style="font-variation-settings:'wdth' 100, 'wght' 400;opacity:0.997;mix-blend-mode:normal;fill:none;fill-opacity:1;stroke:url(#linearGradient4974);stroke-width:0.94654;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3976-9-8"
+       width="12.05346"
+       height="12.05346"
+       x="0.47326982"
+       y="0.47326982" />
+    <rect
+       style="font-variation-settings:'wdth' 100, 'wght' 400;opacity:1;mix-blend-mode:normal;fill:#ffffff;fill-opacity:0;stroke:url(#linearGradient5062);stroke-width:0.946541;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3976-9-5"
+       width="12.05346"
+       height="12.053459"
+       x="0.47327024"
+       y="0.47327024" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:Bahnschrift;-inkscape-font-specification:'Bahnschrift, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0.264583;stroke-opacity:0"
+       x="3.3329246"
+       y="8.4138174"
+       id="text3950"><tspan
+         sodipodi:role="line"
+         x="3.3329246"
+         y="8.4138174"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.3472px;font-family:Bahnschrift;-inkscape-font-specification:'Bahnschrift, @wght=400,wdth=100.0';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;font-variation-settings:'wdth' 100, 'wght' 400;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0.264583;stroke-opacity:0"
+         id="tspan3956">γ</tspan></text>
+  </g>
+</svg>
