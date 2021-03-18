@@ -135,7 +135,8 @@ def configure(**overwrites):
     # It also imports numpy
     import matplotlib
     matplotlib.use(config['matplotlib']['backend'])
-    #This will also import ..panels.matplot
+    #This will also call the backend module
+    #Which import ..panels.matplot
     import pylab
     
     #Configure plugins
