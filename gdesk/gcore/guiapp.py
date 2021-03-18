@@ -314,6 +314,9 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     parent = psutil.Process(os.getpid())
     for child in parent.children(recursive=True):
         child.kill()
+        
+    from pylab import plt
+    plt.close('all')
     
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
