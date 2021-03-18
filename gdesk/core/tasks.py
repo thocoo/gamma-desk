@@ -331,6 +331,7 @@ class ProcessTask(TaskBase):
 class ProcessThreadTask(TaskBase):
     def __init__(self, mainshell, master_process_task, queue_type='pipe'):
         super().__init__('child-thread')
+        self.master_process_task = master_process_task
         
         if queue_type == 'pipe':
             self.cqs = CommQueues(NonDuplexQueue, process=True)          
@@ -346,5 +347,5 @@ class ProcessThreadTask(TaskBase):
         #Problems if master_process_task didn't not yet finished prior command
         #For example master_process_task is still queues flushes of a big print loop
         #The master_process_task.return_queue still contains the prior return result
-        master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs,), queue='flow')
+        self.master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs,), queue='flow')
         
