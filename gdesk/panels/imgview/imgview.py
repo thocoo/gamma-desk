@@ -1045,9 +1045,9 @@ class ImageViewerBase(BasePanel):
         
     def openImageImafio(self, filepath, format=None):
         with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
-            FormatClass = imageio.formats[filepath]
+            FormatClass = imageio.formats[str(filepath)]
             logger.info(f'Using FormatClass {repr(FormatClass)}')
-            arr = imageio.imread(filepath, format=format)            
+            arr = imageio.imread(str(filepath), format=format)            
         return arr
         
     def importRawImage(self):                       
