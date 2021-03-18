@@ -19,10 +19,10 @@
 from .version import VERSION_INFO
 from .core.conf import config, configure
 from .core.gui_proxy import gui
-from .live import use
+from .live import use, using
 
 progname = 'Gamma Desk'
-doc_html = 'https://thocoo.github.io/benchy-doc/docs'
+doc_html = 'https://thocoo.github.io/gdesk-doc'
 doc_html_extra = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
