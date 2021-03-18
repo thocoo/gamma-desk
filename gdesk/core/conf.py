@@ -142,7 +142,7 @@ def configure(**overwrites):
     #Configure plugins
     from ..panels import dialog
     from ..panels import console
-    #from ..panels import matplot
+    from ..panels import matplot
     from ..panels import imgview    
     from ..panels import levels
     #import ghawk2.panels.values    
