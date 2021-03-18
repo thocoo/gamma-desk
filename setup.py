@@ -24,6 +24,7 @@ modpath = herepath / 'gdesk'
 
 REQUIRED = [
     'numpy', 
+    'imageio',
     'matplotlib',
     'scipy',
     'PySide2',
