@@ -44,17 +44,15 @@ class ImageGuiProxy(GuiProxyBase):
         return panel.panid
     
     @StaticGuiCall    
-    def open(filepath):       
-        #from iss.imafio import imread        
-        ImageGuiProxy.new(title=str(filepath)) 
-        panel = gui.qapp.panels.selected('image')        
-        panel.openImage(filepath)                
+    def open(filepath):
+        panel = gui.qapp.panels.selected('image')
+        if panel is None:
+            panel = gui.qapp.panels.select_or_new('image')
+        panel.openImage(filepath)
         window = panel.get_container().parent()
-        #window.toggleStatOnTop(True)
         window.raise_()
         gui.qapp.processEvents()
-        #window.toggleStatOnTop(False)
-        
+        return panel.panid
         
     @StaticGuiCall    
     def get_clipboard_image():
