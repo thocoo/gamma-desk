@@ -7,6 +7,9 @@
 
 .. |logo| image:: ../../../gdesk/resources/logo/logo_32px.png
 
+
+.. image:: ./figures/screenshot_01.jpg
+
 Api
 ===
    
