@@ -2,6 +2,34 @@ import unittest
 
 class GammaDeskSuite(unittest.TestCase):
     panid = 1
+    
+    def test_screenstate_1(self):
+        from gdesk import gui
+        from pylab import plt
+        from pathlib import Path
+        
+        samplePath = Path(r'./samples')
+
+        gui.img.select(1)
+        gui.img.open(samplePath / 'kodim05.png')
+        gui.img.zoom_fit()
+        plt.plot(gui.vs.mean(2).mean(1))
+        plt.title('Column means of image 1')
+        plt.xlabel('Column Number')
+        plt.ylabel('Mean')
+        plt.grid()
+        plt.show()
+
+        gui.img.select(2)
+        gui.img.open(samplePath / 'kodim23.png')
+        gui.img.zoom_full()
+        plt.figure()
+        plt.plot(gui.vs.mean(2).mean(0))
+        plt.title('Row means of image 2')
+        plt.xlabel('Row Number')
+        plt.ylabel('Mean')
+        plt.grid()
+        plt.show()
 
     def test_code_1(self):
         from gdesk import gui
