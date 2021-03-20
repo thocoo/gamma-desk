@@ -20,6 +20,7 @@ from ...dialogs.base import messageBox
 from ...dialogs.editpaths import EditPaths
 from ...utils.syntax_light import analyze_python, ansi_highlight
 from ...utils.ansi_code_processor import QtAnsiCodeProcessor
+from ...gcore.utils import getMenuAction
 
 respath = Path(config['respath'])
 
@@ -965,6 +966,11 @@ class MainThreadConsole(Console):
         self.stdio.stdInputPanel.setPlainText('# Reserved for debugging only')
         self.stdio.stdInputPanel.hide()
         self.executionMenu.setEnabled(False)
+        
+        getMenuAction(self.menuBar(), ['File', 'Close']).setEnabled(False)
+        
+    def close_panel(self):  
+        pass
         
 class SubThreadConsole(Console):
     panelShortName = 'thread'
