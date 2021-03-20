@@ -881,7 +881,7 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.canvasMenu, 'Crop on Selection', self.crop,
             statusTip="Crop the image on the current rectangle selection",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'transform_crop.png')))
-        self.addMenuItem(self.canvasMenu, 'Resize Canvas', self.canvasResize,
+        self.addMenuItem(self.canvasMenu, 'Resize Canvas...', self.canvasResize,
             statusTip="Add or remove borders",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas_size.png')))
         self.addMenuItem(self.canvasMenu, 'Resize Image', triggered=self.resize, enabled=has_scipy,
@@ -1614,11 +1614,21 @@ class ImageViewerBase(BasePanel):
 
     def canvasResize(self):
         old_height, old_width = self.ndarray.shape[:2]
+        
+        with ActionArguments(self) as args:
+            args['width'], args['height'] = old_width, old_height
+            
         channels = self.ndarray.shape[2] if self.ndarray.ndim == 3 else 1
-        form = [('Width', old_width), ('Height', old_height)]
-        results = fedit(form)
-        if results is None: return
-        new_width, new_height = results
+            
+        if args.isNotSet():
+            
+            form = [('Width', args['width']), ('Height', args['height'])]
+            results = fedit(form)
+            if results is None: return
+            args['width'], args['height'] = results
+            
+        new_width = args['width']
+        new_height = args['height']
 
         if channels == 1:
             procarr = np.ndarray((new_height, new_width), dtype=self.ndarray.dtype)
