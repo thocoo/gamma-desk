@@ -35,8 +35,9 @@ class GammaDeskSuite(unittest.TestCase):
 
 
     def test_small_loop_and_print(self):
-        from gdesk import gui
         import time
+        import sys
+        from gdesk import gui        
         
         gui.clc()
         
@@ -48,6 +49,7 @@ class GammaDeskSuite(unittest.TestCase):
             expectedOutput += f'{line}\n'
             time.sleep(0.01)
             
+        sys.stdout.flush()
         text = gui.console.text()
         assert expectedOutput == text
 
