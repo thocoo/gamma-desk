@@ -13,7 +13,8 @@ class ConsoleGuiProxy(GuiProxyBase):
     def attach(self, gui):
         gui.console = self
         gui.clc = self.clc
-       
+
+
     @StaticGuiCall
     def console(pandid=None, consoletype='thread'):
         """
@@ -28,6 +29,7 @@ class ConsoleGuiProxy(GuiProxyBase):
             panel = gui.qapp.panels.select_or_new('console', pandid, consoletype)                
             
         return panel.panid    
+
         
     @StaticGuiCall
     def clc():
@@ -36,25 +38,36 @@ class ConsoleGuiProxy(GuiProxyBase):
         # Note that this is not always correct
         # Should first search for the console of the current process and thread
         panel = gui.qapp.panels.selected('console')
-        panel.stdio.stdOutputPanel.clear() 
+        panel.stdio.stdOutputPanel.clear()
         
+
+    @StaticGuiCall
+    def text():
+        panel = gui.qapp.panels.selected('console')
+        text = panel.stdio.stdOutputPanel.toPlainText()
+        return text
+
+
     def set_mode(self, mode='input', panid=None):
         if panid is None:
             shell = Shell.instance
             ident = threading.get_ident()
             panid = shell.interpreters[ident].console_id            
         return ConsoleGuiProxy._gui_set_console_mode(mode, panid)
-        
+
+
     def show_me(self):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id  
         self.show(this_panid)
+
     
     @StaticGuiCall    
     def show(panid):
         console = gui.qapp.panels['console'][panid]
         console.show_me()
-        
+
+
     @StaticGuiCall       
     def _gui_set_console_mode(mode='input', panid=None):
         console = gui.qapp.panels['console'][panid]  
@@ -62,11 +75,13 @@ class ConsoleGuiProxy(GuiProxyBase):
         console.set_mode(mode) 
         return old_mode
 
+
     @StaticGuiCall       
     def release_side_thread(panid):
         task = gui.qapp.panels['console'][panid].task
         task.release_control()
-        
+
+
     def execute_code(self, code_string, panid=None):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
@@ -74,7 +89,8 @@ class ConsoleGuiProxy(GuiProxyBase):
             exec(code_string, shell.wsdict)
         else:
             ConsoleGuiProxy._gui_execute_code(code_string, panid)            
-        
+
+
     @StaticGuiCall
     def _gui_execute_code(code_string=None, panid=None):
         """
@@ -82,7 +98,8 @@ class ConsoleGuiProxy(GuiProxyBase):
         """
         console = gui.qapp.panels.select_or_new('console', panid) 
         console.stdio.stdInputPanel.execute_commands(code_string)        
-        
+
+
     def execute_file(self, filepath, panid=None):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
@@ -90,7 +107,8 @@ class ConsoleGuiProxy(GuiProxyBase):
             shell.execfile(filepath, shell.wsdict)
         else:
             ConsoleGuiProxy._gui_execute_file(filepath)
-            
+
+
     @StaticGuiCall
     def _gui_execute_file(filepath, panid=None):
         """
