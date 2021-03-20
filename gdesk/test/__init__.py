@@ -2,7 +2,7 @@ import unittest
 
 class GammaDeskSuite(unittest.TestCase):
     panid = 1
-    
+
     def test_screenstate_1(self):
         from gdesk import gui
         from pylab import plt
@@ -37,45 +37,76 @@ class GammaDeskSuite(unittest.TestCase):
     def test_small_loop_and_print(self):
         import time
         import sys
-        from gdesk import gui        
-        
+        from gdesk import gui
+
         gui.clc()
-        
+
         expectedOutput = ''
 
         for i in range(42):
             line = f'i = {i}'
-            print(line)       
+            print(line)
             expectedOutput += f'{line}\n'
             time.sleep(0.01)
-            
+
         sys.stdout.flush()
         text = gui.console.text()
         assert expectedOutput == text
 
 
-    def test_code_1(self):
+    def test_menu_canvas(self):
         from gdesk import gui
-        import numpy as np
-        import scipy.misc        
-        
+        import scipy.misc
+
         arr = scipy.misc.face()
+        gui.img.select(1)
         gui.show(arr)
         gui.img.zoom_fit()
-        gui.menu_trigger('image', GammaDeskSuite.panid, ['Canvas', 'Flip Horizontal'])
-        gui.menu_trigger('image', GammaDeskSuite.panid, ['Canvas', 'Flip Vertical'])
-        gui.menu_trigger('image', GammaDeskSuite.panid, ['Canvas', 'Rotate 180'])
-        
+        gui.menu_trigger('image', None, ['Canvas', 'Flip Horizontal'])
+        gui.menu_trigger('image', None, ['Canvas', 'Flip Vertical'])
+        gui.menu_trigger('image', None, ['Canvas', 'Rotate Left 90'])
+        gui.menu_trigger('image', None, ['Canvas', 'Rotate Right 90'])
+        gui.menu_trigger('image', None, ['Canvas', 'Rotate 180'])
+
         assert (arr == gui.vs).all()
-        
-        gui.menu_trigger('image', GammaDeskSuite.panid, ['Image', 'to Monochroom'])
-        gui.img.cmap('turbo')
 
 
-    def test_code_2(self):
+    def test_menu_image_1(self):
+        from gdesk import gui
+        import imageio
+
+        arr = imageio.imread('imageio:astronaut.png')
+        gui.img.select(1)
+        imgpanid = gui.show(arr)
+        gui.img.zoom_full()
+        gui.menu_trigger('image', imgpanid, ['Image', 'Invert'])
+        gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
+        gui.menu_trigger('image', imgpanid, ['Image', 'Adjust Lighting...'], 255, -1)
+        gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
+
+        assert (arr == gui.vs).all()
+
+
+    def test_menu_image_2(self):
+        from gdesk import gui
+        import imageio
+
+        arr = imageio.imread('imageio:astronaut.png')
+        gui.img.select(1)
+        gui.show(arr)
+
+        gui.menu_trigger('image', None, ['Image', 'to Monochroom'])
+        gui.menu_trigger('image', None, ['Edit', 'Show Prior Image'])
+        gui.menu_trigger('image', None, ['Image', 'to Photometric Monochroom'])
+        gui.menu_trigger('image', None, ['Edit', 'Show Prior Image'])
+
+        assert (arr == gui.vs).all()
+
+
+    def test_code_3(self):
         from gdesk import gui
         from pylab import plt
-        
+
         plt.plot(gui.vs.mean(1))
         plt.grid(True)
         plt.title('Column Means')
@@ -92,14 +123,14 @@ class GammaDeskSuite(unittest.TestCase):
         gui.menu_trigger('image', GammaDeskSuite.panid, ['Edit', 'Show Prior Image'])
 
 
-    def test_colors(self):    
+    def test_colors(self):
         from gdesk import gui
         from pylab import plt
-        
+
         gui.clc()
         plt.close('all')
         gui.load_layout('console')
-        
+
         banner = r" _____                                      ______             _    " + "\n" \
                  r"|  __ \                                     |  _  \           | |   " + "\n" \
                  r"| |  \/  __ _  _ __ ___   _ __ ___    __ _  | | | |  ___  ___ | | __" + "\n" \
@@ -112,27 +143,27 @@ class GammaDeskSuite(unittest.TestCase):
             bg = 236
             pline = '\033[1m\033[48;5;{0:03d}m\033[38;5;{1:03d}m'.format(bg, fg) + line + '\033[0m'
             print(pline)
-            
+
         answer = gui.question('Does GammaDesk look nice in the console output?')
         assert answer
-        
-        
+
+
     def test_calc_pi_break(self):
         """Calculate pi digits and break after a few seconds"""
         import sys
         import time
         import threading
         from gdesk import shell, gui
-        
+
         interpreter = shell.this_interpreter()
         ptid = threading.get_ident()
         panid = gui.console.selected()
-        
+
         def delayedBreak():
             time.sleep(1)
             gui.redirects[threading.get_ident()] = ptid
             gui.menu_trigger('console', panid, ['Execution', 'Async Break'])
-        
+
         threading.Thread(target=delayedBreak).start()
 
         def calcPi():
@@ -153,18 +184,18 @@ class GammaDeskSuite(unittest.TestCase):
                     k += 1
                     n  = nn
                     r  = nr
-         
+
         pi_digits = calcPi()
         i = 0
-        
+
         print(f"{i:05d} ", end='')
-        
+
         try:
-            for d in pi_digits:    
+            for d in pi_digits:
                 sys.stdout.write(str(d))
                 i += 1
                 if (i % 64) == 0: print(f"\n{i:05d} ", end='')
-                
+
         except KeyboardInterrupt:
             interpreter.break_sent = False
 
@@ -175,7 +206,9 @@ def suite():
     suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
     suite.addTest(GammaDeskSuite('test_calc_pi_break'))
     suite.addTest(GammaDeskSuite('test_colors'))
-    suite.addTest(GammaDeskSuite('test_code_1'))
-    suite.addTest(GammaDeskSuite('test_code_2'))    
+    suite.addTest(GammaDeskSuite('test_menu_canvas'))
+    suite.addTest(GammaDeskSuite('test_menu_image_1'))
+    suite.addTest(GammaDeskSuite('test_menu_image_2'))
+    suite.addTest(GammaDeskSuite('test_code_3'))
     return suite
 
