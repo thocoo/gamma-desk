@@ -120,6 +120,22 @@ class GuiProxyBase(object):
     @StaticGuiCall
     def _selected_panid_of_category(category):
         return gui.qapp.panels.selected(category, panel=False)
+        
+    @classmethod
+    def close(Cls, panid=-1):
+        """
+        Close the selected panel of the category
+        """   
+        return Cls._close_panel_of_category(panid, Cls.category)
+        
+    @StaticGuiCall
+    def _close_panel_of_category(panid, category):        
+        panel = gui.qapp.panels.selected(category, panid)
+        if not panel is None:
+            panel.close_panel()
+            return True
+        else:
+            return False        
 
 #Note that a embeded function is also be static if closure is None            
 STATIC = 1   
@@ -340,7 +356,13 @@ class GuiProxy(object):
             return list(gui.qapp.panels[category].keys())
         else:
             return []
-        
+
+
+    @StaticGuiCall    
+    def load_layout(name='console'):
+        gui.qapp.panels.restore_state_from_config(name)
+
+
     def show(self, *args, **argv):
         """
         Shows a object in an suitable panel
@@ -360,6 +382,7 @@ class GuiProxy(object):
                 panid = self.img.show(obj)                                                                                 
                 
         return panid
+
     
     @property
     def vs(self):

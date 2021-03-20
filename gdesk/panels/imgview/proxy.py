@@ -163,18 +163,6 @@ class ImageGuiProxy(GuiProxyBase):
     def set_range(black, white):
         panel = gui.qapp.panels.selected('image')
         panel.changeBlackWhite(black, white)        
-
-    @StaticGuiCall
-    def close(panid=-1):
-        """
-        Close the image panel with id
-        """        
-        panel = gui.qapp.panels.selected('image', panid)
-        if not panel is None:
-            panel.close_panel()
-            return True
-        else:
-            return False
         
     @staticmethod
     def close_all():
