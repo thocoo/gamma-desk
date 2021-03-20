@@ -1,6 +1,6 @@
 # Gamma Desk
 
-![Gamma Desk Logo](https://github.com/thocoo/gamma-desk/raw/main/gdesk/resources/logo/eye_128px.png)
+![Gamma Desk Logo](https://github.com/thocoo/gamma-desk/raw/main/gdesk/resources/logo/logo_128px.png)
 
 A Python work environment with image viewers & Plots
 
