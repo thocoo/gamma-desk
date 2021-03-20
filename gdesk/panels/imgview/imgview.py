@@ -495,8 +495,8 @@ class ImageViewerWidget(QWidget):
         if zoomSnap and (not self.zoomValue in ZOOM_VALUES):
             self.setLowerZoomValue()
 
-        self.dispOffsetX = zoomRegionX - round((self.width() / self.zoomDisplay - zoomRegionWidth) / 2)
-        self.dispOffsetY = zoomRegionY - round((self.height() / self.zoomDisplay - zoomRegionHeight) / 2)
+        self.dispOffsetX = zoomRegionX - (self.width() / self.zoomDisplay - zoomRegionWidth) / 2
+        self.dispOffsetY = zoomRegionY - (self.height() / self.zoomDisplay - zoomRegionHeight) / 2
 
         if (oldZoomValue != self.zoomValue) or \
             (oldDispOffsetX != self.dispOffsetX) or \
