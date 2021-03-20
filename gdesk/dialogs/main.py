@@ -12,7 +12,7 @@ import numpy as np
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
 
-from .. import config, gui, __release__, progname, doc_html
+from .. import config, gui, __release__, PROGNAME, DOC_HTML
 from ..core import conf
 
 from .about import AboutScreen
@@ -224,7 +224,7 @@ class LayoutMenu(QtWidgets.QMenu):
 class MainDialog(QtWidgets.QMainWindow):
     def __init__(self, panels):
         super().__init__()
-        self.setWindowTitle(f'{progname} {__release__}')
+        self.setWindowTitle(f'{PROGNAME} {__release__}')
         self.panels = panels
         self.tabs = QtWidgets.QTabWidget(self)
         self.setCentralWidget(self.tabs)
@@ -248,11 +248,11 @@ class MainDialog(QtWidgets.QMainWindow):
 
         act = QtWidgets.QAction("Restart", self,
             triggered=self.restart,
-            statusTip=f"Restart {progname}")
+            statusTip=f"Restart {PROGNAME}")
         self.appMenu.addAction(act)
         
         act = QtWidgets.QAction("Exit", self, shortcut=QtGui.QKeySequence.Quit,
-            statusTip=f"Exit {progname}",
+            statusTip=f"Exit {PROGNAME}",
             triggered=self.qapp.quit, 
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'door_out.png')))
                         
@@ -282,7 +282,7 @@ class MainDialog(QtWidgets.QMainWindow):
         helpAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'help.png')))
         self.helpMenu.addAction(helpAct)
         
-        aboutGhQtAct = QtWidgets.QAction(f"About {progname}", self, triggered=self.about)
+        aboutGhQtAct = QtWidgets.QAction(f"About {PROGNAME}", self, triggered=self.about)
         self.helpMenu.addAction(aboutGhQtAct)                           
         
         self.helpMenu.addAction(QtWidgets.QAction("License", self, triggered=self.license))     
@@ -318,8 +318,8 @@ class MainDialog(QtWidgets.QMainWindow):
         conf.save_config_json(path)        
         
     def help(self):        
-        print("Opening %s" % doc_html)
-        os.system('start "help" "%s"' % doc_html)        
+        print("Opening %s" % DOC_HTML)
+        os.system('start "help" "%s"' % DOC_HTML)        
         
     def about(self):
         aboutScreen = AboutScreen()

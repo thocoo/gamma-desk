@@ -4,7 +4,7 @@ import pathlib
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
 
-from .. import config, __version__, __release__, progname 
+from .. import config, __version__, __release__, PROGNAME 
 
 respath = pathlib.Path(config['respath'])
        
@@ -38,7 +38,7 @@ class AboutScreen(QtWidgets.QDialog):
         logo = QtWidgets.QLabel()
         logo.setPixmap(logopixmap)                                
                             
-        message = f"""<center><h2>{progname}</h2>
+        message = f"""<center><h2>{PROGNAME}</h2>
             <p>Version {__release__}</p>
             """
 

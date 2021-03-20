@@ -17,7 +17,7 @@ from qtpy.QtWidgets import QApplication, QShortcut, QDesktopWidget
 from qtpy.QtGui import QIcon, QKeySequence
 from qtpy.QtCore import Qt
 
-from .. import gui, config, progname
+from .. import gui, config, PROGNAME
 
 from ..core.history import History
 from ..core.watcher import CommandServer
@@ -89,7 +89,7 @@ class GuiApplication(QApplication):
 
         if os.name == 'nt':
             # This is needed to display the app icon on the taskbar on Windows 7
-            myappid = f'{progname}' # arbitrary string
+            myappid = f'{PROGNAME}' # arbitrary string
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)    
             
         self.gc = QGarbageCollector(self)
@@ -320,7 +320,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    print(f'Exiting {progname}. Releasing lock.')   
+    print(f'Exiting {PROGNAME}. Releasing lock.')   
     shell.logdir.release_lock_file()    
     
             

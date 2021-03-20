@@ -14,16 +14,16 @@
 # limitations under the License.
 #-------------------------------------------------------------------------------
 
-"""Bench Eye"""
+"""Bench Desk"""
 
 from .version import VERSION_INFO
 from .core.conf import config, configure
 from .core.gui_proxy import gui
 from .live import use, using
 
-progname = 'Gamma Desk'
-doc_html = 'https://thocoo.github.io/gdesk-doc'
-doc_html_extra = ['https://test.pypi.org/project/gamma-desk']
+PROGNAME = 'Gamma Desk'
+DOC_HTML = 'https://thocoo.github.io/gdesk-doc'
+DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
 __version__ = ".".join(map(str, VERSION_INFO[:3]))
@@ -31,5 +31,6 @@ __version__ = ".".join(map(str, VERSION_INFO[:3]))
 shell = None
 
 def refer_shell_instance(shellinst):
+    """refer_shell_instance"""
     global shell
     shell = shellinst
