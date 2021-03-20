@@ -115,12 +115,65 @@ class GammaDeskSuite(unittest.TestCase):
             
         answer = gui.question('Does GammaDesk look nice in the console output?')
         assert answer
+        
+        
+    def test_calc_pi_break(self):
+        """Calculate pi digits and break after a few seconds"""
+        import sys
+        import time
+        import threading
+        from gdesk import shell, gui
+        
+        interpreter = shell.this_interpreter()
+        ptid = threading.get_ident()
+        panid = gui.console.selected()
+        
+        def delayedBreak():
+            time.sleep(1)
+            gui.redirects[threading.get_ident()] = ptid
+            gui.menu_trigger('console', panid, ['Execution', 'Async Break'])
+        
+        threading.Thread(target=delayedBreak).start()
+
+        def calcPi():
+            q, r, t, k, n, l = 1, 0, 1, 1, 3, 3
+            while True:
+                if 4*q+r-t < n*t:
+                    yield n
+                    nr = 10*(r-n*t)
+                    n  = ((10*(3*q+r))//t)-10*n
+                    q  *= 10
+                    r  = nr
+                else:
+                    nr = (2*q+r)*l
+                    nn = (q*(7*k)+2+(r*l))//(t*l)
+                    q  *= k
+                    t  *= l
+                    l  += 2
+                    k += 1
+                    n  = nn
+                    r  = nr
+         
+        pi_digits = calcPi()
+        i = 0
+        
+        print(f"{i:05d} ", end='')
+        
+        try:
+            for d in pi_digits:    
+                sys.stdout.write(str(d))
+                i += 1
+                if (i % 64) == 0: print(f"\n{i:05d} ", end='')
+                
+        except KeyboardInterrupt:
+            interpreter.break_sent = False
 
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(GammaDeskSuite('test_screenstate_1'))
     suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
+    suite.addTest(GammaDeskSuite('test_calc_pi_break'))
     suite.addTest(GammaDeskSuite('test_colors'))
     suite.addTest(GammaDeskSuite('test_code_1'))
     suite.addTest(GammaDeskSuite('test_code_2'))    
