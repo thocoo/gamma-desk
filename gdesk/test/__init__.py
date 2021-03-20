@@ -59,6 +59,9 @@ class GammaDeskSuite(unittest.TestCase):
         import scipy.misc
 
         arr = scipy.misc.face()
+        height, width = arr.shape[:2]
+        
+        gui.load_layout('image, levels & console')        
         gui.img.select(1)
         gui.show(arr)
         gui.img.zoom_fit()
@@ -67,6 +70,9 @@ class GammaDeskSuite(unittest.TestCase):
         gui.menu_trigger('image', None, ['Canvas', 'Rotate Left 90'])
         gui.menu_trigger('image', None, ['Canvas', 'Rotate Right 90'])
         gui.menu_trigger('image', None, ['Canvas', 'Rotate 180'])
+        
+        gui.menu_trigger('image', None, ['Canvas', 'Resize Canvas...'], width+64, height+32)
+        gui.menu_trigger('image', None, ['Canvas', 'Resize Canvas...'], width, height)
 
         assert (arr == gui.vs).all()
 
@@ -76,6 +82,8 @@ class GammaDeskSuite(unittest.TestCase):
         import imageio
 
         arr = imageio.imread('imageio:astronaut.png')
+        
+        gui.load_layout('image, levels & console')
         gui.img.select(1)
         imgpanid = gui.show(arr)
         gui.img.zoom_full()
@@ -92,6 +100,8 @@ class GammaDeskSuite(unittest.TestCase):
         import imageio
 
         arr = imageio.imread('imageio:astronaut.png')
+        
+        gui.load_layout('image, levels & console')
         gui.img.select(1)
         gui.show(arr)
 
