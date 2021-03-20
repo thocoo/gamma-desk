@@ -1,6 +1,7 @@
 """
 Small utils directly related to QT
 """
+import collections
 from pathlib import Path
 from qtpy import QtWidgets
 
@@ -61,3 +62,25 @@ def getMenuAction(menubar, menutrace):
             raise KeyError(f'Action part "{check_action_name}" not found')
 
     return action
+    
+class ActionArguments(object):
+    def __init__(self, qwidget):
+        self.qwidget = qwidget
+        self.args = collections.OrderedDict()
+        
+    def __setitem__(self, key, value):
+        self.args[key] = value
+        
+    def __getitem__(self, key):
+        return self.args[key]
+
+    def isNotSet(self):
+        return self.qwidget.sender().data() is None
+        
+    def __enter__(self):        
+        return self
+        
+    def __exit__(self, *args, **kwargs):
+        arguments = self.qwidget.sender().data() or {}
+        self.args.update(dict(zip(self.args.keys(), arguments.get('args', []))))
+        self.args.update(arguments.get('kwargs', {}))
