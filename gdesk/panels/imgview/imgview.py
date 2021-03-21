@@ -1436,9 +1436,16 @@ class ImageViewerBase(BasePanel):
         self.imviewer.zoomAuto()
 
     def setColorMap(self):
-        colormapdialog = ColorMapDialog()
-        colormapdialog.exec_()
-        self.colormap = colormapdialog.cm_name
+        with ActionArguments(self) as args:
+            args['cmap'] = 'grey'
+            
+        if args.isNotSet():
+            colormapdialog = ColorMapDialog()
+            colormapdialog.exec_()
+            self.colormap = colormapdialog.cm_name
+        else:
+            self.colormap = args['cmap']
+            
         self.refresh_offset_gain()
 
     def togle_hq(self):
