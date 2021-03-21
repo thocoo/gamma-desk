@@ -308,7 +308,7 @@ class ImageViewerWidget(QWidget):
 
         self._scaledImage = None
         self.hqzoomout = config['image'].get('render_detail_hq', False)
-        self.zoombind = config['image'].get('zoombind', False)
+        self.zoombind = config['image'].get('bind_zoom_absolute', False)
 
         self.push_selected_pixel = False
 
