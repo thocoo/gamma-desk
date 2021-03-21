@@ -308,6 +308,7 @@ class ImageViewerWidget(QWidget):
 
         self._scaledImage = None
         self.hqzoomout = config['image'].get('render_detail_hq', False)
+        self.zoombind = config['image'].get('zoombind', False)
 
         self.push_selected_pixel = False
 
@@ -386,6 +387,28 @@ class ImageViewerWidget(QWidget):
                 n += 1
             else:
                 self.zoomValue = ZOOM_VALUES[max(n-1, 0)]
+                return self.zoomValue
+
+        self.zoomValue = ZOOM_VALUES[-1]
+        return self.zoomValue
+
+    def setClosestZoomValue(self):
+        if self.zoomValue in ZOOM_VALUES:
+            i = ZOOM_VALUES.index(self.zoomValue)
+            self.zoomValue = ZOOM_VALUES[max(i - 1, 0)]
+            return self.zoomValue
+
+        n = 0
+        for zoomVal in ZOOM_VALUES:
+            if zoomVal < self.zoomValue:
+                n += 1
+            else:
+                lower = ZOOM_VALUES[max(n-2, 0)]
+                upper = ZOOM_VALUES[max(n-1, 0)]
+                if (zoomVal - lower) < (upper - zoomVal):
+                    self.zoomValue = lower
+                else:
+                    self.zoomValue = upper
                 return self.zoomValue
 
         self.zoomValue = ZOOM_VALUES[-1]
@@ -470,15 +493,15 @@ class ImageViewerWidget(QWidget):
         zoomRegionHeight =  self.roi.selroi.yr.stop - self.roi.selroi.yr.start
         return self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight)
 
-    def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True):
+    def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
         area = self.imgdata.width * self.imgdata.height
         zoomRegionX *= self.imgdata.width
         zoomRegionY *= self.imgdata.height
         zoomRegionWidth *= self.imgdata.width
         zoomRegionHeight *= self.imgdata.height
-        self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit)
+        self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit, zoomValue)
 
-    def zoomToRegion(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True):
+    def zoomToRegion(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
         """Zoom to a certain region and do a best fit."""
         self.dragStartX = None
         self.dragStartY = None
@@ -490,11 +513,16 @@ class ImageViewerWidget(QWidget):
         xscale = self.width() / zoomRegionWidth
         yscale = self.height() / zoomRegionHeight
 
-        self.zoomValue = min(xscale, yscale)
-        #self.zoomValue = (xscale + yscale) / 2
+        if zoomValue == 0:
 
-        if zoomSnap and (not self.zoomValue in ZOOM_VALUES):
-            self.setLowerZoomValue()
+            self.zoomValue = min(xscale, yscale)
+
+            if zoomSnap and (not self.zoomValue in ZOOM_VALUES):
+                self.setLowerZoomValue()
+                #self.setClosestZoomValue()
+
+        else:
+            self.zoomValue = zoomValue
 
         self.dispOffsetX = zoomRegionX - (self.width() / self.zoomDisplay - zoomRegionWidth) / 2
         self.dispOffsetY = zoomRegionY - (self.height() / self.zoomDisplay - zoomRegionHeight) / 2
@@ -690,7 +718,7 @@ class ImageViewerBase(BasePanel):
 
     contentChanged = Signal(int, bool)
     gainChanged = Signal(int)
-    visibleRegionChanged = Signal(float, float, float, float, bool, bool)
+    visibleRegionChanged = Signal(float, float, float, float, bool, bool, float)
     roiChanged = Signal(int)
 
     classIconFile = str(respath / 'icons' / 'px16' / 'picture.png')
@@ -826,9 +854,12 @@ class ImageViewerBase(BasePanel):
 
         self.viewMenu.addSeparator()
 
-        self.addMenuItem(self.viewMenu, 'HQ Zoom Out', self.togle_hq,
+        self.addMenuItem(self.viewMenu, 'HQ Zoom Out', self.toggle_hq,
             checkcall = lambda: self.imviewer.hqzoomout,
             statusTip = "Use high quality resampling on zoom levels < 100%")
+        self.addMenuItem(self.viewMenu, 'Zoom Bind', self.toggle_zoombind,
+            checkcall = lambda: self.imviewer.zoombind,
+            statusTip = "Bind with absolute zoom value")
         self.addMenuItem(self.viewMenu, 'Colormap...'    , self.setColorMap,
             statusTip="Set the color map for monochroom images",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')))
@@ -976,14 +1007,14 @@ class ImageViewerBase(BasePanel):
             self.imviewer.pixelSelected.disconnect(targetPanel.pick)
         return targetPanel
 
-    def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit):
-        self.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit)
+    def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit, zoomValue):
+        self.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit, zoomValue)
         self.imviewer.roi.recalcGeometry()
 
     ############################
     # File Menu Connections
     def newImage(self):
-    
+
         with ActionArguments(self) as args:
             args['width'] = 1920*2
             args['height'] = 1080*2
@@ -1003,7 +1034,7 @@ class ImageViewerBase(BasePanel):
             result = fedit(options_form)
             if result is None: return
             args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
-            args['dtype'] = dtypes[dtype_ind-1]                       
+            args['dtype'] = dtypes[dtype_ind-1]
 
         shape = [args['height'], args['width']]
         if args['channels'] > 1: shape = shape + [args['channels']]
@@ -1020,9 +1051,9 @@ class ImageViewerBase(BasePanel):
 
     def openImageDialog(self):
         filepath = here / 'images' / 'default.png'
-        
+
         with ActionArguments(self) as args:
-            args['filepath'] = here / 'images' / 'default.png'      
+            args['filepath'] = here / 'images' / 'default.png'
             args['format'] = None
 
         if args.isNotSet():
@@ -1035,7 +1066,7 @@ class ImageViewerBase(BasePanel):
                 args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
                 args['format'] = None
                 if args['filepath'] == '': return
-        
+
         self.openImage(args['filepath'], args['format'])
 
     def openImage(self, filepath, format=None):
@@ -1438,19 +1469,22 @@ class ImageViewerBase(BasePanel):
     def setColorMap(self):
         with ActionArguments(self) as args:
             args['cmap'] = 'grey'
-            
+
         if args.isNotSet():
             colormapdialog = ColorMapDialog()
             colormapdialog.exec_()
             self.colormap = colormapdialog.cm_name
         else:
             self.colormap = args['cmap']
-            
+
         self.refresh_offset_gain()
 
-    def togle_hq(self):
+    def toggle_hq(self):
         self.imviewer.hqzoomout = not self.imviewer.hqzoomout
         self.show_array(None)
+
+    def toggle_zoombind(self):
+        self.imviewer.zoombind = not self.imviewer.zoombind
 
     def setBackground(self):
         old_color = self.imviewer.palette().window().color()
@@ -1599,24 +1633,29 @@ class ImageViewerBase(BasePanel):
     def flipHorizontal(self):
         self.show_array(self.ndarray[:, ::-1])
 
+
     def flipVertical(self):
         self.show_array(self.ndarray[::-1, :])
+
 
     def rotate90(self):
         rotated = np.rot90(self.ndarray, 1).copy()
         self.show_array(rotated)
 
+
     def rotate180(self):
         self.show_array(self.ndarray[::-1, ::-1])
+
 
     def rotate270(self):
         rotated = np.rot90(self.ndarray, 3).copy()
         self.show_array(rotated)
 
+
     def rotateAny(self):
         with ActionArguments(self) as args:
             args['angle'] = 0.0
-            
+
         if args.isNotSet():
             form = [('Angle', args['angle'])]
             results = fedit(form)
@@ -1627,27 +1666,29 @@ class ImageViewerBase(BasePanel):
             procarr = scipy.ndimage.rotate(self.ndarray, args['angle'], reshape=True)
             self.show_array(procarr)
 
+
     def crop(self):
         self.select()
         croped_array = gui.vr.copy()
         gui.img.show(croped_array)
         self.selectNone()
 
+
     def canvasResize(self):
         old_height, old_width = self.ndarray.shape[:2]
-        
+
         with ActionArguments(self) as args:
             args['width'], args['height'] = old_width, old_height
-            
+
         channels = self.ndarray.shape[2] if self.ndarray.ndim == 3 else 1
-            
+
         if args.isNotSet():
-            
+
             form = [('Width', args['width']), ('Height', args['height'])]
             results = fedit(form)
             if results is None: return
             args['width'], args['height'] = results
-            
+
         new_width = args['width']
         new_height = args['height']
 
@@ -1667,6 +1708,7 @@ class ImageViewerBase(BasePanel):
         ofnh = (new_height - height) // 2
         procarr[ofnh:ofnh+height, ofnw:ofnw+width, ...] = self.ndarray[ofoh:ofoh+height, ofow:ofow+width, ...]
         self.show_array(procarr)
+
 
     def resize(self):
         source = self.sharray.ndarray
@@ -1705,11 +1747,12 @@ class ImageViewerBase(BasePanel):
             form = [('Value', args['value'])]
             results = fedit(form)
             if results is None: return
-            args['value'] = results[0]         
+            args['value'] = results[0]
 
         procarr = self.ndarray.copy()
         procarr[:] = args['value']
         self.show_array(procarr)
+
 
     def addNoise(self):
         form = [('Standard Deviation', 1.0)]
@@ -1722,9 +1765,11 @@ class ImageViewerBase(BasePanel):
         procarr = clip_array(self.ndarray + np.random.randn(*shape) * std + 0.5, dtype)
         self.show_array(procarr)
 
+
     def invert(self):
         procarr =  ~self.ndarray
         self.show_array(procarr)
+
 
     def swapRGB(self):
         if not self.ndarray.ndim >= 3:
@@ -1736,6 +1781,7 @@ class ImageViewerBase(BasePanel):
         procarr[:,:,2] = self.ndarray[:,:,0]
         self.show_array(procarr)
 
+
     def toMonochroom(self):
         array = self.ndarray
 
@@ -1745,6 +1791,7 @@ class ImageViewerBase(BasePanel):
         dtype = array.dtype
         procarr = clip_array(array.mean(2), dtype)
         self.show_array(procarr)
+
 
     def toPhotoMonochroom(self):
         array = self.ndarray
@@ -1788,7 +1835,7 @@ class ImageViewerBase(BasePanel):
         """
         :param float gamma:
         :param float upper:
-        """        
+        """
         with ActionArguments(self) as args:
             args['gamma'] = 1.0
             args['upper'] = 255
@@ -1800,7 +1847,7 @@ class ImageViewerBase(BasePanel):
             results = fedit(form, title='Adjust Gamma')
             if results is None: return
             gamma, upper = results
-            
+
         else:
             gamma, upper = args['gamma'], args['upper']
 
@@ -1823,6 +1870,7 @@ class ImageViewerBase(BasePanel):
             np.concatenate([blocks[2], blocks[3]], axis=1)])
         self.show_array(split)
 
+
     def colored_bayer(self):
         baypatns = ['RGGB', 'BGGR', 'GRBG', 'GBRG']
         form = [('Bayer Pattern', [1] + baypatns)]
@@ -1831,6 +1879,7 @@ class ImageViewerBase(BasePanel):
 
         procarr = bayer_split(self.ndarray, baypatn)
         self.show_array(procarr)
+
 
     def demosaic(self):
         baypatns = ['RGGB', 'BGGR', 'GRBG', 'GBRG']
@@ -1860,6 +1909,7 @@ class ImageViewerBase(BasePanel):
             gui.img.new()
             gui.img.show(blueprint)
 
+
     def externalProcessDemo(self):
         panel = gui.qapp.panels.select_or_new('console', None, 'child')
 
@@ -1873,6 +1923,7 @@ class ImageViewerBase(BasePanel):
             gui.msgbox('Highpass filter done')
 
         panel.task.call_func(ImageGuiProxy.mirror_x, callback=stage1_done)
+
 
     def measureDistance(self):
         panel = gui.qapp.panels.select_or_new('console', None, 'child')
@@ -1892,6 +1943,7 @@ class ImageViewerBase(BasePanel):
     def horizontalSpectrogram(self):
         spectr_hori(self.ndarray)
 
+
     def verticalSpectrogram(self):
         spectr_vert(self.ndarray)
 
@@ -1901,6 +1953,7 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain(array)
         self.contentChanged.emit(self.panid, zoomFitHist)
 
+
     def select(self):
         was_selected = super().select()
         if not was_selected:
@@ -1908,15 +1961,18 @@ class ImageViewerBase(BasePanel):
             self.contentChanged.emit(self.panid, False)
         return was_selected
 
+
     def refresh_offset_gain(self, array=None, zoomFitHist=False):
         self.imviewer.imgdata.show_array(array, self.offset, self.gain, self.colormap, self.gamma)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.gamma)
         self.gainChanged.emit(self.panid)
         self.imviewer.refresh()
 
+
     @property
     def ndarray(self):
         return self.sharray.ndarray
+
 
     @property
     def sharray(self):
@@ -1943,11 +1999,13 @@ class ImageViewer(ImageViewerBase):
         self.imviewer.zoomChanged.connect(self.statuspanel.set_zoom)
         self.imviewer.zoomPanChanged.connect(self.emitVisibleRegionChanged)
 
+
     def passRoiChanged(self):
         self.roiChanged.emit(self.panid)
 
+
     def emitVisibleRegionChanged(self):
-        self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False)
+        self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
 
 
 class ImageProfileWidget(QWidget):
@@ -1981,8 +2039,10 @@ class ImageProfileWidget(QWidget):
 
         self.profilesVisible = False
 
+
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
+
 
     def showOnlyRuler(self):
         self.rowPanel.showOnlyRuler()
@@ -1991,6 +2051,7 @@ class ImageProfileWidget(QWidget):
 
         gui.qapp.processEvents()
         self.refresh_profile_views()
+
 
     def showProfiles(self):
         self.rowPanel.setMinimumHeight(20)
@@ -2014,6 +2075,7 @@ class ImageProfileWidget(QWidget):
         gui.qapp.processEvents()
         self.refresh_profile_views()
 
+
     def drawMeanProfile(self):
         arr = self.imviewer.imgdata.sharray.ndarray
 
@@ -2027,6 +2089,7 @@ class ImageProfileWidget(QWidget):
         self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
 
         self.refresh_profile_views()
+
 
     def set_profiles_visible(self, value):
         if value:
@@ -2046,6 +2109,7 @@ class ImageProfileWidget(QWidget):
         if self.rowPanel.view.auto_zoom:
             self.rowPanel.zoomAuto()
         self.rowPanel.view.refresh()
+
 
 class ImageProfilePanel(ImageViewerBase):
     panelShortName = 'image-profile'
@@ -2067,17 +2131,24 @@ class ImageProfilePanel(ImageViewerBase):
             checkcall=lambda: self.imgprof.profilesVisible,
             statusTip="Show or Hide the image column and row profiles")
 
-    def emitVisibleRegionChanged(self):
-        self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False)
 
-    def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit):
-        self.imgprof.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit)
+    def emitVisibleRegionChanged(self):
+        if self.imviewer.zoombind:
+            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, self.imviewer.zoomValue)
+        else:
+            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
+
+
+    def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit, zoomValue):
+        self.imgprof.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit, zoomValue)
         self.imgprof.colPanel.zoomToImage()
         self.imgprof.rowPanel.zoomToImage()
         self.imviewer.roi.recalcGeometry()
 
+
     def passRoiChanged(self):
         self.roiChanged.emit(self.panid)
+
 
     def show_array(self, array, zoomFitHist=False):
         super().show_array(array, zoomFitHist)
@@ -2086,9 +2157,11 @@ class ImageProfilePanel(ImageViewerBase):
         else:
             self.imgprof.refresh_profile_views()
 
+
     @property
     def imviewer(self):
         return self.imgprof.imviewer
+
 
     def showHideProfiles(self):
         self.imgprof.profilesVisible = not self.imgprof.profilesVisible
