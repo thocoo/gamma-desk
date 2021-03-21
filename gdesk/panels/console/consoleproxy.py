@@ -37,6 +37,8 @@ class ConsoleGuiProxy(GuiProxyBase):
         # For now, jus take the active console
         # Note that this is not always correct
         # Should first search for the console of the current process and thread
+        sys.stdout.flush()
+        sys.stderr.flush()
         panel = gui.qapp.panels.selected('console')
         panel.stdio.stdOutputPanel.clear()
         
