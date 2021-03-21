@@ -983,25 +983,33 @@ class ImageViewerBase(BasePanel):
     ############################
     # File Menu Connections
     def newImage(self):
+    
+        with ActionArguments(self) as args:
+            args['width'] = 1920*2
+            args['height'] = 1080*2
+            args['channels'] = 1
+            args['dtype'] = 'uint8'
+            args['mean'] = 128
 
-        dtypes = ['uint8', 'uint16', 'double']
+        if args.isNotSet():
+            dtypes = ['uint8', 'uint16', 'double']
 
-        options_form = [('Width', 1920*2),
-                   ('Height', 1080*2),
-                   ('Channels', 1),
-                   ('dtype', [1] + dtypes),
-                   ('mean', 128)]
+            options_form = [('Width', args['width']),
+                       ('Height', args['height']),
+                       ('Channels', args['channels']),
+                       ('dtype', [1] + dtypes),
+                       ('mean', args['mean'])]
 
-        result = fedit(options_form)
-        if result is None: return
-        width, height, channels, dtype_ind, mean = result
-        dtype = dtypes[dtype_ind-1]
+            result = fedit(options_form)
+            if result is None: return
+            args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
+            args['dtype'] = dtypes[dtype_ind-1]                       
 
-        shape = [height, width]
-        if channels > 1: shape = shape + [channels]
+        shape = [args['height'], args['width']]
+        if args['channels'] > 1: shape = shape + [args['channels']]
 
-        arr = np.ndarray(shape, dtype)
-        arr[:] = mean
+        arr = np.ndarray(shape, args['dtype'])
+        arr[:] = args['mean']
 
         self.show_array(arr, zoomFitHist=True)
 
@@ -1012,17 +1020,23 @@ class ImageViewerBase(BasePanel):
 
     def openImageDialog(self):
         filepath = here / 'images' / 'default.png'
+        
+        with ActionArguments(self) as args:
+            args['filepath'] = here / 'images' / 'default.png'      
+            args['format'] = None
 
-        if has_imafio:
-            filepath, filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(filepath))
-            if filepath == '': return
-            format = FILTERS_NAMES[filter]
-            self.openImage(filepath, format=format)
+        if args.isNotSet():
+            if has_imafio:
+                args['filepath'], filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(args['filepath']))
+                if args['filepath'] == '': return
+                args['format'] = FILTERS_NAMES[filter]
 
-        else:
-            filepath, filter = gui.getfile(title='Open Image File (PIL)', file=str(filepath))
-            if filepath == '': return
-            self.openImage(filepath)
+            else:
+                args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
+                args['format'] = None
+                if args['filepath'] == '': return
+        
+        self.openImage(args['filepath'], args['format'])
 
     def openImage(self, filepath, format=None):
         if has_imafio:
