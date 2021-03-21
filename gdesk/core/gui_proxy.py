@@ -108,6 +108,12 @@ class GuiProxyBase(object):
             return result
         else:
             return l 
+    
+    
+    @classmethod
+    def menu(cls, action_names, *args, **kwargs):
+        return gui.menu_trigger(cls.category, None, action_names, *args, **kwargs)
+    
 
     @classmethod
     def selected(cls):
@@ -117,9 +123,11 @@ class GuiProxyBase(object):
         category = cls.category
         return GuiProxyBase._selected_panid_of_category(category)
         
+        
     @StaticGuiCall
     def _selected_panid_of_category(category):
         return gui.qapp.panels.selected(category, panel=False)
+        
         
     @classmethod
     def close(Cls, panid=-1):
@@ -127,6 +135,7 @@ class GuiProxyBase(object):
         Close the selected panel of the category
         """   
         return Cls._close_panel_of_category(panid, Cls.category)
+        
         
     @StaticGuiCall
     def _close_panel_of_category(panid, category):        
@@ -413,17 +422,20 @@ class GuiProxy(object):
         
         :param str category: Example 'image'
         :param int id: Example 1
-        :param list action_names: Example ['File', 'New Image']
+        :param list action_names: Example ['File', 'New...']
         """
         try:
             action = gui.qapp.panels.get_menu_action(category, pandid, action_names)                   
         except KeyError:    
             logger.error(f'Menu action {action_names} not found')
             return
-        action.setData({'args':args, 'kwargs': kwargs})
+        if len(args) == len(kwargs) == 0:
+            action.setData(None)
+        else:
+            action.setData({'args':args, 'kwargs': kwargs})
         retval = action.trigger()
         action.setData(None)
-        return retval             
+        return retval
 
     @StaticGuiCall 
     def history(count=20):   
