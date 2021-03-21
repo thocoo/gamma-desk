@@ -52,6 +52,23 @@ class GammaDeskSuite(unittest.TestCase):
         sys.stdout.flush()
         text = gui.console.text()
         assert expectedOutput == text
+        
+        
+    def test_menu_file(self):        
+        from gdesk import gui
+        
+        gui.load_layout('image, levels & console')
+        gui.img.select(1)
+        gui.img.menu(['File', 'New...'], 1920, 1080, 3, 'uint8', 127)
+        gui.img.menu(['File', 'New...'], 1920, 1080, 3, 'uint16', 2**16-1)
+        gui.img.menu(['File', 'New...'], 1920, 1080, 3, 'double', 0.5)        
+        
+        #https://imageio.readthedocs.io/en/stable/standardimages.html
+        gui.img.menu(['File', 'Open Image...'], 'imageio:astronaut.png')        
+        gui.img.menu(['File', 'Open Image...'], 'imageio:wood.jpg')        
+        gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')        
+        
+        gui.img.cmap('turbo')
 
 
     def test_menu_canvas(self):
@@ -61,7 +78,7 @@ class GammaDeskSuite(unittest.TestCase):
         arr = scipy.misc.face()
         height, width = arr.shape[:2]
         
-        gui.load_layout('image, levels & console')        
+        gui.load_layout('image, levels & console')
         gui.img.select(1)
         gui.show(arr)
         gui.img.zoom_fit()
@@ -127,13 +144,14 @@ class GammaDeskSuite(unittest.TestCase):
         plt.title('Row Means')
         plt.show()
 
-        input('Press Enter to continue')
+        answer = gui.question('Looks everything OK?')
 
         plt.close('all')
         gui.menu_trigger('image', GammaDeskSuite.panid, ['Edit', 'Show Prior Image'])
 
 
     def test_colors(self):
+        import sys
         from gdesk import gui
         from pylab import plt
 
@@ -212,13 +230,14 @@ class GammaDeskSuite(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(GammaDeskSuite('test_screenstate_1'))
-    suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
-    suite.addTest(GammaDeskSuite('test_calc_pi_break'))
-    suite.addTest(GammaDeskSuite('test_colors'))
-    suite.addTest(GammaDeskSuite('test_menu_canvas'))
-    suite.addTest(GammaDeskSuite('test_menu_image_1'))
-    suite.addTest(GammaDeskSuite('test_menu_image_2'))
-    suite.addTest(GammaDeskSuite('test_code_3'))
+    # suite.addTest(GammaDeskSuite('test_screenstate_1'))
+    # suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
+    # suite.addTest(GammaDeskSuite('test_calc_pi_break'))
+    # suite.addTest(GammaDeskSuite('test_colors'))
+    suite.addTest(GammaDeskSuite('test_menu_file'))
+    # suite.addTest(GammaDeskSuite('test_menu_canvas'))
+    # suite.addTest(GammaDeskSuite('test_menu_image_1'))
+    # suite.addTest(GammaDeskSuite('test_menu_image_2'))
+    # suite.addTest(GammaDeskSuite('test_code_3'))
     return suite
 
