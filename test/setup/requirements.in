@@ -1,3 +1,6 @@
 # run: pip-compile ./setup/requirements.in --extra-index-url https://test.pypi.org/simple
 # in trunk dir to update the requirements.txt
-gamma-desk==0.0.1.dev3
+
+gamma-desk==0.0.1.dev4
+pip-tools==5.5.0
+
