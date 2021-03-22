@@ -52,46 +52,46 @@ class GammaDeskSuite(unittest.TestCase):
         sys.stdout.flush()
         text = gui.console.text()
         assert expectedOutput == text
-        
-        
-    def test_menu_file(self):        
+
+
+    def test_menu_file(self):
         from gdesk import gui
-        
+
         gui.load_layout('image, levels & console')
         gui.img.select(1)
-        
+
         gui.img.menu(['File', 'New...'], 1920, 1080, 4, 'uint8', 127)
-        
+
         self.assertEqual(gui.vs.shape[0], 1080)
         self.assertEqual(gui.vs.shape[1], 1920)
         self.assertEqual(gui.vs.shape[2], 4)
         self.assertEqual(gui.vs.dtype, 'uint8')
         self.assertEqual(gui.vs.min(), 127)
         self.assertEqual(gui.vs.max(), 127)
-        
+
         gui.img.menu(['File', 'New...'], 3840, 2160, 1, 'uint16', 2**16-1)
-        
+
         self.assertEqual(gui.vs.shape[0], 2160)
         self.assertEqual(gui.vs.shape[1], 3840)
         self.assertEqual(len(gui.vs.shape), 2)
         self.assertEqual(gui.vs.dtype, 'uint16')
         self.assertEqual(gui.vs.min(), 2**16-1)
         self.assertEqual(gui.vs.max(), 2**16-1)
-                
-        gui.img.menu(['File', 'New...'], 640, 480, 3, 'double', 0.5)         
+
+        gui.img.menu(['File', 'New...'], 640, 480, 3, 'double', 0.5)
 
         self.assertEqual(gui.vs.shape[0], 480)
         self.assertEqual(gui.vs.shape[1], 640)
         self.assertEqual(gui.vs.shape[2], 3)
         self.assertEqual(gui.vs.dtype, 'double')
         self.assertEqual(gui.vs.min(), 0.5)
-        self.assertEqual(gui.vs.max(), 0.5)                        
-        
+        self.assertEqual(gui.vs.max(), 0.5)
+
         #https://imageio.readthedocs.io/en/stable/standardimages.html
-        gui.img.menu(['File', 'Open Image...'], 'imageio:astronaut.png')        
-        gui.img.menu(['File', 'Open Image...'], 'imageio:wood.jpg')        
-        gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')        
-        
+        gui.img.menu(['File', 'Open Image...'], 'imageio:astronaut.png')
+        gui.img.menu(['File', 'Open Image...'], 'imageio:wood.jpg')
+        gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')
+
         gui.img.cmap('turbo')
 
 
@@ -101,7 +101,7 @@ class GammaDeskSuite(unittest.TestCase):
 
         arr = scipy.misc.face()
         height, width = arr.shape[:2]
-        
+
         gui.load_layout('image, levels & console')
         gui.img.select(1)
         gui.show(arr)
@@ -111,19 +111,19 @@ class GammaDeskSuite(unittest.TestCase):
         gui.menu_trigger('image', None, ['Canvas', 'Rotate Left 90'])
         gui.menu_trigger('image', None, ['Canvas', 'Rotate Right 90'])
         gui.menu_trigger('image', None, ['Canvas', 'Rotate 180'])
-        
+
         gui.menu_trigger('image', None, ['Canvas', 'Resize Canvas...'], width+64, height+32)
         gui.menu_trigger('image', None, ['Canvas', 'Resize Canvas...'], width, height)
 
         assert (arr == gui.vs).all()
-        
-        
+
+
     def test_menu_view(self):
         gui.load_layout('image, levels & console')
         gui.img.select(1)
-        
+
         gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')
-        
+
         gui.img.menu(['View', 'Refresh'])
         gui.img.menu(['View', 'Zoom In'])
         gui.img.menu(['View', 'Zoom Out'])
@@ -132,7 +132,7 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.menu(['View', 'Zoom', 'Zoom Full'])
         gui.img.menu(['View', 'Zoom', 'Zoom Auto'])
         gui.img.menu(['View', 'Zoom', 'Zoom Exact...'], 50)
-        
+
         gui.img.menu(['View', 'Default Offset & Gain'])
         gui.img.menu(['View', 'Set Current as Default'])
         gui.img.menu(['View', 'Offset & Gain...'], 0, 1, 2, 'grey')
@@ -141,8 +141,10 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.menu(['View', 'Gain to Min-Max'])
         gui.img.menu(['View', 'Gain to Sigma', 'Gain to Sigma 1'])
         gui.img.menu(['View', 'Gain to Sigma', 'Gain to Sigma 2'])
-        gui.img.menu(['View', 'Gain to Sigma', 'Gain to Sigma 3'])        
+        gui.img.menu(['View', 'Gain to Sigma', 'Gain to Sigma 3'])
         
+        gui.img.menu(['View', 'HQ Zoom Out'])
+        gui.img.menu(['View', 'Zoom Bind'])
         gui.img.menu(['View', 'Colormap...'], 'grey')
         gui.img.menu(['View', 'Colormap...'], 'clip')
         gui.img.menu(['View', 'Colormap...'], 'turbo')
@@ -151,13 +153,20 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.menu(['View', 'Colormap...'], 'hot')
         gui.img.menu(['View', 'Colormap...'], 'cold')
 
+        gui.img.menu(['View', 'Background Color...'], 58, 110, 165)
+        gui.img.menu(['View', 'Selection Color...'], 255, 0, 0)
+        gui.img.menu(['View', 'Value Format', 'Decimal'])
+        gui.img.menu(['View', 'Value Format', 'Hex'])
+        gui.img.menu(['View', 'Value Format', 'Binary'])
+        gui.img.menu(['View', 'Show/Hide Profiles'])
+
 
     def test_menu_image_1(self):
         from gdesk import gui
         import imageio
 
         arr = imageio.imread('imageio:astronaut.png')
-        
+
         gui.load_layout('image, levels & console')
         gui.img.select(1)
         imgpanid = gui.show(arr)
@@ -175,7 +184,7 @@ class GammaDeskSuite(unittest.TestCase):
         import imageio
 
         arr = imageio.imread('imageio:astronaut.png')
-        
+
         gui.load_layout('image, levels & console')
         gui.img.select(1)
         gui.show(arr)
