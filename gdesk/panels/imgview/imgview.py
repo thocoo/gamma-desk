@@ -809,7 +809,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Zoom out 1 step",
             icon = 'zoom_out.png')
 
-        zoomMenu = QMenu('Zoom...')
+        zoomMenu = QMenu('Zoom')
         zoomMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom.png')))
         self.viewMenu.addMenu(zoomMenu)
         self.addMenuItem(zoomMenu, 'Zoom 100%', self.setZoom100,
@@ -1276,18 +1276,31 @@ class ImageViewerBase(BasePanel):
         return gain1_range / self.gain + self.offset
 
     def offsetGainDialog(self):
-        colormaps = imconvert.colormaps
-        cmapind = colormaps.index(self.colormap) + 1
+    
+        with ActionArguments(self) as args:
+            args['offset'] = self.offset
+            args['gain'] = self.gain
+            args['gamma'] = self.gamma
+            args['cmap'] = self.colormap           
+        
+        if args.isNotSet():
+            colormaps = imconvert.colormaps
+            cmapind = colormaps.index(self.colormap) + 1
 
-        form = [('Offset', self.offset * 1.0),
-                ('Gain', self.gain * 1.0),
-                ('Gamma', self.gamma * 1.0),
-                ('Color Map', [cmapind] + colormaps)]
+            form = [('Offset', self.offset * 1.0),
+                    ('Gain', self.gain * 1.0),
+                    ('Gamma', self.gamma * 1.0),
+                    ('Color Map', [cmapind] + colormaps)]
 
-        results = fedit(form)
-        if results is None: return
-        self.offset, self.gain, self.gamma, cmapind = results
-        self.colormap = colormaps[cmapind-1]
+            results = fedit(form)
+            if results is None: return
+            self.offset, self.gain, self.gamma, cmapind = results
+            self.colormap = colormaps[cmapind-1]
+            
+        else:
+            self.offset, self.gain = args['offset'], args['gain']
+            self.gamma, self.colormap = args['gamma'], args['cmap']        
+                
         self.refresh_offset_gain()
 
 
@@ -1295,14 +1308,16 @@ class ImageViewerBase(BasePanel):
         self.defaults['offset'] = self.offset
         self.defaults['gain'] = self.gain
         self.defaults['gamma'] = self.gamma
+        
 
     def defaultOffsetGain(self):
         offset = self.defaults['offset']
         gain = self.defaults['gain']
         gamma = self.defaults['gamma']
         self.changeOffsetGain(offset, gain, gamma)
+        
 
-    def changeOffsetGain(self, offset, gain, gamma):
+    def changeOffsetGain(self, offset, gain, gamma):                
         if isinstance(offset, str):
             if offset == 'default':
                 offset = self.defaults['offset']
@@ -1325,20 +1340,32 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain()
 
     def blackWhiteDialog(self):
-        colormaps = imconvert.colormaps
-        cmapind = colormaps.index(self.colormap) + 1
+    
+        with ActionArguments(self) as args:
+            args['black'] = self.offset
+            args['white'] = self.white
+            args['cmap'] = self.colormap
+            
+        if args.isNotSet():            
+            colormaps = imconvert.colormaps
+            cmapind = colormaps.index(self.colormap) + 1
 
-        black = self.offset
-        gain1_range = self.imviewer.imgdata.get_natural_range()
+            black = self.offset
+            gain1_range = self.imviewer.imgdata.get_natural_range()
 
-        form = [('Black', black),
-                ('White', self.white),
-                ('Color Map', [cmapind] + colormaps)]
+            form = [('Black', black),
+                    ('White', self.white),
+                    ('Color Map', [cmapind] + colormaps)]
 
-        results = fedit(form)
-        if results is None: return
-        black, white, cmapind = results
-        self.colormap = colormaps[cmapind-1]
+            results = fedit(form)
+            if results is None: return
+            black, white, cmapind = results
+            self.colormap = colormaps[cmapind-1]
+            
+        else:
+            black, white = args['black'], args['white']
+            self.colormap  = args['cmap']
+            
         self.changeBlackWhite(black, white)
 
     def changeBlackWhite(self, black, white):
@@ -1367,20 +1394,33 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain()
 
     def changeGreyGainDialog(self):
-        colormaps = imconvert.colormaps
-        cmapind = colormaps.index(self.colormap) + 1
-
+             
         gain1_range = self.imviewer.imgdata.get_natural_range()
         grey = self.offset + gain1_range / self.gain / 2
+        
+        with ActionArguments(self) as args:
+            args['grey'] = grey
+            args['gain'] = self.gain
+            args['cmap'] = self.colormap          
+        
+        if args.isNotSet():
+            colormaps = imconvert.colormaps
+            cmapind = colormaps.index(self.colormap) + 1
 
-        form = [('Grey', grey),
-                ('Gain', self.gain * 1.0),
-                ('Color Map', [cmapind] + colormaps)]
+            form = [('Grey', grey),
+                    ('Gain', self.gain * 1.0),
+                    ('Color Map', [cmapind] + colormaps)]
 
-        results = fedit(form)
-        if results is None: return
-        grey, gain, cmapind = results
-        self.colormap = colormaps[cmapind-1]
+            results = fedit(form)
+            if results is None: return
+            grey, gain, cmapind = results
+            self.colormap = colormaps[cmapind-1]
+            
+        else:
+            grey = args['grey']
+            gain = args['gain']
+            self.colormap = args['cmap']
+        
         self.changeMidGrey(grey, gain)
 
     def changeMidGrey(self, midgrey, gain=None):
@@ -1449,10 +1489,15 @@ class ImageViewerBase(BasePanel):
         self.imviewer.setZoom(1)
 
     def setZoom(self):
-        results = fedit([('Zoom value %', self.imviewer.zoomValue * 100)])
-        if results is None: return
-        value = results[0]
-        self.imviewer.setZoom(value / 100)
+        with ActionArguments(self) as args:
+            args['zoom'] = self.imviewer.zoomValue * 100
+            
+        if args.isNotSet():
+            results = fedit([('Zoom value %', args['zoom'])])
+            if results is None: return
+            args['zoom'] = results[0]
+            
+        self.imviewer.setZoom(args['zoom'] / 100)
 
     def setZoomValue(self, value):
         self.imviewer.setZoom(value)
