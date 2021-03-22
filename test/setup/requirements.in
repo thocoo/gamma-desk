@@ -1,3 +1,3 @@
-# run: pip-compile ./setup/requirements.in --extra-index-url http://bemc2idms.onsemi.com/onpi/simple/ --trusted-host pypi.org --trusted-host bemc2idms.onsemi.com
+# run: pip-compile ./setup/requirements.in --extra-index-url https://test.pypi.org/simple
 # in trunk dir to update the requirements.txt
-gamma-desk==0.0.1.dev2
+gamma-desk==0.0.1.dev3
