@@ -857,9 +857,14 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.viewMenu, 'HQ Zoom Out', self.toggle_hq,
             checkcall = lambda: self.imviewer.hqzoomout,
             statusTip = "Use high quality resampling on zoom levels < 100%")
-        self.addMenuItem(self.viewMenu, 'Zoom Bind', self.toggle_zoombind,
+            
+        self.bindMenu = CheckMenu("Bind", self.viewMenu)
+        self.addMenuItem(self.bindMenu, 'Bind All Image Viewers', self.bindImageViewers)
+        self.addMenuItem(self.bindMenu, 'Unbind All Image Viewers', self.unbindImageViewers)        
+        self.addMenuItem(self.bindMenu, 'Absolute Zoom Link', self.toggle_zoombind,
             checkcall = lambda: self.imviewer.zoombind,
-            statusTip = "Bind with absolute zoom value")
+            statusTip = "If binded to other image viewer, bind with absolute zoom value")        
+        
         self.addMenuItem(self.viewMenu, 'Colormap...'    , self.setColorMap,
             statusTip="Set the color map for monochroom images",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')))
@@ -1530,6 +1535,18 @@ class ImageViewerBase(BasePanel):
 
     def toggle_zoombind(self):
         self.imviewer.zoombind = not self.imviewer.zoombind
+        
+    def bindImageViewers(self):
+        for src_panid, src_panel in gui.qapp.panels['image'].items():
+            for tgt_panid, tgt_panel in gui.qapp.panels['image'].items():            
+                if src_panid == tgt_panid: continue
+                src_panel.addBindingTo('image', tgt_panid)
+                
+    def unbindImageViewers(self):
+        for src_panid, src_panel in gui.qapp.panels['image'].items():
+            for tgt_panid, tgt_panel in gui.qapp.panels['image'].items():            
+                if src_panid == tgt_panid: continue
+                src_panel.removeBindingTo('image', tgt_panid)                
 
     def setBackground(self):
 
