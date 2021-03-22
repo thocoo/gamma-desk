@@ -1276,13 +1276,13 @@ class ImageViewerBase(BasePanel):
         return gain1_range / self.gain + self.offset
 
     def offsetGainDialog(self):
-    
+
         with ActionArguments(self) as args:
             args['offset'] = self.offset
             args['gain'] = self.gain
             args['gamma'] = self.gamma
-            args['cmap'] = self.colormap           
-        
+            args['cmap'] = self.colormap
+
         if args.isNotSet():
             colormaps = imconvert.colormaps
             cmapind = colormaps.index(self.colormap) + 1
@@ -1296,11 +1296,11 @@ class ImageViewerBase(BasePanel):
             if results is None: return
             self.offset, self.gain, self.gamma, cmapind = results
             self.colormap = colormaps[cmapind-1]
-            
+
         else:
             self.offset, self.gain = args['offset'], args['gain']
-            self.gamma, self.colormap = args['gamma'], args['cmap']        
-                
+            self.gamma, self.colormap = args['gamma'], args['cmap']
+
         self.refresh_offset_gain()
 
 
@@ -1308,16 +1308,16 @@ class ImageViewerBase(BasePanel):
         self.defaults['offset'] = self.offset
         self.defaults['gain'] = self.gain
         self.defaults['gamma'] = self.gamma
-        
+
 
     def defaultOffsetGain(self):
         offset = self.defaults['offset']
         gain = self.defaults['gain']
         gamma = self.defaults['gamma']
         self.changeOffsetGain(offset, gain, gamma)
-        
 
-    def changeOffsetGain(self, offset, gain, gamma):                
+
+    def changeOffsetGain(self, offset, gain, gamma):
         if isinstance(offset, str):
             if offset == 'default':
                 offset = self.defaults['offset']
@@ -1340,13 +1340,13 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain()
 
     def blackWhiteDialog(self):
-    
+
         with ActionArguments(self) as args:
             args['black'] = self.offset
             args['white'] = self.white
             args['cmap'] = self.colormap
-            
-        if args.isNotSet():            
+
+        if args.isNotSet():
             colormaps = imconvert.colormaps
             cmapind = colormaps.index(self.colormap) + 1
 
@@ -1361,11 +1361,11 @@ class ImageViewerBase(BasePanel):
             if results is None: return
             black, white, cmapind = results
             self.colormap = colormaps[cmapind-1]
-            
+
         else:
             black, white = args['black'], args['white']
             self.colormap  = args['cmap']
-            
+
         self.changeBlackWhite(black, white)
 
     def changeBlackWhite(self, black, white):
@@ -1394,15 +1394,15 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain()
 
     def changeGreyGainDialog(self):
-             
+
         gain1_range = self.imviewer.imgdata.get_natural_range()
         grey = self.offset + gain1_range / self.gain / 2
-        
+
         with ActionArguments(self) as args:
             args['grey'] = grey
             args['gain'] = self.gain
-            args['cmap'] = self.colormap          
-        
+            args['cmap'] = self.colormap
+
         if args.isNotSet():
             colormaps = imconvert.colormaps
             cmapind = colormaps.index(self.colormap) + 1
@@ -1415,12 +1415,12 @@ class ImageViewerBase(BasePanel):
             if results is None: return
             grey, gain, cmapind = results
             self.colormap = colormaps[cmapind-1]
-            
+
         else:
             grey = args['grey']
             gain = args['gain']
             self.colormap = args['cmap']
-        
+
         self.changeMidGrey(grey, gain)
 
     def changeMidGrey(self, midgrey, gain=None):
@@ -1491,12 +1491,12 @@ class ImageViewerBase(BasePanel):
     def setZoom(self):
         with ActionArguments(self) as args:
             args['zoom'] = self.imviewer.zoomValue * 100
-            
+
         if args.isNotSet():
             results = fedit([('Zoom value %', args['zoom'])])
             if results is None: return
             args['zoom'] = results[0]
-            
+
         self.imviewer.setZoom(args['zoom'] / 100)
 
     def setZoomValue(self, value):
@@ -1532,27 +1532,52 @@ class ImageViewerBase(BasePanel):
         self.imviewer.zoombind = not self.imviewer.zoombind
 
     def setBackground(self):
-        old_color = self.imviewer.palette().window().color()
-        color = QColorDialog.getColor(old_color)
 
-        try:
-            rgb = color.toTuple()[:3]
-        except:
-            rgb = (0,0,0)
+        old_color = self.imviewer.palette().window().color()
+        rgb = old_color.toTuple()[:3]
+
+        with ActionArguments(self) as args:
+            args['r'] = rgb[0]
+            args['g'] = rgb[1]
+            args['b'] = rgb[2]
+
+        if args.isNotSet():
+            color = QColorDialog.getColor(old_color)
+
+            try:
+                rgb = color.toTuple()[:3]
+            except:
+                rgb = (0,0,0)
+
+        else:
+            rgb = (args['r'], args['g'], args['b'])
 
         config['image background'] = rgb
-
         self.imviewer.setBackgroundColor(*config['image background'])
 
+
     def setRoiColor(self):
-        color = QColorDialog.getColor(QtGui.QColor(*config['roi color']))
+        
+        old_color = QtGui.QColor(*config['roi color'])
+        rgb = old_color.toTuple()[:3]
+        
+        with ActionArguments(self) as args:
+            args['r'] = rgb[0]
+            args['g'] = rgb[1]
+            args['b'] = rgb[2]
+            
+        if args.isNotSet():
+            color = QColorDialog.getColor(old_color)
 
-        try:
-            rgb = color.toTuple()[:3]
-        except:
-            rgb = (0,0,0)
+            try:
+                rgb = color.toTuple()[:3]
+            except:
+                rgb = (0,0,0)
+                
+        else:
+            rgb = (args['r'], args['g'], args['b'])                
+            
         config['roi color'] = rgb
-
         self.imviewer.roi.initUI()
 
     ############################
