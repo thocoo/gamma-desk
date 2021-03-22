@@ -297,14 +297,14 @@ class GammaDeskSuite(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    # suite.addTest(GammaDeskSuite('test_screenstate_1'))
-    # suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
-    # suite.addTest(GammaDeskSuite('test_calc_pi_break'))
-    # suite.addTest(GammaDeskSuite('test_colors'))
+    suite.addTest(GammaDeskSuite('test_screenstate_1'))
+    suite.addTest(GammaDeskSuite('test_small_loop_and_print'))
+    suite.addTest(GammaDeskSuite('test_calc_pi_break'))
+    suite.addTest(GammaDeskSuite('test_colors'))
     suite.addTest(GammaDeskSuite('test_menu_file'))
-    # suite.addTest(GammaDeskSuite('test_menu_canvas'))
-    # suite.addTest(GammaDeskSuite('test_menu_image_1'))
-    # suite.addTest(GammaDeskSuite('test_menu_image_2'))
-    # suite.addTest(GammaDeskSuite('test_code_3'))
+    suite.addTest(GammaDeskSuite('test_menu_canvas'))
+    suite.addTest(GammaDeskSuite('test_menu_image_1'))
+    suite.addTest(GammaDeskSuite('test_menu_image_2'))
+    suite.addTest(GammaDeskSuite('test_code_3'))
     return suite
 
