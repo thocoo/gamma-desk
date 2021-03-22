@@ -22,7 +22,7 @@ from .core.gui_proxy import gui
 from .live import use, using
 
 PROGNAME = 'Gamma Desk'
-DOC_HTML = 'https://thocoo.github.io/gdesk-doc'
+DOC_HTML = 'https://thocoo.github.io/gdesk-data/docs'
 DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
