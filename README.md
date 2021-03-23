@@ -24,7 +24,9 @@ A Python work environment with image viewers & Plots
 python -m gdesk
 
 # More documentation
+
 [Program Help](https://thocoo.github.io/gdesk-data/docs)
+
 [Source Code](https://github.com/thocoo/gamma-desk)
 
 # Dependencies 
