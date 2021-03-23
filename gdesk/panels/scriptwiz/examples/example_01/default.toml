@@ -1,0 +1,19 @@
+[[calls]]
+call = "main"
+retref = ""
+
+[calls.kwargs]
+caller_argument = ""
+
+[params]
+single_line_text = "Hello World"
+multi_line_text = "First lines\nSecond lines"
+some_file = "D:/wa_git/gamma-desk/test/launch.bat"
+[[params.tabulated_items]]
+name = "line1"
+value = "1"
+
+[[params.tabulated_items]]
+name = "line2"
+value = "2"
+

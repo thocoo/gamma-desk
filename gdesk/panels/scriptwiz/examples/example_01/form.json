@@ -1,0 +1,37 @@
+{"form": [
+        {
+            "key": "single_line_text",
+            "caption": "Single Line of Text",
+            "widget_type": "FormLineEdit"
+        },
+        {
+            "key": "tabulated_items",
+            "caption": "A Simple Table",
+            "widget_type": "FormTable",
+            "widget_config": {"headers": ["name", "value"]}
+        },
+        {
+            "key": "multi_line_text",
+            "caption": "Memo",
+            "widget_type": "FormTextEdit"
+        },   
+        {
+            "key": "some_file",
+            "caption": "File",
+            "widget_type": "FormFile"
+        }
+    ],
+ "code_template": "template.py",
+ "settings_file": "default.toml",
+ "script": "hello.py",
+ "default_call": "main",
+ "calls": [
+    {"call": "main",
+     "form": [
+        {
+            "key": "caller_argument",
+            "caption": "Caller Argument",
+            "widget_type": "FormLineEdit"
+        }]
+    }]
+}
