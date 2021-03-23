@@ -32,6 +32,9 @@ Examples
 """
 
 def argparser():
+    """
+    Make the ArgumentParser instance
+    """
     parser = argparse.ArgumentParser(description=HEADER, prog=f'python -m {MODNAME}',
         formatter_class=argparse.RawDescriptionHelpFormatter, epilog=EPILOG)
 
@@ -44,6 +47,9 @@ def argparser():
 
 
 def argexec(argv=None, **config_kwargs):
+    """
+    Configure and start the eventloop
+    """
     parser = argparser()
     args = parser.parse_args(argv)
 
@@ -73,7 +79,9 @@ def argexec(argv=None, **config_kwargs):
 
 
 def run_as_child(console_args, config_kwargs, config_objects):
-
+    """
+    Top level function to start as child process
+    """
     #Note that auto unpickling of received arguments can have caused a configarion to be execed
     #The configuration was triggered by the Process code on decode this function pointer
     conf.config_objects.update(config_objects)
@@ -88,6 +96,9 @@ def run_as_child(console_args, config_kwargs, config_objects):
 
 
 def is_imported_by_child_process():
+    """
+    Detect whenever this module is imported by multiprocessing.spawn
+    """
     frame = sys._getframe()
 
     while not frame is None:
