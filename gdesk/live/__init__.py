@@ -10,7 +10,7 @@ Example of nested live script
 
 -- scripts/map1/hello.py ---------------
 
- from utrm.live import using
+ from gdesk.live import using
  info = using.info
 
  def hello_world():
@@ -21,20 +21,14 @@ Example of nested live script
 
 -- Use of using at top level -----------
 
- from utrm.live import manager, use
+ from gdesk.live import manager, use
  manager.append_path('scripts')
  hello = use.map1.hello
- hello.hello_world()
+ hello.hello_world() 
 """
+
 import sys
 import os
-
-# In IPython (Jypyter QTCOnsole):
-#
-# SET LIVEPATH=PATH_TO_MY_SCRIPT_FOLDERS
-#
-# from utrm.live import using, manager
-# using.hello.hello_world()
 
 from .manage import LiveScriptManager, LiveScriptScan
 
