@@ -6,6 +6,9 @@ Release Notes
 
 - Add bindmenu to image viewer
 - Add more documentation
+- Add command history panel
+- Add HTML panel
+
 
 
 0.0.1

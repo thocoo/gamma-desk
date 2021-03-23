@@ -29,6 +29,13 @@ Api
    user_api
    modules
    
+Search
+======
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`   
+   
 Release
 =======
    
