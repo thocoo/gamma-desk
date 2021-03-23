@@ -17,9 +17,7 @@ class ImageGuiProxy(GuiProxyBase):
     def attach(self, gui):
         gui.img = self   
         
-        # Property seems to be defined on gui 
-        # gui.vs = property(self.get_image_view_source)
-        # gui.vr = property(self.get_image_view_region)
+        # Properties are defined on gui 
         
         gui.set_roi = self.set_roi
         gui.set_roi_slices = self.set_roi_slices
@@ -32,8 +30,8 @@ class ImageGuiProxy(GuiProxyBase):
         gui.get_clipboard_image = self.get_clipboard_image
         
     @StaticGuiCall
-    def new(cmap=None, viewtype='image-profile', title=None):       
-        panel = gui.qapp.panels.select_or_new('image', None, viewtype)           
+    def new(cmap=None, viewtype='image-profile', title=None):
+        panel = GuiProxyBase._new('image', viewtype)
         
         if not cmap is None:
             panel.colormap = cmap        
@@ -280,13 +278,7 @@ class ImageGuiProxy(GuiProxyBase):
         
     @staticmethod
     def high_pass_current_image():
-        logger.error('Not implemented')
-        # print('high_pass_current_image started')
-        # from iss.imgana import filter_hp        
-        # array = gui.vs
-        # filtarr = filter_hp.highpass2d(array, False)        
-        # gui.img.show(filtarr)
-        # print('high_pass_current_image ended')        
+        logger.error('Not implemented')    
         
     @staticmethod
     def get_distance():
