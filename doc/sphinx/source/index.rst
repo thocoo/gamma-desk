@@ -18,6 +18,7 @@ Tutorial
    
    tutorial.console
    tutorial.plot  
+   tutorial.livescript
    tutorial.processes
 
 Api
