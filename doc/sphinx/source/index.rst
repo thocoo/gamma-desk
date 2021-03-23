@@ -10,12 +10,23 @@
 
 .. image:: ./figures/screenshot_01.jpg
 
+Tutorial
+========
+
+.. toctree::
+   :maxdepth: 2
+   
+   tutorial.console
+   tutorial.plot  
+   tutorial.processes
+
 Api
 ===
    
 .. toctree::
    :maxdepth: 2
    
+   user_api
    modules
    
 Release

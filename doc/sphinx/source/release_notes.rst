@@ -1,9 +1,16 @@
 Release Notes
 =============
 
-0.0.1.dev
----------
+0.1.0
+-----
 
-- Tryout of Github
+- Add bindmenu to image viewer
+- Add more documentation
+
+
+0.0.1
+-----
+
+- First release
 
  
