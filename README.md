@@ -8,12 +8,23 @@ A Python work environment with image viewers & Plots
 
 ![Screen Shot 1](https://github.com/thocoo/gamma-desk/raw/main/doc/sphinx/source/figures/screenshot_01.jpg)
 
+# Features
+
+- Multiple Consoles in the Gui Process
+- Multiple Child Process Consoles
+- More advanced auto command completion
+- Matplotlib integration
+- Image Viewers using QT Painter
+- Image histograms
+- Image column & row profiles
+- Linked Image Viewers
+
 # Usage
 
 python -m gdesk
 
 # More documentation
-![Program Help](https://thocoo.github.io/gdesk-data/docs)
+[Program Help](https://thocoo.github.io/gdesk-data/docs)
 
 # Dependencies 
 
