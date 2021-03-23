@@ -144,7 +144,9 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.menu(['View', 'Gain to Sigma', 'Gain to Sigma 3'])
         
         gui.img.menu(['View', 'HQ Zoom Out'])
-        gui.img.menu(['View', 'Zoom Bind'])
+        gui.img.menu(['View', 'Bind', 'Bind All Image Viewers'])
+        gui.img.menu(['View', 'Bind', 'Unbind All Image Viewers'])
+        gui.img.menu(['View', 'Bind', 'Absolute Zoom Link'])
         gui.img.menu(['View', 'Colormap...'], 'grey')
         gui.img.menu(['View', 'Colormap...'], 'clip')
         gui.img.menu(['View', 'Colormap...'], 'turbo')
