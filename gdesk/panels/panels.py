@@ -77,11 +77,16 @@ class Panels(object):
     def get_active_panid(self, category, panidpos=-1):
         return self.selected(category, panidpos).panid
 
-    def new(self, category, paneltype='basic', windowname=None, *args, **kwargs):
+
+    def new(self, category, paneltype=None, windowname=None, *args, **kwargs):
         image_classes = self.classes_of_category(category)
-        ImageClass = image_classes[paneltype]
+        if paneltype is None:
+            ImageClass = next(iter(image_classes.values()))
+        else:
+            ImageClass = image_classes[paneltype]
         panel = self.new_panel(ImageClass, windowname, None, args=args, kwargs=kwargs)
         return panel
+
 
     def select_or_new(self, category, panid=None, defaulttype='basic', parentName='main', args=(), kwargs={}):
         """
@@ -108,8 +113,10 @@ class Panels(object):
 
         return panel
 
+
     def selected_category(self):
         return tuple(self.panels.keys())[-1]
+
 
     def selected(self, category, panidpos=-1, panel=True):
         assert panidpos < 0
@@ -128,6 +135,7 @@ class Panels(object):
                 return panid
         else:
             return None
+
 
     def reselect_all(self):
         for category in list(self.keys()):

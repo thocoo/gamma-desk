@@ -107,7 +107,7 @@ class GuiProxyBase(object):
                 result[category].append(Cls)
             return result
         else:
-            return l 
+            return l
     
     
     @classmethod
@@ -120,8 +120,18 @@ class GuiProxyBase(object):
         :param **kwargs: Keyword arguments of the menu call
         """
         return gui.menu_trigger(cls.category, None, action_names, *args, **kwargs)
-    
 
+    
+    @classmethod
+    def new(cls, paneltype=None, windowname=None, *args, **kwargs):
+        return GuiProxyBase._new(cls.category, paneltype, windowname, *args, **kwargs)
+        
+        
+    @StaticGuiCall        
+    def _new(category, paneltype=None, windowname=None, *args, **kwargs):
+        return gui.qapp.panels.new(category, paneltype, windowname, *args, **kwargs)
+
+    
     @classmethod
     def selected(cls):
         """
