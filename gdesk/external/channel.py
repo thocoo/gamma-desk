@@ -28,7 +28,7 @@ def python_executable():
         executable = pathlib.Path(os.__file__).parent.parent / 'python.exe'
         return str(executable)
         
-def connect(port=None, host='localhost',
+def connect_to_gui(port=None, host='localhost',
         namespace=None, gui_redirect=True, as_server=False):
     """
     Start Gamma Hawk as a independend process and open a zmq communication channel
