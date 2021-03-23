@@ -1,7 +1,7 @@
 set doc_root=..
 
 set doc_src_html=%doc_root%\sphinx\build\html
-set doc_tgt_html=%doc_root%\..\..\gdesk-doc\docs
+set doc_tgt_html=%doc_root%\..\..\gdesk-data\docs
 
 set pwd=%CD%
 
