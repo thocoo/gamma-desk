@@ -8,7 +8,7 @@ click==7.1.2
     # via pip-tools
 cycler==0.10.0
     # via matplotlib
-gamma-desk==0.0.1
+gamma-desk==0.1.0.dev
     # via -r ./setup/requirements.in
 imageio==2.9.0
     # via gamma-desk
