@@ -17,6 +17,7 @@ A Python work environment with image viewers & Plots
 - Image Viewers using QT Painter
 - Image histograms
 - Image column & row profiles
+- Advanced window & panel docking
 - Linked Image Viewers
 
 # Usage
