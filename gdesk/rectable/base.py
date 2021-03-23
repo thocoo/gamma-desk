@@ -10,11 +10,6 @@ INCR = 100
 MAXWIDTH = shutil.get_terminal_size().columns - 4
 DEFAULT_STYLE = 'rst-simple'
 
-def lazyf(template):
-    frame = sys._getframe(1)
-    tesc = template.replace('"','\\"')
-    result = eval(f'f"{tesc}"', frame.f_globals, frame.f_locals)
-    return result
 
 class ColumnAttributes(object):
     def __init__(self, rectable, colname):
