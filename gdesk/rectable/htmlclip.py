@@ -165,7 +165,7 @@ class HtmlClipboard:
                 else:
                     print( 'ERROR in Clipboard section of readcomments: %s' % err)
 
-                    pass        
+                    pass
 
     def DecodeClipboardSource(self, src):
         """
@@ -304,19 +304,19 @@ if __name__ == '__main__':
             print("passed")
         else:
             print("failed")
-            
+
     def test_tabulated_data():
         import sys
         sys.path.append(r'E:\ProjectsClio\is_common\tools\utrm\pypack')
-        
+
         from utrm.prettytable import PrettyTable
-        
+
         tbl = PrettyTable(['Name','Value'])
         tbl.add_row(['register0', 1])
         tbl.add_row(['register1', 2])
-        
+
         PutHtml(tbl.get_html_string())
-                
+
 
     #test_SimpleGetPutHtml()
     test_tabulated_data()
