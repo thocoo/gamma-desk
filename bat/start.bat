@@ -1,2 +1,2 @@
 cd ..
-python -m gdesk
+python -m gdesk -c ./test/gdconf.json
