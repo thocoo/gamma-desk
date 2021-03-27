@@ -809,6 +809,8 @@ class Console(BasePanel):
 
         self.addMenuItem(self.viewMenu, 'input', self.toggleInputVisible,
             checkcall=lambda: self.stdio.stdInputPanel.isVisible())
+            
+        self.addMenuItem(self.viewMenu, 'Clear', self.clear)
 
         scripMenu = self.menuBar().addMenu("&Script")
         self.addMenuItem(scripMenu, 'Edit sys.path...', self.editSysPaths,
@@ -942,6 +944,9 @@ class Console(BasePanel):
             self.stdio.stdInputPanel.hide()
         else:
             self.stdio.stdInputPanel.show()
+            
+    def clear(self):
+        self.stdio.stdOutputPanel.clear()
 
     def close_panel(self):
         try:
