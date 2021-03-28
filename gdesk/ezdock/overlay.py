@@ -165,7 +165,7 @@ class DockOverlay(QWidget):
         rects.append((('L', ('left', None),   (spaceb,  h/2 )), (0, 0,     w/3, h  )))
         rects.append((('R', ('right', None),  (w-spaceb,h/2 )), (2*w/3, 0, w/3, h  )))   
         
-        panelrects = DockOverlay.get_dock_global_positions_branch(container.laywidget)    
+        panelrects = self.get_panel_positions(container)    
 
         for panel, rect in panelrects:
             panqualid = (panel.category, panel.panid)            
@@ -180,27 +180,21 @@ class DockOverlay(QWidget):
             rects.append((('L', ('left', panqualid),   (xc-spacec, yc)), (posx, posy, w/2, h)))
             rects.append((('R', ('right', panqualid),  (xc+spacec, yc)), (posx  + w/2, posy, w/2, h)))     
 
-        return rects
-        
-    @staticmethod
-    def get_dock_global_positions_branch(layout_widget):
+        return rects          
+
+    def get_panel_positions(self, container):
         rects = []   
         
-        if not (isinstance(layout_widget, (QSplitter, QScrollArea)) or isinstance(layout_widget, (DockTab, DockTag))):
-            pos = layout_widget.mapToGlobal(layout_widget.pos())            
-            return [(layout_widget, (pos.x(), pos.y(), layout_widget.width(), layout_widget.height()))]
-        
-        if isinstance(layout_widget, (QSplitter, QScrollArea)):
-            for index in range(layout_widget.count()):
-                widget = layout_widget.widget(index)
-                rects.extend(DockOverlay.get_dock_global_positions_branch(widget))
-                
-        elif isinstance(layout_widget, (DockTab, DockTag)):
-            widget = layout_widget.currentWidget()
-            if not widget is None:
-                rects.extend(DockOverlay.get_dock_global_positions_branch(widget))
+        for cat, panid in container.panelIds:
+            panel = gui.qapp.panels[cat][panid]
+            #TO DO: if panel is part of scrollarea, it is possible
+            # that the panel is not completly visible
+            # So take the visible part. But how?
+            pos = panel.mapToGlobal(panel.pos())
+            rect = (panel, (pos.x(), pos.y(), panel.width(), panel.height()))
+            rects.append(rect)
             
-        return rects        
+        return rects
         
     def match_geometry(self, window):
         if self.tool:
