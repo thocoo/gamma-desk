@@ -190,6 +190,8 @@ class DockOverlay(QWidget):
             #TO DO: if panel is part of scrollarea, it is possible
             # that the panel is not completly visible
             # So take the visible part. But how?
+            if not panel.isVisible():
+                continue
             pos = panel.mapToGlobal(panel.pos())
             rect = (panel, (pos.x(), pos.y(), panel.width(), panel.height()))
             rects.append(rect)
