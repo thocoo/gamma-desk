@@ -177,7 +177,7 @@ class ImageData(object):
         self.qimg = None
         self.map8 = None
         self.sharray = None
-        self.imghist = ArrayHistory(config['image'].get("history_count", 4))
+        self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
         #arr = np.zeros((192,256),'uint8') + np.arange(256, dtype='uint8').reshape(1,256) 
         arr = np.ones((1,1),'uint8') * 128
@@ -316,28 +316,33 @@ class ImageData(object):
         
 class ArrayHistory(object):
 
-    def __init__(self, max_length=4):
-        self.max_length = max_length 
+    def __init__(self, max_size=4):
+        self.max_size = max_size 
         self.prior_arrays = []
         self.next_arrays = []
         
     def push(self, array):
-        if len(self.prior_arrays) == self.max_length:
-            self.prior_arrays.pop(0)      
-        self.prior_arrays.append(array)
-        self.next_arrays.clear()
+        overflow = self.reduce_size_to_max_byte_size(array.size)  
+        if overflow < 0: self.prior_arrays.append(array)
+        self.next_arrays.clear()        
+        
+    def reduce_size_to_max_byte_size(self, add_size=0):
+        current_size = add_size
+        for arr in self.prior_arrays:
+            current_size += arr.size
+        overflow = current_size - self.max_size
+        while overflow > 0 and len(self.prior_arrays) > 0:
+            array = self.prior_arrays.pop(0)            
+            overflow -= array.size        
+        return overflow
         
     def prior(self, current_array):
         array = self.prior_arrays.pop(-1)
-        if len(self.next_arrays) == self.max_length:
-            self.next_arrays.pop(0)
         self.next_arrays.append(current_array)
         return array
         
     def next(self, current_array):
         array = self.next_arrays.pop(-1)
-        if len(self.prior_arrays) == self.max_length:
-            self.prior_arrays.pop(0)
         self.prior_arrays.append(current_array)  
         return array
         
