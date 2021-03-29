@@ -2,6 +2,7 @@ import os
 import textwrap
 import psutil
 import time
+import logging
 from pathlib import Path
 
 from qtpy import QtCore, QtGui, QtWidgets
@@ -23,6 +24,7 @@ from ...utils.ansi_code_processor import QtAnsiCodeProcessor
 from ...gcore.utils import getMenuAction
 
 respath = Path(config['respath'])
+logger = logging.getLogger(__name__) 
 
 MAXCHARPERLINE = 10000  #Only for ansi mode
 #PREFIXWIDTH = 30  # width of the left side line numbers
@@ -756,11 +758,11 @@ class Console(BasePanel):
         self.executionMenu = CheckMenu("&Execution", self.menuBar())
         self.menuBar().addMenu(self.executionMenu)
 
-        self.addMenuItem(self.fileMenu, "Execute Python File", self.exec_file,
-            statusTip="Execute Python File",
+        self.addMenuItem(self.fileMenu, "Open File", self.openFileDialog,
+            statusTip="Open a file",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'script_start.png')))
 
-        self.addMenuItem(self.fileMenu, 'Open Image Data Base', self.openIdmDialog)
+        #self.addMenuItem(self.fileMenu, 'Open Image Data Base', self.openIdmDialog)
         self.addMenuItem(self.fileMenu, 'New Thread', self.newThread)
         self.fileMenu.addMenu(RecentMenu(self))
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
@@ -896,26 +898,38 @@ class Console(BasePanel):
     def exec_file(self):
         cmd = """exec(open(gui.getfilename('*.py'),'r').read())"""
         self.exec_cmd(cmd)
+        
+    def openFileDialog(self):
+        filepath = gui.dialog.getfilename('*.*')
+        self.openFile(filepath)
 
     def openFile(self, filepath):
         filepath = Path(filepath)
-
-        print(f'<{filepath}>')
-
-        if filepath.suffix == '.db':
-            self.openIdm(filepath)
-
-    def openIdmDialog(self, filepath):
-        filepath = gui.dialog.getfilename('*.db')
-        self.openIdm(filepath)
-
-    def openIdm(self, filepath):
-        ref = gui.dialog.getstring('Give reference name', 'idminst')
-
-        self.exec_cmd('from iss.idm import ImageDataManager')
-        self.exec_cmd(f'{ref} = ImageDataManager(r"""{filepath}""")')
-
+        
+        if filepath.suffix == '.py':
+            cmd = f"""exec(open(r'{filepath}', 'r').read())"""
+            self.exec_cmd(cmd)
+        
+        else:
+            logger.error(f'Suffix {filepath.suffix} of {filepath.name} not registered')
+            return
+        
         gui.qapp.history.storepath(str(filepath), category='console')
+        
+        # if filepath.suffix == '.db':
+            # self.openIdm(filepath)
+
+    # def openIdmDialog(self, filepath):
+        # filepath = gui.dialog.getfilename('*.db')
+        # self.openIdm(filepath)
+
+    # def openIdm(self, filepath):
+        # ref = gui.dialog.getstring('Give reference name', 'idminst')
+
+        # self.exec_cmd('from iss.idm import ImageDataManager')
+        # self.exec_cmd(f'{ref} = ImageDataManager(r"""{filepath}""")')
+
+        # gui.qapp.history.storepath(str(filepath), category='console')
 
     def addText(self, text):
         self.stdio.stdOutputPanel.addText(text)
