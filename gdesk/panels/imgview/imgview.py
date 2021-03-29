@@ -2092,7 +2092,10 @@ class ImageViewer(ImageViewerBase):
 
 
     def emitVisibleRegionChanged(self):
-        self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
+        if self.imviewer.zoombind:
+            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, self.imviewer.zoomValue)
+        else:
+            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
 
 
 class ImageProfileWidget(QWidget):
