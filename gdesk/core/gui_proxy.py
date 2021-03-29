@@ -44,7 +44,7 @@ def StaticGuiCall(func):
     #func is the function of the decorated method, not the method itself?    
     @staticmethod
     @wraps(func)
-    def caller(*args, **kwargs):
+    def caller(*args, **kwargs):        
         return gui.gui_call(func, *args, **kwargs)
     return caller
     
