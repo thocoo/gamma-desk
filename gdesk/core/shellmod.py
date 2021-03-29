@@ -197,11 +197,28 @@ class Shell(object):
             lineno = code.co_firstlineno            
             
         else:
-            fi = inspect.getfile(object)
+            if hasattr(object, '__wrapped__'):
+                object = object.__wrapped__
+            
             try:
-                lineno = inspect.getlineno(object)
-            except AttributeError:
-                lineno = 1
+                fi = inspect.getsourcefile(object)
+            except:
+                fi = None
+                
+            if fi is None:
+                fi = inspect.getsourcefile(type(object))                    
+            
+            if hasattr(object, '__code__'):
+                try:
+                    lineno = object.__code__.co_firstlineno
+                except:
+                    lineno = 1
+            else:
+                try:
+                    lineno = inspect.getlineno(object)
+                except AttributeError:
+                    lineno = 1
+                
         return (fi, lineno)                
                     
     @staticmethod
