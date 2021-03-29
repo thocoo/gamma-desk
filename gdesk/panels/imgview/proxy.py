@@ -10,6 +10,7 @@ from ...utils.shared import SharedArray
         
 class ImageGuiProxy(GuiProxyBase):    
     category = 'image'
+    opens_with = ['.tif', '.png', '.gif']
     
     def __init__(self):
         pass
@@ -28,6 +29,8 @@ class ImageGuiProxy(GuiProxyBase):
         gui.zoom_full = self.zoom_full
         gui.zoom_region = self.zoom_region
         gui.get_clipboard_image = self.get_clipboard_image
+        
+        return 'img'
         
     @StaticGuiCall
     def new(cmap=None, viewtype='image-profile', title=None):

@@ -6,6 +6,7 @@ from ...core.shellmod import Shell
        
 class ConsoleGuiProxy(GuiProxyBase):    
     category = 'console'
+    opens_with = ['.py']
     
     def __init__(self):
         pass
@@ -13,7 +14,12 @@ class ConsoleGuiProxy(GuiProxyBase):
     def attach(self, gui):
         gui.console = self
         gui.clc = self.clc
-
+        return 'console'
+        
+    @StaticGuiCall 
+    def open(filepath):
+        panel = gui.qapp.panels.selected('console')
+        ConsoleGuiProxy._gui_execute_file(filepath, panel.panid)
 
     @StaticGuiCall
     def console(pandid=None, consoletype='thread'):

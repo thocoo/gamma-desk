@@ -194,6 +194,7 @@ class GuiProxy(object):
         """
         self.hooks = dict()
         self.reg_obj = dict()
+        self.proxies = dict()
         
         self.block = True
         self._qapp = qapp
@@ -233,7 +234,9 @@ class GuiProxy(object):
         catclasses = GuiProxyBase.derivedClasses()
         for category, classes in catclasses.items():
             proxy = classes[0]()
-            proxy.attach(self)
+            name = proxy.attach(self)
+            if not name is None:
+                self.proxies[name] = proxy
             
     def set_func_hook(self, key, func):
         """

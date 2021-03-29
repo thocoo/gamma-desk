@@ -906,30 +906,18 @@ class Console(BasePanel):
     def openFile(self, filepath):
         filepath = Path(filepath)
         
-        if filepath.suffix == '.py':
-            cmd = f"""exec(open(r'{filepath}', 'r').read())"""
-            self.exec_cmd(cmd)
+        for proxyname, proxy in gui.proxies.items():
+            if filepath.suffix.lower() in proxy.opens_with:
+                #cmd = f"""exec(open(r'{filepath}', 'r').read())"""
+                #self.exec_cmd(cmd)
+                proxy.open(filepath)
+                break
         
         else:
             logger.error(f'Suffix {filepath.suffix} of {filepath.name} not registered')
             return
         
-        gui.qapp.history.storepath(str(filepath), category='console')
-        
-        # if filepath.suffix == '.db':
-            # self.openIdm(filepath)
-
-    # def openIdmDialog(self, filepath):
-        # filepath = gui.dialog.getfilename('*.db')
-        # self.openIdm(filepath)
-
-    # def openIdm(self, filepath):
-        # ref = gui.dialog.getstring('Give reference name', 'idminst')
-
-        # self.exec_cmd('from iss.idm import ImageDataManager')
-        # self.exec_cmd(f'{ref} = ImageDataManager(r"""{filepath}""")')
-
-        # gui.qapp.history.storepath(str(filepath), category='console')
+        gui.qapp.history.storepath(str(filepath), category='console')        
 
     def addText(self, text):
         self.stdio.stdOutputPanel.addText(text)
