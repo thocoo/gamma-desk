@@ -171,7 +171,8 @@ class GuiApplication(QApplication):
             action.trigger()
         else:
             action = self.panels.get_menu_action(category, None, action_names)
-            action.trigger()
+            if not action is None:
+                action.trigger()
         
     def checkPanelActive(self, old, new):        
         #This function is probably more called then needed !

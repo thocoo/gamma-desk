@@ -75,7 +75,11 @@ class Panels(object):
             yield category, self[category]
 
     def get_active_panid(self, category, panidpos=-1):
-        return self.selected(category, panidpos).panid
+        panel = self.selected(category, panidpos)
+        if panel is None:
+            return None
+        else:
+            return panel.panid
 
 
     def new(self, category, paneltype=None, windowname=None, *args, **kwargs):
@@ -216,6 +220,9 @@ class Panels(object):
 
         if panid is None:
             panid = self.get_active_panid(category)
+            
+        if panid is None:
+            return
 
         panel = self[category][panid]
 
