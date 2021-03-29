@@ -260,8 +260,8 @@ class DictStruct(object):
         which start with double underscore.  This breaks hasattr(),
         which will return True for *any* such attributename.
         """
-        if name[0:2] == '__':
-            return None
+        if name[0:2] == '__':            
+            raise AttributeError(name)
 
         return getattr(self.__dict__, name)
 
