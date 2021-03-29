@@ -5,10 +5,6 @@ logger = logging.getLogger(__name__)
 class LayoutStruct(object):
     def __init__(self):
         self.root = dict()
-        # self.root['type'] = 'layout'
-        # self.root['category'] = 'hbox'
-        # self.root['items'] = []
-        # self.root['sizes'] = []
         self.tabblock = True  #Don't split inside tabs, go back one level
         
     def insert_panel(self, panel, relation='right', to_panel=None, size=100):
@@ -47,11 +43,7 @@ class LayoutStruct(object):
             
         if check_node(self.root):            
             poped_node = self.root
-            self.root = dict()
-            # self.root['type'] = 'layout'
-            # self.root['category'] = 'hbox'
-            # self.root['items'] = []
-            # self.root['sizes'] = []     
+            self.root = dict()    
 
             l = LayoutStruct()  
             l.root = poped_node            
@@ -143,17 +135,22 @@ class LayoutStruct(object):
                     
                 elif node['category'] == 'hbox':
                     #Add the item to the current hbox
+                    first_scroll_index = len(node['sizes'])
                     if relation == 'left':
-                        node['items'].insert(item_index, new_node)
-                        node['sizes'].insert(item_index, size)
+                        if item_index < first_scroll_index:
+                            node['items'].insert(item_index, new_node)
+                            node['sizes'].insert(item_index, size)
+                        else:
+                            node['items'].insert(item_index, new_node)
+                            node['scroll'].insert(item_index-first_scroll_index, size)                             
                         
                     elif relation == 'right':
-                        if item_index == len(node['items']) - 1:                
-                            node['items'].append(new_node)
-                            node['sizes'].append(size)    
-                        else:
+                        if item_index < first_scroll_index:
                             node['items'].insert(item_index+1, new_node)
                             node['sizes'].insert(item_index+1, size)
+                        else:                            
+                            node['items'].insert(item_index+1, new_node)
+                            node['scroll'].insert(item_index-first_scroll_index+1, size)
                         
             elif relation in ['top', 'bottom']:
                 if not node['category'] == 'vbox':
@@ -174,16 +171,21 @@ class LayoutStruct(object):
                     
                 elif node['category'] == 'vbox':
                     #Add the item to the current hbox
+                    first_scroll_index = len(node['sizes'])
                     if relation == 'top':
-                        node['items'].insert(item_index, new_node)
-                        node['sizes'].insert(item_index, size)        
-                    elif relation == 'bottom':
-                        if item_index == len(node['items']) - 1:                
-                            node['items'].append(new_node)
-                            node['sizes'].append(size)    
+                        if item_index < first_scroll_index:
+                            node['items'].insert(item_index, new_node)
+                            node['sizes'].insert(item_index, size)
                         else:
+                            node['items'].insert(item_index, new_node)
+                            node['scroll'].insert(item_index-first_scroll_index, size)                            
+                    elif relation == 'bottom':                      
+                        if item_index < first_scroll_index:
                             node['items'].insert(item_index+1, new_node)
                             node['sizes'].insert(item_index+1, size)
+                        else:
+                            node['items'].insert(item_index+1, new_node)
+                            node['scroll'].insert(item_index-first_scroll_index+1, size)
                             
             elif relation in ['tab']:
                 if not node['category'] == 'tab':
