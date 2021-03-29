@@ -48,7 +48,7 @@ class ImageGuiProxy(GuiProxyBase):
     def open(filepath):
         panel = gui.qapp.panels.selected('image')
         if panel is None:
-            panel = gui.qapp.panels.select_or_new('image')
+            panel = gui.qapp.panels.select_or_new('image', defaulttype = 'image-profile')
         panel.openImage(filepath)
         window = panel.get_container().parent()
         window.raise_()
