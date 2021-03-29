@@ -416,7 +416,7 @@ class DockContainer(QWidget):
         self.update_layout(LayoutStruct())
         self.update_layout(ls)        
 
-    def make_layout_widget_branch(self, node, parentnode=None):
+    def make_layout_widget_branch(self, node, parentnode=None, ind=None):
         if len(node.keys()) == 0:
             lay = DockTab()
             return lay
@@ -426,7 +426,7 @@ class DockContainer(QWidget):
             cat = node['category']
             panid = node['id']
             panel = self.all_panels[cat][panid]
-            panel.title = panel.short_title
+            panel.title = panel.short_title            
             self.panelIds.append((cat, panid))
             lay = panel
             
@@ -455,18 +455,20 @@ class DockContainer(QWidget):
                 raise TypeError(f'Unknown node category {node}')
         else:
             raise TypeError(f'Unknown node type {node}')
+            
+        lay.nodeinfo = {'parent': parentnode, 'index': ind}
 
         if isinstance(lay, DockBox):
             items = node.get('items', [])
             pin_sizes = node.get('sizes', [])
             scroll_sizes = node.get('scroll', [])
             areas = len(pin_sizes) * [DockBox.PinArea] + len(scroll_sizes) * [DockBox.ScrollArea]
-            for item, area in zip(items, areas):
-                branch = self.make_layout_widget_branch(item, node)
+            for ind, (item, area) in enumerate(zip(items, areas)):
+                branch = self.make_layout_widget_branch(item, node, ind)
                 lay.addWidget(branch, area=area, title=branch.title)            
         else:
-            for item in node.get('items', []):
-                branch = self.make_layout_widget_branch(item, node)
+            for ind, item in enumerate(node.get('items', [])):
+                branch = self.make_layout_widget_branch(item, node, ind)
                 lay.addWidget(branch, title=branch.title)
 
         if node['type'] == 'layout':
