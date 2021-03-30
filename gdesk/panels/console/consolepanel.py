@@ -759,10 +759,8 @@ class Console(BasePanel):
         self.menuBar().addMenu(self.executionMenu)
 
         self.addMenuItem(self.fileMenu, "Open File", self.openFileDialog,
-            statusTip="Open a file",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'script_start.png')))
+            statusTip="Open a file", icon = 'folder_vertical_document.png')
 
-        #self.addMenuItem(self.fileMenu, 'Open Image Data Base', self.openIdmDialog)
         self.addMenuItem(self.fileMenu, 'New Thread', self.newThread)
         self.fileMenu.addMenu(RecentMenu(self))
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
