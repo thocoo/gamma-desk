@@ -126,9 +126,7 @@ class DockTabBase(QTabWidget, DockBase):
             #self.toprightbtn.setText('...')
             self.toprightbtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
             self.setCornerWidget(self.toprightbtn, Qt.TopRightCorner)
-            self.pinMenu = QtWidgets.QMenu('pin')
-            self.pinMenu.addAction(QtWidgets.QAction('Toggle global Menu usage', self, triggered=self.toggleMenu))
-            self.pinMenu.addAction(QtWidgets.QAction('Show/Hide Status Bar', self, triggered=self.toggleStatusBar))
+            self.pinMenu = QtWidgets.QMenu('pin')            
             if config.get("scroll_area", False):
                 self.pinMenu.addAction(QtWidgets.QAction('Move to Pinned/Scroll Area', self, triggered=self.moveToOtherArea))            
             self.pinMenu.addAction(QtWidgets.QAction('Duplicate', self, triggered=self.duplicate,
@@ -137,9 +135,14 @@ class DockTabBase(QTabWidget, DockBase):
                 icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layouts_split.png'))))           
             self.pinMenu.addAction(QtWidgets.QAction('Split Vertical', self, triggered=self.splitVertical,
                 icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layouts_split_vertical.png'))))
+            self.pinMenu.addSeparator()
             action = QtWidgets.QAction('Screenshot to Clipboard', self, triggered=self.screenShot)
             action.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'lcd_tv_image.png')))
-            self.pinMenu.addAction(action)
+            self.pinMenu.addAction(action)            
+            self.pinMenu.addAction(QtWidgets.QAction('Toggle global Menu usage', self, triggered=self.toggleMenu,
+                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png'))))
+            self.pinMenu.addAction(QtWidgets.QAction('Show/Hide Status Bar', self, triggered=self.toggleStatusBar,
+                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'status_bar.png'))))
             self.toprightbtn.setMenu(self.pinMenu)
         
         if collapse == 'h':
