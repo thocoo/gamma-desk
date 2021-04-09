@@ -98,6 +98,7 @@
     "Ctrl+Shift+I": {"image": ["Image", "Invert"]},
     "Esc": {"console": ["Execution", "Sync Break"]},
     "Shift+Esc": {"console": ["Execution", "Async Break"]},
+    "ScrollLock": {"console": ["View", "Auto Scroll"]},
     "F10": {"window": ["Cycle Tag Level"]},
     "F11": {"window": ["Full Screen"]},
     "F12": {"window": ["Hide/show Menu & Statusbar"]}

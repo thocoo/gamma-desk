@@ -494,7 +494,7 @@ class StdPlainOutputPanel(QPlainTextEdit):
         self.stdout_queue = stdout_queue
         self.setReadOnly(True)
         self._ansi_processor = None
-
+        self.auto_scroll = True
         self.configure(config)
 
     @property
@@ -537,13 +537,15 @@ class StdPlainOutputPanel(QPlainTextEdit):
         cursor=self.textCursor()
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
-        self.moveCursor(QTextCursor.End)
+        if self.auto_scroll:
+            self.moveCursor(QTextCursor.End)
 
     def addAnsiText(self, text):
         cursor = self.textCursor()
         cursor.movePosition(QTextCursor.End)
         self._insert_ansi_escape_text(cursor, text)
-        self.moveCursor(QTextCursor.End)
+        if self.auto_scroll:
+            self.moveCursor(QTextCursor.End)
 
     def _insert_ansi_escape_text(self, cursor, text):
         cursor.beginEditBlock()
@@ -618,56 +620,6 @@ class StdPlainOutputPanel(QPlainTextEdit):
 
         cursor.setBlockCharFormat(QTextCharFormat())
         cursor.endEditBlock()
-
-    # def focusInEvent(self, event):
-        # selectThisPanel(self)
-        # super().focusInEvent(event)
-
-
-class StdOutputPanel(QTextEdit):
-    def __init__(self, parent, stdout_queue):
-        super().__init__(parent = parent)
-        self.stdout_queue = stdout_queue
-        self.setReadOnly(True)
-
-        self.configure(config)
-
-    def configure(self, config):
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
-        self.setFont(console_font)
-
-        if config['console']['wrap']:
-            self.setWordWrapMode(QTextOption.WordWrap)
-        else:
-            self.setWordWrapMode(QTextOption.NoWrap)
-
-    def flush(self):
-        text = ''
-        while not self.stdout_queue.empty():
-            data = self.stdout_queue.get()
-            if isinstance(data, tuple):
-                ttype, content = data
-            else:
-                content = data
-            text += content
-        if not text == '':
-            self.addText(text)
-
-    def addText(self, text):
-        cursor=self.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertText(text)
-        self.moveCursor(QTextCursor.End)
-
-    def addHtml(self, text):
-        cursor=self.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertHtml(text)
-        self.moveCursor(QTextCursor.End)
-
-    # def focusInEvent(self, event):
-        # selectThisPanel(self)
-        # super().focusInEvent(event)
 
 
 class StdioFrame(QWidget):
@@ -812,6 +764,9 @@ class Console(BasePanel):
         self.addMenuItem(self.viewMenu, 'input', self.toggleInputVisible,
             checkcall=lambda: self.stdio.stdInputPanel.isVisible())
             
+        self.addMenuItem(self.viewMenu, 'Auto Scroll', self.toggleAutoScroll,
+            checkcall=lambda: self.stdio.stdOutputPanel.auto_scroll)
+            
         self.addMenuItem(self.viewMenu, 'Clear', self.clear)
 
         scripMenu = self.menuBar().addMenu("&Script")
@@ -945,7 +900,10 @@ class Console(BasePanel):
         if self.stdio.stdInputPanel.isVisible():
             self.stdio.stdInputPanel.hide()
         else:
-            self.stdio.stdInputPanel.show()
+            self.stdio.stdInputPanel.show()            
+        
+    def toggleAutoScroll(self):
+        self.stdio.stdOutputPanel.auto_scroll = not self.stdio.stdOutputPanel.auto_scroll
             
     def clear(self):
         self.stdio.stdOutputPanel.clear()
