@@ -69,7 +69,7 @@
     "Ctrl+Shift+N": {"image": ["File", "New..."]},
     "Ctrl+Shift+D": {"image": ["File", "Duplicate"]},
     "Ctrl+O": {"image": ["File", "Open Image..."],
-               "console": ["File", "Execute Python File"]},
+               "console": ["File", "Open File"]},
     "Ctrl+W": {"image":   ["File", "Close"],
                "console": ["File", "Close"],
                "levels":  ["File", "Close"],
