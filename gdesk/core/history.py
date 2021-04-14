@@ -181,8 +181,7 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             yield row
             
         
-    def retrievecmd(self, part='', from_id=None, distinct=True, back=True, prefix=True):
-        part = part.replace("'","''")
+    def retrievecmd(self, part='', from_id=None, distinct=True, back=True, prefix=True):        
             
         query = self.make_retrieve_query(1, part, from_id, distinct, back, prefix)
         
@@ -223,6 +222,8 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             wild = ''
         else:
             wild = '%'
+            
+        part = part.replace("'","''")
             
         if distinct:
             query = f"SELECT LASTID AS ID, CMD FROM (SELECT MAX(ID) AS LASTID, CMD FROM CMDHIST WHERE CMD LIKE '{wild}{part}%' GROUP BY CMD ORDER BY LASTID {order}){rng} LIMIT {count}"
