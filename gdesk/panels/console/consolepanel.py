@@ -152,7 +152,7 @@ class StdInputPanel(QPlainTextEdit):
         self.configure(config)
         self.lineNumberArea=LineNumberArea(self)
 
-        self.setFocusPolicy(Qt.StrongFocus)
+        #self.setFocusPolicy(Qt.StrongFocus)
 
         self.styles = dict()
         self.styles['interprete'] = "background-color:white;"
@@ -161,7 +161,7 @@ class StdInputPanel(QPlainTextEdit):
         self.styles['input'] = "background-color:#BBBBDD;"
         self.styles['ended'] = "background-color:#EFEFEF;"
 
-        self.setMinimumHeight(32)
+        self.setMinimumHeight(32)        
 
         self.mode = 'interprete'
         self.heightHint = 100
@@ -175,7 +175,7 @@ class StdInputPanel(QPlainTextEdit):
         else:
             self.setWordWrapMode(QTextOption.NoWrap)
 
-        self.setMaximumBlockCount(config['console']['maxblockcount'])
+        self.setUndoRedoEnabled(True)
 
     def sizeHint(self):
         return QtCore.QSize(200, self.heightHint)
