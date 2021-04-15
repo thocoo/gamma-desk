@@ -52,6 +52,8 @@
   "path_channel_script": "%GDESKROOT%/external/scripts/connect_from_canvas.py",
   "path_channel_ini": "%GDESKROOT%/external/scripts/connect.ini",
   "logging_level": "INFO",
+  "logging_level_console": "WARNING",
+  "logging_level_logfile": "DEBUG",
   "system info period": 1000,
   "texteditor": "C:\\Program Files\\Notepad++\\notepad++.exe",
   "dbbrowser": "C:\\Program Files\\DB Browser for SQLite\\DB Browser for SQLite.exe",

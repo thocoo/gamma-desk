@@ -35,6 +35,7 @@ CRITICAL_SUFFIX = ESC + '0m'
 
 if config.get('qapp', False):        
     filehandler = RotatingFileHandler(f'stderr.log', maxBytes=1024*1024, encoding='UTF-8',backupCount=5)
+    filehandler.setLevel(config.get('logging_level_logfile', 'DEBUG'))    
     logging.root.addHandler(filehandler)
     
     
@@ -139,6 +140,7 @@ class PopupHandler(Handler):
 
 def enable_ghstream_handler():    
     streamhandler = GhStreamHandler(sys.stdout)
+    streamhandler.setLevel(config.get('logging_level_console', 'WARNING'))
     logging.root.addHandler(streamhandler)       
 
 class FlushReducer(object):
