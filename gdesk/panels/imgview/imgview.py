@@ -61,7 +61,8 @@ if has_imafio:
         FILTERS_NAMES[filter] = fmt.name
 
     IMAFIO_QT_READ_FILTERS = ';;'.join(FILTERS_NAMES.keys())
-    IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())
+    IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())    
+    IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
 
 
 from qtpy import QtCore, QtGui, QtWidgets
@@ -1149,7 +1150,8 @@ class ImageViewerBase(BasePanel):
 
     def saveImageDialog(self):
         if has_imafio:
-            filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',)
+            filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',
+                                    defaultfilter=IMAFIO_QT_WRITE_FILTER_DEFAULT)
             if filepath == '': return
             format = FILTERS_NAMES[filter]
             self.saveImage(filepath, format)
