@@ -749,7 +749,8 @@ class ImageViewerBase(BasePanel):
         self.menuBar().addMenu(self.viewMenu)
         self.selectMenu = self.menuBar().addMenu("&Select")
         self.canvasMenu = self.menuBar().addMenu("&Canvas")
-        self.imageMenu = self.menuBar().addMenu("&Image")
+        #self.imageMenu = self.menuBar().addMenu("&Image")
+        self.imageMenu = CheckMenu("&Image", self.menuBar())
         self.processMenu = self.menuBar().addMenu("&Process")
         self.analyseMenu = self.menuBar().addMenu("&Analyse")
 
@@ -935,6 +936,10 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.imageMenu, 'to Photometric Monochroom', self.toPhotoMonochroom,
             statusTip="Convert an RGB image to photometric monochroom grey",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'convert_color_to_gray.png')))
+        self.addMenuItem(self.imageMenu, 'to 8-bit', self.to8bit,
+            enablecall = self.is16bit)
+        self.addMenuItem(self.imageMenu, 'to 16-bit', self.to16bit,
+            enablecall = self.is8bit)
         self.addMenuItem(self.imageMenu, 'Fill...'          , self.fillValue,
             statusTip="Fill the image with the same value",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'paintcan.png')))
@@ -1892,7 +1897,20 @@ class ImageViewerBase(BasePanel):
         mono = np.dot(array, [0.299, 0.587, 0.144])
         procarr = clip_array(mono, array.dtype)
         self.show_array(procarr)
-
+        
+    def is8bit(self):
+        return self.ndarray.dtype in ['uint8', 'int8']
+    
+    def is16bit(self):
+        return self.ndarray.dtype in ['uint16', 'int16']
+        
+    def to8bit(self):
+        if not self.is16bit(): return
+        self.show_array((self.ndarray >> 8).astype('uint8'))
+        
+    def to16bit(self):
+        if not self.is8bit(): return
+        self.show_array(self.ndarray.astype('uint16') << 8)
 
     def adjustLighting(self):
         """
