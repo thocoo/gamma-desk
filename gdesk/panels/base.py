@@ -206,7 +206,8 @@ class BasePanel(QMainWindow):
         if not icon is None:
             action.setIcon(icon)
             
-        menu.addAction(action, checkcall=checkcall, enablecall=enablecall)                
+        menu.addAction(action, checkcall=checkcall, enablecall=enablecall)      
+        return action
     
     def addBaseMenu(self, bindCategories=[]):        
         self.bindMenu = PanelsMenu(self, 'bind to', bindCategories, self.toggleBindingTo)        
