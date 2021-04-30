@@ -180,3 +180,11 @@ class PlotGuiProxy(GuiProxyBase):
             logger.error('Could not configure all interactive callbacks')
             
         return num    
+    
+    @StaticGuiCall
+    def save(file):
+        """
+        Save the selected figure to a file
+        """
+        import matplotlib.pyplot as plt
+        plt.savefig(file)
