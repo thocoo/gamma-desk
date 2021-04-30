@@ -569,8 +569,11 @@ class LevelsPanel(BasePanel):
     def __init__(self, parent, panid):    
         super().__init__(parent, panid, 'levels')  
 
-        self.histSizePolicy = 'bins'
-        self.histSizes = {'bins': 64, 'step': 4}
+        self.histSizePolicy = config['levels'].get('hist_size_policy', 'bins')
+        bins = config['levels'].get('bins', 64)
+        step = config['levels'].get('step', 4)
+        self.histSizes = {'bins': bins, 'step': step}
+        
         self.cached = True
         self.sqrt = False
         self.roi = False

@@ -42,7 +42,10 @@
   },
   "levels": {
     "numba": true,
-    "relative": false
+    "relative": false,
+    "hist_size_policy": "bins",
+    "bins": 64,
+    "step": 4
   },
   "qapp": false,
   "sphinx": false,
