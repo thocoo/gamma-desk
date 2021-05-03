@@ -19,11 +19,23 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
     NavigationToolbar2QT, backend_version)   
-# _setDevicePixelRatioF seems to be a recent feature of matplotlib
-#Older version of matplotlib doens't have it    
-from matplotlib.backends.qt_compat import QT_API, _setDevicePixelRatioF
+  
+from matplotlib.backends.qt_compat import QT_API
 from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
 
+if matplotlib.__version__[:3] in ['3.3']:
+    from matplotlib.backends.qt_compat import _setDevicePixelRatioF
+    setDevicePixelRatio = _setDevicePixelRatioF
+    
+elif matplotlib.__version__[:3] in ['3.4']:
+    from matplotlib.backends.qt_compat import _setDevicePixelRatio
+    setDevicePixelRatio = _setDevicePixelRatio
+    
+else:
+    warnings.warn(
+        f'Matplotlib version {matplotlib.__version__} not supported.\n'
+        f'Version should be 3.3.x or 3.4.x')
+    
 from .. import gui
 from ..panels.matplot import PlotPanel
 
@@ -94,9 +106,12 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
         shown onscreen.
         """
         logger.debug('calling paintEvent')
-        if self._update_dpi():
-            # The dpi update triggered its own paintEvent.
-            return
+        
+        if matplotlib.__version__[:3] in ['3.3']:
+            if self._update_dpi():
+                # The dpi update triggered its own paintEvent.
+                return
+                
         self._draw_idle()  # Only does something if a draw is pending.
 
         # If the canvas does not have a renderer, then give up and wait for
@@ -131,7 +146,7 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 
             qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                                   QtGui.QImage.Format_ARGB32_Premultiplied)
-            _setDevicePixelRatioF(qimage, self._dpi_ratio)
+            setDevicePixelRatio(qimage, self._dpi_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
