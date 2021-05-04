@@ -112,8 +112,13 @@ class MyStatusBar(QWidget):
             
         
 def thisPanel(widget):
-    while not (isinstance(widget, BasePanel) or widget is None):
-        widget = widget.parent()
+    while not (isinstance(widget, BasePanel) or widget is None):    
+        if hasattr(widget, 'parentWidget'):
+            #Used by matplotlib widgets
+            parent_attr = widget.parentWidget
+        else:
+            parent_attr = widget.parent            
+        widget = parent_attr()
     return widget
 
 def selectThisPanel(widget):
