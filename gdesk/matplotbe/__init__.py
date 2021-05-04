@@ -23,7 +23,7 @@ from matplotlib.backends.backend_qt5 import (
 from matplotlib.backends.qt_compat import QT_API
 from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
 
-if matplotlib.__version__[:3] in ['3.3']:
+if matplotlib.__version__[:3] in ['3.2', '3.3']:
     from matplotlib.backends.qt_compat import _setDevicePixelRatioF
     setDevicePixelRatio = _setDevicePixelRatioF
     
@@ -34,7 +34,7 @@ elif matplotlib.__version__[:3] in ['3.4']:
 else:
     warnings.warn(
         f'Matplotlib version {matplotlib.__version__} not supported.\n'
-        f'Version should be 3.3.x or 3.4.x')
+        f'Version should be 3.2.x, 3.3.x or 3.4.x')
     
 from .. import gui
 from ..panels.matplot import PlotPanel
@@ -107,7 +107,7 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
         """
         logger.debug('calling paintEvent')
         
-        if matplotlib.__version__[:3] in ['3.3']:
+        if matplotlib.__version__[:3] in ['3.2', '3.3']:
             if self._update_dpi():
                 # The dpi update triggered its own paintEvent.
                 return
