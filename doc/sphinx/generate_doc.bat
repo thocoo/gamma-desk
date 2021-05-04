@@ -1,7 +1,6 @@
 SET PYTHONPATH=%~dp0\..\..
-SET PYTHONPATH=%PYTHONPATH%;%~dp0\..\..\..\..\image_sensor_specs\pypack
 
-set sphinxdir=C:\tools\python\python36\scripts
+set sphinxdir=C:\tools\python\python38\scripts
 
 set doc_root=.
 set code_source=..\..\gdesk
