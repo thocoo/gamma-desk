@@ -91,7 +91,7 @@
            "plot": ["View", "Refresh"]},
     "Ctrl++": {"image": ["View", "Zoom In"]},
     "Ctrl+-": {"image": ["View", "Zoom Out"]},
-    "Ctrl+0": {"image": ["View", "Zoom...", "Zoom Auto"]},
+    "Ctrl+0": {"image": ["View", "Zoom", "Zoom Auto"]},
     "Ctrl+1": {"image": ["View", "Default Offset & Gain"]},
     "Ctrl+G": {"image": ["View", "Offset & Gain..."],
 	           "plot": ["View", "Grid"]},
