@@ -6,6 +6,7 @@
 
 import os, sys, traceback, time
 from pathlib import Path
+import functools
 
 def show_syntax_error(writer_call):
     """Display the syntax error that just occurred."""
@@ -16,6 +17,7 @@ def show_syntax_error(writer_call):
 
     lines = traceback.format_exception_only(type, value)
     writer_call(''.join(lines))
+
 
 def show_traceback(writer_call):
     """Display the exception that just occurred."""
@@ -35,28 +37,18 @@ def show_traceback(writer_call):
 
     writer_call(''.join(lines))
     
-class MarkUpdateRun(object):
-    def __init__(self, scm, ls_code, attr):
-        self.scm = scm
-        self.ls_code = ls_code
-        self.attr = attr
+
+def markUpdateCall(scm, ls_code, attr): 
+    func = getattr(ls_code.workspace, attr)
+    
+    @functools.wraps(func)
+    def wrapped_caller(*args, **kwargs):       
+        scm.mark_for_update()       
+        error = ls_code.check_for_update()
+        return func(*args, **kwargs)     
         
-    @property
-    def func(self):
-        return getattr(self.ls_code.workspace, self.attr)
-        
-    def __call__(self, *args, **kwargs):
-        self.scm.mark_for_update()
-        ls_code = self.ls_code        
-        error = ls_code.check_for_update()                        
-        return self.func(*args, **kwargs)
-        
-    @property
-    def __doc__(self):
-        return self.func.__doc__
-        
-    def __repr__(self):
-        return f'<Mark, Update and Run Callable {self.attr}>'        
+    return wrapped_caller
+    
 
 class LiveScriptModule(object):
     def __init__(self, script_manager, path, top=False):
@@ -74,7 +66,7 @@ class LiveScriptModule(object):
         if self.__top__:
             wrapped_attr = getattr(self.__wrapped__, attr)
             if callable(wrapped_attr):
-                return MarkUpdateRun(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
+                return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
         else:
             wrapped_attr = getattr(self.__wrapped__, attr)
         return wrapped_attr
@@ -93,6 +85,7 @@ class LiveScriptModule(object):
     @property
     def __doc__(self):
         return self.__wrapped__.__doc__
+
         
 class LiveScriptTree(object):        
     def __init__(self, script_manager, path, top=False, name=None):
@@ -117,7 +110,8 @@ class LiveScriptTree(object):
             
     def __repr__(self):
         return f"<LiveScriptTree '{self.__path__}'>"            
-        
+
+
 class LiveScriptScan(object):
     def __init__(self, script_manager, top=False):
         object.__setattr__(self, '__script_manager__', script_manager)
@@ -353,6 +347,3 @@ class LiveScriptManager(object):
     def write_syntax_err(self, text):
         sys.stderr.write(text)
         
-
-
-
