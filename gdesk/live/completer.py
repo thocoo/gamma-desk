@@ -256,7 +256,7 @@ class Completer:
         """Compute matches when text contains a [.
         """        
         import re
-        m = re.match(r"""(\w+(\.\w+)*)\[([\"\'\w]*)""", text)
+        m = re.match(r"""(\w+(\.\w+)*)\[([\"\'\\/\w]*)""", text)
         
         if not m:
             return []

@@ -257,7 +257,7 @@ class StdInputPanel(QPlainTextEdit):
     def startAutoCompleter(self, wild=False):
 
         #delims = ' \t\n\\"\'`@$><=;|&{('
-        delims = ' \t\n\\`@$><=;|&{('
+        delims = ' \t\n`@$><=;|&{('
 
         current_text = self.toPlainText()
 
