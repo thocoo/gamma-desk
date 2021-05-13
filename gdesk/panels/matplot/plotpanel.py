@@ -74,10 +74,9 @@ class PlotPanel(BasePanel):
         self.setCentralWidget(self.canvas)         
         
         self.nav = NavigationToolbar(self.canvas, self)
-        self.nav.setIconSize(QtCore.QSize(24,24))
+        self.nav.setIconSize(QtCore.QSize(20, 20))
         self.addToolBar(self.nav)        
         self.statusBar().hide()
-        #self.statusBar().addWidget(self.nav)
         
     def showNewFigure(self, figure):     
         from ...matplotbe import FigureCanvasGh2    
@@ -88,14 +87,12 @@ class PlotPanel(BasePanel):
         self.canvas.manager = mgr
         mgr.canvas = self.canvas
         
-        self.setCentralWidget(self.canvas)
+        self.setCentralWidget(self.canvas)        
         
-        self.statusBar().removeWidget(self.nav)
-        
+        self.removeToolBar(self.nav)
         self.nav = NavigationToolbar(self.canvas, self)
-        self.nav.setIconSize(QtCore.QSize(24,24))        
+        self.nav.setIconSize(QtCore.QSize(20,20))        
         
-        #self.statusBar().addWidget(self.nav)
         self.addToolBar(self.nav) 
         
         self.canvas.draw_idle()   
