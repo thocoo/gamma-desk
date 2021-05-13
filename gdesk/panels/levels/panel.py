@@ -651,6 +651,7 @@ class LevelsPanel(BasePanel):
             
     def gain1(self):    
         self.offsetGainChanged.emit('default', 'default', 'default')
+        self.levels.indicZoom()
         
     def updateBlackPoint(self, value):
         self.blackWhiteChanged.emit(value, None)
