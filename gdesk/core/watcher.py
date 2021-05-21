@@ -78,7 +78,7 @@ class CommandServer(object):
     @staticmethod
     def open_images(*image_paths):
         for image_path in image_paths:
-            gui.img.open(image_path)
+            gui.img.open(image_path, new=True)
             
     @staticmethod        
     def connect_process(cqs_config=None):
