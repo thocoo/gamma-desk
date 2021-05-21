@@ -71,6 +71,16 @@ def argexec(argv=None, **config_kwargs):
     from .core.shellmod import Shell
     shell = Shell()
     refer_shell_instance(shell)
+    
+    watcher_ports =  shell.get_watcher_ports()   
+    
+    if len(watcher_ports) > 0:
+        if args.pictures:
+            from gdesk.core.watcher import CommandClient
+            cmd = {'cmd': 'open_images', 'args': args.pictures}
+            cmdclient = CommandClient(watcher_ports[0], 'localhost')
+            cmdclient.send(cmd)
+            return
 
     from .gcore.guiapp import eventloop
     eventloop(shell, init_file=config['init_file'], pictures=args.pictures)
