@@ -1,7 +1,7 @@
 {
   "path_log": "%USERPROFILE%/AppData/Local/Gamma-Desk",
   "max_log_paths": 10,
-  "next_config_file": "gdconf.json",
+  "path_config_files": ["%USERPROFILE%/AppData/Local/Gamma-Desk/gdconf.json", "gdconf.json"],
   "save_config_file": "gdconf.json",
   "init_file": null,
   "init_command": {"cmd": null, "args": []},

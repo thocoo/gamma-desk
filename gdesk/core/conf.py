@@ -47,7 +47,10 @@ def deep_update(source, overrides):
             source[key] = overrides[key]
             if PATHPATTERN.match(str(key)) or key in ['respath']:
                 if not source[key] is None:
-                    source[key] = os.path.expandvars(source[key])
+                    if isinstance(source[key], list):
+                        source[key] = [os.path.expandvars(val) for val in source[key]]
+                    else:
+                        source[key] = os.path.expandvars(source[key])
     return source
 
 def deep_diff(dict1, dict2):
@@ -103,20 +106,20 @@ def configure(**overwrites):
     deep_update(config, load_config(config_file))
 
     prior_config_file = None
-    next_config_file = overwrites.get('config_file', None) or config['next_config_file']
-
-    while not next_config_file is None:
+    config_files = overwrites.get('config_file', None) or config.get('path_config_files', [])
+    #if not isinstance(config_files, list): config_files = [config_files]
+    
+    while len(config_files) > 0:
+        print(f'config_files: {config_files}')
+        next_config_file = config_files.pop(0)
         config_file = Path(next_config_file).expanduser()
         if not config_file.exists():
-            break
-        if prior_config_file == config_file:
-            logger.warn(f'config file {config_file} is loading itself, breaking it...')
-            logger.warn(f'Set "next_config_file": null in {prior_config_file}')
-            break
-        logger.info(f'Loading config: {config_file}')
+            continue
+        #logger.info(f'Loading config: {config_file}')
+        print(f'Loading config: {config_file}')
         deep_update(config, load_config(config_file))
         prior_config_file = config_file
-        next_config_file = config['next_config_file']
+        config_files = config.get('path_config_files', [])
 
     deep_update(config, overwrites)
 
