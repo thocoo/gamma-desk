@@ -280,7 +280,7 @@ class LiveScriptManager(object):
                 print(f'Script path {path} not found')
                 path = None
                 
-        if not path is None and not path in self.path:
+        if path is not None and str(path) not in self.path:
             self.path.append(str(path))
         
     def load(self, path, name=None):
