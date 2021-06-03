@@ -48,6 +48,7 @@ class PlotPanel(BasePanel):
         self.addMenuItem(self.fileMenu, 'Open...' , self.openFigure)
         self.addMenuItem(self.fileMenu, 'Save As...' , self.saveFigure)
         self.addMenuItem(self.fileMenu, 'Close' , self.close_me_from_menu, icon = 'cross.png')
+        self.addMenuItem(self.fileMenu, 'Close Others', self.close_others)
         
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
@@ -154,6 +155,12 @@ class PlotPanel(BasePanel):
     def close_me_from_menu(self):  
         #Use the matplotlib backend to close
         pylab.close(self.panid)
+
+    def close_others(self):          
+        other_panids = list(Gcf.figs.keys())
+        for panid in other_panids:
+            if panid == self.panid: continue
+            pylab.close(panid)
         
     def close_panel(self):              
         #Called from the matplotlib backend
