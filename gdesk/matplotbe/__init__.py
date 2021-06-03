@@ -1,6 +1,8 @@
 """
 Render to qt from agg.
 """
+from .. import config
+
 import os
 import ctypes
 import sys
@@ -18,7 +20,7 @@ from matplotlib.backend_bases import FigureCanvasBase, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
-    NavigationToolbar2QT, backend_version)   
+    NavigationToolbar2QT, backend_version)
   
 from matplotlib.backends.qt_compat import QT_API
 from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
@@ -37,7 +39,9 @@ else:
         f'Version should be 3.2.x, 3.3.x or 3.4.x')
     
 from .. import gui
-from ..panels.matplot import PlotPanel
+
+if config['qapp']:
+    from ..panels.matplot import PlotPanel
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +234,10 @@ class FigureManagerGh2Child(FigureManagerBase):
         by :meth:`~matplotlib.figure.Figure.show`, for an
         optional warning.
         """
-        pass
+        if gui.valid():            
+            gui.plot.show(self.canvas.figure)
+        else:        
+            raise ValueError(f'gui called from unknown thread {os.getpid()}/{threading.current_thread()}')
               
         
 
