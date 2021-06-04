@@ -227,11 +227,16 @@ class LevelPlot(QtWidgets.QWidget):
         self.view.setYLimits(self.ymin, self.ymax, 22, 0)
         self.update_rulers(True, True)
         
-    def zoomBetweenIndicators(self):
+    def zoomBetweenIndicators(self, skip_if_visible=False):
         x0 = self.indicators[0].pos().x()
         x1 = self.indicators[1].pos().x()
+        if skip_if_visible:
+            cx0, cy0, cx1, cy1 = self.view.viewRectCoord()
+            x0 = min(x0, cx0 + 22 / self.view.scale[0])
+            #x0 = min(x0, cx0 + 22)
+            x1 = max(x1, cx1)
         self.view.setXLimits(x0, x1, 22, 0)
-        self.update_rulers(True, True)                           
+        self.update_rulers(True, True)
         
     def resetIndicators(self, xmin=0, xmax=1):
         for indicator in self.indicators:
@@ -451,6 +456,9 @@ class Levels(QtWidgets.QWidget):
     def indicZoom(self):
         self.levelplot.zoomBetweenIndicators()
         
+    def bringIndicVisible(self):
+        self.levelplot.zoomBetweenIndicators(skip_if_visible=True)
+        
     def fullZoom(self):
         self.levelplot.zoomFull(enforce_ymin=0)        
 
@@ -648,6 +656,8 @@ class LevelsPanel(BasePanel):
         for panid in panids:
             #gui.menu_trigger('image', panid, ['View', 'Gain to Sigma', f'Gain to Sigma {self.sigma}'])
             gui.qapp.panels['image'][panid].gainToSigma(self.sigma, self.roi)
+            
+        self.levels.bringIndicVisible()
             
     def gain1(self):    
         self.offsetGainChanged.emit('default', 'default', 'default')
