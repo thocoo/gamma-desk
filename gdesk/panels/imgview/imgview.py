@@ -1228,7 +1228,8 @@ class ImageViewerBase(BasePanel):
             print(f'compression: {compression}')
 
             with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format, compression=compression, quantize=quantize, optimize=optimize)
+                imageio.imwrite(filepath, self.ndarray, format, compression=compression,
+                    quantize=quantize, optimize=optimize, prefer_uint8=False)
 
         else:
             with gui.qapp.waitCursor(f'Saving to {filepath}'):
