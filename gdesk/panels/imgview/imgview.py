@@ -87,6 +87,7 @@ from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .imgdata import ImageData
 from .roi import SelRoiWidget
+from .dialogs import RawImportDialog
 
 
 ZOOM_VALUES = [
@@ -1127,17 +1128,30 @@ class ImageViewerBase(BasePanel):
         
         print(f'Width x Height: {width} x {height}')
 
-        form = [('data offset', header),
-            ('dtype', 'uint16'),
-            ('width',  np.clip(width, 0, 2**31-1)),
-            ('height', np.clip(height, 0, 2**31-1))]
+        # form = [('data offset', header),
+            # ('dtype', 'uint16'),
+            # ('width',  np.clip(width, 0, 2**31-1)),
+            # ('height', np.clip(height, 0, 2**31-1))]
 
-        returns = fedit(form, title="raw parameters")
+        # returns = fedit(form, title="raw parameters")
+        
+        # offset = returns[0]
+        # dtype = returns[1]
+        # width = returns[2]
+        # height = returns[3]
+                
+        dialog = RawImportDialog(data)
+        dialog.form.offset.setText(str(header))
+        dialog.form.dtype.setText(dtype)
+        dialog.form.width.setText(str(width))
+        dialog.form.height.setText(str(height))
+        dialog.exec_()
+        
+        offset = int(dialog.form.offset.text())
+        dtype = dialog.form.dtype.text()
+        width = int(dialog.form.width.text())
+        height = int(dialog.form.height.text())
 
-        offset = returns[0]
-        dtype = returns[1]
-        width = returns[2]
-        height = returns[3]
 
         with gui.qapp.waitCursor():
             dtype = np.dtype(dtype)
