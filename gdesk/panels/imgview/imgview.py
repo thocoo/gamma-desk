@@ -1124,11 +1124,13 @@ class ImageViewerBase(BasePanel):
         dtype = 'uint16'
         width = struct.unpack('<I', data[0:4])[0]
         height = struct.unpack('<I', data[4:8])[0]
+        
+        print(f'Width x Height: {width} x {height}')
 
         form = [('data offset', header),
             ('dtype', 'uint16'),
-            ('width',  width),
-            ('height', height)]
+            ('width',  np.clip(width, 0, 2**31-1)),
+            ('height', np.clip(height, 0, 2**31-1))]
 
         returns = fedit(form, title="raw parameters")
 
