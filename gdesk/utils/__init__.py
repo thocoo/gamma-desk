@@ -1,5 +1,6 @@
 """A collections of utils."""
 import sys
+from functools import reduce
 
 import numpy as np
 
@@ -53,3 +54,7 @@ def clip_array(array, dtype):
         array = array.clip(*clip_values(dtype)).astype(dtype)
 
     return array
+
+def get_factors(n):
+    return set(reduce(list.__add__, 
+                ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))
