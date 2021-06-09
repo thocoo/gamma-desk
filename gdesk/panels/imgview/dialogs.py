@@ -33,7 +33,7 @@ class RawImportForm(QtWidgets.QWidget):
         self.dtype = QtWidgets.QLineEdit()
         flay.addRow('Data type', self.dtype)    
         
-        self.guess = QtWidgets.QPushButton()
+        self.guess = QtWidgets.QPushButton('Resolutions')
         self.guess.clicked.connect(self.guessSize)
         flay.addRow('Guess size', self.guess)            
         
