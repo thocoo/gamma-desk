@@ -553,12 +553,6 @@ class StdPlainOutputPanel(QPlainTextEdit):
         if self._ansi_processor == None:
             self._ansi_processor = QtAnsiCodeProcessor()
 
-        if len(text) > 0:
-            if text[0] == '\r':
-                # BUG when no character is preceding the <CR>
-                # editor goes to some string state
-                text = ' ' + text
-
         for substring in self._ansi_processor.split_string(text):
             for act in self._ansi_processor.actions:
 
