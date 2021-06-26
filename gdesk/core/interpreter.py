@@ -25,6 +25,7 @@ from . import stdinout
 from .stdinout import ProcessStdInput
 from .gui_proxy import GuiProxy, GuiMap, gui
 
+logger = logging.getLogger(__file__)
 
 class SyncBreaked(Exception):
     pass
@@ -387,6 +388,7 @@ class QueueInterpreter(object):
             retvalue = 0
             
         elif mode == 'console id':
+            logger.warn('Command to set console id is deprecated')
             self.console_id = args[0]
             callbackargs = (mode, 0, f'Console id set: {self.console_id}')
             retvalue = 1               

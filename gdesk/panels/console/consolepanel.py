@@ -916,6 +916,7 @@ class MainThreadConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ThreadTask(shell, new_thread=False)
         super().__init__(mainWindow, panid, task)
+        task.panid = self.panid
         task.start()
         self.stdio.stdInputPanel.styles['interprete'] = "background-color:#CBE9FF;"
         self.stdio.stdInputPanel.set_mode('interprete')
@@ -953,6 +954,7 @@ class ChildProcessConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ProcessTask(shell, cqs)
         super().__init__(mainWindow, panid, task)
+        task.panid = self.panid
         task.start()
 
     def duplicate(self, floating=False):
@@ -981,6 +983,7 @@ class ChildThreadConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ProcessThreadTask(shell, master, queue_type)
         super().__init__(mainWindow, panid, task)
+        task.panid = self.panid
         task.start()
 
     def duplicate(self, floating=False):

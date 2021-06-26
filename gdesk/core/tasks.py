@@ -226,7 +226,8 @@ class TaskBase(object):
         #This can maybe come to soon, before the console was created
         if hasattr(self, 'console'):
             self.console.refresh_pid_tid()
-            self.send_func_and_call("console id", (self.console.panid,))
+            # Panel id is communicated on creation
+            # self.send_func_and_call("console id", (self.console.panid,))
             
     def unregister(self):
         PROCESSES[self.process_id].pop(self.thread_id)
@@ -311,16 +312,16 @@ class ProcessTask(TaskBase):
         #no existing queue from an existing master process
         #Start a new child process
         if self.start_child:
-            self.process = Process(target=ProcessTask.start_child_process, args=(self.cqs, ), daemon=True)
+            self.process = Process(target=ProcessTask.start_child_process, args=(self.cqs, self.panid), daemon=True)
             self.process.start()                   
         
         self.flusher = None
                 
     @staticmethod    
-    def start_child_process(cqs):            
+    def start_child_process(cqs, panid=None):            
         try:
             shell = Shell()
-            shell.start_in_this_thread(cqs)
+            shell.start_in_this_thread(cqs, panid)
             
         finally:
             import psutil
@@ -348,5 +349,5 @@ class ProcessThreadTask(TaskBase):
         #Problems if master_process_task didn't not yet finished prior command
         #For example master_process_task is still queues flushes of a big print loop
         #The master_process_task.return_queue still contains the prior return result
-        self.master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs,), queue='flow')
+        self.master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs, True, self.panid), queue='flow')
         

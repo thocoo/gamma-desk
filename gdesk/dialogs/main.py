@@ -275,6 +275,9 @@ class MainDialog(QtWidgets.QMainWindow):
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'page_gear.png'))))
 
         self.configMenu.addAction(QtWidgets.QAction("Save Config", self, triggered=self.saveConfig))
+        
+        #matplotlib.rcsetup.all_backends
+        #'module://gdesk.matplotbe'
 
         self.helpMenu = self.menuBar().addMenu("Help")
 

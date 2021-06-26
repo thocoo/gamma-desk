@@ -330,8 +330,8 @@ class Shell(object):
                 
             print(tbl)            
         
-    def start_in_this_thread(self, cqs):      
-        QueueInterpreter.create_and_interact(self, cqs, None)      
+    def start_in_this_thread(self, cqs, console_id=None):      
+        QueueInterpreter.create_and_interact(self, cqs, None, console_id)      
         
     @staticmethod
     def get_completer_data(text, max=1000, wild=False):
