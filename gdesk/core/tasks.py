@@ -82,6 +82,7 @@ class TaskBase(object):
         self.process_id = -1
         self.thread_name = 'invalid'
         self.thread_id = -1
+        self.panid = None
         
     @property
     def stdin_queue(self):
@@ -249,7 +250,7 @@ class ThreadTask(TaskBase):
     cmd_queues = dict()    
     
     def __init__(self, mainshell, new_thread=True):    
-        self.new_thread = new_thread    
+        self.new_thread = new_thread         
         
         if new_thread:
             super().__init__('thread')    
@@ -267,13 +268,13 @@ class ThreadTask(TaskBase):
 
     def start(self):
         if self.new_thread:                              
-            self.mainshell.new_interactive_thread(self.cqs, self.gui_proxy)
+            self.mainshell.new_interactive_thread(self.cqs, self.gui_proxy, console_id=self.panid)
 
         else:
             self.gui_proxy.block = False
             
             self.thread = threading.currentThread()   
-            self.command_loop(self.cqs, self.gui_proxy)        
+            self.command_loop(self.cqs, self.gui_proxy, self.panid)        
 
     def finish(self, close=False):
         if self.thread_name == 'MainThread':
@@ -282,12 +283,12 @@ class ThreadTask(TaskBase):
             
         super().finish(close)        
         
-    def command_loop(self, cqs, gui_proxy=None):        
+    def command_loop(self, cqs, gui_proxy=None, console_id=None):        
 
         thread_id = threading.get_ident()
         ThreadTask.cmd_queues[thread_id] = cqs.cmd_queue
         
-        QueueInterpreter(self.mainshell, cqs, gui_proxy)
+        QueueInterpreter(self.mainshell, cqs, gui_proxy, console_id)
 
 
 class ProcessTask(TaskBase):

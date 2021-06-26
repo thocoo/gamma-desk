@@ -31,7 +31,7 @@ class SyncBreaked(Exception):
     
 
 class QueueInterpreter(object):
-    def __init__(self, shell, cqs, gui_proxy=None):
+    def __init__(self, shell, cqs, gui_proxy=None, console_id=None):
     
         self.shell = shell
         self.cqs = cqs
@@ -39,7 +39,7 @@ class QueueInterpreter(object):
         this_process = multiprocessing.current_process()
         this_thread = threading.currentThread()
         self.thread_id = thread_id = this_thread.ident
-        self.console_id = None
+        self.console_id = console_id
         
         self.enable_trace = True
         self.breakable = False
@@ -88,9 +88,9 @@ class QueueInterpreter(object):
         GuiMap.gui_proxies.pop(tid)
     
     @staticmethod
-    def create_and_interact(shell, cqs, gui_proxy=None):
+    def create_and_interact(shell, cqs, gui_proxy=None, console_id=None):
         try:
-            queuedinter = QueueInterpreter(shell, cqs, gui_proxy)
+            queuedinter = QueueInterpreter(shell, cqs, gui_proxy, console_id)
             queuedinter.interact()
             
         finally:
@@ -163,6 +163,7 @@ class QueueInterpreter(object):
         return lines    
 
     def set_console_mode(self, mode):
+        #if not self.console_id is None:
         gui.console.set_mode(mode, self.console_id)        
         
     def control(self):

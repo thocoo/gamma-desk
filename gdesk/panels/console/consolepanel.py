@@ -941,6 +941,7 @@ class SubThreadConsole(Console):
         shell = QApplication.instance().shell
         task = tasks.ThreadTask(shell, new_thread=True)
         super().__init__(mainWindow, panid, task)
+        task.panid = self.panid
         task.start()
 
 

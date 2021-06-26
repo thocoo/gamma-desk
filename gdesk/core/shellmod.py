@@ -222,13 +222,13 @@ class Shell(object):
         return (fi, lineno)                
                     
     @staticmethod
-    def new_interactive_thread(cqs, guiproxy=None, client=True):
+    def new_interactive_thread(cqs, guiproxy=None, client=True, console_id=None):
         shell = Shell.instance
         
         if client and type(cqs).__name__ == 'ZmqQueues':
             cqs.setup_as_client()
         
-        thread = threading.Thread(target=QueueInterpreter.create_and_interact, args=(shell, cqs, guiproxy), name='Interact',daemon=True)
+        thread = threading.Thread(target=QueueInterpreter.create_and_interact, args=(shell, cqs, guiproxy, console_id), name='Interact',daemon=True)
         thread.start()
         return (thread.name, thread.ident)
         

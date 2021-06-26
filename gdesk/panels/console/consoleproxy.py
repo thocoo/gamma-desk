@@ -104,7 +104,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         """
         Execute code in ANOTHER console        
         """
-        console = gui.qapp.panels.select_or_new('console', panid) 
+        console = gui.qapp.panels.select_or_new('console', panid)
         console.stdio.stdInputPanel.execute_commands(code_string)        
 
 
