@@ -1,3 +1,17 @@
+v0.1.3
+------
+
+- Add menu item close other panels of same category
+- Add guess of resolution on raw image import dialog
+- new definition and system of which config files to load
+
+  - config item "next_config_files" replaced by "path_config_files"
+  - is now a list of files to load in order
+  - by default: ["%USERPROFILE%/AppData/Local/Gamma-Desk/gdconf.json", "gdconf.json"]   
+  
+- Bug fixes
+
+
 v0.1.2
 ------
 
