@@ -1127,18 +1127,6 @@ class ImageViewerBase(BasePanel):
         height = struct.unpack('<I', data[4:8])[0]
         
         print(f'Width x Height: {width} x {height}')
-
-        # form = [('data offset', header),
-            # ('dtype', 'uint16'),
-            # ('width',  np.clip(width, 0, 2**31-1)),
-            # ('height', np.clip(height, 0, 2**31-1))]
-
-        # returns = fedit(form, title="raw parameters")
-        
-        # offset = returns[0]
-        # dtype = returns[1]
-        # width = returns[2]
-        # height = returns[3]
                 
         dialog = RawImportDialog(data)
         dialog.form.offset.setText(str(header))
@@ -1149,6 +1137,7 @@ class ImageViewerBase(BasePanel):
         
         offset = int(dialog.form.offset.text())
         dtype = dialog.form.dtype.text()
+        byteorder = dialog.form.byteorder.currentText()
         width = int(dialog.form.width.text())
         height = int(dialog.form.height.text())
 
@@ -1165,6 +1154,8 @@ class ImageViewerBase(BasePanel):
                 print('Not enough data found (missing %d bytes)' % (-leftover))
 
             arr = np.ndarray(shape=(height, width), dtype=dtype, buffer=data[offset:])
+            if byteorder == 'big endian':
+                arr = arr.byteswap()
             self.show_array(arr, zoomFitHist=True)
             self.zoomFull()
             gui.qapp.history.storepath(str(filepath))

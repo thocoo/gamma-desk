@@ -31,7 +31,12 @@ class RawImportForm(QtWidgets.QWidget):
         flay.addRow('Offset', self.offset)
         
         self.dtype = QtWidgets.QLineEdit()
-        flay.addRow('Data type', self.dtype)    
+        flay.addRow('Data type', self.dtype) 
+        
+        self.byteorder = QtWidgets.QComboBox()
+        self.byteorder.addItem('litle endian')
+        self.byteorder.addItem('big endian')     
+        flay.addRow('Byte Order', self.byteorder) 
         
         self.guess = QtWidgets.QPushButton('Resolutions')
         self.guess.clicked.connect(self.guessSize)
@@ -41,7 +46,7 @@ class RawImportForm(QtWidgets.QWidget):
         flay.addRow('Width', self.width)             
         
         self.height = QtWidgets.QLineEdit()
-        flay.addRow('Width', self.height)        
+        flay.addRow('Height', self.height)        
 
     def guessSize(self):
         flatsize = len(self.parent().data)
