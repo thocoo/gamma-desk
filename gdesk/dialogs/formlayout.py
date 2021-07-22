@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+# SERIOUS PROBLEMS WITH Sphinx 4
+# Something causes Sphinx to crash
+# Somehow, Sphinx runs only if there is some real command at the first line
+# It warns that ``from __future__ import print_function``
+# should be the first line, but that craches Sphinx
+import sys
 """
 formlayout
 ==========
@@ -32,7 +38,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
-
 from __future__ import print_function
 
 __version__ = '2.0.0alpha'
@@ -41,7 +46,6 @@ __license__ = __doc__
 DEBUG_FORMLAYOUT = False
 
 import os
-import sys
 import datetime
 
 STDERR = sys.stderr
