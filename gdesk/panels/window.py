@@ -297,7 +297,7 @@ class MainWindow(QMainWindow):
         elif self.dragState == DragState.titlePressed:
             self.dragState = DragState.dragging
             self.setWindowOpacity(0.5)
-            self.qapp.panels.ezm.drop_in(self.container, hide=False, allWindows=self.dragToAllWindows)            
+            self.qapp.panels.ezm.drop_in(self.container, hide=False, allWindows=self.dragToAllWindows)
             
         elif self.dragState == DragState.dragging:                                
             widget, locPos = self.getWidgetUnderMouse()        
@@ -324,13 +324,11 @@ class MainWindow(QMainWindow):
     def event(self, event):                       
         if self.dragState == DragState.placed:
             if event.type() == QtCore.QEvent.NonClientAreaMouseButtonPress:
-                if self.isToolWindow():
-                    if event.modifiers() & QtCore.Qt.ControlModifier:
+                if event.modifiers() & QtCore.Qt.ControlModifier:
+                    if not self.isToolWindow() or (event.modifiers() & QtCore.Qt.ShiftModifier):                  
                         self.startMoving(True)
                     else:
                         self.startMoving(False)
-                elif event.modifiers() & QtCore.Qt.ControlModifier:
-                    self.startMoving(True)
                 else:
                     return super().event(event)
                 return True
