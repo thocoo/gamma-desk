@@ -173,11 +173,12 @@ class Panels(object):
             window = panel
         else:
             window = self.ezm.new_window_on_panel(panel, parentName)
+            window.activateWindow()  
 
         if position is None:
             position = self.place_window(window, panel.category)
 
-        window.move(position)
+        window.move(position)                   
         panel.select()
 
         return panel
