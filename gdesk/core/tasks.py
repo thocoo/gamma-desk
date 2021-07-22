@@ -344,12 +344,11 @@ class ProcessThreadTask(TaskBase):
             self.cqs = ZmqQueues()
             self.cqs.setup_as_server()
             
-        self.gui_proxy = GuiProxy(mainshell._qapp, self.cqs.gui_call_queue, self.cqs.gui_return_queue)        
-        self.gui_proxy.set_func_hook(-2, self.process_ready)
+        self.gui_proxy = GuiProxy(mainshell._qapp, self.cqs.gui_call_queue, self.cqs.gui_return_queue, self.process_ready)
           
     def start(self):          
         #Problems if master_process_task didn't not yet finished prior command
         #For example master_process_task is still queues flushes of a big print loop
         #The master_process_task.return_queue still contains the prior return result
-        self.master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs, True, self.panid), queue='flow')
+        self.master_process_task.call_func(Shell.new_interactive_thread, args=(self.cqs, None, True, self.panid), queue='flow')
         
