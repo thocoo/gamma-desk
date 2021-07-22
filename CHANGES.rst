@@ -2,13 +2,20 @@ v0.1.3
 ------
 
 - Add menu item close other panels of same category
-- Add guess of resolution on raw image import dialog
+- New raw image import featues:
+
+  - guess of resolution based of file size
+  - Little or big endian pixels
+  
 - new definition and system of which config files to load
 
   - config item "next_config_files" replaced by "path_config_files"
   - is now a list of files to load in order
   - by default: ["%USERPROFILE%/AppData/Local/Gamma-Desk/gdconf.json", "gdconf.json"]   
   
+- More conservative panel drop policy  
+- Matplotlib backend for child processes
+  Use ``pylab.switch_backend()`` in child process to activate
 - Bug fixes
 
 
