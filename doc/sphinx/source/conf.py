@@ -18,6 +18,9 @@ sys.path.insert(0, os.path.abspath('../../..'))
 
 print(sys.path)
 
+from gdesk.core.conf import configure
+configure(matplotlib={'backend':'svg'})
+
 # -- Project information -----------------------------------------------------
 
 project = 'gdesk'
