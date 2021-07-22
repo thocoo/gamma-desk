@@ -15,7 +15,7 @@ v0.1.3
   
 - More conservative panel drop policy  
 - Matplotlib backend for child processes
-  Use ``pylab.switch_backend()`` in child process to activate
+  Use ``pylab.switch_backend('module://gdesk.matplotbe')`` in child process to activate
 - Bug fixes
 
 
