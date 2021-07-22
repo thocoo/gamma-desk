@@ -3,8 +3,11 @@
 # Something causes Sphinx to crash
 # Somehow, Sphinx runs only if there is some real command at the first line
 # It warns that ``from __future__ import print_function``
-# should be the first line, but that craches Sphinx
-import sys
+# should be the first line, but that crashes Sphinx
+# Some real python code seems to be needed to run Sphinx
+# Uncomment the next line to be able to run Sphinx
+# But comment to actual run the code in a non sphinx process
+# 42
 """
 formlayout
 ==========
@@ -45,6 +48,7 @@ __license__ = __doc__
 
 DEBUG_FORMLAYOUT = False
 
+import sys
 import os
 import datetime
 
