@@ -116,8 +116,8 @@ class GuiProxyBase(object):
         Call a certain menu item of the panel
         
         :param list action_names: Example ['File', 'New...']
-        :param *args: Positional arguments of the menu call
-        :param **kwargs: Keyword arguments of the menu call
+        :param ``*args``: Positional arguments of the menu call
+        :param ``**kwargs``: Keyword arguments of the menu call
         """
         return gui.menu_trigger(cls.category, None, action_names, *args, **kwargs)
 

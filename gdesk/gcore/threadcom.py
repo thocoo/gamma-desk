@@ -36,8 +36,8 @@ class HandOver(QObject):
         """
         :param block: wait on the func to return
         :param func: the reference to the function to be called by the eventloop
-        :param *args: unnamed arguments for the function
-        :param **kwargs: key word arguments for the function
+        :param ``*args``: unnamed arguments for the function
+        :param ``**kwargs``: key word arguments for the function
         """
         returnlock = ReturnLock()
         self.signal_call_queue.put((returnlock, func, args, kwargs))         
