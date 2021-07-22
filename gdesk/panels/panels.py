@@ -166,7 +166,7 @@ class Panels(object):
             if isinstance(activeWindow, MainWindow):
                 parentName =  activeWindow.name
 
-        panel = PanelClass(parentName, panid, *args, **kwargs)
+        panel = PanelClass(None, panid, *args, **kwargs)
         panel.show()
 
         if floating:
