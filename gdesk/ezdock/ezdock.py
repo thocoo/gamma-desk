@@ -89,6 +89,8 @@ class DockManager(object):
         
     def drop_in(self, container, hide=True, allWindows=False):
         window = container.parent()
+        if window.parent() is None:
+            allWindows = True
         if hide: window.hide()
         layout = container.get_layout_struct()
         layout.compact()
