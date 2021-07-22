@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-# SERIOUS PROBLEMS WITH Sphinx 4
-# Something causes Sphinx to crash
-# Somehow, Sphinx runs only if there is some real command at the first line
-# It warns that ``from __future__ import print_function``
-# should be the first line, but that crashes Sphinx
-# Some real python code seems to be needed to run Sphinx
-# Uncomment the next line to be able to run Sphinx
-# But comment to actual run the code in a non sphinx process
-# 42
 """
 formlayout
 ==========
