@@ -423,7 +423,7 @@ class Shell(object):
     @staticmethod
     def get_live_paths():
         #from ..live import manager
-        return manager.path
+        return manager.path.copy()
         
     @staticmethod
     def set_live_paths(new_live_paths):

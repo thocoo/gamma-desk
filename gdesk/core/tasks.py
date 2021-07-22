@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 #In case of Process call, this module will be important by the child 
 #process by the unpickling of the CommQueues
 from .conf import config, configure
+from .. import refer_shell_instance
 
 #Configure in case of the child process before importing anthing else of ghawk2
 configure(matplotlib={'backend':'svg'})
@@ -321,6 +322,7 @@ class ProcessTask(TaskBase):
     def start_child_process(cqs, panid=None):            
         try:
             shell = Shell()
+            refer_shell_instance(shell)
             shell.start_in_this_thread(cqs, panid)
             
         finally:
