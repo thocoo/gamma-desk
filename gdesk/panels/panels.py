@@ -183,8 +183,10 @@ class Panels(object):
 
         return panel
 
-    def place_window(self, window, category):
-        desktop_rect = QtWidgets.QDesktopWidget().availableGeometry()
+    def place_window(self, window, category):        
+        screen = QtWidgets.QDesktopWidget().screenNumber(self.qapp.windows['main'])
+        desktop_rect = QtWidgets.QDesktopWidget().availableGeometry(screen)
+        
         window_rect = window.frameGeometry()
         prior_panel = self.selected(category, -2)
 
@@ -198,9 +200,15 @@ class Panels(object):
 
         window_rect.moveCenter(center)
         position = window_rect.topLeft()
-
-        if not desktop_rect.contains(window_rect):
-            position = QtCore.QPoint(0,0)
+        
+        visible = False
+        
+        for screen in range(QtWidgets.QDesktopWidget().screenCount()):
+            if QtWidgets.QDesktopWidget().availableGeometry(screen).contains(window_rect):
+                visible = True
+            
+        if not visible:
+            position = desktop_rect.topLeft()
 
         return position
 
