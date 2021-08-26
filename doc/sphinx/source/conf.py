@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.abspath('../../..'))
 
 print(sys.path)
 
+#formlayout seems to cause problems on Sphinx
 autodoc_mock_imports = ["gdesk.dialogs.formlayout"]
 
 from gdesk.core.conf import configure
