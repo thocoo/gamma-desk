@@ -151,16 +151,27 @@ class GuiApplication(QApplication):
 
         if len(shortCutParams) == 1:
             category, action_names = next(iter(shortCutParams.items()))
+            panid = None
             
         else:
+            category, panid, action_names = None, None, []
+            
+            #Find suitable panel on active window
             for category in reversed(self.panels.keys()):
-                if category in shortCutParams.keys():
-                    action_names = shortCutParams[category]
-                    break
+                if category in shortCutParams.keys():                    
+                    panid = list(self.panels[category].keys())[-1]
+                    panel = self.panels[category][panid]
+                    if panel.window() == self.activeWindow():
+                        action_names = shortCutParams[category]
+                        break              
+                            
             else:
-                category, action_names = None, []
-                
-        #logger.info(f'menuShortCutCall: {category} {action_names}')
+                #Panel on any other window
+                for category in reversed(self.panels.keys()):
+                    if category in shortCutParams.keys():
+                        action_names = shortCutParams[category]
+                        panid = list(self.panels[category].keys())[-1]
+                        break                        
                 
         if category is None:
             return
@@ -170,7 +181,7 @@ class GuiApplication(QApplication):
             action = getMenuAction(window.windowMenu, action_names)
             action.trigger()
         else:
-            action = self.panels.get_menu_action(category, None, action_names)
+            action = self.panels.get_menu_action(category, panid, action_names)
             if not action is None:
                 action.trigger()
         
