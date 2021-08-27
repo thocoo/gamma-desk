@@ -158,8 +158,10 @@ class GuiApplication(QApplication):
             
             #Find suitable panel on active window
             for category in reversed(self.panels.keys()):
-                if category in shortCutParams.keys():                    
-                    panid = list(self.panels[category].keys())[-1]
+                panids = list(self.panels[category].keys())
+                if len(panids) == 0: continue
+                if category in shortCutParams.keys():
+                    panid = panids[-1]
                     panel = self.panels[category][panid]
                     if panel.window() == self.activeWindow():
                         action_names = shortCutParams[category]
@@ -168,10 +170,12 @@ class GuiApplication(QApplication):
             else:
                 #Panel on any other window
                 for category in reversed(self.panels.keys()):
+                    panids = list(self.panels[category].keys())
+                    if len(panids) == 0: continue
                     if category in shortCutParams.keys():
                         action_names = shortCutParams[category]
-                        panid = list(self.panels[category].keys())[-1]
-                        break                        
+                        panid = panids[-1]
+                        break           
                 
         if category is None:
             return
