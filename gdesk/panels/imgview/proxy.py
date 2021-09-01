@@ -167,12 +167,14 @@ class ImageGuiProxy(GuiProxyBase):
     @StaticGuiCall
     def set_range(black, white):
         panel = gui.qapp.panels.selected('image')
-        panel.changeBlackWhite(black, white)        
+        panel.changeBlackWhite(black, white)                   
         
     @StaticGuiCall
-    def set_offset_gain(offset=0, gain=1, gamma=1):
+    def set_offset_gain(offset=0, gain=1, gamma=1, as_default=False):
         panel = gui.qapp.panels.selected('image')
-        panel.changeOffsetGain(offset, gain, gamma)          
+        panel.changeOffsetGain(offset, gain, gamma)
+        if as_default:
+            panel.setCurrentOffsetGainAsDefault()        
         
     @staticmethod
     def close_all():
