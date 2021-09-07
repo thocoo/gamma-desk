@@ -110,7 +110,7 @@ class DockManager(object):
     def new_window_on_panel(self, panel, parentName=None):
         layout = LayoutStruct()
         layout.root = {'type': 'panel', 'category': panel.category, 'id': panel.panid}
-        return self.new_window_using_layout(layout, parentName=parentName)
+        return self.new_window_using_layout(layout, panel.width(), panel.height(), parentName=parentName)
             
     def new_window_using_layout(self, layout, width=640, height=480, parentName=None):
         w = self.newWindow(None, parentName)
