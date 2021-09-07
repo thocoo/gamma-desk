@@ -404,6 +404,7 @@ class QueueInterpreter(object):
             elif isinstance(func, tuple):            
                 try:                    
                     func = gui_proxy.decode_func(func)
+                    self.set_console_mode('running')
                     result = func(*args)
                     error_code = 0
                     
@@ -412,6 +413,7 @@ class QueueInterpreter(object):
                     result = None
                     error_code = 1
                     
+                self.set_console_mode('interprete')                    
                 callbackargs = (mode, error_code, result)
                 retvalue = 1            
 
