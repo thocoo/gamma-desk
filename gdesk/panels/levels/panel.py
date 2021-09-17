@@ -495,7 +495,12 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.stepcount.textChanged.connect(self.histSizeChanged)
         self.addWidget(self.stepcount)
         
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'unmark_to_download.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
+        #self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'unmark_to_download.png')), 'Apply default offset, gain and gamma', self.panel.gain1)                   
+
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom) 
         
         self.gainSigmaMenu = QtWidgets.QMenu('Contrast')
         actGainSigma1 = QtWidgets.QAction('Gain to Sigma 1', self, triggered=lambda: self.panel.autoContrast(1))
@@ -513,7 +518,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.autoBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.autoBtn.clicked.connect(lambda: self.panel.autoContrast())        
         self.addWidget(self.autoBtn)
-        
+
         self.useRoiBtn = QtWidgets.QToolButton(self)
         self.useRoiBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
         self.useRoiBtn.setCheckable(True)
@@ -524,11 +529,8 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.sqrtBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'square_root.png')))
         self.sqrtBtn.setCheckable(True)
         self.sqrtBtn.clicked.connect(self.toggleSqrt)
-        self.addWidget(self.sqrtBtn)         
+        self.addWidget(self.sqrtBtn)
         
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom)        
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
         fontHeight = self.fontMetrics().height()
