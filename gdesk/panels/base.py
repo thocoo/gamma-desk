@@ -254,7 +254,17 @@ class BasePanel(QMainWindow):
         panids = self.panIdsOfBounded(category)
         if len(panids) == 0:
             return None
-        return self.qapp.panels[category][panids[pos]]        
+        return self.qapp.panels[category][panids[pos]]   
+
+    def targetPanels(self, category):    
+        panids = self.panIdsOfBounded(category)
+        
+        if len(panids) == 0:
+            panel = gui.qapp.panels.selected(category)
+            if not panel is None: return [panel]           
+
+        else:
+            return [self.qapp.panels[category][panid] for panid in panids]        
         
     def select(self):
         thisWasSelected = self.isSelected()
