@@ -654,22 +654,30 @@ class LevelsPanel(BasePanel):
         if not sigma is None:
             self.sigma = sigma
             
-        panids = self.panIdsOfBounded('image')
-        for panid in panids:
-            #gui.menu_trigger('image', panid, ['View', 'Gain to Sigma', f'Gain to Sigma {self.sigma}'])
-            gui.qapp.panels['image'][panid].gainToSigma(self.sigma, self.roi)
+        # panids = self.panIdsOfBounded('image')
+        # for panid in panids:
+            # gui.qapp.panels['image'][panid].gainToSigma(self.sigma, self.roi)
+            
+        for panel in self.targetPanels('image'):
+            panel.gainToSigma(self.sigma, self.roi)             
             
         self.levels.bringIndicVisible()
             
     def gain1(self):    
-        self.offsetGainChanged.emit('default', 'default', 'default')
+        #self.offsetGainChanged.emit('default', 'default', 'default')
+        for panel in self.targetPanels('image'):
+            panel.changeOffsetGain('default', 'default', 'default')
         self.levels.indicZoom()
         
     def updateBlackPoint(self, value):
-        self.blackWhiteChanged.emit(value, None)
+        #self.blackWhiteChanged.emit(value, None)
+        for panel in self.targetPanels('image'):
+            panel.changeBlackWhite(value, None)        
         
     def updateWhitePoint(self, value):
-        self.blackWhiteChanged.emit(None, value)        
+        #self.blackWhiteChanged.emit(None, value)
+        for panel in self.targetPanels('image'):
+            panel.changeBlackWhite(None, value)        
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         self.levels.updateHistOfPanel(image_panel_id)
