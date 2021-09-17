@@ -195,7 +195,7 @@ class FigureManagerGh2(FigureManagerBase):
     """       
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
-        self.panel = gui.gui_call(gui._qapp.panels.new_panel, PlotPanel, None, num, None, args=(canvas,))
+        self.panel = gui.gui_call(gui._qapp.panels.new_panel, PlotPanel, 'main', num, None, args=(canvas,))
     
     def show(self):
         """
