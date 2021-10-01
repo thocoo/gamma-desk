@@ -22,7 +22,7 @@ class VectorCurve(QtWidgets.QGraphicsPathItem):
         self.yvector = yvector
 
 
-def createCurve(x, y, color=None, z=0):
+def createCurve(x, y, color=None, z=0, fill=50):
     if color == None:
         pen = QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine)
         brush = QtGui.QBrush(QtGui.QColor(0,0,0,100))
@@ -30,7 +30,7 @@ def createCurve(x, y, color=None, z=0):
     else:
         pen = QtGui.QPen(color, 0, QtCore.Qt.SolidLine)
         R,G,B,A = color.toTuple()
-        brush = QtGui.QBrush(QtGui.QColor(R,G,B,50))
+        brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))
         
     #first create a Path
     path = QtGui.QPainterPath()

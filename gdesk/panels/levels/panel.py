@@ -149,7 +149,7 @@ class LevelPlot(QtWidgets.QWidget):
             self.scene.removeItem(oldcurve)
             self.curves.pop(curveid)
         
-    def plot_curve(self, curveid=None, x=[], y=[], color = None):
+    def plot_curve(self, curveid=None, x=[], y=[], color = None, fill=50):
         oldcolor = None
         
         if curveid in self.curves.keys():
@@ -166,7 +166,7 @@ class LevelPlot(QtWidgets.QWidget):
             else:
                 color = oldcolor
             
-        curve = createCurve(x, y, color = color)
+        curve = createCurve(x, y, color = color, fill=fill)
         curve.setZValue(0)            
         
         self.curves[curveid] = curve                     
@@ -333,8 +333,26 @@ class Levels(QtWidgets.QWidget):
             if self.panel.sqrt:
                 hist = hist ** 0.5              
             starts = chanstat.starts(step)            
-            starts, hist = self.xy_as_steps(starts, hist, chanstat.stepsize(step))
-            self.levelplot.plot_curve(clr, starts, hist) 
+            barstarts, hist = self.xy_as_steps(starts, hist, chanstat.stepsize(step))
+            self.levelplot.plot_curve(clr, barstarts, hist) 
+            
+            if self.panel.gaussview:
+                import scipy.signal
+                
+                std = chanstat.std()
+                m =  chanstat.mean()
+                npixel = chanstat.n()
+                
+                guass = scipy.signal.gaussian(len(starts), std= std / step)
+                offset = starts.mean() - m
+                xvec = starts - offset
+                yvec = guass * (npixel / guass.sum())
+                
+                self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
+                
+                # print(xvec)
+                # print(yvec)
+                
         
     def updateHist(self, panelId=None):
         qapp = gui.qapp
