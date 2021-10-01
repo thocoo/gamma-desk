@@ -871,22 +871,23 @@ class Console(BasePanel):
 
     def editSysPaths(self):
         task = self.stdio.task
-        result = task.call_func(Shell.get_sys_paths, args=(False,), wait=True)
-        paths = result.copy()
-
-        dialog_code = EditPaths(paths).exec_()
-
-        result = task.call_func(Shell.set_sys_paths, args=(paths,))
+        
+        def callback(mode, error_code, result):            
+            paths = result.copy()
+            dialog_code = EditPaths(paths).exec_()        
+            result = task.call_func(Shell.set_sys_paths, args=(paths,))
+            
+        result = task.call_func(Shell.get_sys_paths, args=(False,), callback=callback)        
 
     def editLivePaths(self):
         task = self.stdio.task
+        
+        def callback(mode, error_code, result):
+            paths = result.copy()
+            dialog_code = EditPaths(paths).exec_()
+            result = task.call_func(Shell.set_live_paths, args=(paths,))
 
-        result = task.call_func(Shell.get_live_paths, wait=True)
-        paths = result.copy()
-
-        dialog_code = EditPaths(paths).exec_()
-
-        result = task.call_func(Shell.set_live_paths, args=(paths,))
+        result = task.call_func(Shell.get_live_paths, callback=callback)
 
     def toggleInputVisible(self):
         if self.stdio.stdInputPanel.isVisible():
