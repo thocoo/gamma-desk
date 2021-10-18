@@ -383,8 +383,16 @@ class Shell(object):
         self.execfile(filepath, ws)
         self.wsdict[wsname] = ws
         return ws
+    
+    @staticmethod    
+    def set_logger_level(level=20):        
+        root = logging.getLogger()
+        root.setLevel(level)
         
-    @staticmethod        
+        for handler in root.handlers:
+            handler.setLevel(level)
+        
+    @staticmethod
     def get_sys_paths(customs_only=True):
         """
         List the sys.paths.
