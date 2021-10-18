@@ -205,7 +205,7 @@ class FigureManagerGh2(FigureManagerBase):
         optional warning.
         """
         if gui.valid():            
-            gui.gui_call(PlotPanel.show, self.panel)
+            gui.gui_call(PlotPanel.show_me, self.panel)
             gui.gui_call(PlotPanel.refresh, self.panel)
         else:        
             raise ValueError(f'gui called from unknown thread {os.getpid()}/{threading.current_thread()}')
