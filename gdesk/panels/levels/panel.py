@@ -24,6 +24,11 @@ colors = {
     'RR': QtGui.QColor(192, 0, 0),
     'RG': QtGui.QColor(64, 127, 0),
     'RB': QtGui.QColor(64, 0, 127)}    
+    
+def semilog(vec):
+    with np.errstate(divide='ignore'):
+        result = np.nan_to_num(np.log10(vec), neginf=0)
+    return result
 
 class LevelPlot(QtWidgets.QWidget):
     
@@ -331,7 +336,8 @@ class Levels(QtWidgets.QWidget):
             step = stepsize if bins is None else chanstat.step_for_bins(bins)            
             hist = chanstat.histogram(step)
             if self.panel.sqrt:
-                hist = hist ** 0.5              
+                #hist = hist ** 0.5              
+                hist = semilog(hist)
             starts = chanstat.starts(step)            
             barstarts, hist = self.xy_as_steps(starts, hist, chanstat.stepsize(step))
             self.levelplot.plot_curve(clr, barstarts, hist) 
@@ -347,6 +353,9 @@ class Levels(QtWidgets.QWidget):
                 offset = starts.mean() - m
                 xvec = starts - offset
                 yvec = guass * (npixel / guass.sum())
+                
+                if self.panel.sqrt:
+                    yvec = semilog(yvec)
                 
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
                 
@@ -376,14 +385,16 @@ class Levels(QtWidgets.QWidget):
                     stepcount = int(self.panel.histSize)
                     hist, starts, stepsize = hist2d(arr, bins=stepcount-1, plot=False, use_numba=use_numba)
                     if self.panel.sqrt:
-                        hist = hist ** 0.5
+                        #hist = hist ** 0.5
+                        hist = semilog(hist)
                     self.stepsize.setText(str(stepsize))
                     
                 elif self.panel.histSizePolicy == 'step':
                     stepsize = int(self.panel.histSize)
                     hist, starts, stepsize = hist2d(arr, step=stepsize, pow2snap=True, plot=False, use_numba=use_numba)
                     if self.panel.sqrt:
-                        hist = hist ** 0.5                
+                        #hist = hist ** 0.5   
+                        hist = semilog(hist)
                     self.stepcount.setText(str(len(hist)))        
                 
                 if relative:
@@ -406,14 +417,16 @@ class Levels(QtWidgets.QWidget):
                         stepcount = int(self.panel.histSize)
                         hist, starts, stepsize = hist2d(arr[:,:,clr_ch], bins=stepcount-1, plot=False, use_numba=use_numba)     
                         if self.panel.sqrt:
-                            hist = hist ** 0.5
+                            #hist = hist ** 0.5
+                            hist = semilog(hist)
                         self.stepsize.setText(str(stepsize))                    
                         
                     elif self.panel.histSizePolicy == 'step':
                         stepsize = int(self.panel.histSize)
                         hist, starts, stepsize = hist2d(arr[:,:,clr_ch], step=stepsize, pow2snap=True, plot=False, use_numba=use_numba)            
                         if self.panel.sqrt:
-                            hist = hist ** 0.5                
+                            #hist = hist ** 0.5                
+                            hist = semilog(hist)
                         self.stepcount.setText(str(len(hist)))
                         
                     if relative:
@@ -430,14 +443,16 @@ class Levels(QtWidgets.QWidget):
                         stepcount = eval(self.stepcount.text())
                         hist, starts, stepsize = hist2d(arr[:,:,clr_ch], bins=stepcount-1, plot=False, use_numba=use_numba)     
                         if self.panel.sqrt:
-                            hist = hist ** 0.5
+                            #hist = hist ** 0.5
+                            hist = semilog(hist)
                         self.stepsize.setText(str(stepsize))                    
                         
                     elif self.step_priority == 'stepsize':
                         stepsize = eval(self.stepsize.text())
                         hist, starts, stepsize = hist2d(arr[:,:,clr_ch], step=stepsize, pow2snap=True, plot=False, use_numba=use_numba)            
                         if self.panel.sqrt:
-                            hist = hist ** 0.5                
+                            #hist = hist ** 0.5                
+                            hist = semilog(hist)
                         self.stepcount.setText(str(len(hist)))
                         
                     if relative:
@@ -539,7 +554,8 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addWidget(self.useRoiBtn)     
         
         self.sqrtBtn = QtWidgets.QToolButton(self)
-        self.sqrtBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'square_root.png')))
+        #self.sqrtBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'square_root.png')))
+        self.sqrtBtn.setText('log')
         self.sqrtBtn.setCheckable(True)
         self.sqrtBtn.clicked.connect(self.toggleSqrt)
         self.addWidget(self.sqrtBtn)
