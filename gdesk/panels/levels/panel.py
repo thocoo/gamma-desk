@@ -531,18 +531,27 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom) 
         
         self.gainSigmaMenu = QtWidgets.QMenu('Contrast')
+        
         actGainSigma1 = QtWidgets.QAction('Gain to Sigma 1', self, triggered=lambda: self.panel.autoContrast(1))
-        actGainSigma1.setText('1σ')
+        actGainSigma1.setText('1σ 68.27%')
         actGainSigma1.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_high.png')))        
         self.gainSigmaMenu.addAction(actGainSigma1)    
+        
         actGainSigma2 = QtWidgets.QAction('Gain to Sigma 2', self, triggered=lambda: self.panel.autoContrast(2))
-        actGainSigma2.setText('2σ')
+        actGainSigma2.setText('2σ 95.45%')
         actGainSigma2.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))        
         self.gainSigmaMenu.addAction(actGainSigma2)    
+        
         actGainSigma3 = QtWidgets.QAction('Gain to Sigma 3', self, triggered=lambda: self.panel.autoContrast(3))
-        actGainSigma3.setText('3σ')
+        actGainSigma3.setText('3σ 99.73%')
         actGainSigma3.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
-        self.gainSigmaMenu.addAction(actGainSigma3)                         
+        self.gainSigmaMenu.addAction(actGainSigma3)       
+        
+        actGainSigma4 = QtWidgets.QAction('Gain to Sigma 4', self, triggered=lambda: self.panel.autoContrast(4))
+        actGainSigma4.setText('4σ 99.99%')
+        actGainSigma4.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        self.gainSigmaMenu.addAction(actGainSigma4)        
+        
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))
         self.autoBtn.setMenu(self.gainSigmaMenu)
@@ -691,11 +700,7 @@ class LevelsPanel(BasePanel):
         
     def autoContrast(self, sigma=None):
         if not sigma is None:
-            self.sigma = sigma
-            
-        # panids = self.panIdsOfBounded('image')
-        # for panid in panids:
-            # gui.qapp.panels['image'][panid].gainToSigma(self.sigma, self.roi)
+            self.sigma = sigma            
             
         for panel in self.targetPanels('image'):
             panel.gainToSigma(self.sigma, self.roi)             
