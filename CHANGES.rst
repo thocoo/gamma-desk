@@ -1,3 +1,14 @@
+v0.1.4
+------
+
+- add as_default argument to gui.img.set_offset_gain()
+- On functional call in console, switch to running mode
+- Inherit panel size to new window
+- Reorder buttons on histogram panel
+- Improve internal panel selection
+- 
+
+
 v0.1.3
 ------
 
