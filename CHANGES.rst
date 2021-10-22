@@ -1,6 +1,8 @@
 v0.1.4
 ------
 
+date: 2021-10-22
+
 - add as_default argument to gui.img.set_offset_gain()
 - On functional call in console, switch to running mode
 - Inherit panel size to new window
