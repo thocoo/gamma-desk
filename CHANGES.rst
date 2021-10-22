@@ -6,7 +6,8 @@ v0.1.4
 - Inherit panel size to new window
 - Reorder buttons on histogram panel
 - Improve internal panel selection
-- 
+- Extend contrast options
+- Replace sqrt scale in semilog on histogram panel
 
 
 v0.1.3
