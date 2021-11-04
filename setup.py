@@ -23,7 +23,7 @@ AUTHOR = 'Thomas Cools'
 modpath = herepath / 'gdesk'
 
 REQUIRED = [
-    'numpy', 
+    'numpy==1.20.3', #numba requires numpy <= 1.20
     'imageio',
     'matplotlib',
     'scipy',
@@ -33,7 +33,8 @@ REQUIRED = [
     'numba',
     'pyzmq',
     'ninja2',
-    'toml'
+    'toml',
+    'pywinpty'
 ]
 
 PYTHON_REQUIRED = '>=3.6'
