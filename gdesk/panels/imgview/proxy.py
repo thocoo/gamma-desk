@@ -1,6 +1,7 @@
 import platform
 import numpy as np
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +175,31 @@ class ImageGuiProxy(GuiProxyBase):
         panel = gui.qapp.panels.selected('image')
         panel.changeOffsetGain(offset, gain, gamma)
         if as_default:
-            panel.setCurrentOffsetGainAsDefault()        
+            panel.setCurrentOffsetGainAsDefault()
+            
+    @staticmethod
+    def read_raw(data, width, height, depth=1, dtype='uint8', offset=0, byteswap=False):
+        if isinstance(data, (str, Path)):
+            fp = open(data, 'br')
+            data = fp.read()
+            fp.close()
+        
+        dtype = np.dtype(dtype)
+
+        leftover = len(data) - (width * height  * dtype.itemsize + offset)
+
+        if leftover > 0:
+            print('Too much data found (%d bytes too many)' % leftover)
+
+        elif leftover < 0:
+            print('Not enough data found (missing %d bytes)' % (-leftover))
+
+        arr = np.ndarray(shape=(height, width), dtype=dtype, buffer=data[offset:])
+        
+        if byteswap:
+            arr = arr.byteswap()
+        
+        return arr
         
     @staticmethod
     def close_all():
