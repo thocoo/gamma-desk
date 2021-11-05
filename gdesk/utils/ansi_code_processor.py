@@ -42,7 +42,8 @@ BackSpaceAction = namedtuple('BackSpaceAction', ['action'])
 
 # Regular expressions.
 CSI_COMMANDS = 'ABCDEFGHJKSTfmnsu'
-CSI_SUBPATTERN = '\[(.*?)([%s])' % CSI_COMMANDS
+CSI_DOS = 'X'
+CSI_SUBPATTERN = '\[(.*?)([%s])' % (CSI_COMMANDS + CSI_DOS)
 OSC_SUBPATTERN = '\](.*?)[\x07\x1b]'
 ANSI_PATTERN = ('\x01?\x1b(%s|%s)\x02?' % \
                 (CSI_SUBPATTERN, OSC_SUBPATTERN))
@@ -187,6 +188,11 @@ class AnsiCodeProcessor:
             dir = 'up' if command == 'S' else 'down'
             count = params[0] if params else 1
             self.actions.append(ScrollAction('scroll', dir, 'line', count))
+            
+        elif command == 'X':  #from the Windows pty
+            #https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#text-modification
+            #Erase <n> characters from the current cursor position by overwriting them with a space character.
+            pass
 
     def set_osc_code(self, params):
         """ Set attributes based on OSC (Operating System Command) parameters.

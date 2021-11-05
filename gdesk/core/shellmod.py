@@ -280,10 +280,11 @@ class Shell(object):
         process.stdin.close()        
         process.terminate()
         
-    def pty(self, command='cmd', cwd=None):
+    def pty(self, command='cmd', cwd=None, textmode='ansi'):
         """
         Setup a virtual terminal.
         Stdout of the executing process live printed.
+        textmode = 'ansi' or 'raw'
         """
         from winpty import PtyProcess
         #install pywinpty
@@ -293,14 +294,17 @@ class Shell(object):
         if isinstance(logging.root.handlers[0], logging.StreamHandler):
             logging.root.handlers.pop(0)
             
+        #WINPTY_SHOW_CONSOLE to 1
+        os.environ['WINPTY_SHOW_CONSOLE'] = '1'        
+            
         #proc = PtyProcess.spawn(command, cwd=cwd)
         proc = PtyProcess.spawn(command)
         
         def output_reader(proc):
+            #PTYESC = '\033]'
             while proc.isalive():
                 text = proc.readline()
-                #print(text, end='')         
-                sys.stdout._write_mode(text, 'raw')
+                sys.stdout._write_mode(text, textmode)
         
         stdout_thread = threading.Thread(target=output_reader, args=(proc,))
         stdout_thread.start()
