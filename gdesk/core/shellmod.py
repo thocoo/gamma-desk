@@ -279,6 +279,36 @@ class Shell(object):
 
         process.stdin.close()        
         process.terminate()
+        
+    def pty(self, command='cmd', cwd=None):
+        """
+        Setup a virtual terminal.
+        Stdout of the executing process live printed.
+        """
+        from winpty import PtyProcess
+        #install pywinpty
+        
+        #The orginal terminal is killed or hidden?
+        #logging.root.handlers[0] becomes invalid?    
+        if isinstance(logging.root.handlers[0], logging.StreamHandler):
+            logging.root.handlers.pop(0)
+            
+        #proc = PtyProcess.spawn(command, cwd=cwd)
+        proc = PtyProcess.spawn(command)
+        
+        def output_reader(proc):
+            while proc.isalive():
+                text = proc.readline()
+                #print(text, end='')         
+                sys.stdout._write_mode(text, 'raw')
+        
+        stdout_thread = threading.Thread(target=output_reader, args=(proc,))
+        stdout_thread.start()
+        sys.stdout.copy_to_thread(stdout_thread.ident)
+
+        while proc.isalive():
+            cmd = input('')
+            proc.write(cmd + '\r\n')
                 
     # def ipython(self):
         # from IPython.terminal.embed import InteractiveShellEmbed
