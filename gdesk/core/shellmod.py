@@ -5,6 +5,7 @@ import multiprocessing
 import builtins
 import logging
 import traceback
+import queue
 import subprocess
 import pprint
 import shlex
@@ -311,8 +312,11 @@ class Shell(object):
         sys.stdout.copy_to_thread(stdout_thread.ident)
 
         while proc.isalive():
-            cmd = input('')
-            proc.write(cmd + '\r\n')
+            try:
+                cmd = input('', timeout=1)
+                proc.write(cmd + '\r\n')
+            except queue.Empty:
+                pass
                 
     # def ipython(self):
         # from IPython.terminal.embed import InteractiveShellEmbed
@@ -383,7 +387,7 @@ class Shell(object):
             items.append(item)
         return items        
         
-    def input(self, message=''):
+    def input(self, message='', timeout=None):
         ident = threading.get_ident()                
         if ident in self.interpreters.keys():
             if gui.is_main():
@@ -391,7 +395,7 @@ class Shell(object):
             else:
                 prior_console_mode = gui.console.set_mode('input')
                 print(message, end='')
-                mode, args, callback = self.stdin.read()
+                mode, args, callback = self.stdin.read(timeout=timeout)
                 gui.console.set_mode(prior_console_mode)
                 return args[0]
         else:

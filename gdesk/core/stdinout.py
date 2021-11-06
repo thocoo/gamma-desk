@@ -209,11 +209,11 @@ class ProcessStdInput(io.TextIOBase):
     def close(self):
         pass
         
-    def read(self):
+    def read(self, timeout=None):
         ident = threading.get_ident()
         
         if ident in ProcessStdInput.stdin_queues.keys():
-            text = ProcessStdInput.stdin_queues[ident].get()                        
+            text = ProcessStdInput.stdin_queues[ident].get(timeout=timeout)                        
             return text
         else:
             return sys.__stdin__.read()
