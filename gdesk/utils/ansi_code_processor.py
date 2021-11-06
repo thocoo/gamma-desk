@@ -192,7 +192,7 @@ class AnsiCodeProcessor:
         elif command == 'X':  #from the Windows pty
             #https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#text-modification
             #Erase <n> characters from the current cursor position by overwriting them with a space character.
-            pass
+            print(f'CSI cmd: {command}, params: {params}')
 
     def set_osc_code(self, params):
         """ Set attributes based on OSC (Operating System Command) parameters.
@@ -206,8 +206,11 @@ class AnsiCodeProcessor:
             command = int(params.pop(0))
         except (IndexError, ValueError):
             return
+            
+        if command == 0:
+            print(f'OS cmd: {command}, params: {params}')
 
-        if command == 4:
+        elif command == 4:
             # xterm-specific: set color number to color spec.
             try:
                 color = int(params.pop(0))
