@@ -40,6 +40,9 @@ BeepAction = namedtuple('BeepAction', ['action'])
 # An action for backspace
 BackSpaceAction = namedtuple('BackSpaceAction', ['action'])
 
+# An action for backspace
+SetTitleAction = namedtuple('SetTitleAction', ['action', 'title'])
+
 # Regular expressions.
 CSI_COMMANDS = 'ABCDEFGHJKSTfmnsu'
 CSI_DOS = 'X'
@@ -208,7 +211,8 @@ class AnsiCodeProcessor:
             return
             
         if command == 0:
-            print(f'OS cmd: {command}, params: {params}')
+            print(f'OS cmd: {command}, params: {params}')            
+            self.actions.append(SetTitleAction('set-title', params[0]))
 
         elif command == 4:
             # xterm-specific: set color number to color spec.

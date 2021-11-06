@@ -584,6 +584,9 @@ class StdPlainOutputPanel(QPlainTextEdit):
 
                 elif act.action == 'newline':
                     cursor.movePosition(cursor.EndOfLine)
+                    
+                elif act.action == 'set-title':
+                    self.panel.long_title = act.title
 
             format = self._ansi_processor.get_format()
 
