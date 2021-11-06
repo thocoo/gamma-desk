@@ -157,9 +157,9 @@ class BasePanel(QMainWindow):
         selIcon.addFile(str(respath / 'icons' / 'mark_16px.png'), state=QIcon.On)
         selIcon.addFile(str(respath / 'icons' / 'unmark_16px.png'), state=QIcon.Off)        
         
-        self.setAutoFillBackground(True)        
+        self.setAutoFillBackground(True)
         
-        self.statusBar().setSizeGripEnabled(False)        
+        self.statusBar().setSizeGripEnabled(False)
 
     @property
     def qapp(self):
