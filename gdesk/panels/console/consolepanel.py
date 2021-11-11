@@ -22,6 +22,7 @@ from ...dialogs.editpaths import EditPaths
 from ...utils.syntax_light import analyze_python, ansi_highlight
 from ...utils.ansi_code_processor import QtAnsiCodeProcessor
 from ...gcore.utils import getMenuAction
+from ...core import stdinout
 
 respath = Path(config['respath'])
 logger = logging.getLogger(__name__) 
@@ -756,6 +757,14 @@ class Console(BasePanel):
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
 
+        logLevelMenu = CheckMenu('Log Level', self.viewMenu)
+        self.addMenuItem(logLevelMenu, 'Debug', lambda: self.setLogLevel('DEBUG'), checkcall=lambda: self.isLogLevel('DEBUG'))
+        self.addMenuItem(logLevelMenu, 'Info', lambda: self.setLogLevel('INFO'), checkcall=lambda: self.isLogLevel('INFO'))
+        self.addMenuItem(logLevelMenu, 'Warning', lambda: self.setLogLevel('WARNING'), checkcall=lambda: self.isLogLevel('WARNING'))
+        self.addMenuItem(logLevelMenu, 'Error', lambda: self.setLogLevel('ERROR'), checkcall=lambda: self.isLogLevel('ERROR'))
+        self.addMenuItem(logLevelMenu, 'Critical', lambda: self.setLogLevel('CRITICAL'), checkcall=lambda: self.isLogLevel('CRITICAL'))
+        
+        
         self.addMenuItem(self.viewMenu, 'input', self.toggleInputVisible,
             checkcall=lambda: self.stdio.stdInputPanel.isVisible())
             
@@ -891,6 +900,24 @@ class Console(BasePanel):
             result = task.call_func(Shell.set_live_paths, args=(paths,))
 
         result = task.call_func(Shell.get_live_paths, callback=callback)
+        
+    def setLogLevel(self, level):
+        task = self.stdio.task
+        
+        def setProcessLogLevel(level):            
+            stdinout.streamhandler.setLevel(level)
+            
+        task.call_func(setProcessLogLevel, args=(level,))           
+        
+
+    def isLogLevel(self, level):                 
+        task = self.stdio.task
+        
+        def getProcessLogLevel():            
+            level = stdinout.streamhandler.level 
+            return level
+            
+        return logging.getLevelName(task.call_func(getProcessLogLevel, queue='flow', wait=True)) == level
 
     def toggleInputVisible(self):
         if self.stdio.stdInputPanel.isVisible():

@@ -13,6 +13,7 @@ from .gui_proxy import gui
 sentinel = object()
 
 logger = logging.getLogger(__name__)
+streamhandler = None
 
 ESC = '\033['
 
@@ -139,6 +140,7 @@ class PopupHandler(Handler):
             gui.dialog.msgbox(text, 'Critical', 'error')           
 
 def enable_ghstream_handler():    
+    global streamhandler
     streamhandler = GhStreamHandler(sys.stdout)
     streamhandler.setLevel(config.get('logging_level_console', 'WARNING'))
     logging.root.addHandler(streamhandler)       
