@@ -12,6 +12,8 @@ import time
 import numpy as np
 
 from ..utils.funccom import find_nested_func
+from ..utils.imconvert import qimage_to_ndarray
+
 from .conf import config
 
 try:
@@ -161,7 +163,22 @@ class GuiProxyBase(object):
             panel.close_panel()
             return True
         else:
-            return False        
+            return False
+            
+    @classmethod
+    def grab(cls):
+        return cls._panel_grab(cls.category)
+                 
+    @StaticGuiCall
+    def _panel_grab(category):
+        panel = gui.qapp.panels.selected(category)
+        pixmap = panel.grab()
+        image = pixmap.toImage()
+        arr = qimage_to_ndarray(image)        
+        return arr
+        
+
+    
 
 #Note that a embeded function is also be static if closure is None            
 STATIC = 1   
