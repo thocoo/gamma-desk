@@ -139,6 +139,8 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
         array16bit = (array / stepsize).clip(0, 65536).astype('uint16') 
     elif (offset != 0):        
         array16bit = (array - offset).clip(0, 65536).astype('uint16') 
+    else:
+        array16bit = array.clip(0, 65536).astype('uint16')
     
     if use_numba and has_numba:
         hist = numba_func.bincount2d(array16bit, 65536)[:len(starts)] 
