@@ -2007,8 +2007,9 @@ class ImageViewerBase(BasePanel):
         procarr = demosaicing_CFA_Bayer_bilinear(gui.vs, '{baypatn}')
         gui.show(procarr)"""
 
-        panel = gui.qapp.panels.select_or_new('console', None, 'child')
-        panel.task.wait_process_ready()
+        #panel = gui.qapp.panels.select_or_new('console', None, 'child')
+        panel = gui.qapp.panels.selected('console')
+        #panel.task.wait_process_ready()
         panel.exec_cmd(code)
 
 
