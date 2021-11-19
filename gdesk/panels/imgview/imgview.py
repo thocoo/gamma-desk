@@ -186,7 +186,7 @@ class StatusPanel(MyStatusBar):
         elif self.val_format == 'hex':
             self.val_item_format = '0x{0:04X}'
         elif self.val_format == 'bin':
-            self.val_item_format = '{0:016b}'
+            self.val_item_format = '{0:_b}'
 
     def set_xy_val(self, x, y, val=None):
         self.xy.setText(f'xy:{x:d},{y:d} ')
