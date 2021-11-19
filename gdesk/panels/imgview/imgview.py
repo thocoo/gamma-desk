@@ -184,9 +184,9 @@ class StatusPanel(MyStatusBar):
         if self.val_format == 'dec':
             self.val_item_format = '{0}'
         elif self.val_format == 'hex':
-            self.val_item_format = '0x{0:X}'
+            self.val_item_format = '0x{0:04X}'
         elif self.val_format == 'bin':
-            self.val_item_format = '{0:b}'
+            self.val_item_format = '{0:016b}'
 
     def set_xy_val(self, x, y, val=None):
         self.xy.setText(f'xy:{x:d},{y:d} ')
@@ -686,12 +686,13 @@ class ImageViewerWidget(QWidget):
         
         qp.resetTransform() 
         
-        if config['image'].get('pixel_labels', True) and self.zoomDisplay > 100:
+        if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
             qp.setPen(QColor(170,170,170))
-            font = QFont("Arial")
+            font = QFont("Consolas")
             fontSize = round(self.zoomDisplay / 10)
             font.setPixelSize(fontSize)
-            font.setWeight(QFont.Thin)
+            #font.setWeight(QFont.Thin)
+            font.setStyleStrategy(QFont.NoAntialias)
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
             qp.setRenderHint(qp.Antialiasing, False)
