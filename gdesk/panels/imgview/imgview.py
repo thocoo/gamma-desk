@@ -704,7 +704,7 @@ class ImageViewerWidget(QWidget):
             qp.setRenderHint(qp.Antialiasing, False)
             
             x, y, w, h = self.visibleRegion()
-            mw, mh = self.imgdata.statarr.shape[:2]
+            mh, mw = self.imgdata.statarr.shape[:2]
             startx, starty = max(0, round(x - 0.5)), max(0, round(y - 0.5))
             endx, endy = min(mw, round(x + w + 0.5)), min(mh, round(y + h + 0.5))
             fmt = self.parent().parent().statuspanel.val_item_format
