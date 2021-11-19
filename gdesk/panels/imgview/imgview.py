@@ -106,11 +106,17 @@ ZOOM_VALUES = [
     20.00 , 25.0   , 32.0 ,
     40.00 , 50.0   , 64.0 ,
     80.00 ,100.0   ,125.0 ,
-    160.0 ,200.0   ,250.0]
+    160.0 ,200.0   ,250.0 ,
+    320.0 ,400.0   ,500.0 ,
+    640.0 ,800.0   ,1000  ,
+    1250  ,1600    ,2000  ,
+    2500  ,3200    ,4000]
 
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
 #sck = config['shortcuts']
+
+channels = ['R', 'G', 'B', 'A']
 
 class StatusPanel(MyStatusBar):
 
@@ -698,21 +704,20 @@ class ImageViewerWidget(QWidget):
             qp.setRenderHint(qp.Antialiasing, False)
             
             x, y, w, h = self.visibleRegion()
-            startx, starty = round(x - 0.5), round(y - 0.5)
-            endx, endy = round(x + w + 0.5), round(y + h + 0.5)      
+            mw, mh = self.imgdata.statarr.shape[:2]
+            startx, starty = max(0, round(x - 0.5)), max(0, round(y - 0.5))
+            endx, endy = min(mw, round(x + w + 0.5)), min(mh, round(y + h + 0.5))
             fmt = self.parent().parent().statuspanel.val_item_format
         
             for sx in range(startx, endx):
                 for sy in range(starty, endy):     
                     xpos = round((sx + 0.05 - self.dispOffsetX) * self.zoomDisplay)
                     ypos = round((sy + 0.95 - self.dispOffsetY) * self.zoomDisplay)
-                    try:
-                        val = self.imgdata.statarr[sy, sx]
-                    except:
-                        continue
+                    val = self.imgdata.statarr[sy, sx]
+                    
                     if isinstance(val, Iterable):
                         for i, v in enumerate(val):
-                            qp.drawText(xpos, ypos - i * (fontSize + 1), fmt.format(v))    
+                            qp.drawText(xpos, ypos - i * (fontSize + 1), f'{channels[i]}: {fmt.format(v)}')    
                     else:
                         qp.drawText(xpos, ypos, fmt.format(val))    
 
