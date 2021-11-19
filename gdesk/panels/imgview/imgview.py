@@ -178,15 +178,15 @@ class StatusPanel(MyStatusBar):
 
     def set_val_format(self, fmt='dec'):
         self.val_format = fmt
-        self.val_item_format = None
+        self.val_item_format = None        
 
     def set_val_item_format(self):
         if self.val_format == 'dec':
-            self.val_item_format = '{v}'
+            self.val_item_format = '{0}'
         elif self.val_format == 'hex':
-            self.val_item_format = '0x{v:X}'
+            self.val_item_format = '0x{0:X}'
         elif self.val_format == 'bin':
-            self.val_item_format = '{v:b}'
+            self.val_item_format = '{0:b}'
 
     def set_xy_val(self, x, y, val=None):
         self.xy.setText(f'xy:{x:d},{y:d} ')
@@ -197,11 +197,10 @@ class StatusPanel(MyStatusBar):
         if not val is None:
             try:
                 if isinstance(val, Iterable):
-                    text = '[' + ' '.join(lazyf(self.val_item_format) for v in val) + ']'
+                    text = '[' + ' '.join(self.val_item_format.format(v) for v in val) + ']'
                     self.val.setText(text)
                 else:
-                    v = val
-                    self.val.setText(lazyf(self.val_item_format))
+                    self.val.setText(self.val_item_format.format(val))
             except:
                 self.val.setText(str(val))
 
@@ -679,13 +678,39 @@ class ImageViewerWidget(QWidget):
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)
 
-            qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)
+            qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                       
 
             for layer in self.imgdata.layers.values():
                 qp.setCompositionMode(layer['composition'])
                 qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
-
-            qp.resetTransform()
+        
+        qp.resetTransform() 
+        
+        if config['image'].get('pixel_labels', True) and self.zoomDisplay > 100:
+            qp.setPen(QColor(170,170,170))
+            font = QFont("Arial")
+            fontSize = round(self.zoomDisplay / 10)
+            font.setPixelSize(fontSize)
+            font.setWeight(QFont.Thin)
+            qp.setFont(font)
+            qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
+            qp.setRenderHint(qp.Antialiasing, False)
+            
+            x, y, w, h = self.visibleRegion()
+            startx, starty = round(x - 0.5), round(y - 0.5)
+            endx, endy = round(x + w + 0.5), round(y + h + 0.5)      
+            fmt = self.parent().parent().statuspanel.val_item_format
+        
+            for sx in range(startx, endx):
+                for sy in range(starty, endy):     
+                    xpos = round((sx + 0.05 - self.dispOffsetX) * self.zoomDisplay)
+                    ypos = round((sy + 0.95 - self.dispOffsetY) * self.zoomDisplay)
+                    val = self.imgdata.statarr[sy, sx]
+                    if isinstance(val, Iterable):
+                        for i, v in enumerate(val):
+                            qp.drawText(xpos, ypos - i * (fontSize + 1), fmt.format(v))    
+                    else:
+                        qp.drawText(xpos, ypos, fmt.format(val))    
 
     def dragEnterEvent(self, event):
         event.accept()
@@ -883,6 +908,7 @@ class ImageViewerBase(BasePanel):
         self.chooseValFormat.addAction(QAction("Decimal", self, triggered=lambda: self.statuspanel.set_val_format('dec')))
         self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.statuspanel.set_val_format('hex')))
         self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.statuspanel.set_val_format('bin')))
+        self.chooseValFormat.addAction(QAction("Pixel Labels", self, triggered=self.togglePixelLabels))
         self.viewMenu.addMenu(self.chooseValFormat)
 
         ### Select
@@ -1611,6 +1637,11 @@ class ImageViewerBase(BasePanel):
             
         config['roi color'] = rgb
         self.imviewer.roi.initUI()
+        
+        
+    def togglePixelLabels(self):
+        v = config['image'].get('pixel_labels', False)
+        config['image']['pixel_labels'] = not v
 
     ############################
     # Select Menu Connections
