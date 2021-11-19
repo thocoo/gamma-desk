@@ -706,7 +706,10 @@ class ImageViewerWidget(QWidget):
                 for sy in range(starty, endy):     
                     xpos = round((sx + 0.05 - self.dispOffsetX) * self.zoomDisplay)
                     ypos = round((sy + 0.95 - self.dispOffsetY) * self.zoomDisplay)
-                    val = self.imgdata.statarr[sy, sx]
+                    try:
+                        val = self.imgdata.statarr[sy, sx]
+                    except:
+                        continue
                     if isinstance(val, Iterable):
                         for i, v in enumerate(val):
                             qp.drawText(xpos, ypos - i * (fontSize + 1), fmt.format(v))    
