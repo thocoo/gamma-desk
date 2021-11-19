@@ -310,7 +310,8 @@ class Levels(QtWidgets.QWidget):
         else:
             self.updateHist(panelId)        
             
-        self.levelplot.zoomFitYRange(ymin=0)
+        if self.panel.fitheight:
+            self.levelplot.zoomFitYRange(ymin=0)
 
     def updatedCachedHistogram(self, panid):      
         image_panel = self.image_panel(panid)
@@ -626,6 +627,7 @@ class LevelsPanel(BasePanel):
         self.histSizes = {'bins': bins, 'step': step}
         
         self.cached = True
+        self.fitheight = True
         self.gaussview = False
         self.sqrt = False
         self.roi = False
@@ -646,6 +648,7 @@ class LevelsPanel(BasePanel):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cross.png')))
         
         self.addMenuItem(self.modeMenu, 'Cached', self.toggle_cached, checkcall=lambda: self.cached)
+        self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Sqrt', self.toggle_sqrt, checkcall=lambda: self.sqrt)
@@ -682,6 +685,11 @@ class LevelsPanel(BasePanel):
         self.cached = not self.cached
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()
+        
+    def toggle_fitheight(self):
+        self.fitheight= not self.fitheight
+        self.toolbar.updateButtonStates()
+        self.levels.updateActiveHist()        
         
     def toggle_gaussview(self):
         self.gaussview = not self.gaussview
