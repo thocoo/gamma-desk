@@ -729,6 +729,7 @@ class Console(BasePanel):
             statusTip="Disable Timeit"))
         traceMenu.addAction(QAction("Enable profiling", self, triggered=lambda: self.task.enable_profiling(),
             statusTip="One time profiling of the next command"))
+        traceMenu.addAction(QAction("Toggle Inspect", self, triggered=lambda: self.task.flow('toggle_inspect')))
         self.executionMenu.addMenu(traceMenu)
 
         self.addMenuItem(self.executionMenu, 'Check Flow Alive', self.checkAlive,
