@@ -94,8 +94,8 @@ class TaskBase(object):
         return self.cqs.stdout_queue
         
     @property
-    def cmd_queue(self):
-        return self.cqs.cmd_queue     
+    def flow_queue(self):
+        return self.cqs.flow_queue     
 
     @property
     def return_queue(self):
@@ -155,7 +155,7 @@ class TaskBase(object):
                 self.mainshell.interpreters[self.thread_id].execute()
             
         elif mode in ['flow', 'eval', 'flow_func']:        
-            self.cmd_queue.put((mode, args, call_back_id))
+            self.flow_queue.put((mode, args, call_back_id))
             
             if self.is_current_thread():
                 self.mainshell.interpreters[self.thread_id].control()        
@@ -255,7 +255,7 @@ class TaskBase(object):
 
 
 class ThreadTask(TaskBase):  
-    cmd_queues = dict()    
+    flow_queues = dict()    
     
     def __init__(self, mainshell, new_thread=True):    
         self.new_thread = new_thread         
@@ -294,7 +294,7 @@ class ThreadTask(TaskBase):
     def command_loop(self, cqs, gui_proxy=None, console_id=None):        
 
         thread_id = threading.get_ident()
-        ThreadTask.cmd_queues[thread_id] = cqs.cmd_queue
+        ThreadTask.flow_queues[thread_id] = cqs.flow_queue
         
         QueueInterpreter(self.mainshell, cqs, gui_proxy, console_id)
 

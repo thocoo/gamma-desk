@@ -21,7 +21,7 @@ sentinel = object()
 class CommQueues(object):
     def __init__(self, QueueCls, process=False):
         self.host = 'localhost'
-        self.cmd_queue = QueueCls()
+        self.flow_queue = QueueCls()
         self.return_queue = QueueCls()
 
         self.stdin_queue = QueueCls()
@@ -35,8 +35,8 @@ class CommQueues(object):
             self.gui_return_queue = None
 
     def clear(self):
-        while not self.cmd_queue.empty():
-            self.cmd_queue.get()
+        while not self.flow_queue.empty():
+            self.flow_queue.get()
 
         while not self.stdout_queue.empty():
             self.stdout_queue.get()
@@ -53,7 +53,7 @@ class CommQueues(object):
                 self.gui_return_queue.get()
 
     def close(self):
-        for q in [self.cmd_queue, self.stdout_queue, self.return_queue,
+        for q in [self.flow_queue, self.stdout_queue, self.return_queue,
                   self.gui_call_queue, self.gui_return_queue]:
             if isinstance(q, NonDuplexQueue):
                 q.close()
@@ -153,7 +153,7 @@ class ZmqQueues(object):
         d1['aliaslist'] = self.aliaslist
         d1['ipaddrlist'] = self.ipaddrlist
 
-        d1['cmd'] = self.cmd_queue.port
+        d1['cmd'] = self.flow_queue.port
         d1['stdin'] = self.stdin_queue.port
         d1['stdout'] = self.stdout_queue.port
         d1['return'] = self.return_queue.port
@@ -163,7 +163,7 @@ class ZmqQueues(object):
 
     def setup_as_server(self):
         self.setup_host()
-        self.cmd_queue.setup_as_server()
+        self.flow_queue.setup_as_server()
         self.stdin_queue.setup_as_server()
         self.stdout_queue.setup_as_server()
         self.return_queue.setup_as_server()
@@ -176,7 +176,7 @@ class ZmqQueues(object):
         else:
             self.host = host
 
-        self.cmd_queue.setup_as_client(self.host)
+        self.flow_queue.setup_as_client(self.host)
         self.stdin_queue.setup_as_client(self.host)
         self.stdout_queue.setup_as_client(self.host)
         self.return_queue.setup_as_client(self.host)

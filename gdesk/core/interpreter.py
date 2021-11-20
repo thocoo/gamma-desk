@@ -175,7 +175,7 @@ class QueueInterpreter(object):
         
         while True:
             try:
-                mode, args, callback = cqs.cmd_queue.get()
+                mode, args, callback = cqs.flow_queue.get()
                 break
             
             except KeyboardInterrupt:
