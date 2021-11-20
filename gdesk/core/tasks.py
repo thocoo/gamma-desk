@@ -174,20 +174,23 @@ class TaskBase(object):
         #mainshell.tasks[(self.process_id, self.thread_id)] = self
         pass
         
+    def flow(self, *args):
+        self.send_func_and_call("flow", args)        
+        
     def print_trace(self):
-        self.send_func_and_call("flow", ("trace",))        
+        self.flow("trace")
         
     def print_locals(self):
-        self.send_func_and_call("flow", ("locals",))                
+        self.flow("locals")
         
     def sync_break(self):
-        self.send_func_and_call("flow", ("sync_break",))
+        self.flow("sync_break")
         
     def async_break(self):
-        self.send_func_and_call("flow", ("KeyboardInterrupt",))  
+        self.flow("KeyboardInterrupt")
         
     def system_exit(self):
-        self.send_func_and_call("flow", ("system_exit",))          
+        self.flow("system_exit")
         
     def kill(self):
         import psutil
@@ -200,22 +203,19 @@ class TaskBase(object):
         
         tasks = list(PROCESSES[self.process_id].values())
         for task in tasks:
-            task.console.close_panel()     
-            
-    def flow(self, *args):
-        self.send_func_and_call("flow", args)
+            task.console.close_panel()                 
         
-    def flow_alive(self, callback, timeout=5):        
+    def flow_alive(self, callback, timeout=5):
         self.send_func_and_call("flow", ("heartbeat",), callback, timeout=timeout)        
         
     def set_tracing(self, enable=True):
-        self.send_func_and_call("flow", ("set_tracing", enable))
+        self.flow("set_tracing", enable)
         
     def set_timeit(self, enable=True):
-        self.send_func_and_call("flow", ("set_timeit", enable))
+        self.flow("set_timeit", enable)
         
     def enable_profiling(self):
-        self.send_func_and_call("flow", ("enable_profiling",))        
+        self.flow("enable_profiling")       
         
     def process_ready(self, *args):
         #Gui will freeze until something comes back from the return_queue
