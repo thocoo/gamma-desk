@@ -148,7 +148,7 @@ class TaskBase(object):
         else:
             call_back_id = None
             
-        if mode in ['input', 'interprete', 'func', 'console id', 'exit']:
+        if mode in ['input', 'interprete', 'func', 'exit']:
             self.stdin_queue.put((mode, args, call_back_id))
             
             if self.is_current_thread():

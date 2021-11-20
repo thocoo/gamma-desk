@@ -391,13 +391,7 @@ class QueueInterpreter(object):
         elif mode == 'exit':
             self.unregister_thread()
             callbackargs = (mode, 0, 'Exiting')
-            retvalue = 0
-            
-        elif mode == 'console id':
-            logger.warn('Command to set console id is deprecated')
-            self.console_id = args[0]
-            callbackargs = (mode, 0, f'Console id set: {self.console_id}')
-            retvalue = 1               
+            retvalue = 0                        
 
         elif mode == 'func':
             func = args[0]
