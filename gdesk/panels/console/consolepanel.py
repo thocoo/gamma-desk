@@ -911,14 +911,15 @@ class Console(BasePanel):
         task.call_func(setProcessLogLevel, args=(level,))           
         
 
-    def isLogLevel(self, level):                 
+    def isLogLevel(self, levelname):                 
         task = self.stdio.task
         
         def getProcessLogLevel():            
             level = stdinout.streamhandler.level 
             return level
             
-        return logging.getLevelName(task.call_func(getProcessLogLevel, queue='flow', wait=True)) == level
+        level = task.call_func(getProcessLogLevel, queue='flow', wait=True)
+        return logging.getLevelName(level) == levelname
 
     def toggleInputVisible(self):
         if self.stdio.stdInputPanel.isVisible():
