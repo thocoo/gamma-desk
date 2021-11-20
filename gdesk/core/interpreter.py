@@ -47,6 +47,7 @@ class QueueInterpreter(object):
         self.break_sent = False
         self.stop = False
         self.timeit = False
+        self.enable_inspect = False
         
         self.enable_profile = False
         self.profile_sortby = 'cumulative'
@@ -201,6 +202,11 @@ class QueueInterpreter(object):
                 self.enable_profile = True
                 callbackargs = (mode, 0, f'Enable profiling')
                 retvalue = 1
+                
+            elif cmd == 'toggle_inspect':
+                self.enable_inspect = not self.enable_inspect
+                callbackargs = (mode, 0, f'enable_inspect={self.enable_inspect}')
+                retvalue = 1                
             
             elif cmd == 'trace':
                 print(self.get_current_trace())
@@ -404,6 +410,20 @@ class QueueInterpreter(object):
             elif isinstance(func, tuple):            
                 try:                    
                     func = gui_proxy.decode_func(func)
+                    if self.enable_inspect :
+                    
+                        try:
+                            filename = inspect.getfile(func)
+                            print(filename)
+                        except:
+                            print('filename not found')
+                            
+                        try:
+                            source = inspect.getsource(func)
+                            print(source)
+                        except:
+                            print('source not found')
+                            
                     self.set_console_mode('running')
                     result = func(*args)
                     error_code = 0
