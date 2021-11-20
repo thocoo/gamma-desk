@@ -192,6 +192,15 @@ class TaskBase(object):
     def system_exit(self):
         self.flow("system_exit")
         
+    def set_tracing(self, enable=True):
+        self.flow("set_tracing", enable)
+        
+    def set_timeit(self, enable=True):
+        self.flow("set_timeit", enable)
+        
+    def enable_profiling(self):
+        self.flow("enable_profiling")         
+        
     def kill(self):
         import psutil
         
@@ -206,16 +215,7 @@ class TaskBase(object):
             task.console.close_panel()                 
         
     def flow_alive(self, callback, timeout=5):
-        self.send_func_and_call("flow", ("heartbeat",), callback, timeout=timeout)        
-        
-    def set_tracing(self, enable=True):
-        self.flow("set_tracing", enable)
-        
-    def set_timeit(self, enable=True):
-        self.flow("set_timeit", enable)
-        
-    def enable_profiling(self):
-        self.flow("enable_profiling")       
+        self.send_func_and_call("flow", ("heartbeat",), callback, timeout=timeout)                     
         
     def process_ready(self, *args):
         #Gui will freeze until something comes back from the return_queue
