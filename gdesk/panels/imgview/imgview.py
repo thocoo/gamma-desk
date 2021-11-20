@@ -2082,9 +2082,9 @@ class ImageViewerBase(BasePanel):
 
 
     def measureDistance(self):
-        panel = gui.qapp.panels.select_or_new('console', None, 'child')
+        panel = gui.qapp.panels.selected('console')
 
-        panel.task.wait_process_ready()
+        #panel.task.wait_process_ready()
 
         from .proxy import ImageGuiProxy
 
@@ -2097,11 +2097,12 @@ class ImageViewerBase(BasePanel):
     # Analyse Menu Connections
 
     def horizontalSpectrogram(self):
-        spectr_hori(self.ndarray)
-
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(spectr_hori, args=(gui.vs,))
 
     def verticalSpectrogram(self):
-        spectr_vert(self.ndarray)
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(spectr_vert, args=(gui.vs,))
 
     #############################
 
