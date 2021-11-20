@@ -151,11 +151,14 @@ class TaskBase(object):
         if mode in ['input', 'interprete', 'func', 'console id', 'exit']:
             self.stdin_queue.put((mode, args, call_back_id))
             
+            if self.is_current_thread():
+                self.mainshell.interpreters[self.thread_id].execute()
+            
         elif mode in ['flow', 'eval', 'flow_func']:        
             self.cmd_queue.put((mode, args, call_back_id))
-        
-        if self.is_current_thread():
-            self.mainshell.interpreters[self.thread_id].execute()
+            
+            if self.is_current_thread():
+                self.mainshell.interpreters[self.thread_id].control()        
 
         if callback is None and wait:
             #This is an high risk for a deathlock
