@@ -48,7 +48,9 @@ def spectr_hori(arr, plot=True):
     
         print("Fullnoise    :  %8.2f" % fullnoise)
         print("WhiteNoise   :  %8.2f" % whitenoise)
-        print("The whiteness:  %8.2f Ideal this is 1" % whiteness) 
+        print("The whiteness:  %8.2f Ideal this is 1" % whiteness)
+        
+    plt.show()
     
     return fullnoise, whitenoise, whiteness
     
@@ -80,5 +82,7 @@ def spectr_vert(arr, plot=True):
         print("Fullnoise    :  %8.2f" % fullnoise)
         print("WhiteNoise   :  %8.2f" % whitenoise)
         print("The whiteness:  %8.2f Ideal this is 1" % whiteness) 
+        
+    plt.show()
     
     return fullnoise, whitenoise, whiteness    
