@@ -197,7 +197,10 @@ class TaskBase(object):
         
         tasks = list(PROCESSES[self.process_id].values())
         for task in tasks:
-            task.console.close_panel()            
+            task.console.close_panel()     
+            
+    def flow(self, *args):
+        self.send_func_and_call("flow", args)
         
     def flow_alive(self, callback, timeout=5):        
         self.send_func_and_call("flow", ("heartbeat",), callback, timeout=timeout)        
