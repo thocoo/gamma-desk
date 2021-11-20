@@ -1902,16 +1902,19 @@ class ImageViewerBase(BasePanel):
         if results is None: return
         std = float(results[0])
 
-        shape = self.ndarray.shape
-        dtype = self.ndarray.dtype
-        procarr = clip_array(self.ndarray + np.random.randn(*shape) * std + 0.5, dtype)
-        self.show_array(procarr)
-
+        def run_in_console(std):
+            arr = gui.vs
+            shape = arr.shape
+            dtype = arr.dtype            
+            procarr = clip_array(arr + np.random.randn(*shape) * std + 0.5, dtype)
+            gui.show(procarr)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(run_in_console, args=(std,))
 
     def invert(self):
         procarr =  ~self.ndarray
         self.show_array(procarr)
-
 
     def swapRGB(self):
         if not self.ndarray.ndim >= 3:
@@ -2047,9 +2050,7 @@ class ImageViewerBase(BasePanel):
         procarr = demosaicing_CFA_Bayer_bilinear(gui.vs, '{baypatn}')
         gui.show(procarr)"""
 
-        #panel = gui.qapp.panels.select_or_new('console', None, 'child')
         panel = gui.qapp.panels.selected('console')
-        #panel.task.wait_process_ready()
         panel.exec_cmd(code)
 
 
@@ -2068,6 +2069,7 @@ class ImageViewerBase(BasePanel):
 
     def externalProcessDemo(self):
         panel = gui.qapp.panels.select_or_new('console', None, 'child')
+        panel.task.wait_process_ready()
 
         from .proxy import ImageGuiProxy
 
@@ -2083,7 +2085,6 @@ class ImageViewerBase(BasePanel):
 
     def measureDistance(self):
         panel = gui.qapp.panels.selected('console')
-
         #panel.task.wait_process_ready()
 
         from .proxy import ImageGuiProxy
