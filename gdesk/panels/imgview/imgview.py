@@ -25,6 +25,13 @@ try:
 
 except:
     has_imafio = False
+    
+try:
+    import cv2
+    has_cv2 = True
+
+except:
+    has_cv2 = False    
 
 from ... import config, gui
 
@@ -79,7 +86,9 @@ from ...widgets.grid import GridSplitter
 from ...utils import lazyf, clip_array
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
-from .opencv import OpenCvMenu
+
+if has_cv2:
+    from .opencv import OpenCvMenu
 
 from .profile import ProfilerPanel
 from .blueprint import make_thumbnail
@@ -789,7 +798,9 @@ class ImageViewerBase(BasePanel):
         self.imageMenu = CheckMenu("&Image", self.menuBar())
         self.processMenu = self.menuBar().addMenu("&Process")
         self.analyseMenu = self.menuBar().addMenu("&Analyse")
-        self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
+        
+        if has_cv2:
+            self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
 
         ### File
         self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,
