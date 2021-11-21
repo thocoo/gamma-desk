@@ -79,6 +79,7 @@ from ...widgets.grid import GridSplitter
 from ...utils import lazyf, clip_array
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
+from .opencv import OpenCvMenu
 
 from .profile import ProfilerPanel
 from .blueprint import make_thumbnail
@@ -180,7 +181,7 @@ class StatusPanel(MyStatusBar):
         self.zoomOutBtn.clicked.connect(parent.zoomOut)
         self.zoomInBtn.clicked.connect(parent.zoomIn)
         self.offsetGainEdited.connect(parent.changeOffsetGain)
-        self.zoomEdited.connect(parent.setZoomValue)
+        self.zoomEdited.connect(parent.setZoomValue)                
 
     def set_val_format(self, fmt='dec'):
         self.val_format = fmt
@@ -788,6 +789,7 @@ class ImageViewerBase(BasePanel):
         self.imageMenu = CheckMenu("&Image", self.menuBar())
         self.processMenu = self.menuBar().addMenu("&Process")
         self.analyseMenu = self.menuBar().addMenu("&Analyse")
+        self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
 
         ### File
         self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,
@@ -1011,6 +1013,7 @@ class ImageViewerBase(BasePanel):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'geolocation_sight.png')))
 
         self.addBaseMenu(['levels', 'values', 'image'])
+                
 
     def get_select_menu(self):
         #The select menu should be index 4 from the menuBar children
