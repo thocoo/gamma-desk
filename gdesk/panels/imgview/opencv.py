@@ -39,7 +39,9 @@ class OpenCvMenu(CheckMenu):
         basePanel.addMenuItem(self, 'Gaussian Blur', self.gaussian_blur,
             statusTip="Blur using guassian kernel", icon = 'blur.png')                
         basePanel.addMenuItem(self, 'Median Blur', self.median_blur,
-            statusTip="Blur using median filter", icon = 'blur.png')               
+            statusTip="Blur using median filter", icon = 'blur.png')     
+        basePanel.addMenuItem(self, 'Demosaic Blur', self.demosaic,
+            statusTip="Demosaicing using bilinear interpolation", icon='things_digital.png')              
 
     def image_resize(self):
         interpoloptions = {
@@ -101,6 +103,28 @@ class OpenCvMenu(CheckMenu):
             gui.show(array)
             
         panel = gui.qapp.panels.selected('console')
-        panel.task.call_func(console_run,  args=(ksize,))           
+        panel.task.call_func(console_run,  args=(ksize,))       
+
+    def demosaic(self):
+        bayerconfigs = {
+            "BG": cv2.COLOR_BayerBG2BGR,
+            "GB": cv2.COLOR_BayerGB2BGR,            
+            "RG": cv2.COLOR_BayerRG2BGR,
+            "GR": cv2.COLOR_BayerGR2BGR}
+            
+        bayerconfigkeys = list(bayerconfigs.keys())
+            
+        form = [("Bayer Config", [1] + bayerconfigkeys)]
+        results = fedit(form)
+        if results is None: return
+        bayerconfigind = results[0]
+        bayerconfig = bayerconfigs[bayerconfigkeys[bayerconfigind-1]]
+        
+        def console_run(bayerconfig):
+            array = cv2.demosaicing(gui.vs, code=bayerconfig)
+            gui.show(array)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run,  args=(bayerconfig,))        
         
 
