@@ -78,7 +78,7 @@ class ImageGuiProxy(GuiProxyBase):
         """
         Select or create an image panel with id image_id or auto id
         """        
-        panel = gui.qapp.panels.select_or_new('image', panid)
+        panel = gui.qapp.panels.select_or_new('image', panid, defaulttype='image-profile')
         return panel.panid
     
     def show(self, array, cmap=None):   
