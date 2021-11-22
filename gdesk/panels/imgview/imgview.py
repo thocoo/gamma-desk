@@ -2038,7 +2038,7 @@ class ImageViewerBase(BasePanel):
     def bayer_split_tiles(self):
         arr = self.ndarray
         blocks = []
-        for x, y in [(0,0),(0,1),(1,0),(1,1)]:
+        for y, x in [(0,0),(0,1),(1,0),(1,1)]:
             blocks.append(arr[y::2, x::2, ...])
         split = np.concatenate([
             np.concatenate([blocks[0], blocks[1]], axis=1),
