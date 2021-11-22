@@ -145,8 +145,6 @@ class StatusPanel(MyStatusBar):
         self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.set_val_format('hex')))
         self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.set_val_format('bin')))
 
-        self.set_val_format('dec')
-
         self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
         self.zoom = QLineEdit('100')
         self.zoom.keyPressEvent = self.zoomKeyPressEvent
@@ -192,31 +190,21 @@ class StatusPanel(MyStatusBar):
         self.offsetGainEdited.connect(parent.changeOffsetGain)
         self.zoomEdited.connect(parent.setZoomValue)                
 
-    def set_val_format(self, fmt='dec'):
-        self.val_format = fmt
-        self.val_item_format = None        
-
-    def set_val_item_format(self):
-        if self.val_format == 'dec':
-            self.val_item_format = '{0}'
-        elif self.val_format == 'hex':
-            self.val_item_format = '0x{0:04X}'
-        elif self.val_format == 'bin':
-            self.val_item_format = '{0:_b}'
+    def set_val_format(self, fmt='dec'):        
+        self.panel.imviewer.set_val_item_format(fmt)
 
     def set_xy_val(self, x, y, val=None):
-        self.xy.setText(f'xy:{x:d},{y:d} ')
+        self.xy.setText(f'xy:{x:d},{y:d} ')        
 
-        if self.val_item_format is None:
-            self.set_val_item_format()
+        fmt = self.panel.imviewer.val_item_format        
 
         if not val is None:
             try:
                 if isinstance(val, Iterable):
-                    text = '[' + ' '.join(self.val_item_format.format(v) for v in val) + ']'
+                    text = '[' + ' '.join(fmt.format(v) for v in val) + ']'
                     self.val.setText(text)
                 else:
-                    self.val.setText(self.val_item_format.format(val))
+                    self.val.setText(fmt.format(val))
             except:
                 self.val.setText(str(val))
 
@@ -309,6 +297,8 @@ class ImageViewerWidget(QWidget):
         self.dispRoiStartY = self.dispOffsetY
 
         self.setBackgroundColor(*config['image background'])
+        
+        self.set_val_item_format('dec')
 
         self.roi = SelRoiWidget(self)
 
@@ -343,6 +333,17 @@ class ImageViewerWidget(QWidget):
         #So it also happens after a relayout. (Even after a distribute)
         #There seems to be some cache of the prior background
         self.qpainter = QPainter()
+        
+
+    def set_val_item_format(self, fmt):
+        if fmt == 'dec':
+            self.val_item_format = '{0}'
+        elif fmt == 'hex':
+            self.val_item_format = '0x{0:04X}'
+        elif fmt == 'bin':
+            self.val_item_format = '{0:_b}'  
+
+        self.val_format = fmt
 
     @property
     def vd(self):
@@ -704,11 +705,13 @@ class ImageViewerWidget(QWidget):
         
         if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
             qp.setPen(QColor(170,170,170))
+            
             font = QFont("Consolas")
             fontSize = round(self.zoomDisplay / 10)
             font.setPixelSize(fontSize)
-            #font.setWeight(QFont.Thin)
             font.setStyleStrategy(QFont.NoAntialias)
+            fmt = self.val_item_format
+            
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
             qp.setRenderHint(qp.Antialiasing, False)
@@ -717,7 +720,7 @@ class ImageViewerWidget(QWidget):
             mh, mw = self.imgdata.statarr.shape[:2]
             startx, starty = max(0, round(x - 0.5)), max(0, round(y - 0.5))
             endx, endy = min(mw, round(x + w + 0.5)), min(mh, round(y + h + 0.5))
-            fmt = self.parent().parent().statuspanel.val_item_format
+                        
         
             for sx in range(startx, endx):
                 for sy in range(starty, endy):     
