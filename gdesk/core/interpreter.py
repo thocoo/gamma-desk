@@ -319,7 +319,7 @@ class QueueInterpreter(object):
             except KeyboardInterrupt:
                 pass
 
-        if mode == 'interprete':
+        if mode in ['interprete', 'func']:
             error_code = None
             result = None
             
@@ -343,7 +343,28 @@ class QueueInterpreter(object):
                     self.gui_proxy.redbull.enable(redbull_timeout)
                     
                 self.set_console_mode('running')
-                error_code, result = interpreter.use_one_command(*args)  
+                
+                if mode == 'func':
+                    func = gui_proxy.decode_func(args[0])
+                    func_args = args[1]
+                    
+                    if self.enable_inspect:                    
+                        try:
+                            filename = inspect.getfile(func)
+                            print(filename)
+                        except:
+                            print('filename not found')
+                            
+                        try:
+                            source = inspect.getsource(func)
+                            print(source)
+                        except:
+                            print('source not found')
+                            
+                    error_code, result = interpreter.use_one_func(func, func_args)
+                    self.set_console_mode('interprete')
+                else:
+                    error_code, result = interpreter.use_one_command(*args)  
                 
                 if self.enable_profile:
                     self.profile.disable()
@@ -391,45 +412,7 @@ class QueueInterpreter(object):
         elif mode == 'exit':
             self.unregister_thread()
             callbackargs = (mode, 0, 'Exiting')
-            retvalue = 0                        
-
-        elif mode == 'func':
-            func = args[0]
-            args = args[1]
-            if isinstance(func, str):   
-                print('str is not supported as function pointer')  
-                callbackargs = (mode, 1, 'str is not supported as function pointer')
-                retvalue = 1
-
-            elif isinstance(func, tuple):            
-                try:                    
-                    func = gui_proxy.decode_func(func)
-                    if self.enable_inspect :
-                    
-                        try:
-                            filename = inspect.getfile(func)
-                            print(filename)
-                        except:
-                            print('filename not found')
-                            
-                        try:
-                            source = inspect.getsource(func)
-                            print(source)
-                        except:
-                            print('source not found')
-                            
-                    self.set_console_mode('running')
-                    result = func(*args)
-                    error_code = 0
-                    
-                except Exception:
-                    traceback.print_exc() 
-                    result = None
-                    error_code = 1
-                    
-                self.set_console_mode('interprete')                    
-                callbackargs = (mode, error_code, result)
-                retvalue = 1            
+            retvalue = 0                             
 
         else:        
             callbackargs = (mode, 1, 'unkown')
@@ -497,26 +480,7 @@ class Interpreter(object):
             # more code expected, nothing to do
             return 2, None                  
 
-        return 0, code
-        
-    def exec_code(self, code):
-        """
-        Execute a code object.
-
-        When an exception occurs, self.showtraceback() is called to
-        display a traceback.  All exceptions are caught except
-        SystemExit, which is reraised.
-
-        A note about KeyboardInterrupt: this exception may occur
-        elsewhere in this code, and may not always be caught.  The
-        caller should be prepared to deal with it.
-        """
-        try:
-            return exec(code, self.workspace)
-        except (SystemExit, KeyboardInterrupt, SyncBreaked):            
-            raise
-        except:           
-            self.showtraceback()       
+        return 0, code              
 
     def eval_expression(self, expression):
         """
@@ -592,6 +556,16 @@ class Interpreter(object):
     def write_error(self, text):
         sys.stderr.write(text)
         
+    def use_one_func(self, func, args):
+        return 0, self.exec_func(func, args)
+        
+    def exec_func(self, func, args):
+        try:
+            return func(*args)
+        except (SystemExit, KeyboardInterrupt, SyncBreaked):            
+            raise
+        except:           
+            self.showtraceback() 
             
     def use_one_command(self, cmd):                        
         error_code, code = self.compile_source(cmd, symbol='auto')
@@ -601,6 +575,25 @@ class Interpreter(object):
             
         else:
             return error_code, self.exec_code(code)
+            
+    def exec_code(self, code):
+        """
+        Execute a code object.
+
+        When an exception occurs, self.showtraceback() is called to
+        display a traceback.  All exceptions are caught except
+        SystemExit, which is reraised.
+
+        A note about KeyboardInterrupt: this exception may occur
+        elsewhere in this code, and may not always be caught.  The
+        caller should be prepared to deal with it.
+        """
+        try:
+            return exec(code, self.workspace)
+        except (SystemExit, KeyboardInterrupt, SyncBreaked):            
+            raise
+        except:           
+            self.showtraceback()             
             
     def async_break(self):
         async_break(self.thread_id)  
