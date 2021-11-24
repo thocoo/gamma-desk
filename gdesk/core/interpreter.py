@@ -364,7 +364,7 @@ class QueueInterpreter(object):
                     error_code, result = interpreter.use_one_func(func, func_args)
                     self.set_console_mode('interprete')
                 else:
-                    error_code, result = interpreter.use_one_command(*args)  
+                    error_code, result = interpreter.use_one_command(*args)
                 
                 if self.enable_profile:
                     self.profile.disable()
