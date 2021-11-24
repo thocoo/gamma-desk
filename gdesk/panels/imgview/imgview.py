@@ -1984,12 +1984,41 @@ class ImageViewerBase(BasePanel):
         
     def to_dtype(self):
         dtypes = ['uint8', 'uint16', 'double']
+        scales = ['bit shift', 'clip']
         
-        form = [('Data Type', [1] + dtypes)]
+        form = [
+            ('Data Type', [1] + dtypes),
+            ('Scale', [1] + scales)]
+            
         results = fedit(form, title='Convert Data Type')
         if results is None: return
-        dtype = dtypes[results[0]-1]        
-        gui.show(gui.vs.astype(dtype))    
+        dtype = dtypes[results[0]-1]
+        scale = scales[results[1]-1]
+        
+        array = gui.vs
+        if scale == 'clip' and dtype in ['uint8', 'uint16']:
+            if dtype == 'uint8':
+                lower, upper = 0, 255
+                
+            elif dtype == 'uint16':
+                lower, upper = 0, 65535
+                
+            array = array.clip(lower, upper)
+            array = array.astype(dtype)
+            
+        elif scale == 'bit shift' and dtype in ['uint8', 'uint16']:
+            if array.dtype == 'uint8' and dtype == 'uint16':
+                array = gui.vs.astype(dtype)
+                array <<= 8
+                
+            elif array.dtype == 'uint16' and dtype == 'uint8':
+                array >>= 8                
+                array = gui.vs.astype(dtype)
+            
+        else:
+            array = array.astype(dtype)
+            
+        gui.show(array)
 
     def adjustLighting(self):
         """
