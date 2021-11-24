@@ -908,8 +908,7 @@ class Console(BasePanel):
         def setProcessLogLevel(level):            
             stdinout.streamhandler.setLevel(level)
             
-        task.call_func(setProcessLogLevel, args=(level,))           
-        
+        task.call_func(setProcessLogLevel, args=(level,), queue='flow')
 
     def isLogLevel(self, levelname):                 
         task = self.stdio.task
