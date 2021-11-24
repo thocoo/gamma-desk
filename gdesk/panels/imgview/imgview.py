@@ -992,6 +992,8 @@ class ImageViewerBase(BasePanel):
             enablecall = self.is16bit)
         self.addMenuItem(self.imageMenu, 'to 16-bit', self.to16bit,
             enablecall = self.is8bit)
+        self.addMenuItem(self.imageMenu, 'to Data Type', self.to_dtype)
+        
         self.addMenuItem(self.imageMenu, 'Fill...'          , self.fillValue,
             statusTip="Fill the image with the same value",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'paintcan.png')))
@@ -1979,6 +1981,15 @@ class ImageViewerBase(BasePanel):
     def to16bit(self):
         if not self.is8bit(): return
         self.show_array(self.ndarray.astype('uint16') << 8)
+        
+    def to_dtype(self):
+        dtypes = ['uint8', 'uint16', 'double']
+        
+        form = [('Data Type', [1] + dtypes)]
+        results = fedit(form, title='Convert Data Type')
+        if results is None: return
+        dtype = dtypes[results[0]-1]        
+        gui.show(gui.vs.astype(dtype))    
 
     def adjustLighting(self):
         """
