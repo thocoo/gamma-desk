@@ -19,7 +19,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import FigureCanvasBase, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_qt5 import (
-    QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
+    _BackendQT5, FigureCanvasQT, FigureManagerQT,
     NavigationToolbar2QT, backend_version)
   
 from matplotlib.backends.qt_compat import QT_API
@@ -41,6 +41,7 @@ else:
 from .. import gui
 
 if config['qapp']:
+    from qtpy import QtCore, QtGui
     from ..panels.matplot import PlotPanel
 
 logger = logging.getLogger(__name__)
