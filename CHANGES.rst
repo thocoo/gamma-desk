@@ -1,3 +1,19 @@
+v0.2.0
+------
+
+date: 2021-11-25
+
+- add read_raw to gui.img
+- keep numpy at 1.20.3 (numba doesn't support numpy > 1.20)
+- Add shell.pty(), the virtual terminal
+- Add gui.img.grab() to grab the image viewer widget as an numpy array
+- Selectable logging level in console menu
+- Fixes on image conversion to other datatypes
+- Display pixel value labels on pixels on large zooms
+- Fix of swap of channels on bayer split
+- 
+
+
 v0.1.4
 ------
 
