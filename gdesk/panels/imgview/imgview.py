@@ -41,6 +41,7 @@ if has_imafio:
             os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
 
     try:
+        import imageio.plugins.freeimage
         imageio.plugins._freeimage.get_freeimage_lib()
 
     except Exception as ex:
@@ -63,7 +64,8 @@ if has_imafio:
     FILTERS_NAMES = collections.OrderedDict()
     FILTERS_NAMES['All Formats (*)'] = None
 
-    for fmt in imageio.formats._formats_sorted:
+    #for fmt in imageio.formats._formats_sorted:
+    for fmt in imageio.formats:
         filter = f'{fmt.name} - {fmt.description} (' + ' '.join(f'*{fmt}' for fmt in fmt.extensions) + ')'
         FILTERS_NAMES[filter] = fmt.name
 
