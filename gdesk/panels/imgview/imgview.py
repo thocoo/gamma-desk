@@ -1549,7 +1549,11 @@ class ImageViewerBase(BasePanel):
         white = max(whites.values())
 
         if self.ndarray.dtype in ['uint8', 'uint16']:
-            white += 1
+            if black == white:
+                self.defaultOffsetGain()
+                return
+            else:
+                white += 1
 
         self.changeBlackWhite(black, white)
 
