@@ -40,7 +40,7 @@ class OpenCvMenu(CheckMenu):
             statusTip="Blur using guassian kernel", icon = 'blur.png')                
         basePanel.addMenuItem(self, 'Median Blur', self.median_blur,
             statusTip="Blur using median filter", icon = 'blur.png')     
-        basePanel.addMenuItem(self, 'Demosaic Blur', self.demosaic,
+        basePanel.addMenuItem(self, 'Demosaic', self.demosaic,
             statusTip="Demosaicing using bilinear interpolation", icon='things_digital.png')              
 
     def image_resize(self):
