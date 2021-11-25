@@ -29,14 +29,14 @@ if matplotlib.__version__[:3] in ['3.2', '3.3']:
     from matplotlib.backends.qt_compat import _setDevicePixelRatioF
     setDevicePixelRatio = _setDevicePixelRatioF
     
-elif matplotlib.__version__[:3] in ['3.4']:
+elif matplotlib.__version__[:3] in ['3.4','3.5']:
     from matplotlib.backends.qt_compat import _setDevicePixelRatio
     setDevicePixelRatio = _setDevicePixelRatio
     
 else:
     warnings.warn(
         f'Matplotlib version {matplotlib.__version__} not supported.\n'
-        f'Version should be 3.2.x, 3.3.x or 3.4.x')
+        f'Version should be 3.2.x, 3.3.x, 3.4.x or 3.5.x')
     
 from .. import gui
 
@@ -102,6 +102,11 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
     def __init__(self, figure):
         # Must pass 'figure' as kwarg to Qt base class.
         super().__init__(figure=figure)
+        
+        if matplotlib.__version__[:3] in ['3.2', '3.3', '3.4']:
+            self.dev_pixel_ratio = self._dpi_ratio
+        else:           
+            self.dev_pixel_ratio = self._device_pixel_ratio
 
     def paintEvent(self, event):
         """
@@ -132,8 +137,8 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
             # scale rect dimensions using the screen dpi ratio to get
             # correct values for the Figure coordinates (rather than
             # QT5's coords)
-            width = rect.width() * self._dpi_ratio
-            height = rect.height() * self._dpi_ratio
+            width = rect.width() * self.dev_pixel_ratio
+            height = rect.height() * self.dev_pixel_ratio
             left, top = self.mouseEventCoords(rect.topLeft())
             # shift the "top" by the height of the image to get the
             # correct corner for our coordinate system
@@ -151,7 +156,7 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 
             qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                                   QtGui.QImage.Format_ARGB32_Premultiplied)
-            setDevicePixelRatio(qimage, self._dpi_ratio)
+            setDevicePixelRatio(qimage, self.dev_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
