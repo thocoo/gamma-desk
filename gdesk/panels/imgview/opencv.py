@@ -40,6 +40,10 @@ class OpenCvMenu(CheckMenu):
             statusTip="Blur using guassian kernel", icon = 'blur.png')                
         basePanel.addMenuItem(self, 'Median Blur', self.median_blur,
             statusTip="Blur using median filter", icon = 'blur.png')     
+        basePanel.addMenuItem(self, 'Bilateral Filter', self.bilateral,
+            statusTip="Apply Bilateral Filter")        
+        basePanel.addMenuItem(self, 'Laplacian', self.laplacian,
+            statusTip="Calculates the Laplacian")             
         basePanel.addMenuItem(self, 'Demosaic', self.demosaic,
             statusTip="Demosaicing using bilinear interpolation", icon='things_digital.png')              
 
@@ -54,7 +58,7 @@ class OpenCvMenu(CheckMenu):
         shape = gui.vs.shape[:2]
         interpolkeys = list(interpoloptions.keys())                
         form = [("width", shape[1]), ("height", shape[0]), ("interpolation", [5] + interpolkeys)]
-        results = fedit(form)
+        results = fedit(form, title='Resize')
         if results is None: return
         width, height, interpolind = results
         interpol = interpoloptions[interpolkeys[interpolind-1]]
@@ -68,7 +72,7 @@ class OpenCvMenu(CheckMenu):
         
     def box_blur(self):
         form = [("Kernel Size", 15)]
-        results = fedit(form)
+        results = fedit(form, title='Box Blur')
         if results is None: return
         ksize = results[0]
         
@@ -81,7 +85,7 @@ class OpenCvMenu(CheckMenu):
         
     def gaussian_blur(self):
         form = [("Kernel Size", 15)]
-        results = fedit(form)
+        results = fedit(form, title='Guassian Blur')
         if results is None: return
         ksize = results[0]
         
@@ -94,7 +98,7 @@ class OpenCvMenu(CheckMenu):
         
     def median_blur(self):
         form = [("Kernel Size", 15)]
-        results = fedit(form)
+        results = fedit(form, title='Median Blur')
         if results is None: return
         ksize = results[0]
         
@@ -103,7 +107,69 @@ class OpenCvMenu(CheckMenu):
             gui.show(array)
             
         panel = gui.qapp.panels.selected('console')
-        panel.task.call_func(console_run,  args=(ksize,))       
+        panel.task.call_func(console_run,  args=(ksize,))  
+        
+    def bilateral(self):
+        borders = {
+            'Reflect 101': cv2.BORDER_REFLECT_101,
+            'Constant': cv2.BORDER_CONSTANT,
+            'Replicate': cv2.BORDER_REPLICATE,
+            'Reflect': cv2.BORDER_REFLECT,
+            'Wrap': cv2.BORDER_WRAP,
+            'Transparant': cv2.BORDER_TRANSPARENT,            
+            'Isolated': cv2.BORDER_ISOLATED}
+            
+        border_keys = list(borders.keys())
+            
+        form = [
+            ("Diameter", 10),
+            ("Sigma Color", 10.0),
+            ("Sigma Space", 10.0),
+            ("Border", [1] + border_keys)]
+            
+        results = fedit(form, title='Bilateral')
+        
+        if results is None: return
+        d, sigma_color, sigma_space, border_index = results
+        border = borders[border_keys[border_index - 1]]
+        
+        def console_run(d, sigma_color, sigma_space, border):
+            array = cv2.bilateralFilter(gui.vs, d, sigma_color, sigma_space, border)
+            gui.show(array)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run,  args=(d, sigma_color, sigma_space, border)) 
+                
+    def laplacian(self):
+        borders = {
+            'Reflect 101': cv2.BORDER_REFLECT_101,
+            'Constant': cv2.BORDER_CONSTANT,
+            'Replicate': cv2.BORDER_REPLICATE,
+            'Reflect': cv2.BORDER_REFLECT,
+            'Transparant': cv2.BORDER_TRANSPARENT,            
+            'Isolated': cv2.BORDER_ISOLATED}
+            
+        border_keys = list(borders.keys())
+            
+        form = [
+            ("Desired Depth", 5),
+            ("Aperture Size", 1),
+            ("Scale", 1.0),
+            ("Delta", 1.0),
+            ("Border", [1] + border_keys)]
+            
+        results = fedit(form, title='Laplacian')
+        
+        if results is None: return
+        ddepth, ksize, scale, delta, border_index = results
+        border = borders[border_keys[border_index - 1]]
+        
+        def console_run(ddepth, ksize, scale, delta, border):
+            array = cv2.Laplacian(gui.vs, ddepth, ksize=ksize, scale=scale, delta=delta, borderType=border)
+            gui.show(array)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run,  args=(ddepth, ksize, scale, delta, border))         
 
     def demosaic(self):
         bayerconfigs = {
@@ -115,7 +181,7 @@ class OpenCvMenu(CheckMenu):
         bayerconfigkeys = list(bayerconfigs.keys())
             
         form = [("Bayer Config", [1] + bayerconfigkeys)]
-        results = fedit(form)
+        results = fedit(form, title='Demosaic')
         if results is None: return
         bayerconfigind = results[0]
         bayerconfig = bayerconfigs[bayerconfigkeys[bayerconfigind-1]]
