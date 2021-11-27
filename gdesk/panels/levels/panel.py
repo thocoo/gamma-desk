@@ -321,7 +321,7 @@ class Levels(QtWidgets.QWidget):
             bins = int(self.panel.histSize)               
         else:
             bins = None
-            stepsize = int(self.panel.histSize)
+            stepsize = eval(self.panel.histSize)
         
         if self.panel.roi and image_panel.imviewer.roi.isVisible():
             clr_filter = set(('RK','RR', 'RG', 'RB'))
@@ -332,12 +332,20 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.remove_all_but(clr_to_draw)
         
         for clr in clr_to_draw: 
-            chanstat = chanstats[clr]
+            chanstat = chanstats[clr]                                            
             if chanstat.arr2d is None: continue
-            step = stepsize if bins is None else chanstat.step_for_bins(bins)            
+            
+            if len(chanstat._cache.keys()) == 0:
+                chanstat.calc_histogram()            
+            
+            if bins is None:                
+                step = round(stepsize / chanstat._cache['stepsize'])
+                step = max(1, step)
+            else:
+                step = chanstat.step_for_bins(bins)
+            
             hist = chanstat.histogram(step)
-            if self.panel.sqrt:
-                #hist = hist ** 0.5              
+            if self.panel.sqrt:           
                 hist = semilog(hist)
             starts = chanstat.starts(step)            
             barstarts, hist = self.xy_as_steps(starts, hist, chanstat.stepsize(step))
