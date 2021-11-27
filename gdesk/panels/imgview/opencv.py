@@ -44,6 +44,10 @@ class OpenCvMenu(CheckMenu):
             statusTip="Apply Bilateral Filter")        
         basePanel.addMenuItem(self, 'Laplacian', self.laplacian,
             statusTip="Calculates the Laplacian")             
+        basePanel.addMenuItem(self, 'Box Filter', self.box,
+            statusTip="The sum of the pixel values overlapping the filter")               
+        basePanel.addMenuItem(self, 'Square Box Filter', self.sqrbox,
+            statusTip="The sum of squares of the pixel values overlapping the filter")             
         basePanel.addMenuItem(self, 'Demosaic', self.demosaic,
             statusTip="Demosaicing using bilinear interpolation", icon='things_digital.png')              
 
@@ -127,7 +131,7 @@ class OpenCvMenu(CheckMenu):
             ("Sigma Space", 10.0),
             ("Border", [1] + border_keys)]
             
-        results = fedit(form, title='Bilateral')
+        results = fedit(form, title='Bilateral Filter')
         
         if results is None: return
         d, sigma_color, sigma_space, border_index = results
@@ -170,6 +174,66 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ddepth, ksize, scale, delta, border))         
+        
+    def box(self):
+        borders = {
+            'Reflect 101': cv2.BORDER_REFLECT_101,
+            'Constant': cv2.BORDER_CONSTANT,
+            'Replicate': cv2.BORDER_REPLICATE,
+            'Reflect': cv2.BORDER_REFLECT,
+            'Transparant': cv2.BORDER_TRANSPARENT,            
+            'Isolated': cv2.BORDER_ISOLATED}
+            
+        border_keys = list(borders.keys())
+            
+        form = [
+            ("Depth", -1),
+            ("Kernel Size", 5),
+            ("Normalize", False),
+            ("Border", [1] + border_keys)]
+            
+        results = fedit(form, title='Box Filter')
+        
+        if results is None: return
+        ddepth, ksize, normalize, border_index = results
+        border = borders[border_keys[border_index - 1]]
+        
+        def console_run(ddepth, ksize, normalize, border):
+            array = cv2.boxFilter(gui.vs, ddepth=ddepth, ksize=(ksize, ksize), normalize=normalize, borderType=border)
+            gui.show(array)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run,  args=(ddepth, ksize, normalize, border))          
+                
+    def sqrbox(self):
+        borders = {
+            'Reflect 101': cv2.BORDER_REFLECT_101,
+            'Constant': cv2.BORDER_CONSTANT,
+            'Replicate': cv2.BORDER_REPLICATE,
+            'Reflect': cv2.BORDER_REFLECT,
+            'Transparant': cv2.BORDER_TRANSPARENT,            
+            'Isolated': cv2.BORDER_ISOLATED}
+            
+        border_keys = list(borders.keys())
+            
+        form = [
+            ("Depth", -1),
+            ("Kernel Size", 5),
+            ("Normalize", False),
+            ("Border", [1] + border_keys)]
+            
+        results = fedit(form, title='Square Box Filter')
+        
+        if results is None: return
+        ddepth, ksize, normalize, border_index = results
+        border = borders[border_keys[border_index - 1]]
+        
+        def console_run(ddepth, ksize, normalize, border):
+            array = cv2.sqrBoxFilter(gui.vs, ddepth=ddepth, ksize=(ksize, ksize), normalize=normalize, borderType=border)
+            gui.show(array)
+            
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run,  args=(ddepth, ksize, normalize, border))         
 
     def demosaic(self):
         bayerconfigs = {
