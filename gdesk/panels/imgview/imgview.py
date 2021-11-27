@@ -339,7 +339,7 @@ class ImageViewerWidget(QWidget):
 
     def set_val_item_format(self, fmt):
         if fmt == 'dec':
-            self.val_item_format = '{0}'
+            self.val_item_format = '{0:.5g}'
         elif fmt == 'hex':
             self.val_item_format = '0x{0:04X}'
         elif fmt == 'bin':
@@ -665,11 +665,12 @@ class ImageViewerWidget(QWidget):
         self.repaint()
 
     def paintEvent(self, event):
-        self.qpainter.begin(self)
-        #logger.info(f'Painter: {self.qpainter.paintEngine().type()}')
-        self.qpainter.fillRect(event.rect(), self.bgcolor)
-        self.paintImage(self.qpainter)
-        self.qpainter.end()
+        try:
+            self.qpainter.begin(self)
+            self.qpainter.fillRect(event.rect(), self.bgcolor)
+            self.paintImage(self.qpainter)
+        finally:
+            self.qpainter.end()
 
     def scaledImage(self):
         qimg = self.imgdata.qimg
@@ -734,7 +735,7 @@ class ImageViewerWidget(QWidget):
                         for i, v in enumerate(val):
                             qp.drawText(xpos, ypos - i * (fontSize + 1), f'{channels[i]}: {fmt.format(v)}')    
                     else:
-                        qp.drawText(xpos, ypos, fmt.format(val))    
+                        qp.drawText(xpos, ypos, fmt.format(val))                            
 
     def dragEnterEvent(self, event):
         event.accept()
