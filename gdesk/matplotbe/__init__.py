@@ -10,6 +10,7 @@ import threading
 import pickle
 import logging
 import warnings
+from distutils.version import LooseVersion
 
 import matplotlib
 from matplotlib.transforms import Bbox
@@ -25,24 +26,36 @@ from matplotlib.backends.backend_qt5 import (
 from matplotlib.backends.qt_compat import QT_API
 from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
 
-if matplotlib.__version__[:3] in ['3.2', '3.3']:
-    from matplotlib.backends.qt_compat import _setDevicePixelRatioF
-    setDevicePixelRatio = _setDevicePixelRatioF
-    
-elif matplotlib.__version__[:3] in ['3.4','3.5']:
-    from matplotlib.backends.qt_compat import _setDevicePixelRatio
-    setDevicePixelRatio = _setDevicePixelRatio
-    
-else:
-    warnings.warn(
-        f'Matplotlib version {matplotlib.__version__} not supported.\n'
-        f'Version should be 3.2.x, 3.3.x, 3.4.x or 3.5.x')
-    
 from .. import gui
 
 if config['qapp']:
     from qtpy import QtCore, QtGui
     from ..panels.matplot import PlotPanel
+    
+if LooseVersion(matplotlib.__version__) < LooseVersion('3.2'):
+    warnings.warn(
+        f'Matplotlib version {matplotlib.__version__} not supported.\n'
+        f'Version should be 3.2.x, 3.3.x, 3.4.x or 3.5.x')
+
+elif LooseVersion(matplotlib.__version__) < LooseVersion('3.3'):
+    setDevicePixelRatio = QtGui.QImage.setDevicePixelRatio
+    DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"    
+    
+elif LooseVersion(matplotlib.__version__) < LooseVersion('3.4'):
+    #Version 3.2, 3.3
+    from matplotlib.backends.qt_compat import _setDevicePixelRatioF
+    setDevicePixelRatio = _setDevicePixelRatioF
+    DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
+    
+elif LooseVersion(matplotlib.__version__) < LooseVersion('3.5'):
+    from matplotlib.backends.qt_compat import _setDevicePixelRatio
+    setDevicePixelRatio = _setDevicePixelRatio
+    DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
+    
+elif LooseVersion(matplotlib.__version__) >= LooseVersion('3.5'):
+    from matplotlib.backends.qt_compat import _setDevicePixelRatio
+    setDevicePixelRatio = _setDevicePixelRatio
+    DEV_PIXEL_RATIO_ATTR = "_device_pixel_ratio"   
 
 logger = logging.getLogger(__name__)
 
@@ -101,12 +114,12 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 
     def __init__(self, figure):
         # Must pass 'figure' as kwarg to Qt base class.
-        super().__init__(figure=figure)
+        super().__init__(figure=figure)        
+            
         
-        if matplotlib.__version__[:3] in ['3.2', '3.3', '3.4']:
-            self.dev_pixel_ratio = self._dpi_ratio
-        else:           
-            self.dev_pixel_ratio = self._device_pixel_ratio
+    @property
+    def dev_pixel_ratio(self):
+        return getattr(self, DEV_PIXEL_RATIO_ATTR)
 
     def paintEvent(self, event):
         """
