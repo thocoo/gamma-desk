@@ -1,7 +1,7 @@
 v0.2.0
 ------
 
-date: 2021-11-25
+date: 2021-11-29
 
 - add read_raw to gui.img
 - keep numpy at 1.20.3 (numba doesn't support numpy > 1.20)
@@ -11,7 +11,9 @@ date: 2021-11-25
 - Fixes on image conversion to other datatypes
 - Display pixel value labels on pixels on large zooms
 - Fix of swap of channels on bayer split
-- 
+- Support Matplotlib 3.5
+- Improved behavior of histograms for doubles
+- Various bug fixes
 
 
 v0.1.4
