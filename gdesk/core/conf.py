@@ -103,10 +103,11 @@ def configure(**overwrites):
     os.environ['GDESKROOT'] = str(here.parent.absolute())
 
     config_file = FIRST_CONFIG_FILE
+    print(f'Loading config: {config_file}')
     deep_update(config, load_config(config_file))
 
     prior_config_file = None
-    config_files = overwrites.get('config_file', None) or config.get('path_config_files', [])
+    config_files = overwrites.get('path_config_files', None) or config.get('path_config_files', [])
     #if not isinstance(config_files, list): config_files = [config_files]
     
     while len(config_files) > 0:
@@ -114,8 +115,8 @@ def configure(**overwrites):
         next_config_file = config_files.pop(0)
         config_file = Path(next_config_file).expanduser()
         if not config_file.exists():
-            continue
-        #logger.info(f'Loading config: {config_file}')
+            logger.warn(f'Configfile not found: {config_file}')
+            continue        
         print(f'Loading config: {config_file}')
         deep_update(config, load_config(config_file))
         prior_config_file = config_file

@@ -60,7 +60,7 @@ def argexec(argv=None, **config_kwargs):
     config_kwargs['qapp'] = True
 
     if args.config_file:
-        config_kwargs['config_file'] = args.config_file
+        config_kwargs['path_config_files'] = [args.config_file]
 
     if args.init_file:
         config_kwargs['init_file'] = args.init_file
