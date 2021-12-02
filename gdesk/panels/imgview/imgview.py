@@ -712,8 +712,12 @@ class ImageViewerWidget(QWidget):
             font = QFont("Consolas")
             fontSize = round(self.zoomDisplay / 10)
             font.setPixelSize(fontSize)
-            font.setStyleStrategy(QFont.NoAntialias)
-            fmt = self.val_item_format
+            font.setStyleStrategy(QFont.NoAntialias)            
+            
+            if self.imgdata.statarr.dtype in ['double']:
+                fmt = '{0:.5g}'
+            else:
+                fmt = self.val_item_format
             
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
@@ -723,19 +727,26 @@ class ImageViewerWidget(QWidget):
             mh, mw = self.imgdata.statarr.shape[:2]
             startx, starty = max(0, round(x - 0.5)), max(0, round(y - 0.5))
             endx, endy = min(mw, round(x + w + 0.5)), min(mh, round(y + h + 0.5))
-                        
         
             for sx in range(startx, endx):
                 for sy in range(starty, endy):     
                     xpos = round((sx + 0.05 - self.dispOffsetX) * self.zoomDisplay)
                     ypos = round((sy + 0.95 - self.dispOffsetY) * self.zoomDisplay)
-                    val = self.imgdata.statarr[sy, sx]
+                    val = self.imgdata.statarr[sy, sx]                    
                     
                     if isinstance(val, Iterable):
                         for i, v in enumerate(val):
-                            qp.drawText(xpos, ypos - i * (fontSize + 1), f'{channels[i]}: {fmt.format(v)}')    
+                            try:
+                                label = fmt.format(v)
+                            except:
+                                label = 'invalid'
+                            qp.drawText(xpos, ypos - i * (fontSize + 1), f'{channels[i]}: {label}')    
                     else:
-                        qp.drawText(xpos, ypos, fmt.format(val))                            
+                        try:
+                            label = fmt.format(val)
+                        except:
+                            label = 'invalid'
+                        qp.drawText(xpos, ypos, label)
 
     def dragEnterEvent(self, event):
         event.accept()
