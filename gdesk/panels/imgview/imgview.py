@@ -1007,6 +1007,8 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.imageMenu, 'to 16-bit', self.to16bit,
             enablecall = self.is8bit)
         self.addMenuItem(self.imageMenu, 'to Data Type', self.to_dtype)
+        self.addMenuItem(self.imageMenu, 'Swap MSB LSB Bytes', self.swapbytes,
+            enablecall = self.is16bit)
         
         self.addMenuItem(self.imageMenu, 'Fill...'          , self.fillValue,
             statusTip="Fill the image with the same value",
@@ -2037,6 +2039,9 @@ class ImageViewerBase(BasePanel):
             array = array.astype(dtype)
             
         gui.show(array)
+        
+    def swapbytes(self):
+        gui.show(gui.vs.byteswap())
 
     def adjustLighting(self):
         """
