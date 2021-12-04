@@ -310,8 +310,7 @@ class MainDialog(QtWidgets.QMainWindow):
         self.showMinimized()
 
     def restart(self):
-        #self.qapp.quit()
-        os.execlp(sys.executable, 'python', *sys.argv)
+        os.execlp(sys.executable, 'python', '-m', 'gdesk')
 
     def showConfig(self):
         dt = DictionaryTreeDialog(config)
