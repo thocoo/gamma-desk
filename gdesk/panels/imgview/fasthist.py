@@ -122,9 +122,7 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
     
     if pow2snap:
         stepsize = 2**math.floor(np.log2(stepsize))
-    
-    start_ind = math.floor(first_edge / stepsize) 
-    end_ind = math.floor(last_edge / stepsize) + 1
+        bins = min(math.ceil((last_edge - first_edge) / stepsize), 65536)    
     
     starts = first_edge + np.arange(bins) * stepsize
     offset = first_edge
