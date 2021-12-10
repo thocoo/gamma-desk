@@ -99,18 +99,14 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
     min_index = non_zeros_indices[0][0]
     max_index = non_zeros_indices[-1][0]
     
-    first_edge = min_index - offset
-    last_edge = max_index - offset
-    
-    first_edge = first_edge if low is None else low  
-    last_edge = last_edge if high is None else high
-    
-    if first_edge == last_edge:
-        first_edge -= 0.5
-        last_edge += 0.5
+    first_edge = min_index if low is None else low  
+    last_edge = max_index if high is None else high    
 
     if step is None:    
-        stepsize = max((last_edge - first_edge) / (bins-1), 1)
+        if first_edge == last_edge:
+            stepsize = max((last_edge - first_edge) / (bins-1), 1)
+        else:
+            stepsize = 1
     else:
         stepsize = step               
     
@@ -121,10 +117,10 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         non_zeros_indices = np.argwhere(hist > 0)
         min_index = non_zeros_indices[0][0]
         max_index = non_zeros_indices[-1][0]
-        first_edge = min_index - offset
-        last_edge = max_index - offset        
+        first_edge = min_index
+        last_edge = max_index
     
-    starts = np.arange(first_edge, last_edge+1) * stepsize   
+    starts = np.arange(first_edge, last_edge+1) * stepsize - offset
     
     return hist[min_index:max_index+1], starts, stepsize
     
