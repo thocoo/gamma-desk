@@ -36,8 +36,20 @@ def clip_values(dtype):
     if dtype == 'uint8':
         low, high = 0, 255
 
+    elif dtype == 'int8':
+        low, high = -127, 127        
+
     elif dtype == 'uint16':
-        low, high = 0, 65535
+        low, high = 0, 65535       
+
+    elif dtype == 'int16':
+        low, high = -32768, 32767        
+        
+    elif dtype == 'uint32':
+        low, high = 0, 4294967295       
+
+    elif dtype == 'int32':
+        low, high = -2147483648, 2147483647         
 
     elif dtype in ['float', 'double']:
         low, high = 0, 1
@@ -50,9 +62,9 @@ def clip_values(dtype):
 
 def clip_array(array, dtype):
     """Clip the array to clipvalues of dtype."""
-    if dtype in ['uint8', 'uint16']:
-        array = array.clip(*clip_values(dtype)).astype(dtype)
-
+    if dtype in ['float16', 'float32', 'float64', 'float', 'double']: return array
+    
+    array = array.clip(*clip_values(dtype)).astype(dtype)
     return array
 
 def get_factors(n):

@@ -1101,7 +1101,7 @@ class ImageViewerBase(BasePanel):
             args['mean'] = 128
 
         if args.isNotSet():
-            dtypes = ['uint8', 'uint16', 'double']
+            dtypes = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
 
             options_form = [('Width', args['width']),
                        ('Height', args['height']),
