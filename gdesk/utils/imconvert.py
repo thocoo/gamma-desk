@@ -99,9 +99,11 @@ def natural_range(dtype):
     elif dtype in ['uint16', 'int16']:
         return 65536
     elif dtype in ['uint32', 'int32']:
-        return 4294967296
+        #return 4294967296
+        return 1
     elif dtype in ['uint64', 'int64']:
-        return 18446744073709551616
+        #return 18446744073709551616
+        return 1
     elif dtype in ['float16', 'float32', 'float64']:
         return 1
     else:
@@ -113,12 +115,28 @@ def integer_limits(integer):
 def make_map8(dtype='uint16', offset=0, gain=1, gamma=1):    
     natrange = natural_range(dtype)
     #astype('uint8') rounds down !
-    if gamma == 1:
-        return ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange).clip(0, 255).astype('uint8')        
+    if dtype in ['uint8', 'uint16']:
+        if gamma == 1:
+            return ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange).clip(0, 255).astype('uint8')        
+            
+        else:
+            temp = ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange)
+            return (temp ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
+            
+    elif dtype in ['int8', 'int16']:
+        halfrange = natrange // 2
+        if gamma == 1:           
+            positives = ((np.arange(halfrange, dtype='double') - offset) * gain * 256 / natrange).clip(0, 255).astype('uint8')            
+            negatives = ((np.arange(-halfrange, 0, dtype='double') - offset) * gain * 256 / natrange).clip(0, 255).astype('uint8')            
+            return np.r_[positives, negatives]
+        else:
+            positives = (np.arange(halfrange, dtype='double') - offset) * gain * 256 / natrange
+            positives = (positives ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')            
+            negatives = (np.arange(-halfrange, 0, dtype='double') - offset) * gain * 256 / natrange
+            negatives = (negatives ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
+            return np.r_[positives, negatives]
+            
         
-    else:
-        temp = ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange)
-        return (temp ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
     
 def qimage_to_ndarray(qimg, dtype=None):                
 
@@ -204,7 +222,7 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
         processed = result
 
     if array.dtype in ['int8', 'uint8']:
-        if offset == 0 and gain == 1 and gamma == 1:            
+        if array.dtype == 'uint8' and offset == 0 and gain == 1 and gamma == 1:            
             if c == 4:
                 processed[:,:,0] = array[:,:,2]
                 processed[:,:,1] = array[:,:,1]
@@ -229,7 +247,7 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
                 processed[:] = np.take(map8, array)
         
     elif array.dtype in ['int16', 'uint16']:
-        if offset == 0 and gain == 1 and gamma == 1:
+        if array.dtype == 'uint16' and offset == 0 and gain == 1 and gamma == 1:
             # >> Rounds down !
             if c == 1:
                 processed[:] = array >> 8
@@ -264,7 +282,7 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
                     processed[:,:,2] = np.take(map8, array[:,:,0])
                     processed[:,:,3] = array[:,:,3] >> 8
                 
-    elif array.dtype in ['float32', 'float64']:
+    elif array.dtype in ['int32', 'uint32', 'float16', 'float32', 'float64']:
         if has_numba:
             convertor = nb_float_offset_gain_gamma_8bit           
         else:
