@@ -60,24 +60,50 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
     stepsize should be power of 2    
     array should be 8 or 16 bit integer
     """               
-    if array.dtype in ['int8','uint8']:
+    if array.dtype == 'uint8':
+        length = 256 
+        offset = 0
+    elif array.dtype == 'int8':
         length = 256
-    elif array.dtype in ['int16', 'uint16']:
+        offset = 128
+    elif array.dtype == 'uint16':
         length = 65536
+        offset = 0
+    elif array.dtype == 'int16':
+        length = 65536
+        offset = 32768
     
-    if use_numba and has_numba:
-        hist = numba_func.bincount2d(array, length)    
-    else:
-        if use_numba:
-            logger.warning('Numba is not available')
-        hist = np.bincount(array.ravel(), minlength=length)    
+    if array.dtype in ['uint8', 'uint16']:
+        if use_numba and has_numba:
+            hist = numba_func.bincount2d(array, length)    
+        else:
+            if use_numba:
+                logger.warning('Numba is not available')
+            hist = np.bincount(array.ravel(), minlength=length)
+            
+    elif array.dtype in ['int8', 'int16']:
+        if array.dtype == 'int8':
+            unsigned_array = array.view('uint8')
+        else:
+            unsigned_array = array.view('uint16')
+        if use_numba and has_numba:
+            hist = numba_func.bincount2d(unsigned_array, length)    
+        else:
+            if use_numba:
+                logger.warning('Numba is not available')
+            hist = np.bincount(unsigned_array.ravel(), minlength=length)        
+                    
+        hist = np.r_[hist[len(hist)//2:], hist[:len(hist)//2]]
     
     non_zeros_indices = np.argwhere(hist > 0)
     min_index = non_zeros_indices[0][0]
     max_index = non_zeros_indices[-1][0]
     
-    first_edge = min_index if low is None else low  
-    last_edge = max_index if high is None else high
+    first_edge = min_index - offset
+    last_edge = max_index - offset
+    
+    first_edge = first_edge if low is None else low  
+    last_edge = last_edge if high is None else high
     
     if first_edge == last_edge:
         first_edge -= 0.5
@@ -95,8 +121,10 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         non_zeros_indices = np.argwhere(hist > 0)
         min_index = non_zeros_indices[0][0]
         max_index = non_zeros_indices[-1][0]
+        first_edge = min_index - offset
+        last_edge = max_index - offset        
     
-    starts = np.arange(min_index, max_index+1) * stepsize   
+    starts = np.arange(first_edge, last_edge+1) * stepsize   
     
     return hist[min_index:max_index+1], starts, stepsize
     
