@@ -17,3 +17,4 @@
 /doc/sphinx/source/gdesk.rst
 /__pycache__/**/*.pyc
 /doc/sphinx/*.log
+/test/stderr.log
