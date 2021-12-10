@@ -459,10 +459,6 @@ class StdInputPanel(QPlainTextEdit):
         if not key_ctrl:
             super().wheelEvent(event)
 
-    # def focusInEvent(self, event):
-        # selectThisPanel(self)
-        # super().focusInEvent(event)
-
     def replaceSelected(self, text):
         cursor = self.textCursor()
         start = cursor.selectionStart()
