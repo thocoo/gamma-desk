@@ -582,13 +582,13 @@ class LevelsToolBar(QtWidgets.QToolBar):
         #self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
 
         self.applyUnityBtn = QtWidgets.QToolButton(self)
-        self.applyUnityBtn.setText('1->')
+        self.applyUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_decrease.png')))
         self.applyUnityBtn.setToolTip('Apply default offset, gain and gamma')
         self.applyUnityBtn.clicked.connect(self.panel.gain1)
         self.addWidget(self.applyUnityBtn)                
                 
         self.asUnityBtn = QtWidgets.QToolButton(self)
-        self.asUnityBtn.setText('->1')
+        self.asUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_increase.png')))
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
         self.addWidget(self.asUnityBtn)        
         
