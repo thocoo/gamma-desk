@@ -167,10 +167,7 @@ class MainWindow(QMainWindow):
         
     @property
     def windowName(self):
-        return self.name
-        
-    def newPanelMenuPopup(self):
-        self.newPanelMenu.exec_(QtGui.QCursor().pos())
+        return self.name        
         
     def cycle_tag_level(self):
         self.container.cycle_tag_level()
