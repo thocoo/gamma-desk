@@ -562,8 +562,10 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.gainSigmaMenu.addAction(actGainSigma4)        
         
         self.autoBtn = QtWidgets.QToolButton(self)
-        self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))
+        self.autoBtn.setText(f'{self.panel.sigma}σ')
+        self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))        
         self.autoBtn.setMenu(self.gainSigmaMenu)
+        self.autoBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.autoBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.autoBtn.clicked.connect(lambda: self.panel.autoContrast())        
         self.addWidget(self.autoBtn)
@@ -639,7 +641,7 @@ class LevelsPanel(BasePanel):
         self.gaussview = False
         self.sqrt = False
         self.roi = False
-        self.sigma = 1
+        self.sigma = 3
         
         self.levels = Levels(self)
         self.setCentralWidget(self.levels)
@@ -716,7 +718,8 @@ class LevelsPanel(BasePanel):
         
     def autoContrast(self, sigma=None):
         if not sigma is None:
-            self.sigma = sigma            
+            self.sigma = sigma
+            self.toolbar.autoBtn.setText(f'{sigma}σ')
             
         for panel in self.targetPanels('image'):
             panel.gainToSigma(self.sigma, self.roi)             
