@@ -607,10 +607,6 @@ class ImageViewerWidget(QWidget):
             self.zoomIn(*self.getImageCoordOfMouseEvent(event), fine)
 
     def mousePressEvent(self, event):
-        #self.parent().setFocus()
-
-        selectThisPanel(self)
-
         if event.buttons() == Qt.LeftButton or \
             (event.buttons() == Qt.MiddleButton):
             self.dragStartX = event.pos().x()
