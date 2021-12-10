@@ -240,7 +240,7 @@ class DockTabBase(QTabWidget, DockBase):
         
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton:
-            self.get_container().parent().newPanelMenu.exec_(QCursor.pos())
+            self.get_container().parent().panelMenu.exec_(QCursor.pos())
         super().mouseReleaseEvent(event)        
         
     def screenShot(self):      
