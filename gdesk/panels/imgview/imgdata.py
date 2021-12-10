@@ -131,7 +131,7 @@ class ImageStatistics(object):
         if self.dtype in ['int8', 'uint8', 'int16', 'uint16']:
             hist, starts, stepsize = fasthist.hist16bit(self.arr2d, bins=None, step=1, use_numba=True)
             
-        elif self.dtype in ['float16', 'float32', 'float64']:
+        elif self.dtype in ['int32', 'uint32', 'float16', 'float32', 'float64']:
             hist, starts, stepsize = fasthist.histfloat(self.arr2d, bins=65536, step=None, pow2snap=False, use_numba=True)
             
         self._cache['hist'] = hist
