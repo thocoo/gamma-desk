@@ -530,11 +530,8 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.stepcount = QtWidgets.QLineEdit('64', self)
         self.stepcount.setMaximumWidth(100)
         self.stepcount.textChanged.connect(self.histSizeChanged)
-        self.addWidget(self.stepcount)
-        
-        #self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'unmark_to_download.png')), 'Apply default offset, gain and gamma', self.panel.gain1)                   
+        self.addWidget(self.stepcount)        
 
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom) 
@@ -577,11 +574,23 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addWidget(self.useRoiBtn)     
         
         self.sqrtBtn = QtWidgets.QToolButton(self)
-        #self.sqrtBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'square_root.png')))
         self.sqrtBtn.setText('log')
         self.sqrtBtn.setCheckable(True)
         self.sqrtBtn.clicked.connect(self.toggleSqrt)
         self.addWidget(self.sqrtBtn)
+        
+        #self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
+
+        self.applyUnityBtn = QtWidgets.QToolButton(self)
+        self.applyUnityBtn.setText('1->')
+        self.applyUnityBtn.setToolTip('Apply default offset, gain and gamma')
+        self.applyUnityBtn.clicked.connect(self.panel.gain1)
+        self.addWidget(self.applyUnityBtn)                
+                
+        self.asUnityBtn = QtWidgets.QToolButton(self)
+        self.asUnityBtn.setText('->1')
+        self.asUnityBtn.clicked.connect(self.panel.asUnity)
+        self.addWidget(self.asUnityBtn)        
         
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
@@ -604,7 +613,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
     def toggleSqrt(self):
         sender = self.sender()
         self.panel.sqrt = sender.isChecked()
-        self.levels.updateActiveHist()
+        self.levels.updateActiveHist()       
         
     def updateButtonStates(self):
         self.histSizePolicyBox.setCurrentText(self.panel.histSizePolicy)
@@ -740,7 +749,11 @@ class LevelsPanel(BasePanel):
     def updateWhitePoint(self, value):
         #self.blackWhiteChanged.emit(None, value)
         for panel in self.targetPanels('image'):
-            panel.changeBlackWhite(None, value)        
+            panel.changeBlackWhite(None, value) 
+
+    def asUnity(self):
+        for panel in self.targetPanels('image'):
+            panel.setCurrentOffsetGainAsDefault()
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         self.levels.updateHistOfPanel(image_panel_id)
