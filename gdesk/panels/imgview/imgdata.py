@@ -192,7 +192,7 @@ class ImageData(object):
     def load_by_qt(self, path):
         self.qimg = QImage(str(path))
         
-    def show_array(self, array=None, offset=0, gain=1.0, colormap=None, gamma=1):
+    def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1):
         with gui.qapp.waitCursor():
             threadcount = config['image']['threads'] 
             use_numba = config['image']['numba'] and has_numba        
@@ -251,9 +251,11 @@ class ImageData(object):
                 self.selroi.xr.maxstop = width
                 self.selroi.yr.maxstop = height
                 self.selroi.clip()
-                                           
+                   
+            natrange = imconvert.natural_range(self.sharray.dtype)                   
+            gain = natrange / (white - black)
             self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
-                self.sharray.ndarray, offset, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
+                self.sharray.ndarray, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
                 gamma=gamma)
         
     def get_natural_range(self):

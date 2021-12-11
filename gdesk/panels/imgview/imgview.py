@@ -786,7 +786,7 @@ class ImageViewerBase(BasePanel):
         super().__init__(parent, panid, type(self).panelCategory)
 
         self.offset = 0
-        self.gain = 1
+        self.white = 256
         self.gamma = 1
         self.colormap = config['image color map']
 
@@ -1355,11 +1355,17 @@ class ImageViewerBase(BasePanel):
     def refresh(self):
         with gui.qapp.waitCursor(f'Refreshing {self.short_title}'):
             self.show_array(None)
-
-    @property
-    def white(self):
-        gain1_range = self.imviewer.imgdata.get_natural_range()
-        return gain1_range / self.gain + self.offset
+        
+    def get_gain(self):
+        natrange = self.imviewer.imgdata.get_natural_range()
+        gain = natrange / (self.white - self.offset)
+        return gain
+        
+    def set_gain(self, gain):
+        natrange = self.imviewer.imgdata.get_natural_range()
+        self.white = self.offset + natrange / gain
+        
+    gain = property(get_gain, set_gain)
 
     def offsetGainDialog(self):
 
@@ -2197,7 +2203,7 @@ class ImageViewerBase(BasePanel):
 
 
     def refresh_offset_gain(self, array=None, zoomFitHist=False):
-        self.imviewer.imgdata.show_array(array, self.offset, self.gain, self.colormap, self.gamma)
+        self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.gamma)
         self.gainChanged.emit(self.panid)
         self.imviewer.refresh()
