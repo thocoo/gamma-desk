@@ -38,7 +38,12 @@ class OperationMenu(CheckMenu):
         basePanel.addMenuItem(self, 'Difference', self.difference,
             statusTip="Difference of 2 images")   
         basePanel.addMenuItem(self, 'Multiply', self.multiply,
-            statusTip="Multiply of 2 images")             
+            statusTip="Multiply of 2 images")   
+        basePanel.addMenuItem(self, 'Maximum', self.maximum,
+            statusTip="Element-wise maximum of pixels of 2 images")             
+        basePanel.addMenuItem(self, 'Minumum', self.minimum,
+            statusTip="Element-wise minimum of 2 images")             
+            
 
     def sum(self):
         imviewers = dict()
@@ -203,6 +208,72 @@ class OperationMenu(CheckMenu):
             elif dtype1 == dtype2 == 'uint16':
                 image3 = image1.astype('uint32') * image2.astype('uint32')
             
+            pid = gui.img.new()
+            gui.img.select(pid)
+            gui.img.show(image3)                  
+        
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run, args=(image1_id, image2_id))      
+
+    def maximum(self):
+        imviewers = dict()
+        
+        for imviewid in sorted(gui.qapp.panels['image'].keys()):
+            imviewers[f'image#{imviewid}'] =  imviewid
+            
+        imviewidkeys = list(imviewers.keys())
+        form = [
+            ("Image 1", [1] + imviewidkeys),
+            ("Image 2", [2] + imviewidkeys)]
+            
+        results = fedit(form, title='Multiply')        
+        
+        if results is None: return
+        image1_ind, image2_ind = results
+        image1_id  = imviewers[imviewidkeys[image1_ind-1]]
+        image2_id  = imviewers[imviewidkeys[image2_ind-1]]
+            
+        def console_run(image1_pid, image2_pid):
+            gui.img.select(image1_pid)
+            image1 = gui.vs
+            gui.img.select(image2_pid)
+            image2 = gui.vs
+                        
+            image3 = np.maximum(image1, image2)
+                
+            pid = gui.img.new()
+            gui.img.select(pid)
+            gui.img.show(image3)                  
+        
+        panel = gui.qapp.panels.selected('console')
+        panel.task.call_func(console_run, args=(image1_id, image2_id))     
+
+    def minimum(self):
+        imviewers = dict()
+        
+        for imviewid in sorted(gui.qapp.panels['image'].keys()):
+            imviewers[f'image#{imviewid}'] =  imviewid
+            
+        imviewidkeys = list(imviewers.keys())
+        form = [
+            ("Image 1", [1] + imviewidkeys),
+            ("Image 2", [2] + imviewidkeys)]
+            
+        results = fedit(form, title='Multiply')        
+        
+        if results is None: return
+        image1_ind, image2_ind = results
+        image1_id  = imviewers[imviewidkeys[image1_ind-1]]
+        image2_id  = imviewers[imviewidkeys[image2_ind-1]]
+            
+        def console_run(image1_pid, image2_pid):
+            gui.img.select(image1_pid)
+            image1 = gui.vs
+            gui.img.select(image2_pid)
+            image2 = gui.vs
+                        
+            image3 = np.minimum(image1, image2)
+                
             pid = gui.img.new()
             gui.img.select(pid)
             gui.img.show(image3)                  
