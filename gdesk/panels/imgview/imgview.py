@@ -92,6 +92,8 @@ from ...gcore.utils import ActionArguments
 if has_cv2:
     from .opencv import OpenCvMenu
 
+from .operation import OperationMenu       
+
 from .profile import ProfilerPanel
 from .blueprint import make_thumbnail
 from .demosaic import bayer_split
@@ -814,6 +816,8 @@ class ImageViewerBase(BasePanel):
         
         if has_cv2:
             self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
+        
+        self.operationMenu = OperationMenu("Operation", self.menuBar(), self)
 
         ### File
         self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,

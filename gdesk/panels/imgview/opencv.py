@@ -120,7 +120,7 @@ class OpenCvMenu(CheckMenu):
             'Replicate': cv2.BORDER_REPLICATE,
             'Reflect': cv2.BORDER_REFLECT,
             'Wrap': cv2.BORDER_WRAP,
-            'Transparant': cv2.BORDER_TRANSPARENT,            
+            'Transparant': cv2.BORDER_TRANSPARENT,
             'Isolated': cv2.BORDER_ISOLATED}
             
         border_keys = list(borders.keys())
