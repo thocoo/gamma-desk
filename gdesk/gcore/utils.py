@@ -39,6 +39,7 @@ def getMenuTrace(menu):
 def getMenuAction(menubar, menutrace):
     """Locate the action in a menubar"""
     actions = menubar.actions()
+    action = None
 
     menutrace = relax_menu_trace(menutrace)
 
