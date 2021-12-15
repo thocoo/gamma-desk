@@ -156,26 +156,18 @@ class GuiApplication(QApplication):
         else:
             category, panid, action_names = None, None, []
             
-            #Find suitable panel on active window
             for category in reversed(self.panels.keys()):
                 panids = list(self.panels[category].keys())
                 if len(panids) == 0: continue
                 if category in shortCutParams.keys():
-                    panid = panids[-1]
-                    panel = self.panels[category][panid]
-                    if panel.window() == self.activeWindow():
-                        action_names = shortCutParams[category]
-                        break              
-                            
+                    for panid in reversed(panids):
+                        panel = self.panels[category][panid]
+                        if panel.window() == self.activeWindow():
+                            action_names = shortCutParams[category]
+                            break
+                    if not action_names is None: break
             else:
-                #Panel on any other window
-                for category in reversed(self.panels.keys()):
-                    panids = list(self.panels[category].keys())
-                    if len(panids) == 0: continue
-                    if category in shortCutParams.keys():
-                        action_names = shortCutParams[category]
-                        panid = panids[-1]
-                        break           
+                category = None    
                 
         if category is None:
             return
@@ -191,6 +183,7 @@ class GuiApplication(QApplication):
         
     def checkPanelActive(self, old, new):        
         #This function is probably more called then needed !
+        logger.debug(f'focus changed from {old} to {new}')
         if new is None: return
         try:
             panel = thisPanel(new)        
