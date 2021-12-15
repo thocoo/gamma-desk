@@ -60,7 +60,8 @@ class MainWindow(QMainWindow):
         
         if not parentWinName is None:        
             self.setParent(self.qapp.windows[parentWinName])
-            self.setWindowFlags(self.windowFlags() | Qt.Tool)   
+            self.setWindowFlags(self.windowFlags() | Qt.Tool)             
+            #self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         
         self.container = self.qapp.panels.ezm.new_container(self, self.name)    
         self.setCentralWidget(self.container)
@@ -267,8 +268,8 @@ class MainWindow(QMainWindow):
     def unregister(self):        
         #Detach all tool windows of this window
         for window in self.qapp.windows.values():
-                if window.parent() == self:
-                    window.asToolWindow(None)
+            if window.parent() == self:
+                window.asToolWindow(None)
                                     
         #Unregister this window
         self.qapp.windows.pop(self.name)
