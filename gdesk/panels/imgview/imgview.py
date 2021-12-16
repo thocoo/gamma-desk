@@ -135,6 +135,7 @@ channels = ['R', 'G', 'B', 'A']
 class StatusPanel(MyStatusBar):
 
     offsetGainEdited = Signal(str, str, str)
+    blackWhiteEdited = Signal(str, str)
     zoomEdited = Signal(float)
 
     def __init__(self, parent):
@@ -169,14 +170,21 @@ class StatusPanel(MyStatusBar):
         self.addWidget(self.vallab, 1, Qt.AlignRight)
         self.addWidget(self.val, 2)
 
-        self.offsetlab = QLabel('offset')
+        self.offsetlab = QLabel('Black')
         self.offset = QLineEdit('0')
         self.offset.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.offset)
         self.offset.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        
         self.gainlab = QLabel('gain')
         self.gain = QLineEdit('1')
         self.gain.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.gain)
         self.gain.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        
+        self.whitelab = QLabel('White')
+        self.white = QLineEdit('1')
+        self.white.keyPressEvent = types.MethodType(blackWhitePressEvent, self.white)
+        self.white.setAlignment(Qt.AlignRight | Qt.AlignVCenter)        
+                
         self.gammalab = QLabel('gamma')
         self.gamma = QLineEdit('1')
         self.gamma.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.gamma)
@@ -186,12 +194,15 @@ class StatusPanel(MyStatusBar):
         self.addWidget(self.offset, 1)
         self.addWidget(self.gainlab, 1, Qt.AlignRight)
         self.addWidget(self.gain, 1)
+        self.addWidget(self.whitelab, 1, Qt.AlignRight)
+        self.addWidget(self.white, 1)        
         self.addWidget(self.gammalab, 1, Qt.AlignRight)
         self.addWidget(self.gamma, 1)
 
         self.zoomOutBtn.clicked.connect(parent.zoomOut)
         self.zoomInBtn.clicked.connect(parent.zoomIn)
         self.offsetGainEdited.connect(parent.changeOffsetGain)
+        self.blackWhiteEdited.connect(parent.changeBlackWhite)
         self.zoomEdited.connect(parent.setZoomValue)                
 
     def set_val_format(self, fmt='dec'):        
@@ -212,9 +223,10 @@ class StatusPanel(MyStatusBar):
             except:
                 self.val.setText(str(val))
 
-    def setOffsetGainInfo(self, offset, gain, gamma):
+    def setOffsetGainInfo(self, offset, gain, white, gamma):
         self.offset.setText(f'{offset:8.6g}')
         self.gain.setText(f'{gain:8.6g}')
+        self.white.setText(f'{white:8.6g}')
         self.gamma.setText(f'{gamma:8.6g}')
 
     def set_zoom(self, value):
@@ -245,6 +257,16 @@ def offsetGainKeyPressEvent(self, event):
         statpan.offsetGainEdited.emit(statpan.offset.text(), statpan.gain.text(), statpan.gamma.text())
 
     QLineEdit.keyPressEvent(self, event)
+    
+def blackWhitePressEvent(self, event):
+    key_enter = (event.key() == Qt.Key_Return) or \
+        (event.key() == Qt.Key_Enter)
+
+    if key_enter:
+        statpan = self.parent()
+        statpan.blackWhiteEdited.emit(statpan.offset.text(), statpan.white.text())
+
+    QLineEdit.keyPressEvent(self, event)    
 
 class OpenImage(object):
     def __init__(self, imgpanel, path):
@@ -2208,7 +2230,7 @@ class ImageViewerBase(BasePanel):
 
     def refresh_offset_gain(self, array=None, zoomFitHist=False):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma)
-        self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.gamma)
+        self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
         self.gainChanged.emit(self.panid)
         self.imviewer.refresh()
 
