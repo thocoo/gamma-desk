@@ -132,16 +132,54 @@ respath = Path(config['respath'])
 
 channels = ['R', 'G', 'B', 'A']
 
-class StatusPanel(MyStatusBar):
+class ZoomValuePanel(MyStatusBar):
+    zoomEdited = Signal(float)
+    
+    def __init__(self, parent):
+        super().__init__(parent=parent)    
+        self.panel = parent.panel
+        
+        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
+        self.zoom = QLineEdit('100')
+        self.zoom.keyPressEvent = self.zoomKeyPressEvent
+        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)        
+        
+        self.addWidget(self.zoomOutBtn)
+        self.addWidget(self.zoom, 1)
+        self.addWidget(self.zoomInBtn)   
+
+        self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
+        self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
+        self.zoomEdited.connect(self.panel.setZoomValue)        
+        
+    def set_zoom(self, value):
+        self.zoom.setText(f'{value*100:.2f}')        
+
+    def zoomKeyPressEvent(self, event):
+        key_enter = (event.key() == Qt.Key_Return) or \
+            (event.key() == Qt.Key_Enter)
+
+        statpan = self
+        if event.key() == Qt.Key_Up:
+            statpan.panel.zoomIn()
+
+        elif event.key() == Qt.Key_Down:
+            statpan.panel.zoomOut()
+
+        if key_enter:
+            statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
+
+        QLineEdit.keyPressEvent(self.zoom, event)        
+
+class ContrastPanel(MyStatusBar):
 
     offsetGainEdited = Signal(str, str, str)
     blackWhiteEdited = Signal(str, str)
-    zoomEdited = Signal(float)
 
     def __init__(self, parent):
         super().__init__(parent=parent)
 
-        self.panel = parent
+        self.panel = parent.panel
 
         console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
 
@@ -150,10 +188,6 @@ class StatusPanel(MyStatusBar):
         self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.set_val_format('hex')))
         self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.set_val_format('bin')))
 
-        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
-        self.zoom = QLineEdit('100')
-        self.zoom.keyPressEvent = self.zoomKeyPressEvent
-        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)
         self.xy = QLabel('0,0')
         self.vallab = QLabel('val')
         self.val = QLineEdit('0')
@@ -163,9 +197,6 @@ class StatusPanel(MyStatusBar):
         self.val.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.val.customContextMenuRequested.connect(lambda: self.chooseValFormat.exec_(QtGui.QCursor().pos()))
 
-        self.addWidget(self.zoomOutBtn)
-        self.addWidget(self.zoom, 1)
-        self.addWidget(self.zoomInBtn)
         self.addWidget(self.xy, 1)
         self.addWidget(self.vallab, 1, Qt.AlignRight)
         self.addWidget(self.val, 2)
@@ -198,12 +229,16 @@ class StatusPanel(MyStatusBar):
         self.addWidget(self.white, 1)        
         self.addWidget(self.gammalab, 1, Qt.AlignRight)
         self.addWidget(self.gamma, 1)
+        
+        self.chooseStatusPanel = QMenu('Status Panel', self)
+        self.chooseStatusPanel.addAction(QAction("Zoom & Values", self, triggered=lambda: self.set_val_format('dec')))
+        self.chooseStatusPanel.addAction(QAction("Contrast", self, triggered=lambda: self.set_val_format('hex')))            
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(lambda: self.chooseStatusPanel.exec_(QtGui.QCursor().pos()))        
 
-        self.zoomOutBtn.clicked.connect(parent.zoomOut)
-        self.zoomInBtn.clicked.connect(parent.zoomIn)
-        self.offsetGainEdited.connect(parent.changeOffsetGain)
-        self.blackWhiteEdited.connect(parent.changeBlackWhite)
-        self.zoomEdited.connect(parent.setZoomValue)                
+        self.offsetGainEdited.connect(self.panel.changeOffsetGain)
+        self.blackWhiteEdited.connect(self.panel.changeBlackWhite)
+              
 
     def set_val_format(self, fmt='dec'):        
         self.panel.imviewer.set_val_item_format(fmt)
@@ -229,25 +264,6 @@ class StatusPanel(MyStatusBar):
         self.white.setText(f'{white:8.6g}')
         self.gamma.setText(f'{gamma:8.6g}')
 
-    def set_zoom(self, value):
-        self.zoom.setText(f'{value*100:.2f}')
-
-    def zoomKeyPressEvent(self, event):
-        key_enter = (event.key() == Qt.Key_Return) or \
-            (event.key() == Qt.Key_Enter)
-
-        statpan = self
-        if event.key() == Qt.Key_Up:
-            statpan.panel.zoomIn()
-
-        elif event.key() == Qt.Key_Down:
-            statpan.panel.zoomOut()
-
-        if key_enter:
-            statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
-
-        QLineEdit.keyPressEvent(self.zoom, event)
-
 def offsetGainKeyPressEvent(self, event):
     key_enter = (event.key() == Qt.Key_Return) or \
         (event.key() == Qt.Key_Enter)
@@ -266,7 +282,37 @@ def blackWhitePressEvent(self, event):
         statpan = self.parent()
         statpan.blackWhiteEdited.emit(statpan.offset.text(), statpan.white.text())
 
-    QLineEdit.keyPressEvent(self, event)    
+    QLineEdit.keyPressEvent(self, event) 
+    
+    
+class StatusPanel(QWidget):
+
+    def __init__(self, parent):        
+        super().__init__(parent=parent)                
+        self.panel = self.parent()
+        
+        vboxlayout = QtWidgets.QVBoxLayout()
+        vboxlayout.setContentsMargins(0, 0, 0, 0) 
+        self.setLayout(vboxlayout)
+        
+        self.zoomValuePanel = ZoomValuePanel(self)
+        self.contrastPanel = ContrastPanel(self)
+        
+        self.layout().addWidget(self.zoomValuePanel)
+        self.layout().addWidget(self.contrastPanel)
+        
+    def set_val_format(self, fmt='dec'):        
+        self.contrastPanel.set_val_format(fmt)
+
+    def set_xy_val(self, x, y, val=None):
+        self.contrastPanel.set_xy_val(x, y, val)
+
+    def setOffsetGainInfo(self, offset, gain, white, gamma):
+        self.contrastPanel.setOffsetGainInfo(offset, gain, white, gamma)
+        
+    def set_zoom(self, value):
+        self.zoomValuePanel.set_zoom(value)
+        
 
 class OpenImage(object):
     def __init__(self, imgpanel, path):
