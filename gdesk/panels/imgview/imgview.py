@@ -139,21 +139,65 @@ class ZoomValuePanel(MyStatusBar):
         super().__init__(parent=parent)    
         self.panel = parent.panel
         
+        self.chooseWidgetBtn = QtWidgets.QToolButton(self)
+        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
+        self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        self.chooseWidgetBtn.setMenu(self.parent().chooseWidgetMenu)                  
+        self.addWidget(self.chooseWidgetBtn)
+        
+        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])        
+        
         self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
         self.zoom = QLineEdit('100')
         self.zoom.keyPressEvent = self.zoomKeyPressEvent
         self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)        
         
+        self.xy = QLabel('0,0')
+        self.vallab = QLabel('val')
+        self.val = QLineEdit('0')
+        self.val.setFont(console_font)
+        self.val.setReadOnly(True)
+        self.val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        
+        self.chooseValFormat = QMenu('Value Format', self)
+        self.chooseValFormat.addAction(QAction("Decimal", self, triggered=lambda: self.set_val_format('dec')))
+        self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.set_val_format('hex')))
+        self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.set_val_format('bin')))        
+        self.val.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.val.customContextMenuRequested.connect(lambda: self.chooseValFormat.exec_(QtGui.QCursor().pos()))       
+        
         self.addWidget(self.zoomOutBtn)
         self.addWidget(self.zoom, 1)
         self.addWidget(self.zoomInBtn)   
+        
+        self.addWidget(self.xy, 1)
+        self.addWidget(self.vallab, 1, Qt.AlignRight)
+        self.addWidget(self.val, 2)        
 
         self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
         self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
         self.zoomEdited.connect(self.panel.setZoomValue)        
         
     def set_zoom(self, value):
-        self.zoom.setText(f'{value*100:.2f}')        
+        self.zoom.setText(f'{value*100:.2f}')     
+
+    def set_val_format(self, fmt='dec'):        
+        self.panel.imviewer.set_val_item_format(fmt)
+
+    def set_xy_val(self, x, y, val=None):
+        self.xy.setText(f'xy:{x:d},{y:d} ')        
+
+        fmt = self.panel.imviewer.val_item_format        
+
+        if not val is None:
+            try:
+                if isinstance(val, Iterable):
+                    text = '[' + ' '.join(fmt.format(v) for v in val) + ']'
+                    self.val.setText(text)
+                else:
+                    self.val.setText(fmt.format(val))
+            except:
+                self.val.setText(str(val))        
 
     def zoomKeyPressEvent(self, event):
         key_enter = (event.key() == Qt.Key_Return) or \
@@ -180,26 +224,14 @@ class ContrastPanel(MyStatusBar):
         super().__init__(parent=parent)
 
         self.panel = parent.panel
+        
+        self.chooseWidgetBtn = QtWidgets.QToolButton(self)
+        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
+        self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        self.chooseWidgetBtn.setMenu(self.parent().chooseWidgetMenu)                  
+        self.addWidget(self.chooseWidgetBtn)        
 
         console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
-
-        self.chooseValFormat = QMenu('Value Format', self)
-        self.chooseValFormat.addAction(QAction("Decimal", self, triggered=lambda: self.set_val_format('dec')))
-        self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.set_val_format('hex')))
-        self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.set_val_format('bin')))
-
-        self.xy = QLabel('0,0')
-        self.vallab = QLabel('val')
-        self.val = QLineEdit('0')
-        self.val.setFont(console_font)
-        self.val.setReadOnly(True)
-        self.val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.val.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.val.customContextMenuRequested.connect(lambda: self.chooseValFormat.exec_(QtGui.QCursor().pos()))
-
-        self.addWidget(self.xy, 1)
-        self.addWidget(self.vallab, 1, Qt.AlignRight)
-        self.addWidget(self.val, 2)
 
         self.offsetlab = QLabel('Black')
         self.offset = QLineEdit('0')
@@ -228,35 +260,10 @@ class ContrastPanel(MyStatusBar):
         self.addWidget(self.whitelab, 1, Qt.AlignRight)
         self.addWidget(self.white, 1)        
         self.addWidget(self.gammalab, 1, Qt.AlignRight)
-        self.addWidget(self.gamma, 1)
-        
-        self.chooseStatusPanel = QMenu('Status Panel', self)
-        self.chooseStatusPanel.addAction(QAction("Zoom & Values", self, triggered=lambda: self.set_val_format('dec')))
-        self.chooseStatusPanel.addAction(QAction("Contrast", self, triggered=lambda: self.set_val_format('hex')))            
-        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(lambda: self.chooseStatusPanel.exec_(QtGui.QCursor().pos()))        
+        self.addWidget(self.gamma, 1)             
 
         self.offsetGainEdited.connect(self.panel.changeOffsetGain)
-        self.blackWhiteEdited.connect(self.panel.changeBlackWhite)
-              
-
-    def set_val_format(self, fmt='dec'):        
-        self.panel.imviewer.set_val_item_format(fmt)
-
-    def set_xy_val(self, x, y, val=None):
-        self.xy.setText(f'xy:{x:d},{y:d} ')        
-
-        fmt = self.panel.imviewer.val_item_format        
-
-        if not val is None:
-            try:
-                if isinstance(val, Iterable):
-                    text = '[' + ' '.join(fmt.format(v) for v in val) + ']'
-                    self.val.setText(text)
-                else:
-                    self.val.setText(fmt.format(val))
-            except:
-                self.val.setText(str(val))
+        self.blackWhiteEdited.connect(self.panel.changeBlackWhite)             
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
         self.offset.setText(f'{offset:8.6g}')
@@ -291,28 +298,51 @@ class StatusPanel(QWidget):
         super().__init__(parent=parent)                
         self.panel = self.parent()
         
+        self.chooseWidgetMenu = CheckMenu('Widgets')                   
+        self.addMenuItem(self.chooseWidgetMenu, 'Zoom & Values',
+            lambda: self.toggleWidgetVisible(self.zoomValuePanel), checkcall=lambda: self.zoomValuePanel.isVisible())
+        self.addMenuItem(self.chooseWidgetMenu, 'Contrast',
+            lambda: self.toggleWidgetVisible(self.contrastPanel),  checkcall=lambda: self.contrastPanel.isVisible())
+        
         vboxlayout = QtWidgets.QVBoxLayout()
         vboxlayout.setContentsMargins(0, 0, 0, 0) 
         self.setLayout(vboxlayout)
         
         self.zoomValuePanel = ZoomValuePanel(self)
         self.contrastPanel = ContrastPanel(self)
+        self.contrastPanel.hide()
         
         self.layout().addWidget(self.zoomValuePanel)
-        self.layout().addWidget(self.contrastPanel)
+        self.layout().addWidget(self.contrastPanel)    
+
+    def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
+        action = QAction(text, self, enabled=enabled, statusTip=statusTip)
+        action.triggered.connect(triggered)        
+        
+        if isinstance(icon, str):
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / icon))
+        
+        if not icon is None:
+            action.setIcon(icon)
+            
+        menu.addAction(action, checkcall=checkcall, enablecall=enablecall)      
+        return action        
+        
+    def toggleWidgetVisible(self, widget):
+        widget.setVisible(not widget.isVisible())            
+        
+    def set_zoom(self, value):
+        self.zoomValuePanel.set_zoom(value)        
         
     def set_val_format(self, fmt='dec'):        
-        self.contrastPanel.set_val_format(fmt)
+        self.zoomValuePanel.set_val_format(fmt)
 
     def set_xy_val(self, x, y, val=None):
-        self.contrastPanel.set_xy_val(x, y, val)
+        self.zoomValuePanel.set_xy_val(x, y, val)
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
         self.contrastPanel.setOffsetGainInfo(offset, gain, white, gamma)
-        
-    def set_zoom(self, value):
-        self.zoomValuePanel.set_zoom(value)
-        
+               
 
 class OpenImage(object):
     def __init__(self, imgpanel, path):
