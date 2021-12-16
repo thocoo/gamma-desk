@@ -34,7 +34,7 @@ class ImageGuiProxy(GuiProxyBase):
         return 'img'
         
     @StaticGuiCall
-    def new(cmap=None, viewtype='image-profile', title=None):
+    def new(cmap=None, viewtype='image-profile', title=None, width=None, height=None):
         panel = GuiProxyBase._new('image', viewtype)
         
         if not cmap is None:

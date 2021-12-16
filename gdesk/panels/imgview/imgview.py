@@ -77,7 +77,7 @@ if has_imafio:
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal, QUrl
 from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
-from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout,
+from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
     QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
 
 from ...panels import BasePanel, thisPanel, CheckMenu
@@ -132,25 +132,53 @@ respath = Path(config['respath'])
 
 channels = ['R', 'G', 'B', 'A']
 
-class ZoomValuePanel(MyStatusBar):
+class ZoomWidget(MyStatusBar):
+    zoomEdited = Signal(float)
+    
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.panel = parent.panel
+
+        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
+        self.zoom = QLineEdit('100')
+        self.zoom.keyPressEvent = self.zoomKeyPressEvent
+        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)       
+        
+        self.addWidget(self.zoomOutBtn)
+        self.addWidget(self.zoom, 1)
+        self.addWidget(self.zoomInBtn)
+        
+        self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
+        self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
+        self.zoomEdited.connect(self.panel.setZoomValue)  
+
+    def set_zoom(self, value):
+        self.zoom.setText(f'{value*100:.2f}')          
+
+    def zoomKeyPressEvent(self, event):
+        key_enter = (event.key() == Qt.Key_Return) or \
+            (event.key() == Qt.Key_Enter)
+
+        statpan = self
+        if event.key() == Qt.Key_Up:
+            statpan.panel.zoomIn()
+
+        elif event.key() == Qt.Key_Down:
+            statpan.panel.zoomOut()
+
+        if key_enter:
+            statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
+
+        QLineEdit.keyPressEvent(self.zoom, event)                  
+
+class ValuePanel(MyStatusBar):
     zoomEdited = Signal(float)
     
     def __init__(self, parent):
         super().__init__(parent=parent)    
-        self.panel = parent.panel
+        self.panel = parent.panel        
         
-        self.chooseWidgetBtn = QtWidgets.QToolButton(self)
-        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
-        self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-        self.chooseWidgetBtn.setMenu(self.parent().chooseWidgetMenu)                  
-        self.addWidget(self.chooseWidgetBtn)
-        
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])        
-        
-        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
-        self.zoom = QLineEdit('100')
-        self.zoom.keyPressEvent = self.zoomKeyPressEvent
-        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)        
+        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])                      
         
         self.xy = QLabel('0,0')
         self.vallab = QLabel('val')
@@ -166,20 +194,9 @@ class ZoomValuePanel(MyStatusBar):
         self.val.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.val.customContextMenuRequested.connect(lambda: self.chooseValFormat.exec_(QtGui.QCursor().pos()))       
         
-        self.addWidget(self.zoomOutBtn)
-        self.addWidget(self.zoom, 1)
-        self.addWidget(self.zoomInBtn)   
-        
-        self.addWidget(self.xy, 1)
+        self.addWidget(self.xy, 2)
         self.addWidget(self.vallab, 1, Qt.AlignRight)
-        self.addWidget(self.val, 2)        
-
-        self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
-        self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
-        self.zoomEdited.connect(self.panel.setZoomValue)        
-        
-    def set_zoom(self, value):
-        self.zoom.setText(f'{value*100:.2f}')     
+        self.addWidget(self.val, 4)
 
     def set_val_format(self, fmt='dec'):        
         self.panel.imviewer.set_val_item_format(fmt)
@@ -197,23 +214,7 @@ class ZoomValuePanel(MyStatusBar):
                 else:
                     self.val.setText(fmt.format(val))
             except:
-                self.val.setText(str(val))        
-
-    def zoomKeyPressEvent(self, event):
-        key_enter = (event.key() == Qt.Key_Return) or \
-            (event.key() == Qt.Key_Enter)
-
-        statpan = self
-        if event.key() == Qt.Key_Up:
-            statpan.panel.zoomIn()
-
-        elif event.key() == Qt.Key_Down:
-            statpan.panel.zoomOut()
-
-        if key_enter:
-            statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
-
-        QLineEdit.keyPressEvent(self.zoom, event)        
+                self.val.setText(str(val))               
 
 class ContrastPanel(MyStatusBar):
 
@@ -225,12 +226,6 @@ class ContrastPanel(MyStatusBar):
 
         self.panel = parent.panel
         
-        self.chooseWidgetBtn = QtWidgets.QToolButton(self)
-        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
-        self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-        self.chooseWidgetBtn.setMenu(self.parent().chooseWidgetMenu)                  
-        self.addWidget(self.chooseWidgetBtn)        
-
         console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
 
         self.offsetlab = QLabel('Black')
@@ -298,22 +293,39 @@ class StatusPanel(QWidget):
         super().__init__(parent=parent)                
         self.panel = self.parent()
         
-        self.chooseWidgetMenu = CheckMenu('Widgets')                   
-        self.addMenuItem(self.chooseWidgetMenu, 'Zoom & Values',
-            lambda: self.toggleWidgetVisible(self.zoomValuePanel), checkcall=lambda: self.zoomValuePanel.isVisible())
+        self.chooseWidgetMenu = CheckMenu('Widgets')    
+        
+        self.addMenuItem(self.chooseWidgetMenu, 'Zoom',
+            lambda: self.toggleWidgetVisible(self.zoomWidget), checkcall=lambda: self.zoomWidget.isVisible())        
+        self.addMenuItem(self.chooseWidgetMenu, 'Values',
+            lambda: self.toggleWidgetVisible(self.valuePanel), checkcall=lambda: self.valuePanel.isVisible())
         self.addMenuItem(self.chooseWidgetMenu, 'Contrast',
             lambda: self.toggleWidgetVisible(self.contrastPanel),  checkcall=lambda: self.contrastPanel.isVisible())
+
+        self.chooseWidgetBtn = QtWidgets.QToolButton(self)
+        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
+        self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        self.chooseWidgetBtn.setMenu(self.chooseWidgetMenu)   
         
-        vboxlayout = QtWidgets.QVBoxLayout()
-        vboxlayout.setContentsMargins(0, 0, 0, 0) 
-        self.setLayout(vboxlayout)
-        
-        self.zoomValuePanel = ZoomValuePanel(self)
+        self.zoomWidget = ZoomWidget(self)
+        self.valuePanel = ValuePanel(self)
         self.contrastPanel = ContrastPanel(self)
-        self.contrastPanel.hide()
+        self.contrastPanel.hide()                       
+                
+        hboxlayout = QtWidgets.QHBoxLayout()
+        hboxlayout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(hboxlayout)
         
-        self.layout().addWidget(self.zoomValuePanel)
-        self.layout().addWidget(self.contrastPanel)    
+        fontmetric = QtGui.QFontMetrics(self.font())
+        fontheight = fontmetric.height()
+        self.setFixedHeight(fontheight + 2)  
+        
+        hboxlayout.addWidget(self.chooseWidgetBtn)                       
+        splitter = QSplitter(self)        
+        hboxlayout.addWidget(splitter)        
+        splitter.addWidget(self.zoomWidget)        
+        splitter.addWidget(self.valuePanel)        
+        splitter.addWidget(self.contrastPanel)                     
 
     def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
         action = QAction(text, self, enabled=enabled, statusTip=statusTip)
@@ -332,13 +344,13 @@ class StatusPanel(QWidget):
         widget.setVisible(not widget.isVisible())            
         
     def set_zoom(self, value):
-        self.zoomValuePanel.set_zoom(value)        
+        self.zoomWidget.set_zoom(value)        
         
     def set_val_format(self, fmt='dec'):        
-        self.zoomValuePanel.set_val_format(fmt)
+        self.valuePanel.set_val_format(fmt)
 
     def set_xy_val(self, x, y, val=None):
-        self.zoomValuePanel.set_xy_val(x, y, val)
+        self.valuePanel.set_xy_val(x, y, val)
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
         self.contrastPanel.setOffsetGainInfo(offset, gain, white, gamma)
