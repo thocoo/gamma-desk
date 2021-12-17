@@ -125,8 +125,8 @@ class LevelPlot(QtWidgets.QWidget):
         self.v_grid.update_labels()
         
         self.x_ruler.show()
-        #self.xmin = x0
-        #self.xmax = x1     
+        self.xmin = x0 + self.view.pixelSize()[0] * 22
+        self.xmax = x1     
         
     def update_y_ruler(self): 
         x0, y0, x1, y1 = self.view.viewRectCoord()
@@ -257,6 +257,7 @@ class LevelPlot(QtWidgets.QWidget):
 
     def resizeEvent(self, ev):
         self.view.setYLimits(self.ymin, self.ymax, 22, 0)
+        self.view.setXLimits(self.xmin, self.xmax, 22, 0)
         self.update_rulers(True, True)         
         
        
