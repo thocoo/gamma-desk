@@ -83,7 +83,6 @@ class ImageStatistics(object):
         return self.arr2d.dtype        
         
     def clear(self):
-        print('Removing histogram cache')
         self._cache.clear()
         
     def step_for_bins(self, bins):
@@ -127,7 +126,6 @@ class ImageStatistics(object):
             return starts1      
     
     def calc_histogram(self, bins=None, step=None):  
-        print(f'Calcing histogram with bins: {bins} ; step: {step}')
         if self.dtype in ['int8', 'uint8', 'int16', 'uint16']:
             hist, starts, stepsize = fasthist.hist16bit(self.arr2d, bins=None, step=1, use_numba=True)
             
