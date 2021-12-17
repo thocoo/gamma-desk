@@ -261,10 +261,10 @@ class ContrastPanel(MyStatusBar):
         self.blackWhiteEdited.connect(self.panel.changeBlackWhite)             
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
-        self.offset.setText(f'{offset:8.6g}')
-        self.gain.setText(f'{gain:8.6g}')
-        self.white.setText(f'{white:8.6g}')
-        self.gamma.setText(f'{gamma:8.6g}')
+        if not self.offset.hasFocus(): self.offset.setText(f'{offset:8.6g}')
+        if not self.gain.hasFocus(): self.gain.setText(f'{gain:8.6g}')
+        if not self.white.hasFocus(): self.white.setText(f'{white:8.6g}')
+        if not self.gamma.hasFocus(): self.gamma.setText(f'{gamma:8.6g}')
 
 def offsetGainKeyPressEvent(self, event):
     key_enter = (event.key() == Qt.Key_Return) or \
