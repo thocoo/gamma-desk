@@ -130,8 +130,8 @@ class GuiProxyBase(object):
         
         
     @StaticGuiCall        
-    def _new(category, paneltype=None, windowname=None, *args, **kwargs):
-        return gui.qapp.panels.new(category, paneltype, windowname, *args, **kwargs)
+    def _new(category, paneltype=None, windowname=None, size=None, *args, **kwargs):
+        return gui.qapp.panels.new(category, paneltype, windowname, size=size, *args, **kwargs)
 
     
     @classmethod

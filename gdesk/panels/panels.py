@@ -81,16 +81,14 @@ class Panels(object):
         else:
             return panel.panid
 
-
-    def new(self, category, paneltype=None, windowname=None, *args, **kwargs):
+    def new(self, category, paneltype=None, windowname=None, size=None, *args, **kwargs):
         image_classes = self.classes_of_category(category)
         if paneltype is None:
             ImageClass = next(iter(image_classes.values()))
         else:
             ImageClass = image_classes[paneltype]
-        panel = self.new_panel(ImageClass, windowname, None, args=args, kwargs=kwargs)
+        panel = self.new_panel(ImageClass, windowname, None, size=size, args=args, kwargs=kwargs)
         return panel
-
 
     def select_or_new(self, category, panid=None, defaulttype='basic', parentName='main', args=(), kwargs={}):
         """
@@ -159,7 +157,8 @@ class Panels(object):
         panelClassesCat = panelClasses.get(category, [])
         return dict([(Cls.panelShortName, Cls) for Cls in panelClassesCat])
 
-    def new_panel(self, PanelClass, parentName=None, panid=None, floating=False, position=None, args=(), kwargs={}):
+    def new_panel(self, PanelClass, parentName=None, panid=None, floating=False,
+            position=None, size=None, args=(), kwargs={}):
 
         if parentName is None:
             activeWindow = self.qapp.activeWindow()
@@ -167,6 +166,10 @@ class Panels(object):
                 parentName =  activeWindow.name
 
         panel = PanelClass(None, panid, *args, **kwargs)
+        
+        if not size is None:
+            panel.setGeometry(0, 0, size[0], size[1])
+            
         panel.show()
 
         if floating:
