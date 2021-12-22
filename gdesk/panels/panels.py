@@ -170,7 +170,7 @@ class Panels(object):
         if not size is None:
             panel.setGeometry(0, 0, size[0], size[1])
             
-        panel.show()
+        #panel.show()
 
         if floating:
             window = panel
