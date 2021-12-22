@@ -154,7 +154,7 @@ class GuiApplication(QApplication):
             panid = None
             
         else:
-            category, panid, action_names = None, None, []
+            category, panid, action_names = None, None, None
             
             for category in reversed(self.panels.keys()):
                 panids = list(self.panels[category].keys())
