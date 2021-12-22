@@ -188,6 +188,7 @@ class GuiApplication(QApplication):
         try:
             panel = thisPanel(new)        
             if panel is None: return
+            logger.debug(f'Selecting panel {panel.category}#{panel.panid}')
             panel.select()
         except Exception as ex:
             #Do not print any error message in the gui

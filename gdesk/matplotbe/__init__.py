@@ -77,7 +77,9 @@ def show(*, block=None):
     tells the backend that it is time to draw.  In interactive mode, this
     should do nothing.
     """ 
-    #manager = Gcf.get_active()    
+    #manager = Gcf.get_active()   
+    if matplotlib.is_interactive(): return
+    
     for manager in Gcf.get_all_fig_managers():
         manager.show()
         
@@ -214,11 +216,12 @@ class FigureManagerGh2(FigureManagerBase):
     """       
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
-        #self.panel = gui.gui_call(gui._qapp.panels.new_panel, PlotPanel, 'main', num, None, args=(canvas,))
+        #self.panel = gui.gui_call(gui._qapp.panels.new_panel, PlotPanel, 'main', num, None, args=(canvas,))        
         
         def make_and_hide_plot_panel(PanelClass, parentName=None, panid=None, floating=False, position=None, size=None, args=(), kwargs={}):
             panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position, size, args, kwargs)
-            panel.window().hide()
+            if not matplotlib.is_interactive():
+                panel.window().hide()
             return panel
             
         self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', num, None, args=(canvas,))
@@ -230,7 +233,7 @@ class FigureManagerGh2(FigureManagerBase):
         by :meth:`~matplotlib.figure.Figure.show`, for an
         optional warning.
         """
-        if gui.valid():            
+        if gui.valid():
             gui.gui_call(PlotPanel.show_me, self.panel)
             gui.gui_call(PlotPanel.refresh, self.panel)
         else:        
