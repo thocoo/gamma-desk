@@ -59,7 +59,9 @@ class PlotPanel(BasePanel):
         self.addMenuItem(self.viewMenu, 'Grid', self.grid,
             statusTip = "Show/hide grid",
             icon = 'layer_grid.png')
-        self.addMenuItem(self.viewMenu, 'Tight', self.tight)        
+        self.addMenuItem(self.viewMenu, 'Tight', self.tight,
+            statusTip = "Adjust the padding between and around subplots",
+            icon = 'canvas_size.png')        
         self.addMenuItem(self.viewMenu, 'Interactive', self.toggle_interactive,
             checkcall=lambda: pylab.isinteractive())
         
