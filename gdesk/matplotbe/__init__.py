@@ -207,6 +207,14 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
         super().print_figure(*args, **kwargs)
         self.draw()
         
+def make_and_hide_plot_panel(PanelClass, parentName=None, panid=None, floating=False,
+        position=None, size=None, args=(), kwargs={}):
+        
+    panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position, size, args, kwargs)
+    # if not matplotlib.is_interactive():
+        # panel.window().hide()
+    return panel        
+        
 class FigureManagerGh2(FigureManagerBase):
 
     """
@@ -216,15 +224,11 @@ class FigureManagerGh2(FigureManagerBase):
     """       
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
-        #self.panel = gui.gui_call(gui._qapp.panels.new_panel, PlotPanel, 'main', num, None, args=(canvas,))        
         
-        def make_and_hide_plot_panel(PanelClass, parentName=None, panid=None, floating=False, position=None, size=None, args=(), kwargs={}):
-            panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position, size, args, kwargs)
-            if not matplotlib.is_interactive():
-                panel.window().hide()
-            return panel
-            
-        self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', num, None, args=(canvas,))
+        if matplotlib.is_interactive():
+            self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None, args=(self.canvas,))
+        else:
+            self.panel = None    
     
     def show(self):
         """
@@ -234,14 +238,17 @@ class FigureManagerGh2(FigureManagerBase):
         optional warning.
         """
         if gui.valid():
+            if self.panel is None:
+                self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None, args=(self.canvas,))
             gui.gui_call(PlotPanel.show_me, self.panel)
             gui.gui_call(PlotPanel.refresh, self.panel)
         else:        
             raise ValueError(f'gui called from unknown thread {os.getpid()}/{threading.current_thread()}')
         
     def destroy(self, *args):        
-        if 'plot' in gui._qapp.panels.keys():        
-            gui.gui_call(PlotPanel.close_panel, self.panel)
+        if 'plot' in gui._qapp.panels.keys():
+            if not self.panel is None:
+                gui.gui_call(PlotPanel.close_panel, self.panel)
         else:
             pass
             

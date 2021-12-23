@@ -36,7 +36,10 @@ class Panels(object):
         return self.panels.keys()
 
     def __getitem__(self, category):
-        return self.panels[category]
+        return self.get(category)
+        
+    def get(self, category, default=None):
+        return self.panels.get(category, default)
 
     def id_exists(self, category, panid):
         if not category in self.keys():
@@ -176,7 +179,7 @@ class Panels(object):
             window = panel
         else:
             window = self.ezm.new_window_on_panel(panel, parentName)
-            window.activateWindow()  
+            #window.activateWindow()  
 
         if position is None:
             position = self.place_window(window, panel.category)

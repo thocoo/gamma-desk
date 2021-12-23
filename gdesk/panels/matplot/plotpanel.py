@@ -24,7 +24,11 @@ def gcf_set_active(manager):
     # - when the user clicks on the canvas (callback needed on canvas object?)
     # - on pyplot.figure(number)
     if pylab.get_backend() == config.get("matplotlib", {}).get("backend", None):
-        gui.plot.select(manager.num)
+        number = manager.num
+        if number in gui._qapp.panels.get('plot', {}).keys():        
+            gui.plot.select(manager.num)
+        else:
+            set_active_backup(manager)
     else:
         set_active_backup(manager)
 
@@ -167,7 +171,4 @@ class PlotPanel(BasePanel):
     def close_panel(self):              
         #Called from the matplotlib backend
         super().close_panel()
-
-      
-        
-        
+  
