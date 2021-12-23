@@ -248,7 +248,8 @@ class MainDialog(QtWidgets.QMainWindow):
 
         act = QtWidgets.QAction("Restart", self,
             triggered=self.restart,
-            statusTip=f"Restart {PROGNAME}")
+            statusTip=f"Restart {PROGNAME}",
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'recycle.png')))
         self.appMenu.addAction(act)
 
         act = QtWidgets.QAction("Exit", self, shortcut=QtGui.QKeySequence.Quit,
