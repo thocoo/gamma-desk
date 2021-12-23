@@ -908,7 +908,7 @@ class ImageViewerBase(BasePanel):
         self.defaults['gamma'] = 1
 
         self.createMenus()
-        self.createStatusBar()
+        self.createStatusBar()                
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
@@ -1154,8 +1154,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Measure Distance",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'geolocation_sight.png')))
 
-        self.addBaseMenu(['levels', 'values', 'image'])
-                
+        self.addBaseMenu(['levels', 'values', 'image'])                                
 
     def get_select_menu(self):
         #The select menu should be index 4 from the menuBar children
@@ -2487,6 +2486,9 @@ class ImageProfilePanel(ImageViewerBase):
         self.addMenuItem(self.viewMenu, 'Show/Hide Profiles'    , self.showHideProfiles,
             checkcall=lambda: self.imgprof.profilesVisible,
             statusTip="Show or Hide the image column and row profiles")
+            
+            
+        self.openImage(respath / 'images' / 'gamma_test_22.png')
 
 
     def emitVisibleRegionChanged(self):

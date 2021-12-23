@@ -179,7 +179,6 @@ class ImageData(object):
         self.sharray = None
         self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
-        #arr = np.zeros((192,256),'uint8') + np.arange(256, dtype='uint8').reshape(1,256) 
         arr = np.ones((1,1),'uint8') * 128
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
         self.chanstats = dict()
