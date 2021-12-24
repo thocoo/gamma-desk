@@ -671,8 +671,10 @@ class ImageViewerWidget(QWidget):
         else:
             return False
 
-    def visibleRegion(self, normalized=False, clip_square=False):
-        x, y, w, h = self.dispOffsetX, self.dispOffsetY, self.width() / self.zoomDisplay, self.height() / self.zoomDisplay
+    def visibleRegion(self, normalized=False, clip_square=False, width=None, height=None):
+        width = width or self.width()
+        height = height or self.height()
+        x, y, w, h = self.dispOffsetX, self.dispOffsetY, width / self.zoomDisplay, height / self.zoomDisplay
         if clip_square:
             if h < w:
                 x += (w - h) / 2
@@ -1260,7 +1262,7 @@ class ImageViewerBase(BasePanel):
 
         self.openImage(args['filepath'], args['format'])
 
-    def openImage(self, filepath, format=None):
+    def openImage(self, filepath, format=None, zoom='full'):
         if has_imafio:
             arr = self.openImageImafio(filepath, format)
         else:
@@ -1270,7 +1272,10 @@ class ImageViewerBase(BasePanel):
             self.long_title = str(filepath)
             gui.qapp.history.storepath(str(filepath))
             self.show_array(arr, zoomFitHist=True)
-            self.zoomFull()
+            if zoom == 'full':
+                self.zoomFull()
+            else:
+                self.setZoomValue(zoom)
 
     def openImagePIL(self, filepath):
         with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):
@@ -2330,6 +2335,12 @@ class ImageViewerBase(BasePanel):
     @property
     def sharray(self):
         return self.imviewer.imgdata.sharray
+        
+    # def resizeEvent(self, ev):
+        # old_size = ev.oldSize() 
+        # new_size = ev.size() 
+        # x, y, width, height = self.imviewer.visibleRegion(normalized=True, clip_square=False, width=old_size.width(), height=old_size.height())
+        # self.changeVisibleRegion(x, y, width, height, False, False, 0.0)
 
 
 class ImageViewer(ImageViewerBase):
@@ -2488,7 +2499,7 @@ class ImageProfilePanel(ImageViewerBase):
             statusTip="Show or Hide the image column and row profiles")
             
             
-        self.openImage(respath / 'images' / 'gamma_test_22.png')
+        self.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)
 
 
     def emitVisibleRegionChanged(self):
