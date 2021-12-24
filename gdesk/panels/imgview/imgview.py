@@ -2335,12 +2335,6 @@ class ImageViewerBase(BasePanel):
     @property
     def sharray(self):
         return self.imviewer.imgdata.sharray
-        
-    # def resizeEvent(self, ev):
-        # old_size = ev.oldSize() 
-        # new_size = ev.size() 
-        # x, y, width, height = self.imviewer.visibleRegion(normalized=True, clip_square=False, width=old_size.width(), height=old_size.height())
-        # self.changeVisibleRegion(x, y, width, height, False, False, 0.0)
 
 
 class ImageViewer(ImageViewerBase):
