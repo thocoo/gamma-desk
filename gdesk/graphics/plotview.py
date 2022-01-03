@@ -214,7 +214,25 @@ class PlotView(QtWidgets.QGraphicsView):
         self.panYUpdated.emit()
         self.matrixUpdated.emit()   
         self.viewport().update()
-        #self.updateSceneRect(self.range)        
+        #self.updateSceneRect(self.range)  
+
+    def getXLimits(self):
+        x0 = self.center[0] - self.width() / 2 / self.scale[0]
+        x1 = self.center[0] + self.width() / 2 / self.scale[0]
+        return x0, x1
+        
+    def setXLimits(self, x0, x1, left_border=0, right_border=0):
+        scale = (self.width() - left_border - right_border)/ (x1 - x0)
+        self.setXPosScale(x0, scale)
+        
+    def getYLimits(self):
+        y0 = self.center[1] - self.height() / 2 / self.scale[1]
+        y1 = self.center[1] + self.height() / 2 / self.scale[1]
+        return y0, y1    
+
+    def setYLimits(self, y0, y1, bottom_border=0, top_border=0):
+        scale = (self.height() - bottom_border - top_border) / (y0 - y1)
+        self.setYPosScale(y1, scale)
         
     def refresh(self):
         self.viewport().update()

@@ -2466,10 +2466,10 @@ class ImageProfileWidget(QWidget):
         self.rowPanel.zoomToImage()
 
         if self.colPanel.view.auto_zoom:
-            self.colPanel.zoomAuto()
+            self.colPanel.zoomFit()
         self.colPanel.view.refresh()
         if self.rowPanel.view.auto_zoom:
-            self.rowPanel.zoomAuto()
+            self.rowPanel.zoomFit()
         self.rowPanel.view.refresh()
 
 

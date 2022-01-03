@@ -1,4 +1,4 @@
-    import math
+import math
 import numpy as np
 
 from qtpy import QtCore, QtGui, QtWidgets
@@ -47,14 +47,13 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.view.matrixUpdated.connect(self.redrawSlices)
         self.view.matrixUpdated.connect(self.repositionRuler)        
         self.view.matrixUpdated.connect(self.repositionYAxis)
-        self.view.doubleClicked.connect(self.zoomAuto)           
+        self.view.doubleClicked.connect(self.zoomFit)           
                 
         self.meanProfileCurve = None
         self.roiProfileCurve = None
         self.pixProfileCurve = None
-
         
-    def zoomAuto(self):
+    def zoomFull(self):
             
         top = bottom = left = right = None
         for curve in [self.pixProfileCurve, self.roiProfileCurve, self.meanProfileCurve]:
@@ -84,7 +83,35 @@ class ProfilerPanel(QtWidgets.QWidget):
             else:
                 scale = -(self.width() - 20)/ max(width, 1e-9)
                 self.view.setXPosScale(right, scale)
-    
+                
+    def zoomFit(self):
+        if self.meanProfileCurve is None:
+            self.zoomFull()
+            return
+        
+        xvec = self.meanProfileCurve.xvector
+        yvec = self.meanProfileCurve.yvector
+            
+        if self.direction == 0:
+            x0, x1 = self.view.getXLimits()
+            x0 = max(round(x0), 0)
+            x1 = min(round(x1), len(xvec))
+            y0, y1 = yvec[x0:x1].min(), yvec[x0:x1].max()
+            if y0 != y1:
+                self.view.setYLimits(y0, y1, 20)
+            else:
+                self.view.setYLimits(y0-0.5, y1+0.5, 20)
+                
+        elif self.direction == 90:
+            y0, y1 = self.view.getYLimits()
+            y0 = max(round(y0), 0)
+            y1 = min(round(y1), len(yvec))
+            x0, x1 = xvec[y0:y1].min(), xvec[y0:y1].max()
+            if x0 != x1:
+                self.view.setXLimits(x1, x0, 20)
+            else:
+                self.view.setXLimits(x1+0.5, x0-0.5, 20)
+                
     def refresh(self):
         self.removeAllItems()
 
