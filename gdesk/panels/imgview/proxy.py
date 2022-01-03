@@ -34,8 +34,8 @@ class ImageGuiProxy(GuiProxyBase):
         return 'img'
         
     @StaticGuiCall
-    def new(cmap=None, viewtype='image-profile', title=None, size=None):
-        panel = GuiProxyBase._new('image', viewtype, size=size)
+    def new(cmap=None, viewtype='image-profile', title=None, size=None, empty=True):
+        panel = GuiProxyBase._new('image', viewtype, size=size, empty=empty)
         
         if not cmap is None:
             panel.colormap = cmap        
@@ -53,7 +53,7 @@ class ImageGuiProxy(GuiProxyBase):
         else:
             panel = gui.qapp.panels.selected('image')
             if panel is None:
-                panel = gui.qapp.panels.select_or_new('image', defaulttype = 'image-profile')
+                panel = gui.qapp.panels.select_or_new('image', defaulttype = 'image-profile', empty=True)
         panel.openImage(filepath)
         window = panel.get_container().parent()
         window.raise_()

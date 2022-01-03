@@ -896,7 +896,7 @@ class ImageViewerBase(BasePanel):
 
     classIconFile = str(respath / 'icons' / 'px16' / 'picture.png')
 
-    def __init__(self, parent=None, panid=None):
+    def __init__(self, parent=None, panid=None, **kwargs):
         super().__init__(parent, panid, type(self).panelCategory)
 
         self.offset = 0
@@ -2491,8 +2491,8 @@ class ImageProfilePanel(ImageViewerBase):
             checkcall=lambda: self.imgprof.profilesVisible,
             statusTip="Show or Hide the image column and row profiles")
             
-            
-        self.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)
+        if not kwargs.get('empty', False):
+            self.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)
 
 
     def emitVisibleRegionChanged(self):
