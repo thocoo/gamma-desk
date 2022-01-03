@@ -4,6 +4,7 @@ Gamma Desk interface to the DOS console
 import sys
 import logging
 import argparse
+from pathlib import Path
 
 from . import __release__, refer_shell_instance
 from . import configure, config, DOC_HTML, PROGNAME
@@ -50,6 +51,8 @@ def argexec(argv=None, **config_kwargs):
     """
     Configure and start the eventloop
     """
+    bootpath = Path('.').resolve()
+    print(f'Bootpath: {bootpath}')
     parser = argparser()
     args = parser.parse_args(argv)
 
@@ -72,18 +75,20 @@ def argexec(argv=None, **config_kwargs):
     shell = Shell()
     refer_shell_instance(shell)
     
-    watcher_ports =  shell.get_watcher_ports()   
+    watcher_ports =  shell.get_watcher_ports()
+    
+    pics = [bootpath / p for p in args.pictures]
     
     if len(watcher_ports) > 0:
         if args.pictures:
             from gdesk.core.watcher import CommandClient
-            cmd = {'cmd': 'open_images', 'args': args.pictures}
+            cmd = {'cmd': 'open_images', 'args': pics}
             cmdclient = CommandClient(watcher_ports[0], 'localhost')
             cmdclient.send(cmd)
             return
 
-    from .gcore.guiapp import eventloop
-    eventloop(shell, init_file=config['init_file'], pictures=args.pictures)
+    from .gcore.guiapp import eventloop    
+    eventloop(shell, init_file=config['init_file'], pictures=pics)
 
     return shell
 
