@@ -845,12 +845,14 @@ class ImageViewerWidget(QWidget):
                     val = self.imgdata.statarr[sy, sx]                    
                     
                     if isinstance(val, Iterable):
-                        for i, v in enumerate(val):
+                        values = list(val)
+                        ypos -= (len(values) - 1) * (fontSize + 1)
+                        for i, v in enumerate(values):
                             try:
                                 label = fmt.format(v)
                             except:
                                 label = 'invalid'
-                            qp.drawText(xpos, ypos - i * (fontSize + 1), f'{channels[i]}: {label}')    
+                            qp.drawText(xpos, ypos + i * (fontSize + 1), f'{channels[i]}: {label}')    
                     else:
                         try:
                             label = fmt.format(val)
