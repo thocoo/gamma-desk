@@ -52,6 +52,9 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.meanProfileCurve = None
         self.roiProfileCurve = None
         self.pixProfileCurve = None
+        self.grid = []
+        self.ruler = None
+        self.yAxis = None
         
     def zoomFull(self):
             
@@ -115,19 +118,20 @@ class ProfilerPanel(QtWidgets.QWidget):
     def refresh(self):
         self.removeAllItems()
 
-        self.createRuler()
-        self.createYAxis()
-        self.createGrid()                                
+        #self.createRuler()
+        #self.createYAxis()
+        #self.createGrid()                                
         
         if self.meanProfileCurve is not None:
             self.scene.addItem(self.meanProfileCurve)
+            
         if self.pixProfileCurve is not None:
             self.scene.addItem(self.pixProfileCurve)
                     
         self.view.refresh()       
         self.redrawSlices()
         self.repositionRuler()
-        self.repositionYAxis()                
+        self.repositionYAxis()               
         
         
     def removeAllItems(self):
@@ -135,6 +139,14 @@ class ProfilerPanel(QtWidgets.QWidget):
             #only need to remove top level items
             if i.parentItem() == None:
                 self.scene.removeItem(i)
+                
+        self.meanProfileCurve = None
+        self.roiProfileCurve = None
+        self.pixProfileCurve = None
+        self.grid = []
+        self.ruler = None
+        self.yAxis = None
+        
         
     def createYAxis(self):
         if not self.yAxisEnabled:
@@ -360,21 +372,25 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.grid[-1].setPen(pens[i])
             self.grid[-1].setZValue(-2)
             self.scene.addItem(self.grid[-1])                                      
-
-
         
-    def redrawSlices(self):        
-        self.scene.removeItem(self.ruler)
+    def redrawSlices(self):   
+        if not self.ruler is None:
+            self.scene.removeItem(self.ruler)
+            
         self.createRuler()        
         
-        if self.yAxis != None:
+        if not self.yAxis is None:
             self.scene.removeItem(self.yAxis)
+            
         self.createYAxis()
         
         for items in self.grid:
-            self.scene.removeItem(items)            
+            self.scene.removeItem(items) 
+            
         self.createGrid()   
 
-        
+    def resizeEvent(self, ev):    
+        self.redrawSlices()
+        self.repositionRuler()
+        self.repositionYAxis()
 
-        
