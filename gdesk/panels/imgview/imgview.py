@@ -1439,14 +1439,14 @@ class ImageViewerBase(BasePanel):
     def piorImage(self):
         if self.imviewer.imgdata.imghist.prior_length() > 0:
             arr = self.imviewer.imgdata.imghist.prior(self.ndarray)
-            self.imviewer.imgdata.sharray = None
-            self.show_array(arr)
+            #self.imviewer.imgdata.sharray = None
+            self.show_array(arr, log=False)
 
     def nextImage(self):
         if self.imviewer.imgdata.imghist.next_length() > 0:
             arr = self.imviewer.imgdata.imghist.next(self.ndarray)
-            self.imviewer.imgdata.sharray = None
-            self.show_array(arr)
+            #self.imviewer.imgdata.sharray = None
+            self.show_array(arr, log=False)
 
     #---------------------------
 
@@ -2307,10 +2307,9 @@ class ImageViewerBase(BasePanel):
 
     #############################
 
-    def show_array(self, array, zoomFitHist=False):
-        self.refresh_offset_gain(array)
+    def show_array(self, array, zoomFitHist=False, log=True):
+        self.refresh_offset_gain(array, log=log)
         self.contentChanged.emit(self.panid, zoomFitHist)
-
 
     def select(self):
         was_selected = super().select()
@@ -2320,8 +2319,8 @@ class ImageViewerBase(BasePanel):
         return was_selected
 
 
-    def refresh_offset_gain(self, array=None, zoomFitHist=False):
-        self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma)
+    def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True):
+        self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
         self.gainChanged.emit(self.panid)
         self.imviewer.refresh()
@@ -2514,8 +2513,8 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
 
 
-    def show_array(self, array, zoomFitHist=False):
-        super().show_array(array, zoomFitHist)
+    def show_array(self, array, zoomFitHist=False, log=True):
+        super().show_array(array, zoomFitHist, log=log)
         if self.imgprof.profilesVisible:
             self.imgprof.drawMeanProfile()
         else:

@@ -189,7 +189,7 @@ class ImageData(object):
     def load_by_qt(self, path):
         self.qimg = QImage(str(path))
         
-    def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1):
+    def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1, log=True):
         with gui.qapp.waitCursor():
             threadcount = config['image']['threads'] 
             use_numba = config['image']['numba'] and has_numba        
@@ -204,7 +204,7 @@ class ImageData(object):
                     # stat.clear()
                 
             else:
-                if not self.sharray is None:
+                if log and not self.sharray is None:
                     self.imghist.push(self.sharray)
                 
                 if isinstance(array, SharedArray):
