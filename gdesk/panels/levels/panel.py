@@ -62,7 +62,7 @@ class LevelPlot(QtWidgets.QWidget):
         self.create_indicator(256, QtGui.QColor(255,127,127), 'W:%0.5g', self.IndicatorWMoved)        
         
         self.curves = dict()                      
-        self.plot_curve('K', [0, 256], [0, 0])
+        self.plot_curve('K', np.array([0, 256]), np.array([0, 0]))
         #self.plot_curve('G', [-2, -1, 0 , 1, 2], [0, 0.5, 1.0, 0.5 ,0])
         #self.plot_curve('B', [-2, -1, 0 , 1, 2], [1, 1.0, 1.0, 0.25 ,0])
         

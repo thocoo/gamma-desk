@@ -1,4 +1,4 @@
-import math
+    import math
 import numpy as np
 
 from qtpy import QtCore, QtGui, QtWidgets
@@ -6,6 +6,7 @@ from qtpy import QtCore, QtGui, QtWidgets
 from ...graphics.plotview import PlotView
 from ...graphics.rulers import TickedRuler, Axis
 from ...graphics.functions import arrayToQPath
+from ...graphics.items import createCurve
 
 from ...utils.ticks import tickValues
 
@@ -43,7 +44,6 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.view.updateMatrix()
             self.setMinimumWidth(20)
                                                        
-        #self.view.matrixUpdated.connect(self.recalcSlices)
         self.view.matrixUpdated.connect(self.redrawSlices)
         self.view.matrixUpdated.connect(self.repositionRuler)        
         self.view.matrixUpdated.connect(self.repositionYAxis)
@@ -235,17 +235,15 @@ class ProfilerPanel(QtWidgets.QWidget):
         
     def createCurve(self, x, y, color=None, z=0):
         if color == None:
-            pen = QtGui.QPen(QtCore.Qt.blue, 0, QtCore.Qt.SolidLine)
-        else:
-            pen = QtGui.QPen(color, 0, QtCore.Qt.SolidLine)
-        #first create a Path        
+            color = QtCore.Qt.blue                    
                 
         if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
             if self.direction == 0:
-                path = arrayToQPath(x, y)
+                curve = createCurve(x, y, color, z, None, zero_ends=False)
             elif self.direction == 90:
-                path = arrayToQPath(y, x)
+                curve = createCurve(y, x, color, z, None, zero_ends=False)
         else:
+            #first create a Path        
             path = QtGui.QPainterPath()
         
             if self.direction == 0:
@@ -257,11 +255,13 @@ class ProfilerPanel(QtWidgets.QWidget):
                 for i in range(1, len(y)):
                     path.lineTo(y[i], x[i])
                 
-        #transform the Path to a PathItem                                    
-        curve = QtWidgets.QGraphicsPathItem(path)
-        if z != 0:
-            curve.setZValue(z)
-        curve.setPen(pen)
+            #transform the Path to a PathItem                                    
+            curve = QtWidgets.QGraphicsPathItem(path)
+            
+            if z != 0:
+                curve.setZValue(z)
+                
+            curve.setPen(pen)
         
         return curve
                         

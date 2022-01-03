@@ -1,5 +1,6 @@
 import numpy as np
 from qtpy import QtCore, QtGui, QtWidgets
+from .functions import arrayToQPath
 
 QtSignal = QtCore.Signal
 
@@ -22,26 +23,34 @@ class VectorCurve(QtWidgets.QGraphicsPathItem):
         self.yvector = yvector
 
 
-def createCurve(x, y, color=None, z=0, fill=50):
+
+def createCurve(x, y, color=None, z=0, fill=50, zero_ends=True):
     if color == None:
         pen = QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine)
-        brush = QtGui.QBrush(QtGui.QColor(0,0,0,100))
+        if not fill is None:
+            brush = QtGui.QBrush(QtGui.QColor(0,0,0,100))
         
     else:
         pen = QtGui.QPen(color, 0, QtCore.Qt.SolidLine)
-        R,G,B,A = color.toTuple()
-        brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))
+        R,G,B,A = QtGui.QColor(color).toTuple()
+        if not fill is None:
+            brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))
         
     #first create a Path
-    path = QtGui.QPainterPath()
+    # path = QtGui.QPainterPath()
     
-    path.moveTo(x[0], 0)    
-    path.lineTo(x[0], y[0])
+    # path.moveTo(x[0], 0)    
+    # path.lineTo(x[0], y[0])
     
-    for i in range(1, len(y)):
-        path.lineTo(x[i], y[i]) 
+    # for i in range(1, len(y)):
+        # path.lineTo(x[i], y[i]) 
         
-    path.lineTo(x[-1], 0)    
+    # path.lineTo(x[-1], 0) 
+
+    if zero_ends:
+        path = arrayToQPath(np.r_[x[0], x, x[-1]], np.r_[0, y, 0])    
+    else:
+        path = arrayToQPath(x, y)    
             
     #transform the Path to a PathItem                                    
     #curve = QtWidgets.QGraphicsPathItem(path)
@@ -50,7 +59,9 @@ def createCurve(x, y, color=None, z=0, fill=50):
         curve.setZValue(z)
         
     curve.setPen(pen)
-    curve.setBrush(brush)
+    
+    if not fill is None:
+        curve.setBrush(brush)
     
     return curve
     
