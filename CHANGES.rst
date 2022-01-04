@@ -12,7 +12,21 @@ date: 2021-11-29
 - Display pixel value labels on pixels on large zooms
 - Fix of swap of channels on bayer split
 - Support Matplotlib 3.5
+- Delay plot panel creation if not interactive
 - Improved behavior of histograms for doubles
+- Add support for more image types
+
+ - uint32
+ - int8
+ - int16
+ - int32
+ 
+- Add operation menu
+- Add opencv menu
+- Split image viewier status panel into multiple panels
+- Customizable panel size at init
+- Improved panel resize behavior of histograms and profiles
+- Add test image
 - Various bug fixes
 
 
