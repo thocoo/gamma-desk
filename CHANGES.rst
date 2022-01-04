@@ -1,7 +1,7 @@
 v0.2.0
 ------
 
-date: 2021-11-29
+date: 2022-01-04
 
 - add read_raw to gui.img
 - keep numpy at 1.20.3 (numba doesn't support numpy > 1.20)
