@@ -24,8 +24,6 @@ class ConsoleGuiProxy(GuiProxyBase):
     @StaticGuiCall
     def console(pandid=None, consoletype='thread'):
         """
-        Select or create an image panel with id image_id or auto id
-        Returns the shared array of the panel and the id.
         
         :param str consoletype: 'main', 'thread', 'child', 'child-thread', 'process'
         """        
