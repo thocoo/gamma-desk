@@ -2,6 +2,7 @@
 Gamma Desk interface to the DOS console
 """
 import sys
+import os
 import logging
 import argparse
 from pathlib import Path
@@ -124,6 +125,14 @@ def is_imported_by_child_process():
 
     return False
 
+def restart():
+    # in case of started with -m gdesk and extra arguments
+    # sys.argv:  # ['c:\\users\\thomas.cools\\projects\\gamma-desk\\git\\gdesk\\__main__.py', '-c', '..\\setup\\gdconf.json']
+    # in case of started with \scripts\gdesk.exe and extra arguments
+    # ['C:\\Users\\thomas.cools\\AppData\\Local\\Programs\\Python\\venv\\os10a10\\Scripts\\gdesk', '-c', '../setup/gdconf.json']
+    #
+    extra_arguments = sys.argv[1:]
+    os.execlp(sys.executable, 'python', '-m', 'gdesk', *extra_arguments)
 
 if is_imported_by_child_process():
     configure(qapp=True)

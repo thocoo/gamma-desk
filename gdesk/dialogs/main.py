@@ -14,6 +14,7 @@ from qtpy.QtCore import Qt
 
 from .. import config, gui, __release__, PROGNAME, DOC_HTML
 from ..core import conf
+from ..console import restart
 
 from .about import AboutScreen
 from ..panels.base import BasePanel
@@ -311,7 +312,8 @@ class MainDialog(QtWidgets.QMainWindow):
         self.showMinimized()
 
     def restart(self):
-        os.execlp(sys.executable, 'python', '-m', 'gdesk')
+        restart()
+        #os.execlp(sys.executable, 'python', '-m', 'gdesk')
 
     def showConfig(self):
         dt = DictionaryTreeDialog(config)
