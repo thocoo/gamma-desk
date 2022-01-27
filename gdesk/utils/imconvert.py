@@ -1,7 +1,8 @@
 import numpy as np
 
-from qtpy import PYSIDE, PYSIDE2, PYQT4, PYQT5
 from qtpy import QtGui, QtCore
+
+from gdesk.utils.qt import using_pyside, using_pyqt
 
 from .shared import SharedArray
 
@@ -86,12 +87,6 @@ turbo_colormap_data = [
     [0.57103,0.04474,0.00529],[0.55852,0.04028,0.00579],[0.54583,0.03593,0.00638],[0.53295,0.03169,0.00705],
     [0.51989,0.02756,0.00780],[0.50664,0.02354,0.00863],[0.49321,0.01963,0.00955],[0.47960,0.01583,0.01055]]
 # The look-up table contains 256 entries. Each entry is a floating point sRGB triplet.
-
-def using_pyside():
-    return PYSIDE or PYSIDE2
-    
-def using_pyqt():
-    return PYQT4 or PYQT5
     
 def natural_range(dtype):
     if dtype in ['uint8', 'int8']:

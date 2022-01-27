@@ -3,13 +3,8 @@ import ctypes.wintypes
 from pathlib import Path
 
 from qtpy import QtCore, QtGui, QtWidgets
-from qtpy import PYSIDE, PYSIDE2, PYQT4, PYQT5
-
-def using_pyside():
-    return PYSIDE or PYSIDE2
     
-def using_pyqt():
-    return PYQT4 or PYQT5
+from gdesk.utils.qt import using_pyside, using_pyqt    
 
 LASTMAP = None
     
