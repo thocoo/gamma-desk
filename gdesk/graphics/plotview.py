@@ -1,10 +1,17 @@
-from qtpy import QtCore, QtGui, QtOpenGL, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
+
+try:
+    #Only needed for experimental OpenQl support
+    from qtpy import QtOpenGl
+    HAVE_OPENGL = True
+    
+except:
+    HAVE_OPENGL = False   
+    
 from .point import Point
 from . import functions as fn
 
 QtSignal = QtCore.Signal
-
-HAVE_OPENGL = True
 
 class PlotView(QtWidgets.QGraphicsView):
 
