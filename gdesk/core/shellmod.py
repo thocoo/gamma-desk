@@ -53,6 +53,7 @@ class Shell(object):
         self.comp = Completer(self.wsdict)
         self.interpreters = dict()
         self.logdir = LogDir(config['path_log'])    
+        self.bootpath = Path('.').resolve()
         
     def redirect_stdout(self):
         if not config['debug']['skip_main_stdout_redirect']:
