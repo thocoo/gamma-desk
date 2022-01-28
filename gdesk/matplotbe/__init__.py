@@ -242,8 +242,7 @@ class FigureManagerGh2(FigureManagerBase):
         if gui.valid():
             if self.panel is None:
                 width, height = self.canvas.figure.get_dpi() * self.canvas.figure.get_size_inches()
-                self.panel = gui.guivvhughrbitnucfkvbndehfdjjkrvnrfguuvggbcfhbce
-                _call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None,
+                self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None,
                     size=[width, height], args=(self.canvas,))
             gui.gui_call(PlotPanel.show_me, self.panel)
             gui.gui_call(PlotPanel.refresh, self.panel)
