@@ -479,5 +479,9 @@ class Shell(object):
         manager.path.extend(new_live_paths)
         print(f'The new live paths are {manager.path}')
         
+    @staticmethod
+    def reload_scripts():
+        manager.update_now(True)
+        
         
     

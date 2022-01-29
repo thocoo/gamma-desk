@@ -778,6 +778,11 @@ class Console(BasePanel):
             statusTip="Edit the search path used to import user live scripts",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'script_gear.png')))
 
+        self.addMenuItem(scripMenu, 'Reload Scripts', self.reloadScripts,
+            statusTip="Reload all the scripts",
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')))
+            
+
         self.addBaseMenu()
 
     def createStatusBar(self):
@@ -897,6 +902,9 @@ class Console(BasePanel):
             result = task.call_func(Shell.set_live_paths, args=(paths,))
 
         result = task.call_func(Shell.get_live_paths, callback=callback)
+        
+    def reloadScripts(self):
+        self.stdio.task.call_func(Shell.reload_scripts)
         
     def setLogLevel(self, level):
         task = self.stdio.task
