@@ -28,7 +28,7 @@ REQUIRED = [
     'matplotlib',
     'scipy',
     'PySide2',
-    'qtpy==1.9.0',
+    'qtpy',
     'psutil',
     'numba',
     'pyzmq',
