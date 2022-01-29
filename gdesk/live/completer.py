@@ -32,6 +32,7 @@ Notes:
 import atexit
 import builtins
 import __main__
+from .manage import LiveScriptScan, LiveScriptTree
 
 __all__ = ["Completer"]
 
@@ -230,10 +231,12 @@ class Completer:
                 elif (word[:n] == attr and
                     not (noprefix and word[:n+1] == noprefix)):
                     match = "%s.%s" % (expr, word)
-                    if is_property(expr, word):
+                    if is_property(thisobject, word):
                         #Don't do getattr on the property
                         #It would call the getter, which can start executing code
                         #Which can be anyoing
+                        pass
+                    elif isinstance(thisobject, (LiveScriptScan, LiveScriptTree)):
                         pass
                     else:
                         try:
