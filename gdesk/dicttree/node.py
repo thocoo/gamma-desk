@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from PySide2 import QtGui, QtCore, QtXml
-
 
 class Node(object):
 
@@ -43,26 +41,6 @@ class Node(object):
                     keyvalued[key] = value.fget(self)
         return keyvalued
 
-    def to_xml(self):
-        doc = QtXml.QDomDocument()
-        node = doc.createElement(self.typeInfo())
-        doc.appendChild(node)
-
-        for i in self._children:
-            i._recurseXml(doc, node)
-
-        return doc.toString(indent=4)
-
-    def _recurse_xml(self, doc, parent):
-        node = doc.createElement(self.typeInfo())
-        parent.appendChild(node)
-        attrs = self.attrs().iteritems()
-
-        for k, v in attrs:
-            node.setAttribute(k, v)
-
-        for child in self._children:
-            child._recurse_xml(doc, node)
 
     def to_list(self):
         output = []
@@ -97,9 +75,12 @@ class Node(object):
     def value():
         def fget(self):
             return self._value
+            
         def fset(self, value):
             self._value = value
+            
         return locals()
+        
     value = property(**value())
 
     def child(self, row):

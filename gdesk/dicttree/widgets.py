@@ -31,8 +31,20 @@ class DictionaryTreeModel(QtCore.QAbstractItemModel):
 
         node = index.internalPointer()
 
-        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-            return node.data(index.column())
+        if role == QtCore.Qt.DisplayRole: 
+            data = node.data(index.column())
+            return str(data)
+            
+        elif role == QtCore.Qt.EditRole:
+            data = node.data(index.column())
+            return data
+            
+        elif role == QtCore.Qt.CheckStateRole:
+            if index.column() == 1 and isinstance(node.value, bool):
+                if node.value:
+                    return QtCore.Qt.Checked
+                else:
+                    return QtCore.Qt.Unchecked            
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """this method gets called when the user changes data"""
@@ -41,7 +53,27 @@ class DictionaryTreeModel(QtCore.QAbstractItemModel):
                 node = index.internalPointer()
                 node.setData(index.column(), value)
                 return True
+                
+            elif role == QtCore.Qt.CheckStateRole:
+                node = index.internalPointer()
+                if isinstance(node.value, bool):
+                    node.setData(index.column(), not node.value)
+                    self.dataChanged.emit(index, index)
+                return True
+                
         return False
+        
+    def flags(self, index):
+        flags = (QtCore.Qt.ItemIsEnabled |
+                QtCore.Qt.ItemIsSelectable |
+                QtCore.Qt.ItemIsEditable)
+        
+        if index.column() == 1:
+            node = index.internalPointer()
+            if isinstance(node.value, bool):
+                flags |= QtCore.Qt.ItemIsUserCheckable
+            
+        return flags        
 
     def headerData(self, section, orientation, role):
         """returns the name of the requested column"""
@@ -51,11 +83,11 @@ class DictionaryTreeModel(QtCore.QAbstractItemModel):
             if section == 1:
                 return "Value"
 
-    def flags(self, index):
-        """everything is editable"""
-        return (QtCore.Qt.ItemIsEnabled |
-                QtCore.Qt.ItemIsSelectable |
-                QtCore.Qt.ItemIsEditable)
+    # def flags(self, index):
+        # """everything is editable"""
+        # return (QtCore.Qt.ItemIsEnabled |
+                # QtCore.Qt.ItemIsSelectable |
+                # QtCore.Qt.ItemIsEditable)
 
     def parent(self, index):
         """returns the parent from given index"""
@@ -131,7 +163,7 @@ def node_structure_from_dict(datadict, parent=None, root_node=None):
         if isinstance(data, (dict, list)):
             node = node_structure_from_dict(data, node, root_node)
         else:
-            node.value = str(data)
+            node.value = data
 
     return root_node
 
@@ -151,6 +183,7 @@ class DictionaryTreeWidget(QtWidgets.QTreeView):
     def __init__(self, d):
         super(DictionaryTreeWidget, self).__init__()
         self.load_dictionary(d)
+        
     def load_dictionary(self,d):
         """load a dictionary into my tree applicatoin"""
         self._d = d
