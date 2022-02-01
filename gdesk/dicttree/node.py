@@ -51,7 +51,8 @@ class Node(object):
             output += [self.name, self.value]
         return output
 
-    def to_dict(self, d={}):
+    def to_dict(self):
+        d = dict()
         for child in self._children:
             child._recurse_dict(d)
         return d
