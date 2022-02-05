@@ -194,10 +194,15 @@ class StdInputPanel(QPlainTextEdit):
             (event.key() == Qt.Key_Enter)
 
         #left or right shift
-        modifiers = event.nativeModifiers()
-        key_shift = modifiers & 1 == 1 or  modifiers & 16 == 16
+        # modifiers = event.nativeModifiers()
+        modifiers = event.modifiers()
+        
+        #key_shift = modifiers & 1 == 1 or  modifiers & 16 == 16
+        key_shift = modifiers & Qt.ShiftModifier == Qt.ShiftModifier
+        
         #left or right ctrl
-        key_ctrl = modifiers & 2 == 2 or modifiers & 32 == 32
+        #key_ctrl = modifiers & 2 == 2 or modifiers & 32 == 32
+        key_ctrl = modifiers & Qt.ControlModifier == Qt.ControlModifier
 
         if not event.key() in [Qt.Key_Up, Qt.Key_Down]:
             self.prior_cmd_id = None
