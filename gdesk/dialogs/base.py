@@ -1,3 +1,4 @@
+import sys
 import ctypes
 import ctypes.wintypes
 from pathlib import Path
@@ -7,25 +8,35 @@ from qtpy import QtCore, QtGui, QtWidgets
 from gdesk.utils.qt import using_pyside, using_pyqt    
 
 LASTMAP = None
+
+if sys.platform == 'win32':
     
-class LASTINPUTINFO(ctypes.Structure):
-    
-    _fields_ = [
-      ('cbSize', ctypes.wintypes.UINT),
-      ('dwTime', ctypes.wintypes.DWORD),
-      ]
+    class LASTINPUTINFO(ctypes.Structure):
+        
+        _fields_ = [
+          ('cbSize', ctypes.wintypes.UINT),
+          ('dwTime', ctypes.wintypes.DWORD),
+          ]
 
-PLASTINPUTINFO = ctypes.POINTER(LASTINPUTINFO)
+    PLASTINPUTINFO = ctypes.POINTER(LASTINPUTINFO)
 
-GetLastInputInfo = ctypes.windll.user32.GetLastInputInfo
-GetLastInputInfo.restype = ctypes.wintypes.BOOL
-GetLastInputInfo.argtypes = [PLASTINPUTINFO]
+    GetLastInputInfo = ctypes.windll.user32.GetLastInputInfo
+    GetLastInputInfo.restype = ctypes.wintypes.BOOL
+    GetLastInputInfo.argtypes = [PLASTINPUTINFO]
 
-def get_last_input_moment():
-    liinfo = LASTINPUTINFO()
-    liinfo.cbSize = ctypes.sizeof(liinfo)
-    GetLastInputInfo(ctypes.byref(liinfo))
-    return liinfo.dwTime
+    def get_last_input_moment():
+        liinfo = LASTINPUTINFO()
+        liinfo.cbSize = ctypes.sizeof(liinfo)
+        GetLastInputInfo(ctypes.byref(liinfo))
+        return liinfo.dwTime
+
+elif sys.platform == 'linux':
+
+    def get_last_input_moment():
+        return -1
+        
+else:
+    ImportError(f'Platform {sys.platform} not suported')
 
 class ExecTimeout:
     def __init__(self, dialog, timeout=None):  
