@@ -9,9 +9,6 @@ import struct
 import threading
 import psutil
 
-from multiprocessing.connection import Pipe
-from multiprocessing.reduction import duplicate
-
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtWidgets import QApplication, QShortcut, QDesktopWidget
 from qtpy.QtGui import QIcon, QKeySequence
