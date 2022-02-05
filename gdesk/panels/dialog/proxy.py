@@ -8,6 +8,7 @@ if config.get('qapp', False):
     from qtpy import QtWidgets
     from ...dialogs import formlayout    
     from ...dialogs import base as dialogs
+    from ...dicttree.widgets import DictionaryTreeDialog
     
 from ...core.gui_proxy import gui, GuiProxyBase, StaticGuiCall
       
@@ -33,6 +34,7 @@ class DialogGuiProxy(GuiProxyBase):
         gui.putfilename = self.putfilename
         gui.filterlist = self.filterlist       
         gui.fedit = self.fedit       
+        gui.dedit = self.dedit       
                 
     @StaticGuiCall
     def msgbox(message, title = '', icon = 'none'):
@@ -296,4 +298,10 @@ class DialogGuiProxy(GuiProxyBase):
               * the other elements can be couples (key, value) or only values
         """    
         return formlayout.fedit(*args, **kwargs)         
-                        
+        
+    @StaticGuiCall
+    def dedit(*args, **kwargs):
+        dt = DictionaryTreeDialog(*args, **kwargs)
+        dt.edit()
+        return dt.to_dict()
+        
