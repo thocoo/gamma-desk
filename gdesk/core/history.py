@@ -1,14 +1,15 @@
+import sys
 import sqlite3
 import time
 import shutil
 from pathlib import Path
 
-try:
+if sys.platform == 'win32':
     import msvcrt
-
-except ModuleNotFoundError:
-    #Not on Linux
-    pass
+    locking = msvcrt.locking
+    
+else:
+    locking = lambda x, y, z: None
 
 from .conf import config
 
@@ -31,7 +32,7 @@ class LogDir(object):
         self.lock_file = lock_file
         self.lock_file.touch()
         self.lock_file_ptr = open(str(self.lock_file), 'r')
-        msvcrt.locking(self.lock_file_ptr.fileno(), msvcrt.LK_RLCK, 1024)
+        locking(self.lock_file_ptr.fileno(), msvcrt.LK_RLCK, 1024)
         
     def release_lock_file(self):
         """
@@ -40,7 +41,7 @@ class LogDir(object):
         When this process dies, the lock is removed by windows but the
         file is not removed.
         """    
-        msvcrt.locking(self.lock_file_ptr.fileno(), msvcrt.LK_UNLCK, 1024)
+        locking(self.lock_file_ptr.fileno(), msvcrt.LK_UNLCK, 1024)
         self.lock_file_ptr.close()
         self.lock_file.unlink()
         
