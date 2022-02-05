@@ -4,12 +4,25 @@
 # A SharedArray can be send of multiprocessing queues
 # Pickles only the mmap, tagname, sizes, ... but not the buffer.
 
-import numpy as np
-import os, time
-
-import mmap, _winapi
+import os
+import sys
+import time
+import mmap
 import tempfile
-        
+
+import numpy as np
+
+if sys.platform == 'win32':
+    import _winapi
+    get_last_error = _winapi.GetLastError
+    ERROR_ALREADY_EXISTS = _winapi.ERROR_ALREADY_EXISTS
+
+elif sys.platform == 'linux':
+    get_last_error = lambda : 0
+    ERROR_ALREADY_EXISTS = 0
+    
+else:
+    raise ImportError(f'platform {sys.platform} not supported')
 
 class SharedArray:
     """
@@ -28,7 +41,7 @@ class SharedArray:
         for i in range(100):
             name = 'pym-%d-%s' % (os.getpid(), next(self._rand))
             buf = mmap.mmap(-1, self.bytesize, name)
-            if _winapi.GetLastError() == 0:
+            if get_last_error() == 0:
                 break
             # We have reopened a preexisting mmap.
             buf.close()
@@ -63,7 +76,7 @@ class SharedArray:
     def __setstate__(self, state):    
         self.name, self.dtype, self.shape = self._state = state             
         self.base = mmap.mmap(-1, self.bytesize, self.name)
-        assert _winapi.GetLastError() == _winapi.ERROR_ALREADY_EXISTS
+        assert get_last_error() == ERROR_ALREADY_EXISTS
         self._ndarray = None
         
     def _as_ndarray(self):
