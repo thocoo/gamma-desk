@@ -20,7 +20,6 @@ from ..core.history import History
 from ..core.watcher import CommandServer
 
 from ..utils import new_id_using_keys
-from ..utils.namedmutex import NamedMutex
 
 from .qgc import QGarbageCollector
 from .threadcom import HandOver
