@@ -197,11 +197,7 @@ class ImageData(object):
         
             if array is None:
                 #offset and gain adjust of current viewer
-                array = self.sharray
-                shape = array.shape
-                dtype = array.dtype            
-                # for stat in self.chanstats.values():
-                    # stat.clear()
+                pass
                 
             else:
                 if log and not self.sharray is None:
@@ -222,41 +218,44 @@ class ImageData(object):
                     
                 if len(shape) == 2:
                     self.chanstats['K'] = ImageStatistics()
-                    self.chanstats['K'].attach_arr2d(self.sharray.ndarray)
+                    self.chanstats['K'].attach_arr2d(self.statarr)
                     self.chanstats['RK'] = ImageStatistics()
                     self.update_roi_statistics()
                 else:
                     self.chanstats['R'] = ImageStatistics()
                     self.chanstats['G'] = ImageStatistics()
                     self.chanstats['B'] = ImageStatistics()
-                    self.chanstats['R'].attach_arr2d(self.sharray.ndarray[:,:,0])
-                    self.chanstats['G'].attach_arr2d(self.sharray.ndarray[:,:,1])
-                    self.chanstats['B'].attach_arr2d(self.sharray.ndarray[:,:,2])                   
+                    self.chanstats['R'].attach_arr2d(self.statarr[:,:,0])
+                    self.chanstats['G'].attach_arr2d(self.statarr[:,:,1])
+                    self.chanstats['B'].attach_arr2d(self.statarr[:,:,2])                   
                     self.chanstats['RR'] = ImageStatistics()
                     self.chanstats['RG'] = ImageStatistics()
                     self.chanstats['RB'] = ImageStatistics()
                     self.update_roi_statistics()
                     
-            height, width, *ignore = shape
-            self.height, self.width = height, width
+                self.height, self.width = shape[:2]
                 
             if self.selroi.isfullrange():
-                self.selroi.xr.maxstop = width
-                self.selroi.yr.maxstop = height
+                self.selroi.xr.maxstop = self.width
+                self.selroi.yr.maxstop = self.height
                 self.selroi.reset()
             else:
-                self.selroi.xr.maxstop = width
-                self.selroi.yr.maxstop = height
+                self.selroi.xr.maxstop = self.width
+                self.selroi.yr.maxstop = self.height
                 self.selroi.clip()
                    
-            natrange = imconvert.natural_range(self.sharray.dtype)                   
+            natrange = imconvert.natural_range(self.statarr.dtype)                   
             gain = natrange / (white - black)
             self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
-                self.sharray.ndarray, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
+                self.statarr, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
                 gamma=gamma)
+                
+    @property
+    def statarr(self):
+        return self.sharray.ndarray                  
         
     def get_natural_range(self):
-        return imconvert.natural_range(self.sharray.dtype)
+        return imconvert.natural_range(self.statarr.dtype)
         
     def set_mask(self, array=None, composition='sourceover'):
         self.set_layer('mask', array, composition)        
@@ -289,11 +288,11 @@ class ImageData(object):
             
         for clr, chanstat in self.chanstats.items():  
             if not clr in clr_slices.keys(): continue
-            chanstat.attach_arr2d(self.sharray[clr_slices[clr]])
+            chanstat.attach_arr2d(self.statarr[clr_slices[clr]])
 
     def update_array8bit_by_slices(self, slices):
         def takemap(source_slice, target_slice):
-            self.array8bit[target_slice] = np.take(self.map8, self.sharray.ndarray[source_slice])
+            self.array8bit[target_slice] = np.take(self.map8, self.statarr[source_slice])
         
         threads = []
         for (source_slice,  target_slice) in slices:
@@ -303,15 +302,11 @@ class ImageData(object):
             thread.start()
             
         for thread in threads:
-            thread.join()   
-    
-    @property
-    def statarr(self):
-        return self.sharray.ndarray          
+            thread.join()               
         
     def get_number_of_bytes(self): 
         nbytes = 0
-        nbytes += self.sharray.ndarray.nbytes
+        nbytes += self.statarr.nbytes
         nbytes += self.array8bit.nbytes
         return nbytes
         

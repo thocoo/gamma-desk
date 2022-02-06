@@ -91,7 +91,7 @@ class ImageGuiProxy(GuiProxyBase):
         
         if config['image']['queue_array_shared_mem']:
             sharr = SharedArray(array.shape, array.dtype)
-            sharr[:] = array          
+            sharr[:] = array
             return ImageGuiProxy.show_array(sharr, cmap)
                 
         else:

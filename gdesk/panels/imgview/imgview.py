@@ -1441,13 +1441,11 @@ class ImageViewerBase(BasePanel):
     def piorImage(self):
         if self.imviewer.imgdata.imghist.prior_length() > 0:
             arr = self.imviewer.imgdata.imghist.prior(self.ndarray)
-            #self.imviewer.imgdata.sharray = None
             self.show_array(arr, log=False)
 
     def nextImage(self):
         if self.imviewer.imgdata.imghist.next_length() > 0:
             arr = self.imviewer.imgdata.imghist.next(self.ndarray)
-            #self.imviewer.imgdata.sharray = None
             self.show_array(arr, log=False)
 
     #---------------------------
