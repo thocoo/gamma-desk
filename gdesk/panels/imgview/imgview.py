@@ -2331,7 +2331,7 @@ class ImageViewerBase(BasePanel):
         
     @property
     def srcarray(self):
-        return self.imviewer.imgdata.array        
+        return self.imviewer.imgdata.array
 
 
 class ImageViewer(ImageViewerBase):
@@ -2467,6 +2467,10 @@ class ImageProfileWidget(QWidget):
         if self.rowPanel.view.auto_zoom:
             self.rowPanel.zoomFit()
         self.rowPanel.view.refresh()
+        
+    @property
+    def ndarray(self):
+        return self.imviewer.imgdata.statarr
 
 
 class ImageProfilePanel(ImageViewerBase):
