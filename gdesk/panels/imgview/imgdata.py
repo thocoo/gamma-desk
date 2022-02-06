@@ -176,7 +176,7 @@ class ImageData(object):
     def __init__(self):
         self.qimg = None
         self.map8 = None
-        self.sharray = None
+        self.array = None
         self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
         arr = np.ones((1,1),'uint8') * 128
@@ -200,23 +200,13 @@ class ImageData(object):
                 pass
                 
             else:
-                if log and not self.sharray is None:
-                    self.imghist.push(self.sharray)
+                if log and not self.array is None:
+                    self.imghist.push(self.array)
                 
-                if isinstance(array, SharedArray):
-                    self.sharray = array            
-                    shape = array.shape
-                    dtype = array.dtype                           
-                    
-                else:
-                    shape = array.shape
-                    dtype = array.dtype
-                    self.sharray = SharedArray(shape, dtype)
-                    self.sharray[:] = array   
-
+                self.array = array                    
                 self.chanstats.clear()
                     
-                if len(shape) == 2:
+                if len(self.shape) == 2:
                     self.chanstats['K'] = ImageStatistics()
                     self.chanstats['K'].attach_arr2d(self.statarr)
                     self.chanstats['RK'] = ImageStatistics()
@@ -232,8 +222,6 @@ class ImageData(object):
                     self.chanstats['RG'] = ImageStatistics()
                     self.chanstats['RB'] = ImageStatistics()
                     self.update_roi_statistics()
-                    
-                self.height, self.width = shape[:2]
                 
             if self.selroi.isfullrange():
                 self.selroi.xr.maxstop = self.width
@@ -249,10 +237,26 @@ class ImageData(object):
             self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
                 self.statarr, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
                 gamma=gamma)
-                
-    @property
+    
+    @property    
     def statarr(self):
-        return self.sharray.ndarray                  
+        if isinstance(self.array, SharedArray):
+            return self.array.ndarray            
+        else:
+            return self.array
+            
+    @property
+    def shape(self):
+        return self.statarr.shape            
+             
+    @property
+    def height(self):
+        return self.shape[0]
+        
+    @property
+    def width(self):
+        return self.shape[1]        
+        
         
     def get_natural_range(self):
         return imconvert.natural_range(self.statarr.dtype)

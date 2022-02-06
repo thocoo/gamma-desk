@@ -89,13 +89,22 @@ class ImageGuiProxy(GuiProxyBase):
         :param str cmap: 'grey', 'jet' or 'turbo'
         """
         
-        if config['image']['queue_array_shared_mem']:
-            sharr = SharedArray(array.shape, array.dtype)
-            sharr[:] = array
-            return ImageGuiProxy.show_array(sharr, cmap)
-                
+        if config['image']['queue_array_shared_mem']:            
+            if self.current_image_is_shared():
+                current_array = self.get_image_view_source()
+                if current_array.shape == array.shape and current_array.dtype == array.dtype:
+                    current_array[:] = array
+                    return ImageGuiProxy.show_array(None, cmap)
+                else:
+                    sharray = SharedArray(array.shape, array.dtype)
+                    sharray[:] = array                
+                    return ImageGuiProxy.show_array(sharray, cmap)
+            else:            
+                sharray = SharedArray(array.shape, array.dtype)
+                sharray[:] = array                
+                return ImageGuiProxy.show_array(sharray, cmap)                
         else:
-            return ImageGuiProxy.show_array(array, cmap)
+            return ImageGuiProxy.show_array(array.copy(), cmap)
 
     @StaticGuiCall
     def show_array(array=None, cmap=None):
@@ -122,12 +131,12 @@ class ImageGuiProxy(GuiProxyBase):
         
     @property    
     def vs(self):
-        shared = config['image']['queue_array_shared_mem']
-        
-        if shared:
-            return self.get_image_view_source(True).ndarray
+        array = self.get_image_view_source()
+        if isinstance(array, SharedArray):
+            return array.ndarray            
+            
         else:
-            return self.get_image_view_source(False)
+            return array
         
     @property    
     def vr(self):
@@ -138,14 +147,16 @@ class ImageGuiProxy(GuiProxyBase):
         return self.get_image_view_buffer()         
         
     @StaticGuiCall
-    def get_image_view_source(shared=True):            
+    def get_image_view_source():            
         panel = gui.qapp.panels.selected('image')
-        if panel is None: return
-        
-        if shared:
-            return panel.sharray
-        else:
-            return panel.sharray.ndarray
+        if panel is None: return        
+        return panel.srcarray
+    
+    @StaticGuiCall    
+    def current_image_is_shared():
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return        
+        return isinstance(panel.srcarray, SharedArray)
         
     def get_image_view_region(self):
         slices =  self.get_roi_slices()

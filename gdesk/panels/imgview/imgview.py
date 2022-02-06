@@ -2012,8 +2012,8 @@ class ImageViewerBase(BasePanel):
 
 
     def resize(self):
-        source = self.sharray.ndarray
-        shape = self.sharray.shape
+        source = self.ndarray
+        shape = self.ndarray.shape
 
         form = [("width", shape[1]), ("height", shape[0]), ("order", 1)]
         results = fedit(form)
@@ -2325,15 +2325,13 @@ class ImageViewerBase(BasePanel):
         self.gainChanged.emit(self.panid)
         self.imviewer.refresh()
 
-
     @property
     def ndarray(self):
-        return self.sharray.ndarray
-
-
+        return self.imviewer.imgdata.statarr
+        
     @property
-    def sharray(self):
-        return self.imviewer.imgdata.sharray
+    def srcarray(self):
+        return self.imviewer.imgdata.array        
 
 
 class ImageViewer(ImageViewerBase):
@@ -2436,8 +2434,8 @@ class ImageProfileWidget(QWidget):
         self.refresh_profile_views()
 
 
-    def drawMeanProfile(self):
-        arr = self.imviewer.imgdata.sharray.ndarray
+    def drawMeanProfile(self):       
+        arr = self.ndarray
 
         if arr.ndim > 2:
             arr = arr.mean(2)
