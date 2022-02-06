@@ -1,0 +1,470 @@
+{
+  "path_log": "$USER/AppData/Local/Gamma-Desk",
+  "max_log_paths": 10,
+  "path_config_files": ["$USER/AppData/Local/Gamma-Desk/gdconf.json", "gdconf.json"],
+  "save_config_file": "gdconf.json",
+  "init_file": null,
+  "init_command": {"cmd": null, "args": []},
+  "zmq_watcher_min_port": 5550,
+  "zmq_watcher_max_port": 5560,
+  "zmq_queue_min_port": 5560,
+  "zmq_queue_max_port": 5600,
+  "watcher_port": 5998,
+  "path_imageio_freeimage_lib": null,
+  "solo": false,
+  "panic": false,
+  "scroll_area": false,
+  "hide_solo_panel": true,
+  "debug": {
+    "skip_restore_perspective": false,
+    "skip_main_stdout_redirect": false,
+    "skip_main_stderr_redirect": false,
+    "place select button": false,
+    "list_packages": true
+  },
+  "console": {
+    "fontsize": 8,
+    "wrap": false,
+    "maxblockcount": 20000,
+    "completer": "key",
+    "max_complete": 2000,
+    "redbull": 300
+  },
+  "image": {
+    "threads": 8,
+    "numba": true,
+    "render_detail_hq": false,
+    "render_detail_smooth": true,
+	"bind_zoom_absolute": true,
+    "queue_array_shared_mem": false,
+    "qimg_shared_mem": false,
+    "history_size": 500e6
+  },
+  "levels": {
+    "numba": true,
+    "relative": false,
+    "hist_size_policy": "bins",
+    "bins": 64,
+    "step": 4
+  },
+  "qapp": false,
+  "sphinx": false,
+  "stdoutmode": "ansi",
+  "respath": "$GDESKROOT/resources",
+  "qt_api": "pyside2",
+  "path_channel_script": "$GDESKROOT/external/scripts/connect_from_canvas.py",
+  "path_channel_ini": "$GDESKROOT/external/scripts/connect.ini",
+  "logging_level": "INFO",
+  "logging_level_console": "WARNING",
+  "logging_level_logfile": "DEBUG",
+  "system info period": 1000,
+  "texteditor": "C:\\Program Files\\Notepad++\\notepad++.exe",
+  "dbbrowser": "C:\\Program Files\\DB Browser for SQLite\\DB Browser for SQLite.exe",
+  "image background": [
+    58,
+    110,
+    165
+  ],
+  "roi color": [255,0,0],
+  "image color map": "grey",
+  "matplotlib": {
+    "backend": "module://gdesk.matplotbe"
+  },
+  "shortcutmenu": {
+    "Ctrl+Shift+N": {"image": ["File", "New..."]},
+    "Ctrl+Shift+D": {"image": ["File", "Duplicate"]},
+    "Ctrl+O": {"image": ["File", "Open Image..."],
+               "console": ["File", "Open File"]},
+    "Ctrl+W": {"image":   ["File", "Close"],
+               "console": ["File", "Close"],
+               "levels":  ["File", "Close"],
+               "plot":    ["File", "Close"],
+               "cmdhist": ["File", "Close"],
+               "html":    ["File", "Close"],
+               "scriptwiz":  ["File", "Close"]},
+    "Ctrl+Shift+[": {"image": ["Edit", "Show Prior Image"]},
+    "Ctrl+Shift+]": {"image": ["Edit", "Show Next Image"]},
+    "Ctrl+Alt+1": {"image": ["View", "Gain to Sigma", "Gain to Sigma 1"]},
+    "Ctrl+Alt+2": {"image": ["View", "Gain to Sigma", "Gain to Sigma 2"]},
+    "Ctrl+Alt+3": {"image": ["View", "Gain to Sigma", "Gain to Sigma 3"]},
+    "F5": {"image": ["View", "Refresh"],
+           "plot": ["View", "Refresh"]},
+    "Ctrl++": {"image": ["View", "Zoom In"]},
+    "Ctrl+-": {"image": ["View", "Zoom Out"]},
+    "Ctrl+0": {"image": ["View", "Zoom", "Zoom Auto"]},
+    "Ctrl+1": {"image": ["View", "Default Offset & Gain"]},
+    "Ctrl+G": {"image": ["View", "Offset & Gain..."],
+	           "plot": ["View", "Grid"]},
+    "Ctrl+T": {"plot": ["View", "Tight"]},
+    "Ctrl+I": {"plot": ["View", "Interactive"]},
+    "Ctrl+B": {"image": ["View", "Black & White..."]},
+    "Ctrl+Shift+H": {"image": ["View", "HQ Zoom Out"]},
+    "Ctrl+Shift+A": {"image": ["Select", "Select Full Image"]},
+    "Ctrl+D": {"image": ["Select", "Deselect"]},
+    "Ctrl+J": {"image": ["Select", "Jump to Coordinates"]},
+    "Ctrl+Shift+X": {"image": ["Canvas", "Crop on Selection"]},
+    "Ctrl+Shift+I": {"image": ["Image", "Invert"]},
+    "Esc": {"console": ["Execution", "Sync Break"]},
+    "Shift+Esc": {"console": ["Execution", "Async Break"]},
+    "ScrollLock": {"console": ["View", "Auto Scroll"]},
+    "F10": {"window": ["Cycle Tag Level"]},
+    "F11": {"window": ["Full Screen"]},
+    "F12": {"window": ["Hide/show Menu & Statusbar"]}
+    },
+  "shortcuts": {
+    "help": "F1",
+    "panel preview": "Ctrl+Shift+Tab",
+    "window preview": "Shift+Tab",
+    "instance info": "Shift+F1",
+    "new panel": "Ctrl+N",
+    "layout": {
+      "prefix": "Ctrl+F",
+      "1": "console",
+      "2": "image, levels & console",
+      "3": "4 images, 1 levels & 1 console"}},
+  "panel_class_modules": [
+    "gdesk.panels.dialog",
+    "gdesk.panels.console",
+    "gdesk.panels.matplot",
+    "gdesk.panels.imgview",
+    "gdesk.panels.levels"],
+  "default_perspective": "console",
+  "layout": {
+    "base": {
+      "description": "only gui thread",
+      "panels": [
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 0,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "MainThreadConsole",
+          "title": "console#0"
+        }
+      ],
+      "windows": [
+        {
+          "docks": {
+            "category": "console",
+            "id": 0,
+            "type": "panel"
+          },
+          "name": "main"
+        }
+      ]
+    },
+    "console": {
+      "description": "only sub thread",
+      "panels": [
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 1,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "SubThreadConsole",
+          "title": "console#1"
+        }
+      ],
+      "windows": [
+        {
+          "docks": {
+            "category": "console",
+            "id": 1,
+            "type": "panel"
+          },
+          "name": "main"
+        }
+      ]
+    },
+    "image, levels & console": {
+      "description": "image thread and sub",
+      "panels": [
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 0,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "MainThreadConsole",
+          "title": "console#0"
+        },
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 1,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "SubThreadConsole",
+          "title": "console#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "image",
+              "id": 1
+            }
+          ],
+          "category": "levels",
+          "id": 1,
+          "module": "gdesk.panels.levels.panel",
+          "qualname": "LevelsPanel",
+          "title": "levels#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "levels",
+              "id": 1
+            }
+          ],
+          "category": "image",
+          "id": 1,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#1"
+        }
+      ],
+      "windows": [
+        {
+          "docks": {
+            "category": "hbox",
+            "id": "hbox#1",
+            "items": [
+              {
+                "category": "image",
+                "id": 1,
+                "type": "panel"
+              },
+              {
+                "category": "vbox",
+                "id": "vbox#1",
+                "items": [
+                  {
+                    "category": "levels",
+                    "id": 1,
+                    "type": "panel"
+                  },
+                  {
+                    "category": "console",
+                    "id": 1,
+                    "type": "panel"
+                  }
+                ],
+                "sizes": [
+                  250,
+                  750
+                ],
+                "pinscroll": [
+                  1000,
+                  0
+                ],
+                "scroll": [],
+                "type": "layout"
+              }
+            ],
+            "sizes": [
+              800,
+              800
+            ],
+            "pinscroll": [
+              1600,
+              0
+            ],
+            "scroll": [],
+            "type": "layout"
+          },
+          "name": "main",
+          "visible": true
+        },
+        {
+          "docks": {
+            "category": "console",
+            "id": 0,
+            "type": "panel"
+          },
+          "name": "window 1",
+          "visible": false
+        }
+      ]
+    },
+    "4 images, 1 levels & 1 console": {
+      "description": "4 images",
+      "panels": [
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 0,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "MainThreadConsole",
+          "title": "console#0"
+        },
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 1,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "SubThreadConsole",
+          "title": "console#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "image",
+              "id": 1
+            }
+          ],
+          "category": "levels",
+          "id": 1,
+          "module": "gdesk.panels.levels",
+          "qualname": "LevelsPanel",
+          "title": "levels#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "levels",
+              "id": 1
+            }
+          ],
+          "category": "image",
+          "id": 1,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#1"
+        },
+        {
+          "bindings": [],
+          "category": "image",
+          "id": 4,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#4"
+        },
+        {
+          "bindings": [],
+          "category": "image",
+          "id": 3,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#3"
+        },
+        {
+          "bindings": [],
+          "category": "image",
+          "id": 2,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#2"
+        }
+      ],
+      "windows": [
+        {
+          "docks": {
+            "category": "hbox",
+            "id": "hbox#1",
+            "items": [
+              {
+                "category": "vbox",
+                "id": "vbox#1",
+                "items": [
+                  {
+                    "category": "image",
+                    "id": 1,
+                    "type": "panel"
+                  },
+                  {
+                    "category": "image",
+                    "id": 3,
+                    "type": "panel"
+                  }
+                ],
+                "pinscroll": [
+                  1198,
+                  0
+                ],
+                "scroll": [],
+                "sizes": [
+                  597,
+                  594
+                ],
+                "type": "layout"
+              },
+              {
+                "category": "vbox",
+                "id": "vbox#2",
+                "items": [
+                  {
+                    "category": "image",
+                    "id": 2,
+                    "type": "panel"
+                  },
+                  {
+                    "category": "image",
+                    "id": 4,
+                    "type": "panel"
+                  }
+                ],
+                "pinscroll": [
+                  1198,
+                  0
+                ],
+                "scroll": [],
+                "sizes": [
+                  597,
+                  594
+                ],
+                "type": "layout"
+              },
+              {
+                "category": "vbox",
+                "id": "vbox#3",
+                "items": [
+                  {
+                    "category": "levels",
+                    "id": 1,
+                    "type": "panel"
+                  },
+                  {
+                    "category": "console",
+                    "id": 1,
+                    "type": "panel"
+                  }
+                ],
+                "pinscroll": [
+                  1198,
+                  0
+                ],
+                "scroll": [],
+                "sizes": [
+                  298,
+                  893
+                ],
+                "type": "layout"
+              }
+            ],
+            "pinscroll": [
+              2297,
+              0
+            ],
+            "scroll": [],
+            "sizes": [
+              761,
+              761,
+              761
+            ],
+            "type": "layout"
+          },
+          "name": "main",
+          "visible": true
+        },
+        {
+          "docks": {
+            "category": "console",
+            "id": 0,
+            "type": "panel"
+          },
+          "name": "window 1",
+          "visible": false
+        }
+      ]
+    }
+  }
+}

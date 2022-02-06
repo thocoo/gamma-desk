@@ -19,7 +19,14 @@ configured = False
 
 here = Path(__file__).parent.absolute()
 
-FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults.json'
+if sys.platform() == 'win32':
+    FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults.json'
+    
+elif sys.platform() == 'linux':
+    FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_linux.json'
+    
+else:
+    ImportError(f'platfrom {sys.platform()} not supported')
 
 REQUIRED = [
     ('numpy', 'numpy'),
