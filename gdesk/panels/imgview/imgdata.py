@@ -199,6 +199,11 @@ class ImageData(object):
                 #offset and gain adjust of current viewer
                 pass
                 
+            elif isinstance(array, int) and array == -1:
+                #Content of current array has been updated
+                for name, stat in self.chanstats.items():
+                    stat.clear()
+                
             else:
                 if log and not self.array is None:
                     self.imghist.push(self.array)
@@ -211,6 +216,7 @@ class ImageData(object):
                     self.chanstats['K'].attach_arr2d(self.statarr)
                     self.chanstats['RK'] = ImageStatistics()
                     self.update_roi_statistics()
+                    
                 else:
                     self.chanstats['R'] = ImageStatistics()
                     self.chanstats['G'] = ImageStatistics()

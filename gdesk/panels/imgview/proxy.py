@@ -94,7 +94,7 @@ class ImageGuiProxy(GuiProxyBase):
                 current_array = self.get_image_view_source()
                 if current_array.shape == array.shape and current_array.dtype == array.dtype:
                     current_array[:] = array
-                    return ImageGuiProxy.show_array(None, cmap)
+                    return ImageGuiProxy.show_array(-1, cmap)
                 else:
                     sharray = SharedArray(array.shape, array.dtype)
                     sharray[:] = array                

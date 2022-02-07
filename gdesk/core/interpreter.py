@@ -157,9 +157,11 @@ class QueueInterpreter(object):
         lines = ''
         
         for frame in self.interpreter.get_code_frames(back):
-            for key, val in frame.f_locals.items():
+            for key in list(frame.f_locals.keys()):
+                #f_locals can change during this for loop
                 if key.startswith('_'):
                     continue
+                val = frame.f_locals.get(key, None)
                 lines += f'{key}: {val}\n'
                 
         return lines    
