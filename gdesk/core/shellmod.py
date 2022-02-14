@@ -282,7 +282,7 @@ class Shell(object):
         process.stdin.close()        
         process.terminate()
         
-    def pty(self, command='cmd', cwd=None, textmode='ansi'):
+    def pty(self, command='cmd', cwd=None, textmode='ansi', width=80):
         """
         Setup a virtual terminal.
         Stdout of the executing process live printed.
@@ -300,13 +300,33 @@ class Shell(object):
         os.environ['WINPTY_SHOW_CONSOLE'] = '1'        
             
         #proc = PtyProcess.spawn(command, cwd=cwd)
-        proc = PtyProcess.spawn(command)
+        proc = PtyProcess.spawn(command, dimensions=(24, width))
         
-        def output_reader(proc):
+        # def output_reader(proc):
             #PTYESC = '\033]'
-            while proc.isalive():
-                text = proc.readline()
-                sys.stdout._write_mode(text, textmode)
+            #while proc.isalive():        
+                # text = proc.readline()
+                # if text == '': raise EOFError('End of File')
+                # sys.stdout._write_mode(text, textmode)
+                
+        def output_reader(proc):
+            """Read one line from the pseudoterminal as bytes.
+
+            Can block if there is nothing to read. Raises :exc:`EOFError` if the
+            terminal was closed.
+            """
+            buf = []
+            while True:
+                try:
+                    ch = proc.read(1)
+                except EOFError:
+                    sys.stdout._write_mode(''.join(buf)+'\n', textmode)
+                    sys.stdout._write_mode('End of Process\n', textmode)
+                    return
+                buf.append(ch)
+                if ch == '\n':
+                    sys.stdout._write_mode(''.join(buf), textmode)
+                    buf.clear()
         
         stdout_thread = threading.Thread(target=output_reader, args=(proc,))
         stdout_thread.start()
