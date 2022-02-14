@@ -113,9 +113,13 @@ class MyStatusBar(QWidget):
         
 def thisPanel(widget):
     while not (isinstance(widget, BasePanel) or widget is None):    
-        if hasattr(widget, 'container'):
-            cat, panid = widget.container.panelIds[0]
-            return gui.qapp.panels[cat][panid]
+        if hasattr(widget, 'container'):        
+            if len(widget.container.panelIds) < 1:
+                return None
+                
+            else:
+                cat, panid = widget.container.panelIds[0]
+                return gui.qapp.panels[cat][panid]
         elif hasattr(widget, 'parentWidget'):
             #Used by matplotlib widgets
             parent_attr = widget.parentWidget
