@@ -54,6 +54,12 @@ class PlotPanel(BasePanel):
         self.addMenuItem(self.fileMenu, 'Close' , self.close_me_from_menu, icon = 'cross.png')
         self.addMenuItem(self.fileMenu, 'Close Others', self.close_others)
         
+        self.editMenu = CheckMenu("&Edit", self.menuBar())
+        self.menuBar().addMenu(self.editMenu)
+        
+        self.addMenuItem(self.editMenu, 'Copy', self.copyToCb,
+            statusTip = "Copy to Clipboard", icon = 'page_copy.png')        
+        
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
         
@@ -135,6 +141,12 @@ class PlotPanel(BasePanel):
         else:
             plt = gui.prepareplot()
             plt.savefig(filepath)
+            
+    def copyToCb(self):
+        clipboard = self.qapp.clipboard()
+        qpix = self.canvas.grab()
+        qimg = qpix.toImage()
+        clipboard.setImage(qimg)
         
     def grid(self):
         f = self.figure
