@@ -578,9 +578,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.sqrtBtn.setText('log')
         self.sqrtBtn.setCheckable(True)
         self.sqrtBtn.clicked.connect(self.toggleSqrt)
-        self.addWidget(self.sqrtBtn)
-        
-        #self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')), 'Apply default offset, gain and gamma', self.panel.gain1)  
+        self.addWidget(self.sqrtBtn)        
 
         self.applyUnityBtn = QtWidgets.QToolButton(self)
         self.applyUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_decrease.png')))
@@ -590,6 +588,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
                 
         self.asUnityBtn = QtWidgets.QToolButton(self)
         self.asUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_increase.png')))
+        self.asUnityBtn.setToolTip('Set current offset, gain and gamma as default')
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
         self.addWidget(self.asUnityBtn)        
         
