@@ -25,6 +25,7 @@ from .history import LogDir
 from ..utils.names import DictStruct 
 from ..rectable import RecordTable
 from ..live import use, manager
+from ..live.manage import LiveScriptModule
 
 if config['console']['completer'] == 'native':
     from rlcompleter import Completer
@@ -169,7 +170,7 @@ class Shell(object):
         if object_type_name == 'ImageDataManager':
             self.edit_dbase(object.fullpath)
             return
-        
+                    
         (filename, lineno) = self.getcodefile(object)
         
         if not filename is None:
@@ -186,8 +187,11 @@ class Shell(object):
         
         fi = None
         lineno = 0
+        
+        if isinstance(object, LiveScriptModule):
+            fi = object.__file__
                             
-        if hasattr(object, 'ls_code'):
+        elif hasattr(object, 'ls_code'):
             #it is a script callable
             code = object.func.__code__
             fi = code.co_filename
