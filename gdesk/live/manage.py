@@ -153,7 +153,7 @@ class LiveScriptScan(object):
         else:
             top = self.__top__
             
-        return self.__script_manager__.using_modstr(modstr, top)
+        return self.__script_manager__.using_modstr(modstr, top, back=3)
             
     def __repr__(self):
         return f"<LiveScriptScan '{self.__script_manager__.path}'>"       
@@ -312,11 +312,24 @@ class LiveScriptManager(object):
         for ls_code in self.ls_codes.values():
             ls_code.ask_refresh = mark           
         
-    def using_modstr(self, modstr, top=False):
+    def using_modstr(self, modstr, top=False, back=1):
         """Load a script or make a ScriptTree.
         A ScripTree is used to link to a dir.
         The loading of a script is done at moment of attribute access.
         """           
+        if modstr.startswith('.'):
+            name = sys._getframe(back).f_globals.get('__name__')
+            
+            if name is None:
+                raise ImportError('Could not determine current module name')            
+                
+            this_parts = name.split('.')
+            mod_parts = modstr.split('.')
+            relative_level = mod_parts.count('')                
+            parts0 = this_parts[:-relative_level]
+            parts1 = mod_parts[relative_level:]        
+            modstr = '.'.join(parts0 + parts1)  
+        
         path, stype = self.find_script(modstr)
         return self.using_path(path, stype, top, modstr)
         
