@@ -1803,7 +1803,7 @@ class ImageViewerBase(BasePanel):
         else:
             rgb = (args['r'], args['g'], args['b'])                
             
-        config['roi color'] = rgb
+        config['roi color'] = list(rgb)
         self.imviewer.roi.initUI()
         
         

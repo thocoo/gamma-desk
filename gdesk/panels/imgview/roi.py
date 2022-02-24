@@ -41,14 +41,14 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.initProps()
         self.initUI()
         self.hide()
+        
+        self.get_context_menu = lambda: None  
 
     def initUI(self):
         self.scaleCursor = QtGui.QCursor(QtCore.Qt.SizeAllCursor)
         self.fillColor = QtGui.QColor(*config['roi color'])
         self.dashColor = QtGui.QColor(*config['roi color'])
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, False)
-        
-        self.get_context_menu = lambda: None        
         
     @property
     def vd(self):
