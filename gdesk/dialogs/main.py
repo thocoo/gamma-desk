@@ -318,6 +318,7 @@ class MainDialog(QtWidgets.QMainWindow):
     def showConfig(self):
         dt = DictionaryTreeDialog(config)
         dt.edit()
+        config.update(dt.to_dict_list())
 
     def saveConfig(self):
         path = gui.putfilename('JSON (*.json)', file=config['save_config_file'])
