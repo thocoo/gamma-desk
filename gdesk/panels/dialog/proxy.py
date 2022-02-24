@@ -303,5 +303,5 @@ class DialogGuiProxy(GuiProxyBase):
     def dedit(*args, **kwargs):
         dt = DictionaryTreeDialog(*args, **kwargs)
         dt.edit()
-        return dt.to_dict()
+        return dt.to_dict_list()
         

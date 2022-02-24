@@ -2,7 +2,7 @@
 import sys
 
 from qtpy import QtGui, QtCore, QtWidgets
-from .node import Node
+from .node import Node, IntWrapped
 
 class DictionaryTreeModel(QtCore.QAbstractItemModel):
     """Data model providing a tree of an arbitrary dictionary"""
@@ -144,6 +144,9 @@ class DictionaryTreeModel(QtCore.QAbstractItemModel):
 
     def to_dict(self):
         return self._rootNode.to_dict()
+        
+    def to_dict_list(self):
+        return self._rootNode.to_dict_list()        
 
 
 def node_structure_from_dict(datadict, parent=None, root_node=None):
@@ -156,7 +159,7 @@ def node_structure_from_dict(datadict, parent=None, root_node=None):
         iterator = datadict.items()
         
     elif isinstance(datadict, list):
-        iterator = zip(range(len(datadict)), datadict)
+        iterator = zip((IntWrapped(v) for v in range(len(datadict))), datadict)
 
     for name, data in iterator:
         node = Node(name, parent)
@@ -194,6 +197,10 @@ class DictionaryTreeWidget(QtWidgets.QTreeView):
     def to_dict(self):
         """returns a dictionary from the tree-data"""
         return self._model.to_dict()
+        
+    def to_dict_list(self):
+        """returns a dictionary from the tree-data"""
+        return self._model.to_dict_list()        
 
 
 class DictionaryTreeDialog(QtWidgets.QDialog):
@@ -230,6 +237,9 @@ class DictionaryTreeDialog(QtWidgets.QDialog):
 
     def to_dict(self):
         return self.treeWidget.to_dict()
+        
+    def to_dict_list(self):
+        return self.treeWidget.to_dict_list()        
 
     def closeCancel(self):
         d = self.treeWidget._d

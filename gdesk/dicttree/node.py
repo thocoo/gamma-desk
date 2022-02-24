@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 
+class IntWrapped(object):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __hash__(self):
+        return self.value
+        
+    def __repr__(self):
+        return repr(self.value)
+        
+    def __str__(self):
+        return str(self.value)  
+
 class Node(object):
 
     def __init__(self, name, parent=None):
@@ -41,7 +55,6 @@ class Node(object):
                     keyvalued[key] = value.fget(self)
         return keyvalued
 
-
     def to_list(self):
         output = []
         if self._children:
@@ -64,6 +77,20 @@ class Node(object):
                 child._recurse_dict(d[self.name])
         else:
             d[self.name] = self.value
+            
+    def to_dict_list(self):        
+        d = None
+        if self._children:            
+            for child in self._children:                
+                if isinstance(child.name, IntWrapped):
+                    if d is None: d = []
+                    d.append(child.to_dict_list())
+                else:
+                    if d is None: d = {}
+                    d[child.name] = child.to_dict_list()
+        else:
+            d = self.value
+        return d                           
 
     def name():
         def fget(self):
@@ -71,6 +98,7 @@ class Node(object):
         def fset(self, value):
             self._name = value
         return locals()
+        
     name = property(**name())
 
     def value():
