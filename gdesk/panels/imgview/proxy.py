@@ -184,7 +184,7 @@ class ImageGuiProxy(GuiProxyBase):
     @StaticGuiCall
     def set_offset_gain(offset=0, gain=1, gamma=1, as_default=False):
         panel = gui.qapp.panels.selected('image')
-        panel.changeOffsetGain(offset, gain, gamma)
+        panel.changeOffsetGain(offset, gain, gamma, True)
         if as_default:
             panel.setCurrentOffsetGainAsDefault()
             

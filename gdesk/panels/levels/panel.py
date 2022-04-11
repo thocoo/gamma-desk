@@ -738,8 +738,8 @@ class LevelsPanel(BasePanel):
     def gain1(self):    
         #self.offsetGainChanged.emit('default', 'default', 'default')
         for panel in self.targetPanels('image'):
-            panel.changeOffsetGain('default', 'default', 'default')
-        self.levels.indicZoom()
+            panel.changeOffsetGain('default', 'default', 'default', True)
+        #self.levels.indicZoom()
         
     def updateBlackPoint(self, value):
         #self.blackWhiteChanged.emit(value, None)
@@ -760,8 +760,10 @@ class LevelsPanel(BasePanel):
         if zoomFit:
             self.levels.fullZoom()
 
-    def imageGainChanged(self, image_panel_id):
-        self.levels.updateIndicators(image_panel_id)        
+    def imageGainChanged(self, image_panel_id, zoomDefault=False):
+        self.levels.updateIndicators(image_panel_id)      
+        if zoomDefault:
+            self.levels.indicZoom()
         
     def roiChanged(self, image_panel_id):
         if self.roi:

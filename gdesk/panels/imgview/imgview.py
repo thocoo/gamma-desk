@@ -892,7 +892,7 @@ class ImageViewerBase(BasePanel):
     userVisible = False
 
     contentChanged = Signal(int, bool)
-    gainChanged = Signal(int)
+    gainChanged = Signal(int, bool)
     visibleRegionChanged = Signal(float, float, float, float, bool, bool, float)
     roiChanged = Signal(int)
 
@@ -1272,7 +1272,18 @@ class ImageViewerBase(BasePanel):
 
         if not arr is None:
             self.long_title = str(filepath)
-            gui.qapp.history.storepath(str(filepath))
+            gui.qapp.history.storepath(str(filepath))            
+            
+            if arr.dtype == 'uint8':                
+                self.offset = 0
+                self.white = 1 << 8
+                self.gamma = 1
+                
+            elif arr.dtype == 'uint16':
+                self.offset = 0
+                self.white = 1 << 16
+                self.gamma = 1
+                
             self.show_array(arr, zoomFitHist=True)
             if zoom == 'full':
                 self.zoomFull()
@@ -1504,14 +1515,14 @@ class ImageViewerBase(BasePanel):
 
             results = fedit(form)
             if results is None: return
-            self.offset, self.gain, self.gamma, cmapind = results
+            offset, gain, gamma, cmapind = results
             self.colormap = colormaps[cmapind-1]
 
         else:
-            self.offset, self.gain = args['offset'], args['gain']
-            self.gamma, self.colormap = args['gamma'], args['cmap']
+            offset, gain = args['offset'], args['gain']
+            gamma, self.colormap = args['gamma'], args['cmap']
 
-        self.refresh_offset_gain()
+        self.changeOffsetGain(offset, gain, gamma)
 
 
     def setCurrentOffsetGainAsDefault(self):
@@ -1527,7 +1538,7 @@ class ImageViewerBase(BasePanel):
         self.changeOffsetGain(offset, gain, gamma)
 
 
-    def changeOffsetGain(self, offset, gain, gamma):
+    def changeOffsetGain(self, offset, gain, gamma, reset_levels=True):
         if isinstance(offset, str):
             if offset == 'default':
                 offset = self.defaults['offset']
@@ -1547,7 +1558,7 @@ class ImageViewerBase(BasePanel):
         if not offset is None: self.offset = offset
         if not gain is None: self.gain = gain
         if not gamma is None: self.gamma = gamma
-        self.refresh_offset_gain()
+        self.refresh_offset_gain(zoomFitHist=reset_levels)
 
     def blackWhiteDialog(self):
 
@@ -2314,7 +2325,7 @@ class ImageViewerBase(BasePanel):
     def select(self):
         was_selected = super().select()
         if not was_selected:
-            self.gainChanged.emit(self.panid)
+            self.gainChanged.emit(self.panid, False)
             self.contentChanged.emit(self.panid, False)
         return was_selected
 
@@ -2322,7 +2333,7 @@ class ImageViewerBase(BasePanel):
     def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
-        self.gainChanged.emit(self.panid)
+        self.gainChanged.emit(self.panid, zoomFitHist)
         self.imviewer.refresh()
 
     @property
