@@ -101,17 +101,20 @@ class GuiApplication(QApplication):
         self.resizeicon = QtGui.QIcon()
         self.resizeicon.addFile(str(respath / 'icons' / 'arrow_down_8px.png'), state=QIcon.Off)
         self.resizeicon.addFile(str(respath / 'icons' / 'arrow_right_8px.png'), state=QIcon.On)
-        
-        self.panelsDialog.showMinimized()
+                
         self.focusChanged.connect(self.checkPanelActive)
         
         self.menuCallShortCuts = dict()
+        self.menuCallShortCuts['main'] = dict()
+        
+        self.panelsDialog.showMinimized()
 
     def setShortCuts(self):        
         for layid in range(1,10):
             self.setShortCut(f"{config['shortcuts']['layout']['prefix']}{layid}",
                 lambda layid=layid: self.panels.restore_state_from_config(layid))
-            
+        
+        self.setPanelsDialogShortCut(config['shortcuts']['application restart'], ['Application', 'Restart'])        
         self.setPanelsDialogShortCut(config['shortcuts']['help'], ['Help', 'Help'])
         self.setPanelsDialogShortCut(config['shortcuts']['instance info'], ['Help', 'Instance Info'])
         self.setPanelsDialogShortCut(config['shortcuts']['panel preview'], ['Panel', 'Previews...'])
@@ -138,8 +141,14 @@ class GuiApplication(QApplication):
             action = getMenuAction(self.panelsDialog.menuBar(), menuTrace)
             action.trigger()
             
-        action = getMenuAction(self.panelsDialog.menuBar(), menuTrace)
-        action.setText(f'{action.text()}\t{keySequence}')
+        try:
+            action = getMenuAction(self.panelsDialog.menuBar(), menuTrace)
+            action.setText(f'{action.text()}\t{keySequence}')
+            
+        except KeyError:
+            pass
+            
+        self.menuCallShortCuts['main'][menuTrace] = keySequence
         self.setShortCut(keySequence, caller)
         
     def menuShortCutCall(self, keySequence):

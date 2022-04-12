@@ -97,9 +97,11 @@ class ShowMenu(QtWidgets.QMenu):
 
         self.liveActions = []
 
-        action = QtWidgets.QAction(f'Previews...\t{config["shortcuts"]["panel preview"]}', triggered=self.preview)
+        keyseq = gui.qapp.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
+        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
         self.addAction(action)
         self.liveActions.append(action)
+        
         self.addSeparator()
 
         for category in self.panels.keys():
@@ -146,10 +148,12 @@ class WindowMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-
-        action = QtWidgets.QAction(f'Previews...\t{config["shortcuts"]["window preview"]}', triggered=self.preview)
+        
+        keyseq = gui.qapp.menuCallShortCuts['main'].get(('window', 'previews...'), 'n/a')          
+        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
         self.addAction(action)
         self.liveActions.append(action)
+        
         self.addSeparator()
 
         for window_name in self.windows.keys():

@@ -113,6 +113,7 @@
     },
   "shortcuts": {
     "help": "F1",
+    "application restart": "Shift+F4",
     "panel preview": "Ctrl+Shift+Tab",
     "window preview": "Shift+Tab",
     "instance info": "Shift+F1",
