@@ -313,7 +313,6 @@ class MainDialog(QtWidgets.QMainWindow):
 
     def restart(self):
         restart()
-        #os.execlp(sys.executable, 'python', '-m', 'gdesk')
 
     def showConfig(self):
         dt = DictionaryTreeDialog(config)

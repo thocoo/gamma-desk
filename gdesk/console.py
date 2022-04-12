@@ -107,7 +107,6 @@ def run_as_child(console_args, config_kwargs, config_objects):
     conf.configured = False
 
     print(config_kwargs)
-
     argexec(console_args, **config_kwargs)
 
 
@@ -124,15 +123,18 @@ def is_imported_by_child_process():
         frame = frame.f_back
 
     return False
-
+    
 def restart():
     # in case of started with -m gdesk and extra arguments
     # sys.argv:  # ['c:\\users\\thomas.cools\\projects\\gamma-desk\\git\\gdesk\\__main__.py', '-c', '..\\setup\\gdconf.json']
     # in case of started with \scripts\gdesk.exe and extra arguments
     # ['C:\\Users\\thomas.cools\\AppData\\Local\\Programs\\Python\\venv\\os10a10\\Scripts\\gdesk', '-c', '../setup/gdconf.json']
-    #
+    #    
+    from . import shell
     extra_arguments = sys.argv[1:]
-    os.execlp(sys.executable, 'python', '-m', 'gdesk', *extra_arguments)
+    shell.logdir.release_lock_file()
+    os.execlp(sys.executable, 'python', '-m', 'gdesk', *extra_arguments)        
+
 
 if is_imported_by_child_process():
     configure(qapp=True)

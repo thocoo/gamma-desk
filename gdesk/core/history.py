@@ -8,10 +8,12 @@ if sys.platform == 'win32':
     import msvcrt
     locking = msvcrt.locking
     LK_RLCK = msvcrt.LK_RLCK
+    LK_UNLCK = msvcrt.LK_UNLCK
     
 else:
     locking = lambda x, y, z: None
     LK_RLCK = None
+    LK_UNLCK = None
 
 from .conf import config
 

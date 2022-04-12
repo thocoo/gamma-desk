@@ -329,4 +329,5 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     print(f'Exiting {PROGNAME}. Releasing lock.')   
     shell.logdir.release_lock_file()    
     
+
             
