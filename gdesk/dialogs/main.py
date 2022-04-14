@@ -78,6 +78,7 @@ class ShowMenu(QtWidgets.QMenu):
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_get.png')))
 
     def showEvent(self, event):
+        if not hasattr(gui, 'qapp'): return 
         self.initactions()
 
     @property
@@ -96,7 +97,7 @@ class ShowMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-
+        
         keyseq = gui.qapp.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
         action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
         self.addAction(action)
@@ -137,6 +138,7 @@ class WindowMenu(QtWidgets.QMenu):
         return QtWidgets.QApplication.instance().windows
 
     def showEvent(self, event):
+        if not hasattr(gui, 'qapp'): return 
         self.initactions()
 
     def preview(self):
