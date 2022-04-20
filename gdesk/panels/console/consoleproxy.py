@@ -121,7 +121,8 @@ class ConsoleGuiProxy(GuiProxyBase):
         Execute a file in ANOTHER console
         """
         console = gui.qapp.panels.select_or_new('console', panid)
-        console.task.send_command(f"_ = shell.execfilews(r'{filepath}')")
+        callback = console.stdio.stdInputPanel.retval_ready
+        console.task.send_command(f"_ = shell.execfilews(r'{filepath}')", callback)
         
     @StaticGuiCall        
     def sync_paths(source_panid=0, target_panid=1):
