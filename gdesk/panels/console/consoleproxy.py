@@ -10,16 +10,19 @@ class ConsoleGuiProxy(GuiProxyBase):
     
     def __init__(self):
         pass
+
         
     def attach(self, gui):
         gui.console = self
         gui.clc = self.clc
         return 'console'
+
         
     @StaticGuiCall 
     def open(filepath):
         panel = gui.qapp.panels.selected('console')
         ConsoleGuiProxy._gui_execute_file(filepath, panel.panid)
+
 
     @StaticGuiCall
     def console(pandid=None, consoletype='thread'):
@@ -124,6 +127,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         callback = console.stdio.stdInputPanel.retval_ready
         console.task.send_command(f"_ = shell.execfilews(r'{filepath}')", callback)
         
+        
     @StaticGuiCall        
     def sync_paths(source_panid=0, target_panid=1):
         """
@@ -139,6 +143,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         
         live_paths = source_task.call_func(Shell.get_live_paths, wait=True)
         target_task.call_func(Shell.set_live_paths, args=(live_paths,))
+
     
     @StaticGuiCall    
     def child(init_caller, *args):
