@@ -48,10 +48,15 @@ class PlotGuiProxy(GuiProxyBase):
 
         if not gui._qapp is None:
             if figure is None:
-                plt.show()
-            else:
-                plt.figure(figure.number)
-                plt.show()
+                figure = plt.gcf()
+                
+            if figure.canvas.manager is None:
+                from ...matplotbe import new_figure_manager_given_figure
+                allnums = plt.get_fignums()
+                num = max(allnums) + 1 if allnums else 1
+                mgr = new_figure_manager_given_figure(num, figure)
+                
+            figure.show()
             return
             
         if figure is None:
