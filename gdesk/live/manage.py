@@ -81,6 +81,10 @@ class LiveScriptModule(object):
 
     def __repr__(self):
         return f"<LiveScriptModule '{self.__path__}'>"
+                
+    def __call__(self, *args, **kwargs):
+        call = getattr(self.__wrapped__, 'call')
+        return call(*args, **kwargs)
 
     @property
     def __doc__(self):
