@@ -14,6 +14,7 @@ import psutil
 import inspect
 import shlex
 from pathlib import Path
+from itertools import islice
 
 from . import stdinout
 from .interpreter import QueueInterpreter
@@ -392,9 +393,51 @@ class Shell(object):
                 tbl.add_row((key, repr(obj), str(obj)))
                 
             print(tbl)            
+            
+            
+    def tree(self, dir_path: Path, level: int=-1, limit_to_directories: bool=False,
+             length_limit: int=1000):
+        """Given a directory Path object print a visual tree structure"""
+        space =  '    '
+        branch = '│   '
+        tee =    '├── '
+        last =   '└── '
+
+        dir_path = Path(dir_path) # accept string coerceable to Path
+        files = 0
+        directories = 0
+        
+        def inner(dir_path: Path, prefix: str='', level=-1):
+            nonlocal files, directories
+            if not level: 
+                return # 0, stop iterating
+            if limit_to_directories:
+                contents = [d for d in dir_path.iterdir() if d.is_dir()]
+            else: 
+                contents = list(dir_path.iterdir())
+            pointers = [tee] * (len(contents) - 1) + [last]
+            for pointer, path in zip(pointers, contents):
+                if path.is_dir():
+                    yield prefix + pointer + path.name
+                    directories += 1
+                    extension = branch if pointer == tee else space 
+                    yield from inner(path, prefix=prefix+extension, level=level-1)
+                elif not limit_to_directories:
+                    yield prefix + pointer + path.name
+                    files += 1
+                    
+        print(dir_path.name)
+        iterator = inner(dir_path, level=level)
+        for line in islice(iterator, length_limit):
+            print(line)
+        if next(iterator, None):
+            print(f'... length_limit, {length_limit}, reached, counted:')
+        print(f'\n{directories} directories' + (f', {files} files' if files else ''))
+                
         
     def start_in_this_thread(self, cqs, console_id=None):      
-        QueueInterpreter.create_and_interact(self, cqs, None, console_id)      
+        QueueInterpreter.create_and_interact(self, cqs, None, console_id)              
+        
         
     @staticmethod
     def get_completer_data(text, max=1000, wild=False):
