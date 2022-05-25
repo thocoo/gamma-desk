@@ -328,9 +328,9 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     # Make sure the gui proxy for the main thread is created
     qapp.panels.restore_state_from_config('base')
        
-    # if not config['debug']['skip_restore_perspective']:
-        # if config['default_perspective'] != 'base':
-            # qapp.panels.restore_state_from_config(config['default_perspective'])
+    if not config['debug']['skip_restore_perspective']:
+        if config['default_perspective'] != 'base':
+            qapp.panels.restore_state_from_config(config['default_perspective'])
     
     qapp.processEvents()    
     
