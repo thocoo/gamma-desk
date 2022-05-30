@@ -146,9 +146,11 @@ class Shell(object):
             logger.error(f"{editorExecutable} doesn't exist")
             return
         
-        if editorExecutable.name == 'notepad++.exe':
+        if editorExecutable.name.lower() == 'notepad++.exe':
             # supply line number argument
             os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"', '-n%d'%lineno, '"{0}"'.format(filename))
+        elif editorExecutable.name.lower() == 'code.exe':
+            os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"',  '-g', f'"{filename}:{lineno}"')
         else:
             os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"', '"{0}"'.format(filename))          
             
