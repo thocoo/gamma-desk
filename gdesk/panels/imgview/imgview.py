@@ -144,9 +144,14 @@ class ZoomWidget(MyStatusBar):
         self.zoom.keyPressEvent = self.zoomKeyPressEvent
         self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)       
         
+        # self.hqBtn = QtWidgets.QPushButton('hq')       
+        # self.hqBtn.setCheckable(True)
+        # self.hqBtn.setFixedWidth(20)
+        
         self.addWidget(self.zoomOutBtn)
         self.addWidget(self.zoom, 1)
         self.addWidget(self.zoomInBtn)
+        # self.addWidget(self.hqBtn)
         
         self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
         self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
