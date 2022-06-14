@@ -325,10 +325,11 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp.cmdserver.start(qapp)    
     exit_code = qapp.exec_()
     
-    #Kill all the children    
-    parent = psutil.Process(os.getpid())
-    for child in parent.children(recursive=True):
-        child.kill()
+    #Kill all the children
+    if not config.get('keep_children', False):
+        parent = psutil.Process(os.getpid())
+        for child in parent.children(recursive=True):
+            child.kill()
         
     from pylab import plt
     plt.close('all')

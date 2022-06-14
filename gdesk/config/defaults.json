@@ -15,6 +15,7 @@
   "panic": false,
   "scroll_area": false,
   "hide_solo_panel": true,
+  "keep_children": false,
   "debug": {
     "skip_restore_perspective": false,
     "skip_main_stdout_redirect": false,
