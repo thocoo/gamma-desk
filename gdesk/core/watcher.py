@@ -92,7 +92,7 @@ class CommandServer(object):
             cqs.setup_as_client()
             
         gui.qapp.panels['console'][0].get_container().window().hide()
-        gui.qapp.panels.select_or_new('console', None, 'child', args=(cqs,))
+        gui.qapp.panels.select_or_new('console', None, 'child', kwargs={'cqs': cqs})
         
         return cqs_config
         
@@ -108,7 +108,7 @@ class CommandServer(object):
             cqs.setup_as_client(cqs.hostname_ex)
             
         gui.qapp.panels['console'][0].get_container().window().hide()
-        gui.qapp.panels.select_or_new('console', None, 'child', args=(cqs,))
+        gui.qapp.panels.select_or_new('console', None, 'child', kwargs={'cqs': cqs})
         
         return cqs.to_json()        
         

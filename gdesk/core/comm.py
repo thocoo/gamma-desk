@@ -102,7 +102,7 @@ class ZmqQueue(object):
 
 class ZmqQueues(object):
     ports = {
-        'cmd': None,
+        'flow': None,
         'stdin': None,
         'stdout': None,
         'return': None,
@@ -130,7 +130,7 @@ class ZmqQueues(object):
         d1 = d0['channel']
 
         ports = dict()
-        ports['cmd'] = d1['cmd']
+        ports['flow'] = d1['flow']
         ports['stdin'] = d1['stdin']
         ports['stdout'] = d1['stdout']
         ports['return'] = d1['return']
@@ -156,7 +156,7 @@ class ZmqQueues(object):
         d1['aliaslist'] = self.aliaslist
         d1['ipaddrlist'] = self.ipaddrlist
 
-        d1['cmd'] = self.flow_queue.port
+        d1['flow'] = self.flow_queue.port
         d1['stdin'] = self.stdin_queue.port
         d1['stdout'] = self.stdout_queue.port
         d1['return'] = self.return_queue.port
