@@ -406,7 +406,7 @@ class GuiProxy(object):
 
     @StaticGuiCall    
     def load_layout(name='console'):
-        gui.qapp.panels.restore_state_from_config(name)
+        gui.qapp.panels.restore_state_from_config(name)        
 
 
     def show(self, *args, **argv):
@@ -517,7 +517,12 @@ class GuiMap(object):
     redirects = dict()
     
     def __init__(self):
-        pass
+        pass        
+        
+    def load_layout(self, layout='base'):
+        self._gui_proxy.load_layout(layout)
+        for tid, guiinst in self.gui_proxies.items():
+            guiinst.refresh_proxies()        
         
     @property
     def _gui_proxy(self):
