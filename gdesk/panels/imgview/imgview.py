@@ -140,9 +140,11 @@ class ZoomWidget(MyStatusBar):
         self.panel = parent.panel
 
         self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
+        self.zoomOutBtn.setFixedWidth(20)
         self.zoom = QLineEdit('100')
         self.zoom.keyPressEvent = self.zoomKeyPressEvent
         self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)       
+        self.zoomInBtn.setFixedWidth(20)
         
         # self.hqBtn = QtWidgets.QPushButton('hq')       
         # self.hqBtn.setCheckable(True)
@@ -189,6 +191,7 @@ class ValuePanel(MyStatusBar):
         self.vallab = QLabel('val')
         self.val = QLineEdit('0')
         self.val.setFont(console_font)
+        self.val.setStyleSheet(f"QLineEdit {{ background: rgb(224, 224, 224); color: rgb(0, 0, 0);}}");
         self.val.setReadOnly(True)
         self.val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         
@@ -214,7 +217,8 @@ class ValuePanel(MyStatusBar):
         if not val is None:
             try:
                 if isinstance(val, Iterable):
-                    text = '[' + ' '.join(fmt.format(v) for v in val) + ']'
+                    r, g, b, *ignore = val
+                    text = ' '.join(fmt.format(v) for v in val)                                        
                     self.val.setText(text)
                 else:
                     self.val.setText(fmt.format(val))
@@ -233,20 +237,33 @@ class ContrastPanel(MyStatusBar):
         
         console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
 
-        self.offsetlab = QLabel('Black')
+        self.offsetlab = QLabel('B')
         self.offset = QLineEdit('0')
         self.offset.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.offset)
         self.offset.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.chooseBlackMenu = QMenu('Black Defaults', self)
+        self.chooseBlackMenu.addAction(QAction("0", self, triggered=lambda: self.chooseBlack('0')))
+        self.offset.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)    
+        self.offset.customContextMenuRequested.connect(lambda: self.chooseBlackMenu.exec_(QtGui.QCursor().pos()))         
+        
+        self.whitelab = QLabel('W')
+        self.white = QLineEdit('1')
+        self.white.keyPressEvent = types.MethodType(blackWhitePressEvent, self.white)
+        self.white.setAlignment(Qt.AlignRight | Qt.AlignVCenter)        
+        
+        self.chooseWhiteMenu = QMenu('White Defaults', self)
+        self.chooseWhiteMenu.addAction(QAction("256", self, triggered=lambda: self.chooseWhite('256')))
+        self.chooseWhiteMenu.addAction(QAction("1024", self, triggered=lambda: self.chooseWhite('1024')))
+        self.chooseWhiteMenu.addAction(QAction("4096", self, triggered=lambda: self.chooseWhite('4096')))        
+        self.chooseWhiteMenu.addAction(QAction("16384", self, triggered=lambda: self.chooseWhite('16384')))        
+        self.chooseWhiteMenu.addAction(QAction("65536", self, triggered=lambda: self.chooseWhite('65536')))        
+        self.white.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)    
+        self.white.customContextMenuRequested.connect(lambda: self.chooseWhiteMenu.exec_(QtGui.QCursor().pos())) 
         
         self.gainlab = QLabel('gain')
         self.gain = QLineEdit('1')
         self.gain.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.gain)
-        self.gain.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        
-        self.whitelab = QLabel('White')
-        self.white = QLineEdit('1')
-        self.white.keyPressEvent = types.MethodType(blackWhitePressEvent, self.white)
-        self.white.setAlignment(Qt.AlignRight | Qt.AlignVCenter)        
+        self.gain.setAlignment(Qt.AlignRight | Qt.AlignVCenter)        
                 
         self.gammalab = QLabel('gamma')
         self.gamma = QLineEdit('1')
@@ -255,15 +272,23 @@ class ContrastPanel(MyStatusBar):
 
         self.addWidget(self.offsetlab, 1, Qt.AlignRight)
         self.addWidget(self.offset, 1)
-        self.addWidget(self.gainlab, 1, Qt.AlignRight)
-        self.addWidget(self.gain, 1)
         self.addWidget(self.whitelab, 1, Qt.AlignRight)
-        self.addWidget(self.white, 1)        
+        self.addWidget(self.white, 1) 
+        self.addWidget(self.gainlab, 1, Qt.AlignRight)
+        self.addWidget(self.gain, 1)        
         self.addWidget(self.gammalab, 1, Qt.AlignRight)
         self.addWidget(self.gamma, 1)             
 
         self.offsetGainEdited.connect(self.panel.changeOffsetGain)
         self.blackWhiteEdited.connect(self.panel.changeBlackWhite)             
+        
+    def chooseBlack(self, sval):
+        self.offset.setText(sval)
+        blackWhitePressEvent(self.white)        
+        
+    def chooseWhite(self, sval):
+        self.white.setText(sval)
+        blackWhitePressEvent(self.white)
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
         if not self.offset.hasFocus(): self.offset.setText(f'{offset:8.6g}')
@@ -271,25 +296,27 @@ class ContrastPanel(MyStatusBar):
         if not self.white.hasFocus(): self.white.setText(f'{white:8.6g}')
         if not self.gamma.hasFocus(): self.gamma.setText(f'{gamma:8.6g}')
 
-def offsetGainKeyPressEvent(self, event):
-    key_enter = (event.key() == Qt.Key_Return) or \
+def offsetGainKeyPressEvent(self, event=None):
+    key_enter = event is None or (event.key() == Qt.Key_Return) or \
         (event.key() == Qt.Key_Enter)
 
     if key_enter:
         statpan = self.parent()
         statpan.offsetGainEdited.emit(statpan.offset.text(), statpan.gain.text(), statpan.gamma.text())
 
-    QLineEdit.keyPressEvent(self, event)
+    if not event is None:
+        QLineEdit.keyPressEvent(self, event)
     
-def blackWhitePressEvent(self, event):
-    key_enter = (event.key() == Qt.Key_Return) or \
+def blackWhitePressEvent(self, event=None):
+    key_enter = event is None or (event.key() == Qt.Key_Return) or \
         (event.key() == Qt.Key_Enter)
 
     if key_enter:
         statpan = self.parent()
         statpan.blackWhiteEdited.emit(statpan.offset.text(), statpan.white.text())
 
-    QLineEdit.keyPressEvent(self, event) 
+    if not event is None:
+        QLineEdit.keyPressEvent(self, event) 
     
     
 class StatusPanel(QWidget):
@@ -315,7 +342,7 @@ class StatusPanel(QWidget):
         self.zoomWidget = ZoomWidget(self)
         self.valuePanel = ValuePanel(self)
         self.contrastPanel = ContrastPanel(self)
-        self.contrastPanel.hide()                       
+        #self.contrastPanel.hide()                       
                 
         hboxlayout = QtWidgets.QHBoxLayout()
         hboxlayout.setContentsMargins(0, 0, 0, 0)
@@ -331,6 +358,7 @@ class StatusPanel(QWidget):
         splitter.addWidget(self.zoomWidget)        
         splitter.addWidget(self.valuePanel)        
         splitter.addWidget(self.contrastPanel)                     
+        splitter.setSizes([102, 183, 308])
 
     def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
         action = QAction(text, self, enabled=enabled, statusTip=statusTip)
