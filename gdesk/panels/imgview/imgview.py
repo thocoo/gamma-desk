@@ -88,6 +88,7 @@ from ...widgets.grid import GridSplitter
 from ...utils import lazyf, clip_array
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
+from ...external import client
 
 if has_cv2:
     from .opencv import OpenCvMenu
@@ -983,6 +984,9 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.fileMenu, 'Save Image...' , self.saveImageDialog,
             statusTip="Save the image",
             icon = 'picture_save.png')
+            
+        self.addMenuItem(self.fileMenu, 'Send to other GDesk' , self.send_array_to_gdesk)
+            
         self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
             statusTip="Close this image panel",
             icon = 'cross.png')
@@ -1471,6 +1475,19 @@ class ImageViewerBase(BasePanel):
         else:
             with gui.qapp.waitCursor(f'Saving to {filepath}'):
                 imageio.imwrite(filepath, self.ndarray, format)
+                
+                
+    def send_array_to_gdesk(self):
+        port = gui._qapp.cmdserver.port
+        hostname = 'localhost'
+        
+        form = [('port', port), ('host', hostname)]
+        results = fedit(form)
+        if results is None: return
+        port = results[0]        
+        hostname = results[1]        
+        
+        client.send_array_to_gui(self.ndarray, port, hostname)
 
     def close_panel(self):
         super().close_panel()
