@@ -126,6 +126,7 @@ class Shell(object):
         this_thread = threading.currentThread()
         print(f'thread name: {this_thread.name}')
         print(f'tid: {this_thread.ident}')
+        print(self._qapp.cmdserver.host_info())
         
     def this_interpreter(self):
         """
