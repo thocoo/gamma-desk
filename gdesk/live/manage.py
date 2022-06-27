@@ -147,8 +147,7 @@ class LiveScriptScan(object):
             return self.__using__(attr)
         except KeyError:
             #Without this, Jypeter doesn't auto-complete
-            #I don't know why
-            logger.error(f'Can not find the scripts path or file: {attr}')
+            #I don't know why            
             raise AttributeError(attr)      
         
 
@@ -272,6 +271,7 @@ class LiveScriptManager(object):
                 result.append(((path / modpath), 'dir'))
             
         if len(result) == 0:
+            logger.error(f'Can not find the scripts path or file: {modstr}')
             raise KeyError(f'{modstr} not found')
         elif len(result) == 1:           
             return result[0]
