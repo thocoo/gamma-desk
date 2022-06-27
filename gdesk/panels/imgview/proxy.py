@@ -61,6 +61,23 @@ class ImageGuiProxy(GuiProxyBase):
         return panel.panid
         
     @StaticGuiCall    
+    def open_array(array, new=False):
+        if new:
+            ImageGuiProxy.new()
+            panel = gui.qapp.panels.selected('image')
+        else:
+            panel = gui.qapp.panels.selected('image')
+            if panel is None:
+                panel = gui.qapp.panels.select_or_new('image', defaulttype = 'image-profile', empty=True)
+        
+        panel.show_array(array)
+        
+        window = panel.get_container().parent()
+        window.raise_()
+        gui.qapp.processEvents()
+        return panel.panid        
+        
+    @StaticGuiCall    
     def get_clipboard_image():
         from ...utils.imconvert import qimage_to_ndarray
         

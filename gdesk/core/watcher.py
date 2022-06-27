@@ -80,6 +80,10 @@ class CommandServer(object):
         for image_path in image_paths:
             gui.img.open(image_path, new=True)
             
+    @staticmethod
+    def open_array(array):
+        gui.img.open_array(array, new=True)            
+            
     @staticmethod        
     def connect_process(cqs_config=None):
         from .tasks import ZmqQueues
@@ -166,6 +170,9 @@ class CommandServer(object):
             
         elif cmd == 'open_images':            
             return handover.send(True, CommandServer.open_images, *args)
+            
+        elif cmd == 'open_array':            
+            return handover.send(True, CommandServer.open_array, *args)            
             
         elif cmd == 'start_kernel':
             return handover.send(True, CommandServer.start_kernel, *args)
