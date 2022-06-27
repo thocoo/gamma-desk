@@ -8,6 +8,10 @@ import os, sys, traceback, time
 from pathlib import Path
 import functools
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def show_syntax_error(writer_call):
     """Display the syntax error that just occurred."""
     type, value, tb = sys.exc_info()
@@ -144,6 +148,7 @@ class LiveScriptScan(object):
         except KeyError:
             #Without this, Jypeter doesn't auto-complete
             #I don't know why
+            logger.error(f'Can not find the scripts path or file: {attr}')
             raise AttributeError(attr)      
         
 
