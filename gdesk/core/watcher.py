@@ -112,9 +112,11 @@ class CommandServer(object):
             cqs.setup_as_client(cqs.hostname_ex)
             
         gui.qapp.panels['console'][0].get_container().window().hide()
-        gui.qapp.panels.select_or_new('console', None, 'child', kwargs={'cqs': cqs})
+        console  = gui.qapp.panels.select_or_new('console', None, 'child', kwargs={'cqs': cqs})
+        d = json.loads(cqs.to_json())
+        d['console_id'] = console.panid
         
-        return cqs.to_json()        
+        return json.dumps(d)
         
     @staticmethod        
     def execute_file(init_file, console_id):                

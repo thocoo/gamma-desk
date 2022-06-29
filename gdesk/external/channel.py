@@ -3,6 +3,7 @@ import sys
 import threading
 import pathlib
 import pprint
+import json
 
 from multiprocessing import Process, Queue
 
@@ -58,6 +59,9 @@ def connect_to_gui(port=None, host='localhost',
         namespace = sys._getframe(1).f_globals
 
     shell = Shell(namespace)
+    
+    import gdesk
+    gdesk.refer_shell_instance(shell)
 
     if host not in ['localhost', '127.0.0.1']:
         config['image']['queue_array_shared_mem'] = False
@@ -83,8 +87,10 @@ def connect_to_gui(port=None, host='localhost',
         pprint.pprint(cqs_config)
         cqs = ZmqQueues.from_json(cqs_config)
         cqs.setup_as_client(host)
+        
+    console_id = json.loads(cqs_config)['console_id']
 
-    return init_gui(shell, cqs, gui_redirect, client=False)
+    return init_gui(shell, cqs, gui_redirect, client=False, console_id=console_id)
 
 
 def start_gui_as_child(namespace=None, gui_redirect=True):
@@ -109,7 +115,7 @@ def start_gui_as_child(namespace=None, gui_redirect=True):
     cqs = CommQueues(Queue, process=True)
 
     start_gui(child=True, commqueues=cqs)
-
+       
     return init_gui(shell, cqs, gui_redirect)
 
 
@@ -130,8 +136,8 @@ def start_gui(child=False, commqueues=None, deamon=False):
         os.system(f'start {python_executable()} -m ghawk2')
 
 
-def init_gui(shell, commqueues, gui_redirect=True, client=True):
-    name, tid = shell.new_interactive_thread(commqueues, client=client)
+def init_gui(shell, commqueues, gui_redirect=True, client=True, console_id=None):
+    name, tid = shell.new_interactive_thread(commqueues, client=client, console_id=console_id)
 
     if gui_redirect:
         gui.redirects[threading.get_ident()] = tid
