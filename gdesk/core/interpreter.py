@@ -363,8 +363,7 @@ class QueueInterpreter(object):
                         except:
                             print('source not found')
                             
-                    error_code, result = interpreter.use_one_func(func, func_args)
-                    self.set_console_mode('interprete')
+                    error_code, result = interpreter.use_one_func(func, func_args)                    
                 else:
                     error_code, result = interpreter.use_one_command(*args)
                 
@@ -409,7 +408,8 @@ class QueueInterpreter(object):
                     print(f'Elapased time {end_moment-start_moment} s')                                
                     
                 callbackargs = (mode, error_code, result)
-                retvalue = 1                
+                retvalue = 1 
+                self.set_console_mode('interprete')                
             
         elif mode == 'exit':
             self.unregister_thread()
