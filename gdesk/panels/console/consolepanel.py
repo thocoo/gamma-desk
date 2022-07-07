@@ -368,8 +368,6 @@ class StdInputPanel(QPlainTextEdit):
                 self.setPlainText(result + '\n')
                 self.moveCursorToEndOfDoc()
 
-        self.set_mode('interprete')
-
     def set_mode(self, mode='interprete'):
         if mode == 'wait':
             self.setStyleSheet(self.styles[mode])
