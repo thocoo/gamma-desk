@@ -81,8 +81,8 @@ class CommandServer(object):
             gui.img.open(image_path, new=True)
             
     @staticmethod
-    def open_array(array):
-        gui.img.open_array(array, new=True)            
+    def open_array(array, new=False):
+        gui.img.open_array(array, new)            
             
     @staticmethod        
     def connect_process(cqs_config=None):

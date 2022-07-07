@@ -1481,13 +1481,15 @@ class ImageViewerBase(BasePanel):
         port = gui._qapp.cmdserver.port
         hostname = 'localhost'
         
-        form = [('port', port), ('host', hostname)]
+        form = [('port', port), ('host', hostname), ('new panel', False)]
         results = fedit(form)
         if results is None: return
-        port = results[0]        
-        hostname = results[1]        
         
-        client.send_array_to_gui(self.ndarray, port, hostname)
+        port = results[0]        
+        hostname = results[1]
+        new = results[2]
+        
+        client.send_array_to_gui(self.ndarray, port, hostname, new)
 
     def close_panel(self):
         super().close_panel()
