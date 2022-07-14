@@ -7,6 +7,7 @@ if config.get('qapp', False):
     #Causes crach in Canvas !
     from qtpy import QtWidgets
     from ...dialogs import formlayout    
+    from ...dialogs.filterlist import FilterList    
     from ...dialogs import base as dialogs
     from ...dicttree.widgets import DictionaryTreeDialog
     
@@ -213,10 +214,7 @@ class DialogGuiProxy(GuiProxyBase):
         filter    = None: check nothing
                   = False: check everything
                   = ``\w*01\w*``: use re to match string
-        """
-        
-        #import ghawk2.dialogs.filterlist as filterlist
-        
+        """                
         if items is None:
             items = list()        
         
@@ -225,7 +223,7 @@ class DialogGuiProxy(GuiProxyBase):
         else:
             multiple = False
 
-        fl = dialogs.filterlist.FilterList(items, multiple)        
+        fl = FilterList(items, multiple)        
         
         if not multiple:
             if not selection is None:
