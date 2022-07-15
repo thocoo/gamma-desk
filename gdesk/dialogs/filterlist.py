@@ -12,9 +12,10 @@ class SelectionList(QtWidgets.QListWidget):
 
 class FilterList(QtWidgets.QDialog):
 
-    def __init__(self, items, multiple=True, filter='*'):
+    def __init__(self, items, multiple=True, filter='*', title='Items'):
         super().__init__(None)
         self.initgui(items, multiple, filter)
+        self.setWindowTitle(title)
         
     def initgui(self, items, multiple, filter):
         self.selectionlist = SelectionList(self)

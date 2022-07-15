@@ -202,7 +202,7 @@ class DialogGuiProxy(GuiProxyBase):
         return DialogGuiProxy.putfile(filter, title, file, defaultfilter)[0]          
 
     @StaticGuiCall
-    def filterlist(items=None, selection=None, filter=None):
+    def filterlist(items=None, selection=None, filter=None, title='Items'):
         """
         Open a items filter dialog.
         The user have to select items from it.
@@ -223,7 +223,7 @@ class DialogGuiProxy(GuiProxyBase):
         else:
             multiple = False
 
-        fl = FilterList(items, multiple)        
+        fl = FilterList(items, multiple, title=title)        
         
         if not multiple:
             if not selection is None:
