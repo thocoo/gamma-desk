@@ -47,6 +47,13 @@ if has_imafio:
     except Exception as ex:
         logger.warning('Could not load freeimage dll')
         logger.warning(str(ex))
+        
+    try:
+        imageio.plugins.freeimage.download()
+        
+    except Exception as ex:
+        logger.warning('Downloading imageio dll failed')
+        logger.warning(str(ex))
         logger.warning('Automatic download can be a problem when using VPN')
         logger.warning("Download the dll's from https://github.com/imageio/imageio-binaries/tree/master/freeimage/")
         logger.warning(f'And place it in {imageio.core.appdata_dir("imageio")}/freeimage')
