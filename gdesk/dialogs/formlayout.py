@@ -48,7 +48,7 @@ STDERR = sys.stderr
 
 # ---+- PyQt-PySide compatibility -+----
 _modname = os.environ.setdefault('QT_API', 'pyqt')
-assert _modname in ('pyqt', 'pyqt5', 'pyside', 'pyside2')
+assert _modname in ('pyqt', 'pyqt5', 'pyside', 'pyside2', 'pyside6')
 
 if os.environ['QT_API'].startswith('pyqt'):
     try:
@@ -100,6 +100,12 @@ if os.environ['QT_API'] == 'pyside2':
     from PySide2.QtCore import *  # analysis:ignore
     from PySide2.QtWidgets import *  # analysis:ignore
     QT_LIB = 'PySide2'
+    
+if os.environ['QT_API'] == 'pyside6':
+    from PySide6.QtGui import *  # analysis:ignore
+    from PySide6.QtCore import *  # analysis:ignore
+    from PySide6.QtWidgets import *  # analysis:ignore
+    QT_LIB = 'PySide6' 
 
 
 # ---+- Python 2-3 compatibility -+----
