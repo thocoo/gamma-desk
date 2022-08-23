@@ -9,8 +9,14 @@ import struct
 import threading
 import psutil
 
-from qtpy import QtGui, QtWidgets, QtCore
-from qtpy.QtWidgets import QApplication, QShortcut, QDesktopWidget
+from qtpy import QtGui, QtWidgets, QtCore, QT6
+from qtpy.QtWidgets import QApplication, QShortcut
+
+if QT6:
+    from qtpy.QtGui import QGuiApplication    
+else:
+    from qtpy.QtWidgets import QDesktopWidget
+   
 from qtpy.QtGui import QIcon, QKeySequence
 from qtpy.QtCore import Qt
 
@@ -288,7 +294,11 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     #panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
-    desktopGeometry = QDesktopWidget().availableGeometry()
+    if QT6:
+        desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
+    else:
+        desktopGeometry = QDesktopWidget().availableGeometry()
+        
     qapp.mainWindow.resize(int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5))
     
     qtRectangle = qapp.mainWindow.frameGeometry()    
