@@ -512,7 +512,7 @@ class ImageViewerWidget(QWidget):
         return self.imgdata
 
     def getImageCoordOfMouseEvent(self, event):
-        pos = getEventPos(event)        
+        pos = getEventPos(event)
             
         x_float = pos.x() / self.zoomDisplay + self.dispOffsetX
         y_float = pos.y() / self.zoomDisplay + self.dispOffsetY

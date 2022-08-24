@@ -34,18 +34,7 @@ def createCurve(x, y, color=None, z=0, fill=50, zero_ends=True):
         pen = QtGui.QPen(color, 0, QtCore.Qt.SolidLine)
         R,G,B,A = QtGui.QColor(color).toTuple()
         if not fill is None:
-            brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))
-        
-    #first create a Path
-    # path = QtGui.QPainterPath()
-    
-    # path.moveTo(x[0], 0)    
-    # path.lineTo(x[0], y[0])
-    
-    # for i in range(1, len(y)):
-        # path.lineTo(x[i], y[i]) 
-        
-    # path.lineTo(x[-1], 0) 
+            brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))        
 
     if zero_ends:
         path = arrayToQPath(np.r_[x[0], x, x[-1]], np.r_[0, y, 0])    
@@ -69,7 +58,8 @@ def createCurve(x, y, color=None, z=0, fill=50, zero_ends=True):
 class LabelItem(QtWidgets.QGraphicsPolygonItem):
     
     def __init__(self, text='', color=QtGui.QColor(0,0,0), parent=None, scene=None):
-        super().__init__(parent=parent, scene=scene)
+        super().__init__(parent=parent)
+        if scene: scene.addItem(self)
         
         self.makePolygon(40)
         self.setPen(QtGui.QPen(color))
@@ -110,7 +100,8 @@ class LabelItem(QtWidgets.QGraphicsPolygonItem):
 class YLabelItem(QtWidgets.QGraphicsPolygonItem):
     
     def __init__(self, text='', color=QtGui.QColor(0,0,0), parent=None, scene=None):
-        super().__init__(parent=parent, scene=scene)
+        super().__init__(parent=parent)
+        if scene: scene.addItem(self)
                 
         self.setPen(QtGui.QPen(color))
         self.setBrush(QtGui.QColor(240, 240, 240))        
@@ -156,7 +147,8 @@ class YLabelItem(QtWidgets.QGraphicsPolygonItem):
 class Indicator(QtWidgets.QGraphicsPolygonItem):
     
     def __init__(self, color = QtCore.Qt.blue, text = None, parent=None, scene=None):
-        super().__init__(parent=parent, scene=scene)
+        super().__init__(parent=parent)
+        if scene: scene.addItem(self)
         self.mouse_released = ItemSignal()
         
         self.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, True)        
@@ -247,7 +239,8 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
 class Grid(QtWidgets.QGraphicsItem):
 
     def __init__(self, direction, parent=None, scene=None):
-        super().__init__(parent=parent, scene=scene)
+        super().__init__(parent=parent)
+        if scene: scene.addItem(self)
         pens = []   
         pens.append(QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine))
         pens.append(QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine))
