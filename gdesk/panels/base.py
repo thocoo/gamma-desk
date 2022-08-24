@@ -3,11 +3,10 @@ import random
 import logging
 from collections import OrderedDict
 
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QKeySequence, QIcon, QPixmap, QCursor
-from qtpy.QtWidgets import (QApplication, QWidget, QAction, QMainWindow, QDockWidget, QToolButton,
-    QMdiSubWindow, QDockWidget, QShortcut, QPushButton, QMenu, QRadioButton, QButtonGroup)
+from qtpy.QtWidgets import QApplication, QWidget, QAction, QMainWindow, QMenu
 
 from .. import gui, config
 from ..gcore.utils import getMenuTrace, relax_menu_text, relax_menu_trace
