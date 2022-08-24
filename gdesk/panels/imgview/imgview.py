@@ -81,7 +81,7 @@ if has_imafio:
     IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
 
 
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets, QT6
 from qtpy.QtCore import Qt, Signal, QUrl
 from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
@@ -139,6 +139,13 @@ respath = Path(config['respath'])
 #sck = config['shortcuts']
 
 channels = ['R', 'G', 'B', 'A']
+
+def getEventPos(event):
+    if QT6:
+        pos = event.position()
+    else:
+        pos = event.pos()        
+    return pos
 
 class ZoomWidget(MyStatusBar):
     zoomEdited = Signal(float)
@@ -505,8 +512,10 @@ class ImageViewerWidget(QWidget):
         return self.imgdata
 
     def getImageCoordOfMouseEvent(self, event):
-        x_float = event.pos().x() / self.zoomDisplay + self.dispOffsetX
-        y_float = event.pos().y() / self.zoomDisplay + self.dispOffsetY
+        pos = getEventPos(event)        
+            
+        x_float = pos.x() / self.zoomDisplay + self.dispOffsetX
+        y_float = pos.y() / self.zoomDisplay + self.dispOffsetY
         #Round down
         return (int(x_float), int(y_float))
 
@@ -767,8 +776,9 @@ class ImageViewerWidget(QWidget):
     def mousePressEvent(self, event):
         if event.buttons() == Qt.LeftButton or \
             (event.buttons() == Qt.MiddleButton):
-            self.dragStartX = event.pos().x()
-            self.dragStartY = event.pos().y()
+            pos = event.pos()
+            self.dragStartX = pos.x()
+            self.dragStartY = pos.y()
             #roi value at the start of the dragging
             self.dispRoiStartX = self.dispOffsetX
             self.dispRoiStartY = self.dispOffsetY
@@ -780,8 +790,9 @@ class ImageViewerWidget(QWidget):
         if (event.buttons() == Qt.LeftButton) or \
                 (event.buttons() == Qt.MiddleButton):
             self.setCursor(self.dragCursor)
-            self.dragEndX = event.pos().x()
-            self.dragEndY = event.pos().y()
+            pos = event.pos()
+            self.dragEndX = pos.x()
+            self.dragEndY = pos.y()
             self.panned(event.modifiers() & QtCore.Qt.ShiftModifier)
 
         elif (event.buttons() == Qt.RightButton):
@@ -797,7 +808,8 @@ class ImageViewerWidget(QWidget):
         if self.dragStartX is None or self.dragStartY is None:
             return None
 
-        return ((event.pos().x() - self.dragStartX)**2 + (event.pos().y() - self.dragStartY)**2) ** 0.5
+        pos = event.pos()
+        return ((pos.x() - self.dragStartX)**2 + (pos.y() - self.dragStartY)**2) ** 0.5
 
     def mouseReleaseEvent(self, event):
         drag_distance = self.dragDistance(event)
