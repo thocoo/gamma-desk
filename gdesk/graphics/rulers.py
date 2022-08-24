@@ -2,11 +2,6 @@ from qtpy import QtCore, QtGui, QtWidgets
 from ..utils.ticks import tickValues, Ticks
       
 fonts = []
-
-# fonts.append(QtGui.QFont('Arial', 12))
-# fonts.append(QtGui.QFont('Arial', 10))
-# fonts.append(QtGui.QFont('Arial', 9))
-
 fonts.append(QtGui.QFont('Arial', 8))
 fonts.append(QtGui.QFont('Arial', 7))
 fonts.append(QtGui.QFont('Arial', 5))
