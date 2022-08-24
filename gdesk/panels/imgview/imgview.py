@@ -756,7 +756,10 @@ class ImageViewerWidget(QWidget):
         else:
             fine = False
 
-        if event.delta() < 0:
+        wheel_delta = event.angleDelta().y()
+        # QT5: wheel_delta = event.delta()
+        
+        if wheel_delta < 0:
             self.zoomOut(*self.getImageCoordOfMouseEvent(event), fine)
         else:
             self.zoomIn(*self.getImageCoordOfMouseEvent(event), fine)
