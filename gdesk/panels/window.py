@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         self.layoutMenu.addMenu(self.windowMenu)                   
             
         self.toolWinAction = QAction(self.winActionLabel(), self, triggered=self.asToolWindow)
-        self.windowMenu.addAction(self.toolWinAction, checkcall=self.isToolWindow)
+        self.windowMenu.addActionWithCallback(self.toolWinAction, checkcall=self.isToolWindow)
             
         addWindowMenuItem("Distribute", self.container.distribute, 'layouts_six_grid.png')        
         addWindowMenuItem("Drop In", lambda: self.qapp.panels.ezm.drop_in(self.container),

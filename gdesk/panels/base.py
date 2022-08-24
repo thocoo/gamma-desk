@@ -35,16 +35,18 @@ class CheckMenu(QtWidgets.QMenu):
             action.setChecked(checked_call())
             
         for action, enable_call in self.action_enable_calls:
-            action.setEnabled(enable_call())            
-            
-    def addAction(self, *args, **kwargs):
-        action = super().addAction(*args, **kwargs)
-        if action is None: action = args[0]
-        if not kwargs.get('checkcall', None) is None:
+            action.setEnabled(enable_call())                        
+
+    def addActionWithCallback(self, action, checkcall=None, enablecall=None, **kwargs):
+        super().addAction(action, **kwargs)
+
+        if checkcall:
             action.setCheckable(True)
-            self.action_checked_calls.append((action, kwargs.get('checkcall')))
-        if not kwargs.get('enablecall', None) is None:
-            self.action_enable_calls.append((action, kwargs.get('enablecall')))            
+            self.action_checked_calls.append((action, checkcall))
+
+        if enablecall:
+            self.action_enable_calls.append((action, enablecall))
+
         return action        
 
 class PanelsMenu(QMenu):
@@ -217,7 +219,11 @@ class BasePanel(QMainWindow):
         if not icon is None:
             action.setIcon(icon)
             
-        menu.addAction(action, checkcall=checkcall, enablecall=enablecall)      
+        if checkcall or enablecall:
+            menu.addActionWithCallback(action, checkcall=checkcall, enablecall=enablecall)
+        else:
+            menu.addAction(action)
+            
         return action
     
     def addBaseMenu(self, bindCategories=[]):        
