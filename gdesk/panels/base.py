@@ -35,7 +35,19 @@ class CheckMenu(QtWidgets.QMenu):
             action.setChecked(checked_call())
             
         for action, enable_call in self.action_enable_calls:
-            action.setEnabled(enable_call())                        
+            action.setEnabled(enable_call())
+            
+    def addAction(self, *args, **kwargs):
+    
+        checkcall = kwargs.pop("checkcall") if "checkcall" in kwargs else None
+        enablecall = kwargs.pop("enablecall") if "enablecall" in kwargs else None
+    
+        if not (checkcall is None and enablecall) is None:       
+            action = args[0]
+            self.addActionWithCallback(action, checkcall, enablecall, **kwargs)
+            
+        else:
+            super().addAction(*args, **kwargs)
 
     def addActionWithCallback(self, action, checkcall=None, enablecall=None, **kwargs):
         super().addAction(action, **kwargs)
