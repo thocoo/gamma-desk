@@ -18,9 +18,9 @@ class DockBox(QtWidgets.QSplitter, DockBase):
         
         pal = self.palette()     
         if orientation == Qt.Horizontal:
-            pal.setColor(QtGui.QPalette.Background, QtGui.QColor(192,224,192))
+            pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,224,192))
         elif orientation == Qt.Vertical:
-            pal.setColor(QtGui.QPalette.Background, QtGui.QColor(192,192,224))
+            pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,192,224))
         self.setPalette(pal)          
         
         self.pinarea = PinnedBox(orientation)
@@ -157,7 +157,7 @@ class PinnedBox(QtWidgets.QSplitter):
         QtWidgets.QSplitter.__init__(self, orientation)
 
         pal = self.palette()     
-        pal.setColor(QtGui.QPalette.Background, QtGui.QColor(192,192,192))
+        pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,192,192))
         self.setPalette(pal)
         
         self.atLeastOnePanel = True
@@ -433,7 +433,7 @@ class ScrollBox(QtWidgets.QScrollArea):
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         pal = self.palette()     
-        pal.setColor(QtGui.QPalette.Background, QtGui.QColor(160,200,224))
+        pal.setColor(QtGui.QPalette.Base, QtGui.QColor(160,200,224))
         self.setPalette(pal)           
         
         self.growbox = SplitBox(orientation)

@@ -96,7 +96,7 @@ class MyStatusBar(QWidget):
         self.setFixedHeight(fontheight + 2)        
 
         pal = self.palette()  
-        pal.setColor(QtGui.QPalette.Background, QtGui.QColor(192,192,192))     
+        pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,192,192))     
         self.setPalette(pal)        
         self.setAutoFillBackground(True)
         

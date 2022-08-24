@@ -288,18 +288,18 @@ class DockTag(DockTabBase):
         if title.startswith('vbox'):
             self.setTabPosition(QTabWidget.West) 
             pal = self.palette()     
-            pal.setColor(QPalette.Background, QColor(192,192,224))
+            pal.setColor(QPalette.Base, QColor(192,192,224))
             self.setPalette(pal)
 
         elif title.startswith('hbox'):
             pal = self.palette()     
-            pal.setColor(QPalette.Background, QColor(192,224,192))
+            pal.setColor(QPalette.Base, QColor(192,224,192))
             self.setPalette(pal)
 
         else:
             self.setStyleSheet("QTabBar::tab { height: " +  str(self.tabBar().fontheight + 6) + ";}")
             pal = self.palette()     
-            pal.setColor(QPalette.Background, QColor(242,242,242))
+            pal.setColor(QPalette.Base, QColor(242,242,242))
             self.setPalette(pal)     
 
         if isinstance(widget, BasePanel):    
