@@ -132,21 +132,22 @@ class SceneView(QtWidgets.QGraphicsView):
         self.limitRefreshRange()
         self.updateMatrix()            
 
-    def wheelEvent(self, ev):
-        #QtWidgets.QGraphicsView.wheelEvent(self, ev)
+    def wheelEvent(self, event):        
+        wheel_delta = event.angleDelta().y()
+        
         if not self.fixScaleX and (self.fixScaleY or self.freeze_y0):                
-            self.scale[0] = self.scale[0] * 1.001 ** ev.delta()        
+            self.scale[0] = self.scale[0] * 1.001 ** wheel_delta        
             self.updateMatrix()  
             self.scale_ended.emit(True, False)
                 
         elif self.fixScaleX and not self.fixScaleY:                
-            self.scale[1] = self.scale[1] * 1.001 ** ev.delta()
+            self.scale[1] = self.scale[1] * 1.001 ** wheel_delta
             self.updateMatrix()
             self.scale_ended.emit(False, True)                
                 
         else:
-            self.scale[0] = self.scale[0] * 1.001 ** ev.delta()
-            self.scale[1] = self.scale[1] * 1.001 ** ev.delta()
+            self.scale[0] = self.scale[0] * 1.001 ** wheel_delta
+            self.scale[1] = self.scale[1] * 1.001 ** wheel_delta
             self.updateMatrix()
             self.scale_ended.emit(True, True)
     
