@@ -131,16 +131,27 @@ def configure(**overwrites):
 
     deep_update(config, overwrites)
 
-    os.environ['QT_API'] = config['qt_api']
-    logging.root.setLevel(config['logging_level'])
+    os.environ['QT_API'] = config['qt_api']        
+    logging.root.setLevel(config['logging_level'])    
 
     if config['debug'].get('list_packages', False):
         list_packages(REQUIRED)
+        
+    from gdesk import refer_gui_instance
+    from .gui_proxy import gui
+    refer_gui_instance(gui)                     
 
     #TO DO: import register_objects_in_ghawk2_init
     #from ghawk2.core.gui_proxy import register_objects_in_ghawk2_init
     #register_objects_in_ghawk2_init()
-
+    config_matplotlib()      
+    
+    #Configure and register plugins
+    for panel_class_module in config["panel_class_modules"]:
+        exec(f'import {panel_class_module}')
+        
+        
+def config_matplotlib():
     # Importing matplotlib takes some time !
     # It also imports numpy
     import matplotlib
@@ -148,10 +159,7 @@ def configure(**overwrites):
     #This will also call the backend module
     #Which import ..panels.matplot
     import pylab
-
-    #Configure and register plugins
-    for panel_class_module in config["panel_class_modules"]:
-        exec(f'import {panel_class_module}')
+    
 
 def save_config_json(path=None):
     current_config = copy.deepcopy(config)

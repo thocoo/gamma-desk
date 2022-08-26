@@ -15,10 +15,12 @@
 #-------------------------------------------------------------------------------
 
 """Bench Desk"""
-
 from .version import VERSION_INFO
 from .core.conf import config, configure
-from .core.gui_proxy import gui
+
+#from .core.gui_proxy import gui
+gui = None
+
 from .live import use, using
 
 PROGNAME = 'Gamma Desk'
@@ -34,3 +36,7 @@ def refer_shell_instance(shellinst):
     """refer_shell_instance"""
     global shell
     shell = shellinst
+
+def refer_gui_instance(guiinst):
+    global gui
+    gui = guiinst
