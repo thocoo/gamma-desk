@@ -27,7 +27,7 @@ REQUIRED = [
     'imageio',
     'matplotlib',
     'scipy',
-    'PySide2',
+    'PySide6',
     'qtpy',
     'psutil',
     'numba',
