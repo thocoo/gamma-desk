@@ -52,7 +52,6 @@
   "sphinx": false,
   "stdoutmode": "ansi",
   "respath": "%GDESKROOT%/resources",
-  "qt_api": "pyside2",
   "path_channel_script": "%GDESKROOT%/external/scripts/connect_from_canvas.py",
   "path_channel_ini": "%GDESKROOT%/external/scripts/connect.ini",
   "logging_level": "INFO",

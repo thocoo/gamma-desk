@@ -130,9 +130,27 @@ def configure(**overwrites):
         config_files = config.get('path_config_files', [])
 
     deep_update(config, overwrites)
-
-    os.environ['QT_API'] = config['qt_api']        
-    os.environ['FORCE_QT_API'] = '1'
+    
+    if 'QT_API' in os.environ.keys():
+        pass
+    
+    elif 'qt_api' in config.keys():
+        print('Configuring PySide version by the config json')
+        os.environ['QT_API'] = config['qt_api']        
+        os.environ['FORCE_QT_API'] = '1'
+        
+    else:
+        for i in range(1):
+            try:
+                import PySide6
+                break
+            except ImportError:
+                logger.warn('Could not import PySide6, trying PySide2')
+            
+            import PySide2                
+            break
+            
+        
     logging.root.setLevel(config['logging_level'])    
 
     if config['debug'].get('list_packages', False):
