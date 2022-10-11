@@ -35,10 +35,10 @@ REQUIRED = [
     'pywinpty'
 ]
 
-is_pyside6_enabled = any('pyside6' in a.lower() for a in sys.argv)
-
-if not is_pyside6_enabled:
-    REQUIRED.extend(['pyside2'])
+EXTRAS_REQUIRED = {
+    'pyside2': ['PySide2'],
+    'pyside6': ['PySide6'],
+    }
 
 PYTHON_REQUIRED = '>=3.6'
 
@@ -76,10 +76,7 @@ setup(
     install_requires=REQUIRED,
     include_package_data=True,
     python_requires=PYTHON_REQUIRED,
-    extras_require = {
-        'pyside2': ['PySide2'],
-        'pyside6': ['PySide6'],
-        },
+    extras_require = EXTRAS_REQUIRED,
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
