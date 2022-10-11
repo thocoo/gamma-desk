@@ -132,6 +132,7 @@ def configure(**overwrites):
     deep_update(config, overwrites)
 
     os.environ['QT_API'] = config['qt_api']        
+    os.environ['FORCE_QT_API'] = '1'
     logging.root.setLevel(config['logging_level'])    
 
     if config['debug'].get('list_packages', False):
