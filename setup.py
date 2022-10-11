@@ -28,7 +28,6 @@ REQUIRED = [
     'imageio-ffmpeg',
     'matplotlib',
     'scipy',
-    'PySide2',
     'qtpy',
     'psutil',
     'numba',
@@ -72,6 +71,10 @@ setup(
     install_requires=REQUIRED,
     include_package_data=True,
     python_requires=PYTHON_REQUIRED,
+    extras_require = {
+        'pyside2': ['PySide2'],
+        'pyside6': ['PySide6'],
+        }
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
