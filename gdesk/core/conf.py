@@ -147,10 +147,12 @@ def configure(**overwrites):
             except ImportError:
                 logger.warn('Could not import PySide6, trying PySide2')
             
-            import PySide2                
-            break
-            
-        
+            try:
+                import PySide2         
+                break
+            except ImportError:
+                raise ImportError('Install either PySide2 or PySide6 by pip install pyside2 or pip install pyside6')
+
     logging.root.setLevel(config['logging_level'])    
 
     if config['debug'].get('list_packages', False):
