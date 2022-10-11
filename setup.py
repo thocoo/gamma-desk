@@ -35,6 +35,11 @@ REQUIRED = [
     'pywinpty'
 ]
 
+is_pyside6_enabled = any('pyside6' in a.lower() for a in sys.argv)
+
+if not is_pyside6_enabled:
+    REQUIRED.extend(['pyside2'])
+
 PYTHON_REQUIRED = '>=3.6'
 
 def get_resources():
@@ -53,7 +58,7 @@ with open(modpath / 'version.py') as fp:
 
 # Import the README and use it as the long-description.    
 with open(herepath / 'README.md', encoding='utf-8') as fp:
-    LONG_DESCRIPTION = '\n' + fp.read()
+    LONG_DESCRIPTION = '\n' + fp.read()    
 
 setup(
     name=DISTRO_NAME,
