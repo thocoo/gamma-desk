@@ -74,7 +74,7 @@ setup(
     extras_require = {
         'pyside2': ['PySide2'],
         'pyside6': ['PySide6'],
-        }
+        },
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
