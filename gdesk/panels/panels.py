@@ -9,10 +9,10 @@ from pathlib import Path
 
 import numpy as np
 
-from qtpy import QtGui, QtWidgets, QtCore, QT6
+from qtpy import QtGui, QtWidgets, QtCore, API_NAME
 from qtpy.QtCore import Qt
 
-if QT6:
+if API_NAME in ['PySide6']:
     from qtpy.QtGui import QGuiApplication
 
 from .. import config, gui, __release__
@@ -216,7 +216,7 @@ class Panels(object):
         visible = False
         
         # Check if the window is fully visible on any screen.
-        if QT6:
+        if API_NAME in ['PySide6']:
             screens = QGuiApplication.screens()
             for screen in screens:
                 if screen.availableGeometry().contains(window_rect):

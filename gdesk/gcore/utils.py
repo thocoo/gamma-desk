@@ -3,7 +3,7 @@ Small utils directly related to QT
 """
 import collections
 from pathlib import Path
-from qtpy import QtWidgets, QT6
+from qtpy import QtWidgets, API_NAME
 
 from .. import config
 
@@ -27,7 +27,7 @@ def getMenuTrace(menu):
     scan_action = menu.menuAction()
     
     while not scan_action is None:
-        if QT6:
+        if API_NAME in ['PySide6']:
             aw = scan_action.associatedObjects()
         else:
             aw = scan_action.associatedWidgets()

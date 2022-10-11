@@ -1,12 +1,7 @@
-try:
-    from qtpy import PYSIDE, PYQT4
-except:
-    PYSIDE, PYQT4 = False, False
-    
-from qtpy import PYSIDE2, PYQT4, PYQT5, PYSIDE6, PYQT6
+from qtpy import API_NAME
     
 def using_pyside():
-    return PYSIDE or PYSIDE2 or PYSIDE6
+    return API_NAME in ['PySide2', 'PySide6']
     
 def using_pyqt():
-    return PYQT4 or PYQT5 or PYQT6
+    return API_NAME in ['PyQt5', 'PyQt6']

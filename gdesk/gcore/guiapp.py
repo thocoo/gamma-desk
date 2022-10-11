@@ -9,10 +9,10 @@ import struct
 import threading
 import psutil
 
-from qtpy import QtGui, QtWidgets, QtCore, QT6
+from qtpy import QtGui, QtWidgets, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
 
-if QT6:
+if API_NAME in ['PySide6']:
     from qtpy.QtGui import QGuiApplication    
 else:
     from qtpy.QtWidgets import QDesktopWidget
@@ -294,7 +294,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     #panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
-    if QT6:
+    if API_NAME in ['PySide6']:
         desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
     else:
         desktopGeometry = QDesktopWidget().availableGeometry()

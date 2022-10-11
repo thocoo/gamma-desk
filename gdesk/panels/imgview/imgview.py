@@ -81,7 +81,7 @@ if has_imafio:
     IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
 
 
-from qtpy import QtCore, QtGui, QtWidgets, QT6
+from qtpy import QtCore, QtGui, QtWidgets, API_NAME
 from qtpy.QtCore import Qt, Signal, QUrl
 from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
@@ -141,7 +141,7 @@ respath = Path(config['respath'])
 channels = ['R', 'G', 'B', 'A']
 
 def getEventPos(event):
-    if QT6:
+    if API_NAME in ['PySide6']:
         pos = event.position()
     else:
         pos = event.pos()        
