@@ -286,20 +286,20 @@ class PlotView(QtWidgets.QGraphicsView):
     def wheelEvent(self, ev):
         # QtWidgets.QGraphicsView.wheelEvent(self, ev)
         if not self.fixScaleX and not self.fixScaleY:
-            self.scale[0] = self.scale[0] * 1.001 ** ev.delta()
-            self.scale[1] = self.scale[1] * 1.001 ** ev.delta()
+            self.scale[0] = self.scale[0] * 1.001 ** ev.angleDelta().y()
+            self.scale[1] = self.scale[1] * 1.001 ** ev.angleDelta().y()
             self.updateMatrix()
             self.scaleXUpdated.emit()
             self.panXUpdated.emit()
             self.scaleYUpdated.emit()
             self.panYUpdated.emit()
         elif self.fixScaleX and not self.fixScaleY:                
-                self.scale[1] = self.scale[1] * 1.001 ** ev.delta()
+                self.scale[1] = self.scale[1] * 1.001 ** ev.angleDelta().y()
                 self.updateMatrix()
                 self.scaleXUpdated.emit()
                 self.panXUpdated.emit()
         elif not self.fixScaleX and self.fixScaleY:                
-                self.scale[0] = self.scale[0] * 1.001 ** ev.delta()        
+                self.scale[0] = self.scale[0] * 1.001 ** ev.angleDelta().y()
                 self.updateMatrix()
                 self.scaleXUpdated.emit()
                 self.panYUpdated.emit()
