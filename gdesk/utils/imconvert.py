@@ -277,7 +277,7 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
                     processed[:,:,2] = np.take(map8, array[:,:,0])
                     processed[:,:,3] = array[:,:,3] >> 8
                 
-    elif array.dtype in ['int32', 'uint32', 'float16', 'float32', 'float64']:
+    elif array.dtype in ['int32', 'uint32', 'int64', 'uint64', 'float16', 'float32', 'float64']:
         if has_numba:
             convertor = nb_float_offset_gain_gamma_8bit           
         else:
