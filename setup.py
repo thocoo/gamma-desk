@@ -36,6 +36,7 @@ REQUIRED = [
 ]
 
 EXTRAS_REQUIRED = {
+    'all': ['PySide6'],
     'pyside2': ['PySide2'],
     'pyside6': ['PySide6'],
     }
