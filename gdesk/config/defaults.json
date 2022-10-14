@@ -21,7 +21,7 @@
     "skip_main_stdout_redirect": false,
     "skip_main_stderr_redirect": false,
     "place select button": false,
-    "list_packages": true
+    "list_packages": false
   },
   "console": {
     "fontsize": 8,
