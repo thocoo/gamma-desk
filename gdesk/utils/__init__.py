@@ -49,7 +49,13 @@ def clip_values(dtype):
         low, high = 0, 4294967295       
 
     elif dtype == 'int32':
-        low, high = -2147483648, 2147483647         
+        low, high = -2147483648, 2147483647
+        
+    elif dtype == 'uint64':
+        low, high = 0, 2**63-1       
+
+    elif dtype == 'int64':
+        low, high = -2**63, 2**63-1        
 
     elif dtype in ['float', 'double']:
         low, high = 0, 1
