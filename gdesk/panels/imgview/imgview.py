@@ -1035,6 +1035,8 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.editMenu, 'Paste into New Image', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",
             icon = 'picture_clipboard.png')
+        self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
+            icon = 'lcd_tv_image.png')
 
         self.editMenu.addSeparator()
 
@@ -1551,6 +1553,31 @@ class ImageViewerBase(BasePanel):
     def showFromClipboard(self):
         arr = gui.get_clipboard_image()
         self.show_array(arr)
+        
+    def grabDesktop(self):       
+        screens = self.qapp.screens()    
+        screen_names = [1] + [sc.name() for sc in screens]
+        form = [
+            ('Screen', screen_names),
+            ('Delay', 1.0)]
+        
+        results = fedit(form)
+        
+        if results is None: return
+        
+        screen_index, delay = results
+        screen_name = screen_names[screen_index]
+        
+        screen = [sc for sc in screens if sc.name() == screen_name][0]        
+        
+        def screenGrab():
+            pixmap = screen.grabWindow(0)
+            
+            qimage = pixmap.toImage()
+            arr = imconvert.qimage_to_ndarray(qimage)
+            self.show_array(arr)
+        
+        QtCore.QTimer.singleShot(delay * 1000, screenGrab)               
 
     ############################
     # View Menu Connections
