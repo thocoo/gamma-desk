@@ -94,8 +94,12 @@ def make_blueprint(array, xkern=XKERN, ykern=YKERN, hfg=HFG, bayer=False):
         
         if array.dtype == 'uint8':
             scale = 1
+            
         elif array.dtype == 'uint16':
             scale = 256
+            
+        else:
+            raise TypeError(f'dtype {array.dtype} not supported')
             
         min7 = min6.reshape(xdimsc, ydimsc).T[:,:] // scale
         mean7 = mean6.reshape(xdimsc, ydimsc).T[:,:] // scale
