@@ -572,6 +572,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setText(f'{self.panel.sigma}σ')
         self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))        
+        self.autoBtn.setToolTip('Auto contrast to a certain sigma')
         self.autoBtn.setMenu(self.gainSigmaMenu)
         self.autoBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.autoBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
@@ -581,12 +582,14 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.useRoiBtn = QtWidgets.QToolButton(self)
         self.useRoiBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
         self.useRoiBtn.setCheckable(True)
+        self.useRoiBtn.setToolTip('Use only the region of intereset')
         self.useRoiBtn.clicked.connect(self.toggleRoi)
         self.addWidget(self.useRoiBtn)     
         
         self.sqrtBtn = QtWidgets.QToolButton(self)
         self.sqrtBtn.setText('log')
         self.sqrtBtn.setCheckable(True)
+        self.sqrtBtn.setToolTip('Use Logaritmic Y-scale')
         self.sqrtBtn.clicked.connect(self.toggleSqrt)
         self.addWidget(self.sqrtBtn)        
 
