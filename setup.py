@@ -46,7 +46,10 @@ PYTHON_REQUIRED = '>=3.6'
 def get_resources():
     found_resources = []    
 
-    found_resources.append(str(modpath / 'config' / 'defaults.json'))
+    if sys.platform == "linux":
+        found_resources.append(str(modpath / 'config' / 'defaults_linux.json'))
+    else:
+        found_resources.append(str(modpath / 'config' / 'defaults.json'))
 
     for path in modpath.glob('resources/**/*'):
         if path.is_dir(): continue
