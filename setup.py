@@ -32,7 +32,7 @@ REQUIRED = [
     'psutil',
     'numba',
     'pyzmq',
-    'pywinpty'
+    'pywinpty; sys_platform=="win32"',
 ]
 
 EXTRAS_REQUIRED = {
