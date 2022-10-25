@@ -18,9 +18,11 @@ else:
 from .conf import config
 
 class LogDir(object):
+
     def __init__(self, rootpath):
-        self.rootpath = Path(rootpath)
+        self.rootpath = Path(rootpath).expanduser()
         if not self.rootpath.exists():
+            print(f"Creating log dir: {self.rootpath}")
             self.rootpath.mkdir(parents=True)
 
     def make_lock_file(self, lock_file):
