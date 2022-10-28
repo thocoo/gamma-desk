@@ -7,8 +7,11 @@ import json
 
 from multiprocessing import Process, Queue
 
-from .. import config, configure, gui
+from .. import config, configure
+
 configure(matplotlib={'backend':'svg'})
+
+from .. import gui
 
 from .. import console
 from ..core.shellmod import Shell
@@ -103,7 +106,7 @@ def start_gui_as_child(namespace=None, gui_redirect=True):
 
     Typical usage in Canvas by the following command:
 
-        from ghawk2.external.channel import start_ghawk_as_child; start_ghawk_as_child(globals())
+        from gdesk.external.channel import start_gui_as_child; start_gui_as_child(globals())
     """
     if namespace is None:
         namespace = sys._getframe(1).f_globals
