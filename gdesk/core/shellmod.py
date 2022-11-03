@@ -144,7 +144,11 @@ class Shell(object):
         editorExecutable = Path(config['texteditor'])
         
         if not editorExecutable.exists():
-            logger.error(f"{editorExecutable} doesn't exist")
+            logger.error(
+                f"Text editor executable does not exist: '{editorExecutable}'."
+                "\nAdd to your gdconf.json file file the key 'texteditor', with as value "
+                " the full path to the executable."
+            )
             return
         
         if editorExecutable.name.lower() == 'notepad++.exe':
