@@ -449,11 +449,13 @@ class Shell(object):
         items = []
         for state in range(max):
             if shell.comp.complete.__func__.__code__.co_argcount == 3:
-                #The Python Original rlcompleter
+                # The Python Original rlcompleter.
                 item = shell.comp.complete(text, state)
             else:
+                # Needs an extra argument: 'wild'.
                 item = shell.comp.complete(text, state, wild)
             if item is None:
+                # Reached the end (no more attributes).
                 break
             items.append(item)
         return items        
