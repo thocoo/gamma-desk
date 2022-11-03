@@ -19,3 +19,5 @@
 /doc/sphinx/*.log
 /test/stderr.log
 /samples/*.log
+__pycache__/
+gdesk/stderr.log

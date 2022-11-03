@@ -190,12 +190,13 @@ class Completer:
 
         Assuming the text is of the form NAME.NAME....[NAME], and is
         evaluable in self.namespace, it will be evaluated and its attributes
-        (as revealed by dir()) are used as possible completions.  (For class
-        instances, class members are also considered.)
+        (as revealed by dir()) are used as possible completions.
+
+        For class instances, class members are also considered except if the instance
+        contains a flag `_AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES` set to True.
 
         WARNING: this can still invoke arbitrary C code, if an object
         with a __getattr__ hook is evaluated.
-
         """
         import re
         #m = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
@@ -212,9 +213,12 @@ class Completer:
         words = set(dir(thisobject))
         words.discard("__builtins__")
 
+        # Get the class-level attributes, but only if these are not explicitly hidden.
+        hide_class_level_attributes = getattr(thisobject, "_AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES", False)
         if hasattr(thisobject, '__class__'):
             words.add('__class__')
-            words.update(get_class_members(thisobject.__class__))
+            if not hide_class_level_attributes:
+                words.update(get_class_members(thisobject.__class__))
         matches = []
         n = len(attr)
         if attr == '':
