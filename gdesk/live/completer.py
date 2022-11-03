@@ -215,9 +215,10 @@ class Completer:
 
         # Get the class-level attributes, but only if these are not explicitly hidden.
         hide_class_level_attributes = getattr(thisobject, "_AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES", False)
-        if hasattr(thisobject, '__class__') and not hide_class_level_attributes:
+        if hasattr(thisobject, '__class__'):
             words.add('__class__')
-            words.update(get_class_members(thisobject.__class__))
+            if not hide_class_level_attributes:
+                words.update(get_class_members(thisobject.__class__))
         matches = []
         n = len(attr)
         if attr == '':

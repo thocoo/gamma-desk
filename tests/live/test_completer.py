@@ -106,3 +106,8 @@ def test_completer_on_object_with_custom_dir_and_hidden_class_level_attributes_r
     assert set(completed_attributes) == set([
         "with_dir_and_hide_class.a",
     ])
+
+
+def test_completer_with_double_underscore_on_hidden_class_level_attributes_also_offers_dunder_class(completer):
+    completed_attributes = _get_all_completions(completer, "with_dir_and_hide_class._")
+    assert "with_dir_and_hide_class.__class__(" in completed_attributes
