@@ -859,7 +859,7 @@ class ImageViewerWidget(QWidget):
 
         else:
             if config["image"].get('render_detail_smooth', False) and self.zoomDisplay < 1:
-                qp.setRenderHint(qp.SmoothPixmapTransform)
+                qp.setRenderHint(qp.RenderHint.SmoothPixmapTransform)
 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)

@@ -34,7 +34,7 @@ class PlotView(QtWidgets.QGraphicsView):
 
         # There is the experimental options of using OpenGl
         self.useOpenGL(False)
-        self.setCacheMode(self.CacheBackground)
+        self.setCacheMode(self.CacheModeFlag.CacheBackground)
         self.setBackground(background)
         
         self.setFocusPolicy(QtCore.Qt.StrongFocus)

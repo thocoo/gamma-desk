@@ -21,7 +21,7 @@ class SceneView(QtWidgets.QGraphicsView):
         
         #self.useOpenGL(True)
         
-        self.setCacheMode(self.CacheBackground)
+        self.setCacheMode(self.CacheModeFlag.CacheBackground)
         
         self.scale = [1, 1]
         self.center = [0, 0]
