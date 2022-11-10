@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-import collections
+from collections.abc import Mapping
 from pathlib import Path
 import json
 import importlib
@@ -47,7 +47,7 @@ def deep_update(source, overrides):
     Modify ``source`` in place.
     """
     for key, value in overrides.items():
-        if isinstance(value, collections.abc.Mapping) and value:
+        if isinstance(value, Mapping) and value:
             returned = deep_update(source.get(key, {}), value)
             source[key] = returned
         else:
@@ -72,8 +72,8 @@ def deep_diff(dict1, dict2):
     for key in common_keys:
         value1 = dict1[key]
         value2 = dict2[key]
-        if isinstance(value1, collections.Mapping):
-            assert isinstance(value2, collections.Mapping)
+        if isinstance(value1, Mapping):
+            assert isinstance(value2, Mapping)
             value = deep_diff(value1, value2)
             if len(value) > 0:
                 result[key] = value
