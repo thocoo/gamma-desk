@@ -30,7 +30,9 @@ REQUIRED = [
     'scipy',
     'qtpy',
     'psutil',
-    'numba',
+    # Numba is not yet released for Python 3.11.
+    # See https://github.com/numba/numba/issues/8304
+    'numba;python_version<"3.11"',
     'pyzmq',
     'pywinpty; sys_platform=="win32"',
 ]
