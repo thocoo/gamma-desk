@@ -253,7 +253,7 @@ class StdInputPanel(QPlainTextEdit):
         if self.cursor.block().blockNumber() != (self.blockCount() - 1):
             return False
 
-        self.cursor.movePosition(self.cursor.EndOfLine, self.cursor.KeepAnchor)
+        self.cursor.movePosition(QTextCursor.EndOfLine, self.cursor.KeepAnchor)
         curdocpos = self.cursor.position()
         self.cursor.movePosition(self.cursor.StartOfLine, self.cursor.KeepAnchor)
         startlinepos = self.cursor.position()
@@ -583,7 +583,7 @@ class StdPlainOutputPanel(QPlainTextEdit):
                         cursor.PreviousCharacter, cursor.KeepAnchor)
 
                 elif act.action == 'newline':
-                    cursor.movePosition(cursor.EndOfLine)
+                    cursor.movePosition(QTextCursor.EndOfLine)
                     
                 elif act.action == 'set-title':
                     self.panel.long_title = act.title
