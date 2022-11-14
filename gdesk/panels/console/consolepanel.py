@@ -286,7 +286,7 @@ class StdInputPanel(QPlainTextEdit):
 
     def moveCursorToEndOfBlock(self):
         cursor=self.textCursor()
-        cursor.movePosition(cursor.EndOfBlock)
+        cursor.movePosition(QTextCursor.EndOfBlock)
         self.setTextCursor(cursor)
 
     def moveCursorToEndOfDoc(self):
