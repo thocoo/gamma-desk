@@ -214,7 +214,13 @@ class Completer:
         words.discard("__builtins__")
 
         # Get the class-level attributes, but only if these are not explicitly hidden.
-        hide_class_level_attributes = getattr(thisobject, "_AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES", False)
+        if isinstance(thisobject, LiveScriptTree):
+            #getattr on _AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES causes a search
+            #to _AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES.py
+            hide_class_level_attributes = False
+        else:
+            hide_class_level_attributes = getattr(thisobject, "_AUTO_COMPLETE_HIDE_CLASS_ATTRIBUTES", False)            
+            
         if hasattr(thisobject, '__class__'):
             words.add('__class__')
             if not hide_class_level_attributes:
