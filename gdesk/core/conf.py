@@ -162,9 +162,9 @@ def configure(**overwrites):
     from .gui_proxy import gui
     refer_gui_instance(gui)                     
 
-    #TO DO: import register_objects_in_ghawk2_init
-    #from ghawk2.core.gui_proxy import register_objects_in_ghawk2_init
-    #register_objects_in_ghawk2_init()
+    #TO DO: import register_objects_in_gdesk_init
+    #from gdesk.core.gui_proxy import register_objects_in_ghawk2_init
+    #register_objects_in_gdesk_init()
     config_matplotlib()      
     
     #Configure and register plugins

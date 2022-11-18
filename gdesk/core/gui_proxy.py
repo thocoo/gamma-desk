@@ -507,7 +507,7 @@ class GuiProxy(object):
     @StaticGuiCall              
     def exit():
         """
-        Exit Gamma Hawk
+        Exit Gamma Desk.
         """
         gui.qapp.quit()        
         
@@ -550,7 +550,7 @@ class GuiMap(object):
 
 gui = GuiMap()
 
-def register_objects_in_ghawk2_init():
+def register_objects_in_gdesk_init():
     import gdesk
     gdesk.GuiMap = GuiMap
     gdesk.gui = gui

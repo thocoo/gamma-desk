@@ -55,7 +55,7 @@ def connect_to_gui(port=None, host='localhost',
 
     Connecting to a running GD instance at another computer
 
-    >>>  channel.connect_to_gui(5998, 'FFYBVR-L1.ad.onsemi.com')
+    >>>  channel.connect_to_gui(5998, 'mylaptop.ad.example.com')
 
     """
     if namespace is None:
@@ -98,7 +98,7 @@ def connect_to_gui(port=None, host='localhost',
 
 def start_gui_as_child(namespace=None, gui_redirect=True):
     """
-    Start Gamma Hawk as a child process and open a communication channel
+    Start Gamma Desk as a child process and open a communication channel
     to a new thread in this process.
 
     :param dict workspace: The workspace to use in the Shell object

@@ -115,7 +115,7 @@ can find it in the current active logdir of GD.
 Connection from another computer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   
 
-For example, a Gamma Desk is running on  host 'FFYBVR-L1.ad.onsemi.com'.
+For example, a Gamma Desk is running on  host 'mylaptop.ad.example.com'.
 An the watcher is active on port 5559.
 
 The user have to give the port number and the host when he wants to connect to GD.
@@ -123,7 +123,7 @@ The user have to give the port number and the host when he wants to connect to G
 .. code-block:: python
 
     from gdesk.external import channel
-    channel.connect_to_gui(5559, 'FFYBVR-L1.ad.onsemi.com')
+    channel.connect_to_gui(5559, 'mylaptop.ad.example.com')
 
 
 Gamma Desk as child of a Python process

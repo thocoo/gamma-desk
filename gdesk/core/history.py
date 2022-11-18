@@ -31,9 +31,9 @@ class LogDir(object):
 
         A windows readlock is attached to the file.
         The lock will be removed by windows if the process dies.
-        When booting another instance of Ghawk, this lock file will
+        When booting another instance of GDesk, this lock file will
         be used (the possibility to removed it) to detect if the
-        logpath is currently in use by another Ghawk process.
+        logpath is currently in use by another GDesk process.
         """
         self.lock_file = lock_file
         self.lock_file.touch()
