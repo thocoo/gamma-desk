@@ -82,8 +82,8 @@ if has_imafio:
 
 
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
-from qtpy.QtCore import Qt, Signal, QUrl
-from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
+from qtpy.QtCore import Qt, Signal, QUrl, QLineF
+from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence, QTouchEvent
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
     QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
 
@@ -483,6 +483,9 @@ class ImageViewerWidget(QWidget):
 
         self.setAcceptDrops(True)
 
+        # Make sure that the event() method can receive QTouchEvents.
+        self.setAttribute(Qt.WA_AcceptTouchEvents)
+
     def setBackgroundColor(self, r, g, b):
         palette = self.palette()
         self.bgcolor = QColor(r,g,b)
@@ -639,6 +642,27 @@ class ImageViewerWidget(QWidget):
         self.repaint()
 
         self.refresh_title()
+
+    def _pinch_zoom(self, touch_event):
+        """
+        Center the image coordinate on the point which is directly between
+        the current positions of both fingers.
+        """
+        finger_1, finger_2 = touch_event.points()
+        current_pinch_line = QLineF(finger_1.position(), finger_2.position())
+        start_pinch_line = QLineF(finger_1.pressPosition(), finger_2.pressPosition())
+        pinch_zoom_factor = current_pinch_line.length() / start_pinch_line.length()
+
+        pinch_center = current_pinch_line.center()
+        image_x = int(pinch_center.x() / self.zoomDisplay + self.dispOffsetX)
+        image_y = int(pinch_center.y() / self.zoomDisplay + self.dispOffsetY)
+
+        if pinch_zoom_factor < 1:
+            zoom_factor = - 1 - 2 / pinch_zoom_factor
+            self.zoom(zoom_factor, image_x, image_y, step=True, fine=True)
+        else:
+            zoom_factor = self.zoomValue + pinch_zoom_factor / 10
+            self.zoom(zoom_factor, image_x, image_y, step=False, fine=True)
 
     def refresh_title(self):
         #self.parent().setWindowTitle(f'Image Viewer {self.parent().id} - {self.zoomValue*100:.3g}%')
@@ -825,6 +849,40 @@ class ImageViewerWidget(QWidget):
 
         if self.roi.createState:
             self.roi.release_creation()
+
+    def event(self, event):
+        # Handle *any* event -- to be able to capture touchscreen touches.
+
+        if not isinstance(event, QTouchEvent):
+            # Not a touch event.
+            # Handle like a regular event.
+            return super().event(event)
+
+        # This is a touch event.
+
+        if event.isBeginEvent():
+            # Start of touch gesture.
+            # Accept; we want to start tracking touches.
+            return True
+
+        if event.isEndEvent():
+            # And of a touch gesture.
+            # Accept; don't treat this as a touch *update*.
+            return True
+
+        # This is a touch gesture update.
+
+        if event.pointCount() != 2:
+            # Handle single-point touches like regular mouse operations.
+            # This allows single-finger touch-drag to work like mouse click+drag.
+            # Don't handle 3-point touches or more.
+            return super().event(event)
+
+        # Two-finger pinch gesture: zoom in/out.
+        self._pinch_zoom(event)
+
+        # This event is handled.
+        return True
 
     def refresh(self):
         self._scaledImage = None
