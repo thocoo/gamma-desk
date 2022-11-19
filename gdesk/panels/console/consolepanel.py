@@ -133,7 +133,7 @@ class LineNumberArea(QWidget):
                 if not cursor.block().next().isValid():
                     break
 
-                cursor.movePosition(cursor.NextBlock)
+                cursor.movePosition(QTextCursor.NextBlock)
         finally:
             painter.end()
 
@@ -253,9 +253,9 @@ class StdInputPanel(QPlainTextEdit):
         if self.cursor.block().blockNumber() != (self.blockCount() - 1):
             return False
 
-        self.cursor.movePosition(QTextCursor.EndOfLine, self.cursor.KeepAnchor)
+        self.cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
         curdocpos = self.cursor.position()
-        self.cursor.movePosition(self.cursor.StartOfLine, self.cursor.KeepAnchor)
+        self.cursor.movePosition(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
         startlinepos = self.cursor.position()
 
         return curdocpos == startlinepos
@@ -573,14 +573,14 @@ class StdPlainOutputPanel(QPlainTextEdit):
 
                 elif act.action == 'carriage-return':
                     cursor.movePosition(
-                        cursor.StartOfLine, cursor.KeepAnchor)
+                        QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
 
                 elif act.action == 'beep':
                     gui.qapp.beep()
 
                 elif act.action == 'backspace':
                     cursor.movePosition(
-                        cursor.PreviousCharacter, cursor.KeepAnchor)
+                        QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
 
                 elif act.action == 'newline':
                     cursor.movePosition(QTextCursor.EndOfLine)
@@ -612,8 +612,8 @@ class StdPlainOutputPanel(QPlainTextEdit):
                 else:
                     old_text = selection[len(substring):]
                     cursor.insertText(substring + old_text, format)
-                    cursor.movePosition(cursor.PreviousCharacter,
-                           cursor.KeepAnchor, len(old_text))
+                    cursor.movePosition(QTextCursor.PreviousCharacter,
+                           QTextCursor.KeepAnchor, len(old_text))
 
         cursor.setBlockCharFormat(QTextCharFormat())
         cursor.endEditBlock()
