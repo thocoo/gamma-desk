@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 from .conf import config, configure
 from .. import refer_shell_instance
 
-#Configure in case of the child process before importing anthing else of ghawk2
+#Configure in case of the child process before importing anything else of gdesk
 configure(matplotlib={'backend':'svg'})
 process_name = multiprocessing.current_process().name
 logger.debug(f'import of {__name__} by {process_name}\n')

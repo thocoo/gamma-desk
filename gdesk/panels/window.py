@@ -308,9 +308,9 @@ class MainWindow(QMainWindow):
                 self.priorHoverButton.endPreview()
                 # It seems that sometimes, the priorHoverButton is not valid?
                 # Traceback (most recent call last):
-                 # File "c:\tools\gh2\venv\lib\site-packages\ghawk2\panels\window.py", line 320, in moveEvent
+                 # File "c:\tools\gh2\venv\lib\site-packages\gdesk\panels\window.py", line 320, in moveEvent
                  # self.priorHoverButton.endPreview()
-                 # File "c:\tools\gh2\venv\lib\site-packages\ghawk2\ezdock\overlay.py", line 59, in endPreview
+                 # File "c:\tools\gh2\venv\lib\site-packages\gdesk\ezdock\overlay.py", line 59, in endPreview
                  # self.parent().endPreview() 
                 # RuntimeError: Internal C++ object (HoverButton) already deleted.
                 self.priorHoverButton = None                
