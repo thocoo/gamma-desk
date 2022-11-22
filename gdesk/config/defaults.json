@@ -39,7 +39,8 @@
 	"bind_zoom_absolute": true,
     "queue_array_shared_mem": true,
     "qimg_shared_mem": false,
-    "history_size": 500e6
+    "history_size": 500e6,
+    "touch": false
   },
   "levels": {
     "numba": true,

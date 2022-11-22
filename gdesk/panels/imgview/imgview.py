@@ -480,9 +480,9 @@ class ImageViewerWidget(QWidget):
         self.push_selected_pixel = False
 
         self.setAcceptDrops(True)
-
-        # Make sure that the event() method can receive QTouchEvents.
-        self.setAttribute(Qt.WA_AcceptTouchEvents)
+        
+        if config['image'].get('touch', False):
+            self.enable_touch_events()        
 
     def setBackgroundColor(self, r, g, b):
         palette = self.palette()
@@ -497,6 +497,16 @@ class ImageViewerWidget(QWidget):
         #There seems to be some cache of the prior background
         self.qpainter = QPainter()
         
+    def enable_touch_events(self):
+        # Make sure that the event() method can receive QTouchEvents.
+        self.setAttribute(Qt.WA_AcceptTouchEvents)
+        # Overwrite the default event method
+        self._default_event_method = self.event
+        self.event = self.custom_event
+        
+    def disable_touch_events(self):
+        self.setAttribute(Qt.WA_AcceptTouchEvents, False)
+        self.event = self._default_event_method       
 
     def set_val_item_format(self, fmt):
         if fmt == 'dec':
@@ -848,8 +858,8 @@ class ImageViewerWidget(QWidget):
         if self.roi.createState:
             self.roi.release_creation()
 
-    def event(self, event):
-        # Handle *any* event -- to be able to capture touchscreen touches.
+    def custom_event(self, event):
+        # Handle *any* event -- to be able to capture touchscreen touches.        
 
         if not isinstance(event, QTouchEvent):
             # Not a touch event.
