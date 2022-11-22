@@ -163,7 +163,7 @@ def configure(**overwrites):
     refer_gui_instance(gui)                     
 
     #TO DO: import register_objects_in_gdesk_init
-    #from gdesk.core.gui_proxy import register_objects_in_ghawk2_init
+    #from gdesk.core.gui_proxy import register_objects_in_gdesk_init
     #register_objects_in_gdesk_init()
     config_matplotlib()      
     
