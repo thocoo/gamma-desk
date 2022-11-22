@@ -136,7 +136,7 @@ def start_gui(child=False, commqueues=None, deamon=False):
         process.start()
 
     else:
-        os.system(f'start {python_executable()} -m ghawk2')
+        os.system(f'start {python_executable()} -m gdesk')
 
 
 def init_gui(shell, commqueues, gui_redirect=True, client=True, console_id=None):
