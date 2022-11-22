@@ -198,7 +198,7 @@ class LayoutMenu(QtWidgets.QMenu):
     def initactions(self):
         self.clear()
 
-        action = QtWidgets.QAction('Save Layout...', self, triggered=self.saveLayout)
+        action = QtWidgets.QAction('Name Layout...', self, triggered=self.saveLayout)
         self.addAction(action)
         self.addSeparator()
 

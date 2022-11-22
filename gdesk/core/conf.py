@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-import collections
+from collections.abc import Mapping
 from pathlib import Path
 import json
 import importlib
@@ -47,7 +47,7 @@ def deep_update(source, overrides):
     Modify ``source`` in place.
     """
     for key, value in overrides.items():
-        if isinstance(value, collections.abc.Mapping) and value:
+        if isinstance(value, Mapping) and value:
             returned = deep_update(source.get(key, {}), value)
             source[key] = returned
         else:
@@ -72,8 +72,8 @@ def deep_diff(dict1, dict2):
     for key in common_keys:
         value1 = dict1[key]
         value2 = dict2[key]
-        if isinstance(value1, collections.Mapping):
-            assert isinstance(value2, collections.Mapping)
+        if isinstance(value1, Mapping):
+            assert isinstance(value2, Mapping)
             value = deep_diff(value1, value2)
             if len(value) > 0:
                 result[key] = value
@@ -187,6 +187,7 @@ def save_config_json(path=None):
     current_config['qapp'] = False
     current_config['next_config_file'] = None
     save_config = not_defaults(current_config)
+    save_config = stringify_paths(save_config)
     with open(path, 'w') as fp:
         json.dump(save_config, fp, indent=2)
 
@@ -210,3 +211,19 @@ def not_defaults(current_config):
     defaults = {}
     deep_update(defaults, load_config(FIRST_CONFIG_FILE))
     return deep_diff(defaults, current_config)
+
+
+def stringify_paths(current_config: dict) -> dict:
+    """Return a copy of the dict with all Path instances converted to strings."""
+    config_copy = {}
+
+    for key, value in current_config.items():
+        if isinstance(value, dict):
+            # Recurse.
+            config_copy[key] = stringify_paths(value)
+        elif isinstance(value, Path):
+            config_copy[key] = str(value)
+        else:
+            config_copy[key] = copy.deepcopy(value)
+
+    return config_copy

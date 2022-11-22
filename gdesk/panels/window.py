@@ -140,7 +140,7 @@ class MainWindow(QMainWindow):
         addWindowMenuItem("Cycle Tag Level", self.cycle_tag_level)
         addWindowMenuItem("Full Screen", self.fullScreen, 'view_fullscreen_view.png')
         addWindowMenuItem("Hide/Show Menu && Statusbar", self.toggleMenuStatusbar)                  
-        addWindowMenuItem('Save Layout...', self.qapp.panelsDialog.layoutMenu.saveLayout)
+        addWindowMenuItem('Name Layout...', self.qapp.panelsDialog.layoutMenu.saveLayout)
         
         self.layoutMenu.addSeparator()
         self.qapp.panelsDialog.layoutMenu.addLayoutActions(self.layoutMenu)
