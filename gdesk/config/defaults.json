@@ -128,7 +128,8 @@
     "gdesk.panels.console",
     "gdesk.panels.matplot",
     "gdesk.panels.imgview",
-    "gdesk.panels.levels"],
+    "gdesk.panels.levels",
+    "gdesk.panels.ndim"],
   "default_perspective": "console",
   "layout": {
     "base": {
