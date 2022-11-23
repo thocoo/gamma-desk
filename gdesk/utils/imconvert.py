@@ -295,8 +295,8 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
             processed[:,:,0] = convertor(array[:,:,2], offset, gain, gamma)
             processed[:,:,1] = convertor(array[:,:,1], offset, gain, gamma)
             processed[:,:,2] = convertor(array[:,:,0], offset, gain, gamma)
-            processed[:,:,3] = array[:,:,3] >> 8
-                
+            processed[:,:,3] = convertor(array[:,:,3], 0, 1, 1)
+
     color_table = None if color_table_name is None or color_table_name in ['grey', 'gray'] else make_color_table(color_table_name)
     
     qimg = ndarray_to_qimage(processed, color_table)
