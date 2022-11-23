@@ -256,6 +256,21 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
                 processed[:,:,2] = array[:,:,0] >> 8
                 processed[:,:,3] = array[:,:,3] >> 8
                 
+        elif array.dtype == 'uint16' and offset == 0 and gain in [2, 4, 8, 16, 32, 64, 256] and gamma == 1:
+            shift = 11 - len(bin(int(gain)))
+            
+            if c == 1:
+                processed[:] = array >> shift
+                
+            elif c == 3:
+                processed[:] = array >> shift
+                
+            elif c == 4:
+                processed[:,:,0] = array[:,:,2] >> shift
+                processed[:,:,1] = array[:,:,1] >> shift
+                processed[:,:,2] = array[:,:,0] >> shift
+                processed[:,:,3] = array[:,:,3] >> shift                        
+                
         else:
             map8 = make_map8(array.dtype, offset, gain, gamma)
             if use_numba:
