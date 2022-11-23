@@ -21,3 +21,4 @@
 /samples/*.log
 __pycache__/
 gdesk/stderr.log
+.idea/
