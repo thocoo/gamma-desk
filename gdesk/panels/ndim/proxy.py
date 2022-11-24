@@ -19,6 +19,7 @@ class NdimGuiProxy(GuiProxyBase):
 
     @StaticGuiCall
     def new(title=None):
+        """Create a new ndim panel"""
         panel = GuiProxyBase._new('ndim')
         if not title is None:
             panel.long_title = title
@@ -27,6 +28,7 @@ class NdimGuiProxy(GuiProxyBase):
 
     @StaticGuiCall
     def open(filepath, new=False):
+        """Open a file dialog and open ndim data"""
         if new:
             NdimGuiProxy.new()
             panel = gui.qapp.panels.selected('ndim')
@@ -34,14 +36,13 @@ class NdimGuiProxy(GuiProxyBase):
             panel = gui.qapp.panels.selected('ndim')
             if panel is None:
                 panel = gui.qapp.panels.select_or_new('ndim')
+
         panel.open(filepath)
-        window = panel.get_container().parent()
-        window.raise_()
-        gui.qapp.processEvents()
         return panel.panid
 
     @StaticGuiCall
-    def open_array(array, new=False):
+    def load_data(data, new=False):
+        """Open a new panel if needed and load the data / multidimensional ndarray"""
         if new:
             NdimGuiProxy.new()
             panel = gui.qapp.panels.selected('ndim')
@@ -50,17 +51,13 @@ class NdimGuiProxy(GuiProxyBase):
             if panel is None:
                 panel = gui.qapp.panels.select_or_new('ndim')
 
-        panel.load(array)
-
-        window = panel.get_container().parent()
-        window.raise_()
-        gui.qapp.processEvents()
+        panel.load(data)
         return panel.panid
 
     @StaticGuiCall
-    def set_data(ndarray):
+    def update_data(ndarray):
         panel = gui.qapp.panels.selected('ndim')
-        panel.load(ndarray)
+        panel.update_data(ndarray)
 
     @StaticGuiCall
     def get_data():

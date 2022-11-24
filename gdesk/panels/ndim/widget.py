@@ -159,6 +159,18 @@ class NdimWidget(QtWidgets.QWidget):
 
         self.update_sliders()
 
+    def update_data(self, data):
+        """Only update the data but leave the rest as is
+
+        If data is still None or the shape of the current and new data is not the same then the load method is called.
+        """
+        if self.data is not None and self.data.shape != data.shape:
+            self.load(data)
+        if self.data is None:
+            self.load(data)
+        self.data = data
+        self._update_image()
+
     def update_sliders(self):
         """Update the sliders after the x, y and color dims have changed"""
         self._sliders = dict()

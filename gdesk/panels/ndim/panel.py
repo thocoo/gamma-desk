@@ -53,6 +53,7 @@ class NdimPanel(BasePanel):
         self.statusBar().hide()
 
     def open_dialog(self):
+        """Open file selection dialog and open the selected file"""
         filepath = here.parent.parent / 'resources' / 'ndim' / 'space_cat.npz'
 
         filepath, filter = gui.getfile(title='Open n-dim data or multiple images', file=str(filepath.absolute()),
@@ -65,6 +66,7 @@ class NdimPanel(BasePanel):
         self.open(filepath)
 
     def save_dialog(self):
+        """Open file selection dialog and save the data to the selected file"""
         filepath, filter = gui.putfile(title='Save n-dim data',
                                        filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4);;"
                                               "hdf5 (*.h5 *.hdf5);;Numpy (*.npz);;GIF (*.gif);;MOV (*.mov);;"
@@ -74,6 +76,7 @@ class NdimPanel(BasePanel):
         self.save(filepath, **self.main_widget.get_save_data())
 
     def open(self, filepath):
+        """Open the file and load the data"""
         filepath = pathlib.Path(filepath)
         if filepath.suffix.lower() in (".h5", ".hdf5", ".he5"):
             data, name, dim_names, dim_scales = load_ndim_from_hdf5(filepath)
@@ -83,6 +86,17 @@ class NdimPanel(BasePanel):
             self.load(data)
 
     def save(self, filepath, data, data_name=None, dim_names=None, dim_scales=None):
+        """Save the data to the filepath
+
+        data_name, dim_names and dim_scales are only used when saving to hdf5
+
+        :param filepath: path to save to
+        :param data: numpy nd array with the multi dim data
+        :param name: optional name of this data, is used when saving to hdf5
+        :param dim_names: optional list of length ndim with names per dimensions
+        :param dim_scales: optional list with (name, scale) tuples with scale values for each entry in a dim
+        :return: None
+        """
         filepath = pathlib.Path(filepath)
         if filepath.suffix.lower() in (".h5", ".hdf5", ".he5"):
             save_ndim_to_hdf5(filepath=filepath, data=data, data_name=data_name,
@@ -91,4 +105,21 @@ class NdimPanel(BasePanel):
             imageio.v2.mimsave(filepath, [im for im in data])
 
     def load(self, data, name=None, dim_names=None, dim_scales=None):
+        """Load the data
+
+        :param data: numpy nd array with the multi dim data
+        :param name: optional name of this data, is used when saving to hdf5
+        :param dim_names: optional list of length ndim with names per dimensions
+        :param dim_scales: optional list with (name, scale) tuples with scale values for each entry in a dim
+        :return: None
+        """
         self.main_widget.load(data, name=name, dim_names=dim_names, dim_scales=dim_scales)
+
+    def update_data(self, data):
+        """ Update the current data iso doing a complete new load
+
+        If the data does not have the same shape then load is called anyway
+        :param data: numpy nd array to update
+        :return: None
+        """
+        self.main_widget.update_data(data)
