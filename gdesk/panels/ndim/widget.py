@@ -6,6 +6,7 @@ from ... import config
 #
 respath = pathlib.Path(config['respath'])
 
+
 class NdimWidget(QtWidgets.QWidget):
     """Main widget for the ndim panel
 
@@ -26,23 +27,32 @@ class NdimWidget(QtWidgets.QWidget):
         self.setLayout(self.vbox)
 
         h = QtWidgets.QHBoxLayout()
-        h.addWidget(QtWidgets.QLabel("Row/y-dim: ", self))
+        self._row_col_color_labels = list()
+        self._row_col_color_labels.append(QtWidgets.QLabel("Row/y-dim: ", self))
+        h.addWidget(self._row_col_color_labels[-1])
         self.rows = QtWidgets.QComboBox(self)
         self.rows.setToolTip("Select which dimension is the row/y dim.")
         h.addWidget(self.rows)
         self.vbox.addLayout(h)
         h = QtWidgets.QHBoxLayout()
-        h.addWidget(QtWidgets.QLabel("Column/x-dim: ", self))
+        self._row_col_color_labels.append(QtWidgets.QLabel("Column/x-dim: ", self))
+        h.addWidget(self._row_col_color_labels[-1])
         self.cols = QtWidgets.QComboBox(self)
         self.cols.setToolTip("Select which dimension is the col/x dim.")
         h.addWidget(self.cols)
         self.vbox.addLayout(h)
         h = QtWidgets.QHBoxLayout()
-        h.addWidget(QtWidgets.QLabel("Color-dim: ", self))
+        self._row_col_color_labels.append(QtWidgets.QLabel("Color-dim: ", self))
+        h.addWidget(self._row_col_color_labels[-1])
         self.color = QtWidgets.QComboBox(self)
         self.color.setToolTip("Select which dimension is the color dim. Leave None if mono.")
         h.addWidget(self.color)
         self.vbox.addLayout(h)
+        self._collaps_label = QtWidgets.QLabel("▲")
+        self._collaps_label.mousePressEvent = lambda _: self.hide_row_column_color_selection()
+        self.vbox.addWidget(self._collaps_label)
+        self.vbox.addSpacerItem(QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum,
+                                                      QtWidgets.QSizePolicy.Expanding))
 
         self.rows.activated.connect(self.update_sliders)
         self.cols.activated.connect(self.update_sliders)
@@ -65,6 +75,24 @@ class NdimWidget(QtWidgets.QWidget):
         self._play_labels = None
         self.play_icon = QtGui.QPixmap(str(respath / 'icons' / 'px16' / 'control_play.png'))
         self.pause_icon = QtGui.QPixmap(str(respath / 'icons' / 'px16' / 'control_pause.png'))
+
+    def hide_row_column_color_selection(self):
+        self.rows.hide()
+        self.cols.hide()
+        self.color.hide()
+        for l in self._row_col_color_labels:
+            l.hide()
+        self._collaps_label.setText("▼")
+        self._collaps_label.mousePressEvent = lambda _: self.show_row_column_color_selection()
+
+    def show_row_column_color_selection(self):
+        self.rows.show()
+        self.cols.show()
+        self.color.show()
+        for l in self._row_col_color_labels:
+            l.show()
+        self._collaps_label.setText("▲")
+        self._collaps_label.mousePressEvent = lambda _: self.hide_row_column_color_selection()
 
     def load(self, data, name=None, dim_names=None, dim_scales=None):
         """Load a new ndim array
