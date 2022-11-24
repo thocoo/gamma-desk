@@ -1,7 +1,10 @@
+import pathlib
 import numpy as np
 from qtpy.QtCore import Qt
-from qtpy import QtWidgets
-
+from qtpy import QtWidgets, QtGui, QtCore
+from ... import config
+#
+respath = pathlib.Path(config['respath'])
 
 class NdimWidget(QtWidgets.QWidget):
     """Main widget for the ndim panel
@@ -58,6 +61,10 @@ class NdimWidget(QtWidgets.QWidget):
         self._dim_scale_labels = None
         self.dim_names = None
         self.dim_scales = None
+        self._cycling_dims = list()
+        self._play_labels = None
+        self.play_icon = QtGui.QPixmap(str(respath / 'icons' / 'px16' / 'control_play.png'))
+        self.pause_icon = QtGui.QPixmap(str(respath / 'icons' / 'px16' / 'control_pause.png'))
 
     def load(self, data, name=None, dim_names=None, dim_scales=None):
         """Load a new ndim array
@@ -131,6 +138,8 @@ class NdimWidget(QtWidgets.QWidget):
         self._dim_combos = dict()
         self._dim_line_edits = dict()
         self._dim_scale_labels = dict()
+        self._play_labels = dict()
+        self._cycling_dims = list()
         self.vbox.removeWidget(self.slider_widget)
         self.slider_widget.deleteLater()
         self.slider_widget = QtWidgets.QWidget(self)
@@ -155,6 +164,12 @@ class NdimWidget(QtWidgets.QWidget):
             h.addSpacerItem(QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
             slider_lay.addLayout(h)
             h = QtWidgets.QHBoxLayout()
+            play = QtWidgets.QLabel(self)
+            play.setPixmap(self.play_icon)
+
+            play.mousePressEvent = lambda mous_ev=None, d=dim: self._cycle_dim(mouse_event=mous_ev, dim=d)
+            self._play_labels[dim] = play
+            h.addWidget(play)
             slider = QtWidgets.QSlider(Qt.Horizontal, self)
             slider.setMinimum(0)
             slider.setMaximum(self.data.shape[dim]-1)
@@ -265,3 +280,37 @@ class NdimWidget(QtWidgets.QWidget):
             self.dim_names[dim] = line_edit.text()
 
         return dict(data=self.data, data_name=self.data_name, dim_names=self.dim_names, dim_scales=self.dim_scales)
+
+    def _cycle_dim(self, mouse_event, dim):
+        """handle the automatic cycling of a dim (play/pause button)"""
+        if dim in self._cycling_dims:
+            self._cycling_dims.remove(dim)
+            self._play_labels[dim].setPixmap(self.play_icon)
+        else:
+            self._play_labels[dim].setPixmap(self.pause_icon)
+            self._cycling_dims.append(dim)
+        if len(self._cycling_dims):
+            self._cycle_timer = QtCore.QTimer()
+            self._cycle_timer.timeout.connect(lambda: self._advance_dim(0))
+            self._cycle_timer.start(250)
+        else:
+            self._cycle_timer.stop()
+
+    def _advance_dim(self, ind):
+        """Recursive method to advance in the automatic cycling
+
+        If one cycle overflows then it advances the second one in the list.
+        The order in which the dims are added to the _cycling_dims is used for this.
+        """
+        try:
+            dim = self._cycling_dims[ind]
+        except IndexError:
+            return
+        val = self._spin_boxes[dim].value()
+        if val == self._spin_boxes[dim].maximum():
+            self._advance_dim(ind+1)
+            self._spin_boxes[dim].setValue(0)
+            self._sliders[dim].setValue(0)
+        else:
+            self._spin_boxes[dim].setValue(val+1)
+            self._sliders[dim].setValue(val+1)
