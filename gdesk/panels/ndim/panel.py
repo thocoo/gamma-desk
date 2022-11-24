@@ -53,7 +53,7 @@ class NdimPanel(BasePanel):
         self.statusBar().hide()
 
     def open_dialog(self):
-        filepath = here.parent.parent / 'resources' / 'ndim' / 'smiley.npz'
+        filepath = here.parent.parent / 'resources' / 'ndim' / 'space_cat.npz'
 
         filepath, filter = gui.getfile(title='Open n-dim data or multiple images', file=str(filepath.absolute()),
                                        filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4);;"
