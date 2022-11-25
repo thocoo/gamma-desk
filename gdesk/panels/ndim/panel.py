@@ -123,3 +123,8 @@ class NdimPanel(BasePanel):
         :return: None
         """
         self.main_widget.update_data(data)
+
+    def collapse(self, collapse):
+        """Set the window collapsed or not when docked in a vertical way with other windows"""
+        if collapse != self.parent().parent().collapsed:
+            self.parent().parent().collapseVertical()
