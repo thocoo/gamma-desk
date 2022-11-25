@@ -638,6 +638,30 @@ class LevelsToolBar(QtWidgets.QToolBar):
         for panid in panids:
             gui.menu_trigger('image', panid, ['View','Colormap...'])
         
+class StatisticsToolBar(QtWidgets.QToolBar):
+    def __init__(self, *args, **kwargs):    
+        super().__init__(*args, **kwargs) 
+        self.initUi()
+        
+    def initUi(self):
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')), 'Refresh', self.updateStatistics)   
+        
+        self.mean = QtWidgets.QLineEdit('0', self)
+        #self.mean = QtWidgets.QPlainTextEdit(parent=self)
+        self.addWidget(self.mean)              
+
+    def updateStatistics(self):
+        imagePanel = self.parent().bindedPanel('image')
+        
+        t = []
+        
+        for k, stats in imagePanel.imviewer.imgdata.chanstats.items():
+            m = stats.mean()
+            s = stats.std()
+            t.append(f'{k}:{m:.5g}±{s:.5g}')
+        
+        self.mean.setText(' '.join(t))
+
         
 class LevelsPanel(BasePanel):
 
@@ -663,13 +687,17 @@ class LevelsPanel(BasePanel):
         self.gaussview = False
         self.log = False
         self.roi = False
+        self.stats = False
         self.sigma = 3
         
         self.levels = Levels(self)
         self.setCentralWidget(self.levels)
         
         self.toolbar = LevelsToolBar(self)
+        self.statToolBar = StatisticsToolBar(self)
+        self.statToolBar.hide()
         self.addToolBar(self.toolbar)        
+        self.addToolBar(self.statToolBar)        
         
         self.fileMenu = self.menuBar().addMenu("&File")
         self.modeMenu = CheckMenu("&Mode", self.menuBar())
@@ -684,6 +712,7 @@ class LevelsPanel(BasePanel):
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
+        self.addMenuItem(self.modeMenu, 'Statistics', self.toggle_stats, checkcall=lambda: self.stats)
         
         self.addBaseMenu(['image'])
         
@@ -736,7 +765,14 @@ class LevelsPanel(BasePanel):
     def toggle_log(self):
         self.log = not self.log
         self.toolbar.updateButtonStates()
-        self.levels.updateActiveHist()          
+        self.levels.updateActiveHist()     
+
+    def toggle_stats(self):
+        self.stats = not self.stats
+        if self.stats:
+            self.statToolBar.show()
+        else:
+            self.statToolBar.hide()
         
     def autoContrast(self, sigma=None):
         if not sigma is None:
@@ -770,6 +806,10 @@ class LevelsPanel(BasePanel):
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         self.levels.updateHistOfPanel(image_panel_id)
+        
+        if self.statToolBar.isVisible():
+            self.statToolBar.updateStatistics()
+            
         if zoomFit:
             self.levels.fullZoom()
 
