@@ -206,8 +206,7 @@ class NdimWidget(QtWidgets.QWidget):
             h = QtWidgets.QHBoxLayout()
             play = QtWidgets.QLabel(self)
             play.setPixmap(self.play_icon)
-
-            play.mousePressEvent = lambda mous_ev=None, d=dim: self._cycle_dim(mouse_event=mous_ev, dim=d)
+            play.mousePressEvent = lambda *args, d=dim: self._cycle_dim(dim=d)
             self._play_labels[dim] = play
             h.addWidget(play)
             slider = QtWidgets.QSlider(Qt.Horizontal, self)
@@ -235,7 +234,7 @@ class NdimWidget(QtWidgets.QWidget):
             dim_combo = QtWidgets.QComboBox(self)
             dim_combo.addItems(list(self.DIM_CALC.keys()))
             dim_combo.setCurrentIndex(0)
-            dim_combo.activated.connect(self._combo_changed)
+            dim_combo.activated.connect(lambda *args, d=dim: self._combo_changed(d))
             self._dim_combos[dim] = dim_combo
             h.addWidget(dim_combo)
             slider_lay.addLayout(h)
@@ -302,15 +301,19 @@ class NdimWidget(QtWidgets.QWidget):
         for dim, scale_label in self._dim_scale_labels.items():
             scale_label.setText(f"{self.dim_scales[dim][1][self._sliders[dim].value()]:.4g}")
 
-    def _combo_changed(self):
+    def _combo_changed(self, dim):
         """Update the sliders behavior based on the combo selection
 
         The sliders are disabled when 'step' is not selected and the image is refreshed
         """
-        for dim, combo in self._dim_combos.items():
-            self._sliders[dim].setEnabled(combo.currentText() == 'step')
-            self._spin_boxes[dim].setEnabled(combo.currentText() == 'step')
-
+        if self._dim_combos[dim].currentText() == 'step':
+            self._sliders[dim].setEnabled(True)
+            self._spin_boxes[dim].setEnabled(True)
+        else:
+            self._sliders[dim].setEnabled(False)
+            self._spin_boxes[dim].setEnabled(False)
+            if dim in self._cycling_dims:
+                self._cycle_dim(dim=dim)
         self._update_image()
 
     def get_save_data(self):
@@ -321,12 +324,14 @@ class NdimWidget(QtWidgets.QWidget):
 
         return dict(data=self.data, data_name=self.data_name, dim_names=self.dim_names, dim_scales=self.dim_scales)
 
-    def _cycle_dim(self, mouse_event, dim):
+    def _cycle_dim(self, dim):
         """handle the automatic cycling of a dim (play/pause button)"""
         if dim in self._cycling_dims:
             self._cycling_dims.remove(dim)
             self._play_labels[dim].setPixmap(self.play_icon)
         else:
+            if self._dim_combos[dim].currentText() != 'step':
+                return
             self._play_labels[dim].setPixmap(self.pause_icon)
             self._cycling_dims.append(dim)
         if len(self._cycling_dims):
