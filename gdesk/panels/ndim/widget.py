@@ -32,12 +32,14 @@ class NdimWidget(QtWidgets.QWidget):
         h.addWidget(self._row_col_color_labels[-1])
         self.rows = QtWidgets.QComboBox(self)
         self.rows.setToolTip("Select which dimension is the row/y dim.")
+        self.rows.setMinimumHeight(15)
         h.addWidget(self.rows)
         self.vbox.addLayout(h)
         h = QtWidgets.QHBoxLayout()
         self._row_col_color_labels.append(QtWidgets.QLabel("Column/x-dim: ", self))
         h.addWidget(self._row_col_color_labels[-1])
         self.cols = QtWidgets.QComboBox(self)
+        self.cols.setMinimumHeight(15)
         self.cols.setToolTip("Select which dimension is the col/x dim.")
         h.addWidget(self.cols)
         self.vbox.addLayout(h)
@@ -45,6 +47,7 @@ class NdimWidget(QtWidgets.QWidget):
         self._row_col_color_labels.append(QtWidgets.QLabel("Color-dim: ", self))
         h.addWidget(self._row_col_color_labels[-1])
         self.color = QtWidgets.QComboBox(self)
+        self.color.setMinimumHeight(15)
         self.color.setToolTip("Select which dimension is the color dim. Leave None if mono.")
         h.addWidget(self.color)
         self.vbox.addLayout(h)
@@ -191,12 +194,14 @@ class NdimWidget(QtWidgets.QWidget):
             h = QtWidgets.QHBoxLayout()
             dim_name = QtWidgets.QLineEdit(self.dim_names[dim])
             dim_name.setMaximumWidth(80)
+            dim_name.setMinimumHeight(15)
             self._dim_line_edits[dim] = dim_name
             h.addWidget(dim_name)
             scale_name, scale = self.dim_scales[dim]
             if scale is not None:
                 if scale_name is not None:
                     scale_name_label = QtWidgets.QLabel(scale_name)
+                    scale_name_label.setMinimumHeight(15)
                     h.addWidget(scale_name_label)
                 scale_label = QtWidgets.QLabel(f"{scale[0]:.4g}")
                 self._dim_scale_labels[dim] = scale_label
@@ -208,6 +213,7 @@ class NdimWidget(QtWidgets.QWidget):
             play.setPixmap(self.play_icon)
             play.mousePressEvent = lambda *args, d=dim: self._cycle_dim(dim=d)
             self._play_labels[dim] = play
+            play.setMinimumHeight(15)
             h.addWidget(play)
             slider = QtWidgets.QSlider(Qt.Horizontal, self)
             slider.setMinimum(0)
@@ -215,6 +221,7 @@ class NdimWidget(QtWidgets.QWidget):
             slider.setTickInterval(1)
             slider.setSingleStep(1)
             slider.setPageStep(1)
+            slider.setMinimumHeight(15)
             self._sliders[dim] = slider
             slider.valueChanged.connect(self._update_image)
             h.addWidget(slider)
@@ -224,16 +231,19 @@ class NdimWidget(QtWidgets.QWidget):
             spin.setMaximum(self.data.shape[dim]-1)
             spin.setMinimumWidth(40)
             spin.editingFinished.connect(slider.setValue)
+            spin.setMinimumHeight(15)
             slider.valueChanged.connect(spin.setValue)
             self._spin_boxes[dim] = spin
             h.addWidget(spin)
             lab = QtWidgets.QLabel(f"| {self.data.shape[dim]}")
             lab.setMinimumWidth(20)
             lab.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            lab.setMinimumHeight(15)
             h.addWidget(lab)
             dim_combo = QtWidgets.QComboBox(self)
             dim_combo.addItems(list(self.DIM_CALC.keys()))
             dim_combo.setCurrentIndex(0)
+            dim_combo.setMinimumHeight(15)
             dim_combo.activated.connect(lambda *args, d=dim: self._combo_changed(d))
             self._dim_combos[dim] = dim_combo
             h.addWidget(dim_combo)
