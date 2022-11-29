@@ -2,6 +2,7 @@ import sys
 import sqlite3
 import time
 import shutil
+import logging
 from pathlib import Path
 
 if sys.platform == 'win32':
@@ -16,6 +17,8 @@ else:
     LK_UNLCK = None
 
 from .conf import config
+
+logger = logging.getLogger()
 
 class LogDir(object):
 
@@ -238,4 +241,13 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             query = f"SELECT ID, CMD FROM (SELECT ID, CMD FROM CMDHIST WHERE CMD LIKE '{part}%'{rng} ORDER BY ID {order}){rng} LIMIT {count}"
 
         return query
+        
+    def delete_all_but_last(self, keep_count=100):
+        count = next(self.execfetch('SELECT COUNT(*) FROM CMDHIST'))[0]
+        keep_count = min(count, keep_count)
+        keep_id = next(self.execfetch(f'SELECT ID FROM CMDHIST ORDER BY ID DESC LIMIT {keep_count}, 1'))[0]
+        self.server.execute(f'DELETE FROM CMDHIST WHERE ID < {keep_id}')
+        self.server.execute('COMMIT')
+        self.server.execute('REINDEX CMDHIST')
+        self.server.execute('VACUUM')
             
