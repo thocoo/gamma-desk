@@ -109,56 +109,64 @@ class NdimWidget(QtWidgets.QWidget):
         """
         self.data = data
         self.data_name = name
-        # guess some defaults
-        if self.data.ndim > 3 and self.data.shape[-1] in (3, 4):
-            def_row = -3
-            def_column = -2
-            def_color = -1
+        if self.data is None:
+            self.dim_names = None
+            self.dim_scales = None
+            self.rows.clear()
+            self.color.clear()
+            self.cols.clear()
+            self._color_dim_options = {'None': None}
         else:
-            def_row = -2
-            def_column = -1
-            def_color = None
+            # guess some defaults
+            if self.data.ndim > 3 and self.data.shape[-1] in (3, 4):
+                def_row = -3
+                def_column = -2
+                def_color = -1
+            else:
+                def_row = -2
+                def_column = -1
+                def_color = None
 
-        if dim_names is None:
-            dim_names = [None] * data.ndim
-        if dim_scales is None:
-            dim_scales = [(None, None)] * data.ndim
-        self.dim_names = dim_names
-        self.dim_scales = dim_scales
-        items = list()
-        for i, d in enumerate(self.data.shape):
-            if dim_names[i] is None or dim_names[i] == '':
-                dim_names[i] = f"dim-{i}"
-            item = f"{dim_names[i]}: [{d}]"
-            name, scale = dim_scales[i]
-            if name is not None or scale is not None:
-                item += f" - "
-                if name is not None:
-                    item += name
-                if scale is not None:
-                    item += f" [{scale[0]} - {scale[-1]}]"
-            items.append(item)
+            if dim_names is None:
+                dim_names = [None] * data.ndim
+            if dim_scales is None:
+                dim_scales = [(None, None)] * data.ndim
+            self.dim_names = dim_names
+            self.dim_scales = dim_scales
+            items = list()
+            for i, d in enumerate(self.data.shape):
+                if dim_names[i] is None or dim_names[i] == '':
+                    dim_names[i] = f"dim-{i}"
+                item = f"{dim_names[i]}: [{d}]"
+                name, scale = dim_scales[i]
+                if name is not None or scale is not None:
+                    item += f" - "
+                    if name is not None:
+                        item += name
+                    if scale is not None:
+                        item += f" [{scale[0]} - {scale[-1]}]"
+                items.append(item)
 
-        self.rows.clear()
-        self.rows.addItems(items)
-        self.rows.setCurrentIndex(self.data.ndim + def_row)
+            self.rows.clear()
+            self.rows.addItems(items)
+            self.rows.setCurrentIndex(self.data.ndim + def_row)
 
-        self.cols.clear()
-        self.cols.addItems(items)
-        self.cols.setCurrentIndex(self.data.ndim + def_column)
+            self.cols.clear()
+            self.cols.addItems(items)
+            self.cols.setCurrentIndex(self.data.ndim + def_column)
 
-        self.color.clear()
-        self.color.addItem("None")
-        self._color_dim_options = {'None': None}
-        for i, d in enumerate(self.data.shape):
-            if 3 <= d <= 4:
-                text = items[i]
-                self.color.addItem(text)
-                self._color_dim_options[text] = i
-        if def_color is None:
-            self.color.setCurrentIndex(0)
-        else:
-            self.color.setCurrentIndex(self.color.count() + def_color)
+            self.color.clear()
+            self.color.addItem("None")
+            self._color_dim_options = {'None': None}
+            for i, d in enumerate(self.data.shape):
+                if 3 <= d <= 4:
+                    text = items[i]
+                    self.color.addItem(text)
+                    self._color_dim_options[text] = i
+            if def_color is None:
+                self.color.setCurrentIndex(0)
+            else:
+                self.color.setCurrentIndex(self.color.count() + def_color)
 
         self.update_sliders()
 
@@ -188,7 +196,12 @@ class NdimWidget(QtWidgets.QWidget):
         self.slider_widget = QtWidgets.QWidget(self)
         slider_lay = QtWidgets.QVBoxLayout()
 
-        for dim in range(self.data.ndim):
+        if self.data is None:
+            ndim = 0
+        else:
+            ndim = self.data.ndim
+
+        for dim in range(ndim):
             if dim in (self.row_dim, self.column_dim, self.color_dim):
                 continue
             h = QtWidgets.QHBoxLayout()
@@ -268,6 +281,8 @@ class NdimWidget(QtWidgets.QWidget):
 
     def _update_image(self):
         """Update output image after sliders or calc options have changed"""
+        if self.data is None:
+            return
         # get the indexes right
         indexes = [0] * self.data.ndim
         indexes[self.row_dim] = slice(None)
@@ -369,3 +384,8 @@ class NdimWidget(QtWidgets.QWidget):
         else:
             self._spin_boxes[dim].setValue(val+1)
             self._sliders[dim].setValue(val+1)
+
+    def clear_data(self):
+        """Clear current data and put back in startup state"""
+        self.data = None
+        self.load(data=None)
