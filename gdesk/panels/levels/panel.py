@@ -529,6 +529,10 @@ class LevelsToolBar(QtWidgets.QToolBar):
     def levels(self):
         return self.parent().levels
         
+    @property
+    def stats(self):
+        return self.parent().statPanel        
+        
     def initUi(self):
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')), 'Refresh', self.levels.updateActiveHist)
         
@@ -637,30 +641,35 @@ class LevelsToolBar(QtWidgets.QToolBar):
         panids = self.panel.panIdsOfBounded('image')
         for panid in panids:
             gui.menu_trigger('image', panid, ['View','Colormap...'])
+            
         
-class StatisticsToolBar(QtWidgets.QToolBar):
+class StatisticsPanel(QtWidgets.QWidget):        
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
         self.initUi()
         
     def initUi(self):
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')), 'Refresh', self.updateStatistics)   
+        self.mean = QtWidgets.QPlainTextEdit(parent=self)        
         
-        self.mean = QtWidgets.QLineEdit('0', self)
-        #self.mean = QtWidgets.QPlainTextEdit(parent=self)
-        self.addWidget(self.mean)              
-
-    def updateStatistics(self):
-        imagePanel = self.parent().bindedPanel('image')
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.vbox.setContentsMargins(0,0,0,0)
+        self.vbox.setSpacing(0)
+        self.setLayout(self.vbox)                       
+        self.vbox.addWidget(self.mean)
+        
+    def imagePanel(self):
+        return self.parent().parent().bindedPanel('image')
+        
+    def updateStatistics(self):       
         
         t = []
         
-        for k, stats in imagePanel.imviewer.imgdata.chanstats.items():
+        for k, stats in self.imagePanel().imviewer.imgdata.chanstats.items():
             m = stats.mean()
             s = stats.std()
             t.append(f'{k}:{m:.5g}±{s:.5g}')
         
-        self.mean.setText(' '.join(t))
+        self.mean.setPlainText('\n'.join(t))        
 
         
 class LevelsPanel(BasePanel):
@@ -694,10 +703,13 @@ class LevelsPanel(BasePanel):
         self.setCentralWidget(self.levels)
         
         self.toolbar = LevelsToolBar(self)
-        self.statToolBar = StatisticsToolBar(self)
-        self.statToolBar.hide()
-        self.addToolBar(self.toolbar)        
-        self.addToolBar(self.statToolBar)        
+        self.addToolBar(self.toolbar)           
+
+        self.statDock = QtWidgets.QDockWidget("Statistics", self)
+        self.statPanel = StatisticsPanel()
+        self.statDock.setWidget(self.statPanel)                
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.statDock)
+        self.statDock.hide()
         
         self.fileMenu = self.menuBar().addMenu("&File")
         self.modeMenu = CheckMenu("&Mode", self.menuBar())
@@ -770,9 +782,9 @@ class LevelsPanel(BasePanel):
     def toggle_stats(self):
         self.stats = not self.stats
         if self.stats:
-            self.statToolBar.show()
+            self.statDock.show()
         else:
-            self.statToolBar.hide()
+            self.statDock.hide()
         
     def autoContrast(self, sigma=None):
         if not sigma is None:
@@ -807,8 +819,8 @@ class LevelsPanel(BasePanel):
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         self.levels.updateHistOfPanel(image_panel_id)
         
-        if self.statToolBar.isVisible():
-            self.statToolBar.updateStatistics()
+        if self.statPanel.isVisible():
+            self.statPanel.updateStatistics()
             
         if zoomFit:
             self.levels.fullZoom()
