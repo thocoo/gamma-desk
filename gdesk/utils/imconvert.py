@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 
 from qtpy import QtGui, QtCore
 
@@ -19,7 +20,7 @@ else:
     use_numba = False
     
     
-colormaps = ['grey', 'clip', 'turbo', 'jet', 'invert', 'hot', 'cold']    
+colormaps = ['grey', 'clip', 'turbo', 'jet', 'invert', 'hot', 'cold', 'viridis', 'plasma', 'inferno', 'magma', 'cividis']    
 
 turbo_colormap_data = [
     [0.18995,0.07176,0.23217],[0.19483,0.08339,0.26149],[0.19956,0.09498,0.29024],[0.20415,0.10652,0.31844],
@@ -397,6 +398,16 @@ def make_color_table(name):
         for i in range(0,256):
             r, g, b = [min(max(0, int(c*255)), 255) for c in turbo_colormap_data[i]]
             table.append(a*aBase + r*rBase + g*gBase + b*bBase )     
+            
+    elif name in ['viridis', 'plasma', 'inferno', 'magma', 'cividis']:
+        mplcmap = matplotlib.colormaps[name]
+        a = 255
+        for i in range(0,256):
+            r, g, b = mplcmap.colors[i]
+            r = min(255, max(0, round(r * 256)))
+            g = min(255, max(0, round(g * 256)))
+            b = min(255, max(0, round(b * 256)))
+            table.append(a*aBase + r*rBase + g*gBase + b*bBase )                
             
     return table
         

@@ -154,6 +154,7 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.menu(['View', 'Colormap...'], 'invert')
         gui.img.menu(['View', 'Colormap...'], 'hot')
         gui.img.menu(['View', 'Colormap...'], 'cold')
+        gui.img.menu(['View', 'Colormap...'], 'viridis')
 
         gui.img.menu(['View', 'Background Color...'], 58, 110, 165)
         gui.img.menu(['View', 'Selection Color...'], 255, 0, 0)
