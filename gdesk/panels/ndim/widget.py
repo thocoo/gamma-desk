@@ -243,7 +243,7 @@ class NdimWidget(QtWidgets.QWidget):
             spin.setMinimum(0)
             spin.setMaximum(self.data.shape[dim]-1)
             spin.setMinimumWidth(40)
-            spin.editingFinished.connect(slider.setValue)
+            spin.valueChanged.connect(slider.setValue)
             spin.setMinimumHeight(15)
             slider.valueChanged.connect(spin.setValue)
             self._spin_boxes[dim] = spin
