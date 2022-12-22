@@ -73,3 +73,8 @@ class NdimGuiProxy(GuiProxyBase):
     def show_row_column_color_selection():
         panel = gui.qapp.panels.selected('ndim')
         return panel.main_widget.show_row_column_color_selection()
+
+    @StaticGuiCall
+    def clear_data():
+        panel = gui.qapp.panels.selected('ndim')
+        return panel.main_widget.clear_data()
