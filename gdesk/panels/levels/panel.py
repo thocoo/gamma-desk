@@ -573,19 +573,29 @@ class LevelsToolBar(QtWidgets.QToolBar):
         actGainSigma4.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
         self.gainSigmaMenu.addAction(actGainSigma4)        
         
-        actGain8bit = QtWidgets.QAction('full 8 bit', self, triggered=lambda: self.panel.fullWidth(8))
-        actGain8bit.setText('full 8 bit')
-        actGain8bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        actGain8bit = QtWidgets.QAction('8 bit', self, triggered=lambda: self.panel.autoContrast(None, 8))
+        actGain8bit.setText('8 bit')
+        actGain8bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
         self.gainSigmaMenu.addAction(actGain8bit)          
         
-        actGain10bit = QtWidgets.QAction('full 10 bit', self, triggered=lambda: self.panel.fullWidth(10))
-        actGain10bit.setText('full 10 bit')
-        actGain10bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        actGain10bit = QtWidgets.QAction('10 bit', self, triggered=lambda: self.panel.autoContrast(None, 10))
+        actGain10bit.setText('10 bit')
+        actGain10bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
         self.gainSigmaMenu.addAction(actGain10bit)  
 
-        actGain12bit = QtWidgets.QAction('full 12 bit', self, triggered=lambda: self.panel.fullWidth(12))
-        actGain12bit.setText('full 12 bit')
-        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        actGain12bit = QtWidgets.QAction('12 bit', self, triggered=lambda: self.panel.autoContrast(None, 12))
+        actGain12bit.setText('12 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)     
+
+        actGain12bit = QtWidgets.QAction('14 bit', self, triggered=lambda: self.panel.autoContrast(None, 14))
+        actGain12bit.setText('14 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)    
+
+        actGain12bit = QtWidgets.QAction('16 bit', self, triggered=lambda: self.panel.autoContrast(None, 16))
+        actGain12bit.setText('16 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
         self.gainSigmaMenu.addAction(actGain12bit)          
         
         self.autoBtn = QtWidgets.QToolButton(self)
@@ -801,19 +811,27 @@ class LevelsPanel(BasePanel):
         else:
             self.statDock.hide()
         
-    def autoContrast(self, sigma=None):
+    def autoContrast(self, sigma=None, bits=None):
         if not sigma is None:
             self.sigma = sigma
             self.toolbar.autoBtn.setText(f'{sigma}σ')
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))       
+            
+        if not bits is None:
+            self.bits = bits
+            self.toolbar.autoBtn.setText(f'{bits} bit')            
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))
             
         for panel in self.targetPanels('image'):
-            panel.gainToSigma(self.sigma, self.roi)             
+            text = self.toolbar.autoBtn.text()
             
-        self.levels.bringIndicVisible()
-        
-    def fullWidth(self, bits=8):
-        for panel in self.targetPanels('image'):
-            panel.changeBlackWhite(0, 2**bits)
+            if not sigma is None or 'σ' in text:
+                panel.gainToSigma(self.sigma, self.roi)             
+            
+            elif not bits is None or 'bit' in text:
+                panel.changeBlackWhite(0, 2**self.bits)      
+            
+        self.levels.bringIndicVisible()        
             
     def gain1(self):    
         #self.offsetGainChanged.emit('default', 'default', 'default')
