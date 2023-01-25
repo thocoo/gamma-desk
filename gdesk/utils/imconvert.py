@@ -205,6 +205,9 @@ def float_offset_gain_gamma_8bit(array, offset=0, gain=1, gamma=1):
     else:
         temp = ((array - offset) * (gain * 256))
         return (temp ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
+        
+def clip8bitrange(arr):
+    return arr.clip(0, 255)
 
 def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=None, refer=False, shared=False, gamma=1):    
     h, w, c = get_height_width_channels(array)
@@ -261,16 +264,16 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
             shift = 11 - len(bin(int(gain)))
             
             if c == 1:
-                processed[:] = array >> shift
+                processed[:] = clip8bitrange(array >> shift)
                 
             elif c == 3:
-                processed[:] = array >> shift
+                processed[:] = clip8bitrange(array >> shift)
                 
             elif c == 4:
-                processed[:,:,0] = array[:,:,2] >> shift
-                processed[:,:,1] = array[:,:,1] >> shift
-                processed[:,:,2] = array[:,:,0] >> shift
-                processed[:,:,3] = array[:,:,3] >> shift                        
+                processed[:,:,0] = clip8bitrange(array[:,:,2] >> shift)
+                processed[:,:,1] = clip8bitrange(array[:,:,1] >> shift)
+                processed[:,:,2] = clip8bitrange(array[:,:,0] >> shift)
+                processed[:,:,3] = clip8bitrange(array[:,:,3] >> shift)                        
                 
         else:
             map8 = make_map8(array.dtype, offset, gain, gamma)
