@@ -573,6 +573,21 @@ class LevelsToolBar(QtWidgets.QToolBar):
         actGainSigma4.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
         self.gainSigmaMenu.addAction(actGainSigma4)        
         
+        actGain8bit = QtWidgets.QAction('full 8 bit', self, triggered=lambda: self.panel.fullWidth(8))
+        actGain8bit.setText('full 8 bit')
+        actGain8bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        self.gainSigmaMenu.addAction(actGain8bit)          
+        
+        actGain10bit = QtWidgets.QAction('full 10 bit', self, triggered=lambda: self.panel.fullWidth(10))
+        actGain10bit.setText('full 10 bit')
+        actGain10bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        self.gainSigmaMenu.addAction(actGain10bit)  
+
+        actGain12bit = QtWidgets.QAction('full 12 bit', self, triggered=lambda: self.panel.fullWidth(12))
+        actGain12bit.setText('full 12 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)          
+        
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setText(f'{self.panel.sigma}σ')
         self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))        
@@ -795,6 +810,10 @@ class LevelsPanel(BasePanel):
             panel.gainToSigma(self.sigma, self.roi)             
             
         self.levels.bringIndicVisible()
+        
+    def fullWidth(self, bits=8):
+        for panel in self.targetPanels('image'):
+            panel.changeBlackWhite(0, 2**bits)
             
     def gain1(self):    
         #self.offsetGainChanged.emit('default', 'default', 'default')
