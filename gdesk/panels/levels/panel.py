@@ -213,10 +213,11 @@ class LevelPlot(QtWidgets.QWidget):
         self.update_rulers(True, True)
         
     def zoomFitYRange(self, ymin=None):
-        self.ymin = self.ymax = None
         
         x0 = self.indicators[0].pos().x()
         x1 = self.indicators[1].pos().x()                
+        
+        ymin_cand = ymax_cand = None
 
         for curve in self.curves.values():            
             xvec = curve.xvector
@@ -226,18 +227,21 @@ class LevelPlot(QtWidgets.QWidget):
                 yvecclip = yvec[indices]
             else:
                 yvecclip = yvec
-            ymin_cand = min(yvecclip)
-            ymax_cand = max(yvecclip)            
-            if (self.ymin is None) or (ymin_cand < self.ymin):
-                self.ymin = ymin_cand
-            if (self.ymax is None) or (ymax_cand > self.ymax):
-                self.ymax = ymax_cand  
-                
-        self.ymin = ymin if not ymin is None else self.ymin
+            ymin_chan = min(yvecclip)
+            ymax_chan= max(yvecclip)            
+            if (ymin_cand is None) or (ymin_chan < ymin_cand):
+                ymin_cand = ymin_chan
+            if (ymax_cand is None) or (ymax_chan > ymax_cand):
+                ymax_cand = ymax_chan    
 
-        if self.ymin == self.ymax:
-            self.ymin -= 0.5
-            self.ymax += 0.5  
+        ymin_cand = ymin if not ymin is None else ymin_cand
+
+        if ymin_cand < ymax_cand:
+            self.ymin = ymin_cand
+            self.ymax = ymax_cand  
+            
+        else:
+            return
 
         self.view.setYLimits(self.ymin, self.ymax, 22, 0)
         self.update_rulers(True, True)
