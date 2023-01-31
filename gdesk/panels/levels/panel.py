@@ -236,7 +236,7 @@ class LevelPlot(QtWidgets.QWidget):
 
         ymin_cand = ymin if not ymin is None else ymin_cand
 
-        if ymin_cand < ymax_cand:
+        if not ymin_cand is None and not ymax_cand is None and ymin_cand < ymax_cand:
             self.ymin = ymin_cand
             self.ymax = ymax_cand  
             
