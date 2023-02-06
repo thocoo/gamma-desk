@@ -441,23 +441,22 @@ class StdInputPanel(QPlainTextEdit):
 
     def wheelEvent(self, event):
         modifiers = event.modifiers()
-        #key_ctrl = modifiers & 2 == 2 or modifiers & 32 == 32
         key_ctrl = modifiers & Qt.ControlModifier
-        #key_ctrl = True
 
-        #print(modifiers)
+        if key_ctrl:
+            if event.delta() < 0:
+                font = self.font()
+                font.setPointSize(font.pointSize()-1)
+                self.setFont(font)
 
-        if key_ctrl and event.delta() < 0:
-            font = self.font()
-            font.setPointSize(font.pointSize()-1)
-            self.setFont(font)
+            elif event.delta() > 0:
+                font = self.font()
+                font.setPointSize(font.pointSize()+1)
+                self.setFont(font)
 
-        elif key_ctrl and event.delta() > 0:
-            font = self.font()
-            font.setPointSize(font.pointSize()+1)
-            self.setFont(font)
-
-        self.lineNumberArea.update_font()
+            self.lineNumberArea.update_font()
+            
+        self.lineNumberArea.update()
 
         if not key_ctrl:
             super().wheelEvent(event)
