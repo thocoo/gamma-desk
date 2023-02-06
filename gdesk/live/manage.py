@@ -45,7 +45,7 @@ def show_traceback(writer_call):
 def markUpdateCall(scm, ls_code, attr): 
     func = getattr(ls_code.workspace, attr)
     
-    @functools.wraps(func)
+    @functools.wraps(func, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):       
         scm.mark_for_update()       
         error = ls_code.check_for_update()
