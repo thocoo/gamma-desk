@@ -213,10 +213,11 @@ class LevelPlot(QtWidgets.QWidget):
         self.update_rulers(True, True)
         
     def zoomFitYRange(self, ymin=None):
-        self.ymin = self.ymax = None
         
         x0 = self.indicators[0].pos().x()
         x1 = self.indicators[1].pos().x()                
+        
+        ymin_cand = ymax_cand = None
 
         for curve in self.curves.values():            
             xvec = curve.xvector
@@ -226,18 +227,21 @@ class LevelPlot(QtWidgets.QWidget):
                 yvecclip = yvec[indices]
             else:
                 yvecclip = yvec
-            ymin_cand = min(yvecclip)
-            ymax_cand = max(yvecclip)            
-            if (self.ymin is None) or (ymin_cand < self.ymin):
-                self.ymin = ymin_cand
-            if (self.ymax is None) or (ymax_cand > self.ymax):
-                self.ymax = ymax_cand  
-                
-        self.ymin = ymin if not ymin is None else self.ymin
+            ymin_chan = min(yvecclip)
+            ymax_chan= max(yvecclip)            
+            if (ymin_cand is None) or (ymin_chan < ymin_cand):
+                ymin_cand = ymin_chan
+            if (ymax_cand is None) or (ymax_chan > ymax_cand):
+                ymax_cand = ymax_chan    
 
-        if self.ymin == self.ymax:
-            self.ymin -= 0.5
-            self.ymax += 0.5  
+        ymin_cand = ymin if not ymin is None else ymin_cand
+
+        if not ymin_cand is None and not ymax_cand is None and ymin_cand < ymax_cand:
+            self.ymin = ymin_cand
+            self.ymax = ymax_cand  
+            
+        else:
+            return
 
         self.view.setYLimits(self.ymin, self.ymax, 22, 0)
         self.update_rulers(True, True)
@@ -573,6 +577,31 @@ class LevelsToolBar(QtWidgets.QToolBar):
         actGainSigma4.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
         self.gainSigmaMenu.addAction(actGainSigma4)        
         
+        actGain8bit = QtWidgets.QAction('8 bit', self, triggered=lambda: self.panel.autoContrast(None, 8))
+        actGain8bit.setText('8 bit')
+        actGain8bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain8bit)          
+        
+        actGain10bit = QtWidgets.QAction('10 bit', self, triggered=lambda: self.panel.autoContrast(None, 10))
+        actGain10bit.setText('10 bit')
+        actGain10bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain10bit)  
+
+        actGain12bit = QtWidgets.QAction('12 bit', self, triggered=lambda: self.panel.autoContrast(None, 12))
+        actGain12bit.setText('12 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)     
+
+        actGain12bit = QtWidgets.QAction('14 bit', self, triggered=lambda: self.panel.autoContrast(None, 14))
+        actGain12bit.setText('14 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)    
+
+        actGain12bit = QtWidgets.QAction('16 bit', self, triggered=lambda: self.panel.autoContrast(None, 16))
+        actGain12bit.setText('16 bit')
+        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+        self.gainSigmaMenu.addAction(actGain12bit)          
+        
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setText(f'{self.panel.sigma}σ')
         self.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))        
@@ -786,15 +815,27 @@ class LevelsPanel(BasePanel):
         else:
             self.statDock.hide()
         
-    def autoContrast(self, sigma=None):
+    def autoContrast(self, sigma=None, bits=None):
         if not sigma is None:
             self.sigma = sigma
             self.toolbar.autoBtn.setText(f'{sigma}σ')
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast.png')))       
+            
+        if not bits is None:
+            self.bits = bits
+            self.toolbar.autoBtn.setText(f'{bits} bit')            
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))
             
         for panel in self.targetPanels('image'):
-            panel.gainToSigma(self.sigma, self.roi)             
+            text = self.toolbar.autoBtn.text()
             
-        self.levels.bringIndicVisible()
+            if not sigma is None or 'σ' in text:
+                panel.gainToSigma(self.sigma, self.roi)             
+            
+            elif not bits is None or 'bit' in text:
+                panel.changeBlackWhite(0, 2**self.bits)      
+            
+        self.levels.bringIndicVisible()        
             
     def gain1(self):    
         #self.offsetGainChanged.emit('default', 'default', 'default')

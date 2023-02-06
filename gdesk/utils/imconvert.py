@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 
 from qtpy import QtGui, QtCore
 
@@ -19,7 +20,7 @@ else:
     use_numba = False
     
     
-colormaps = ['grey', 'clip', 'turbo', 'jet', 'invert', 'hot', 'cold']    
+colormaps = ['grey', 'clip', 'turbo', 'jet', 'invert', 'hot', 'cold', 'viridis', 'plasma', 'inferno', 'magma', 'cividis']    
 
 turbo_colormap_data = [
     [0.18995,0.07176,0.23217],[0.19483,0.08339,0.26149],[0.19956,0.09498,0.29024],[0.20415,0.10652,0.31844],
@@ -204,6 +205,9 @@ def float_offset_gain_gamma_8bit(array, offset=0, gain=1, gamma=1):
     else:
         temp = ((array - offset) * (gain * 256))
         return (temp ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
+        
+def clip8bitrange(arr):
+    return arr.clip(0, 255)
 
 def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=None, refer=False, shared=False, gamma=1):    
     h, w, c = get_height_width_channels(array)
@@ -260,16 +264,16 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
             shift = 11 - len(bin(int(gain)))
             
             if c == 1:
-                processed[:] = array >> shift
+                processed[:] = clip8bitrange(array >> shift)
                 
             elif c == 3:
-                processed[:] = array >> shift
+                processed[:] = clip8bitrange(array >> shift)
                 
             elif c == 4:
-                processed[:,:,0] = array[:,:,2] >> shift
-                processed[:,:,1] = array[:,:,1] >> shift
-                processed[:,:,2] = array[:,:,0] >> shift
-                processed[:,:,3] = array[:,:,3] >> shift                        
+                processed[:,:,0] = clip8bitrange(array[:,:,2] >> shift)
+                processed[:,:,1] = clip8bitrange(array[:,:,1] >> shift)
+                processed[:,:,2] = clip8bitrange(array[:,:,0] >> shift)
+                processed[:,:,3] = clip8bitrange(array[:,:,3] >> shift)                        
                 
         else:
             map8 = make_map8(array.dtype, offset, gain, gamma)
@@ -397,6 +401,16 @@ def make_color_table(name):
         for i in range(0,256):
             r, g, b = [min(max(0, int(c*255)), 255) for c in turbo_colormap_data[i]]
             table.append(a*aBase + r*rBase + g*gBase + b*bBase )     
+            
+    elif name in ['viridis', 'plasma', 'inferno', 'magma', 'cividis']:
+        mplcmap = matplotlib.colormaps[name]
+        a = 255
+        for i in range(0,256):
+            r, g, b = mplcmap.colors[i]
+            r = min(255, max(0, round(r * 256)))
+            g = min(255, max(0, round(g * 256)))
+            b = min(255, max(0, round(b * 256)))
+            table.append(a*aBase + r*rBase + g*gBase + b*bBase )                
             
     return table
         
