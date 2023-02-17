@@ -44,7 +44,7 @@ def hist2d(array, bins=64, step=None, low=None, high=None, pow2snap=True, plot=F
         hist, starts, stepsize = hist16bit(array, bins, step, low, high, use_numba=True)
         return hist, starts, stepsize
         
-    elif array.dtype in ['float16', 'float32', 'float64']:
+    elif array.dtype in ['int32', 'uint32', 'float16', 'float32', 'float64']:
         hist, starts, stepsize = histfloat(array, bins, step, low, high, pow2snap)
         return hist, starts, stepsize        
         
