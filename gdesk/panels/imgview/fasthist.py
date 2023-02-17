@@ -4,13 +4,14 @@ import logging
 
 import numpy as np
 
+logger = logging.getLogger(__name__)
+
 try:
     from ...utils import numba_func
     has_numba = True
 except:
+    logger.warn('Could not import Numba functions')
     has_numba = False    
-    
-logger = logging.getLogger(__name__)
 
 def is_integer_num(n):
     if isinstance(n, int):
@@ -90,7 +91,7 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
             hist = numba_func.bincount2d(unsigned_array, length)    
         else:
             if use_numba:
-                logger.warning('Numba is not available')
+                logger.warning('Numba is not available, using numpy')
             hist = np.bincount(unsigned_array.ravel(), minlength=length)        
                     
         hist = np.r_[hist[len(hist)//2:], hist[:len(hist)//2]]
