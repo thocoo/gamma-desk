@@ -408,73 +408,38 @@ class Levels(QtWidgets.QWidget):
                 arr = imagePanel.ndarray    
                 
             if len(arr.shape) == 2:        
+                arr = arr[..., None] #create extra dimension
+                
+                if do_roi:            
+                    channames = ['RK']
+                else:
+                    channames = ['K']     
+                
+            elif len(arr.shape) == 3:
+                if do_roi:            
+                    channames = ['RR', 'RG', 'RB']
+                else:
+                    channames = ['R', 'G', 'B']
+                    
+            self.levelplot.remove_all_but(channames)
+            for clr_ch, clr_str in enumerate(channames):
                 if self.panel.histSizePolicy == 'bins':
                     bins = self.panel.histSizes['bins']
-                    hist, starts, stepsize = hist2d(arr, bins=bins-1, plot=False, use_numba=use_numba)
+                    hist, starts, stepsize = hist2d(arr[:, :, clr_ch], bins=bins-1, plot=False, use_numba=use_numba)     
                     if self.panel.log:
-                        hist = semilog(hist)                    
+                        hist = semilog(hist)
                     
                 elif self.panel.histSizePolicy == 'step':
                     step = self.panel.histSizes['step']
-                    hist, starts, stepsize = hist2d(arr, step=step, pow2snap=True, plot=False, use_numba=use_numba)
+                    hist, starts, stepsize = hist2d(arr[:, :, clr_ch], step=step, pow2snap=True, plot=False, use_numba=use_numba)            
                     if self.panel.log:
-                        hist = semilog(hist)                    
-                
+                        hist = semilog(hist)
+                    
                 if relative:
-                    hist = hist /  (arr.shape[0] * arr.shape[1] * stepsize)
+                    hist = hist / (arr.shape[0] * arr.shape[1] * stepsize)
                     
-                starts, histbar = self.xy_as_steps(starts, hist, stepsize)
-                
-                if do_roi:
-                    self.levelplot.remove_all_but(['RK'])
-                    self.levelplot.plot_curve('RK', starts, histbar)            
-                else:
-                    self.levelplot.remove_all_but(['K'])
-                    self.levelplot.plot_curve('K', starts, histbar)                            
-                
-            elif len(arr.shape) == 3 and do_roi:
-            
-                self.levelplot.remove_all_but(['RR', 'RG', 'RB'])
-                for clr_ch, clr_str in [(0,'RR'), (1,'RG'), (2,'RB')]:        
-                    if self.panel.histSizePolicy == 'bins':
-                        bins = self.panel.histSizes['bins']
-                        hist, starts, stepsize = hist2d(arr[:, :, clr_ch], bins=bins-1, plot=False, use_numba=use_numba)     
-                        if self.panel.log:
-                            hist = semilog(hist)
-                        
-                    elif self.panel.histSizePolicy == 'step':
-                        step = self.panel.histSizes['step']
-                        hist, starts, stepsize = hist2d(arr[:, :, clr_ch], step=step, pow2snap=True, plot=False, use_numba=use_numba)            
-                        if self.panel.log:
-                            hist = semilog(hist)
-                        
-                    if relative:
-                        hist = hist /  (arr.shape[0] * arr.shape[1] * stepsize)
-                        
-                    starts, histbar = self.xy_as_steps(starts, hist, stepsize)                 
-                    self.levelplot.plot_curve(clr_str, starts, histbar) 
-                    
-            elif len(arr.shape) == 3 and not do_roi:     
-            
-                self.levelplot.remove_all_but(['R', 'G', 'B'])
-                for clr_ch, clr_str in [(0,'R'), (1,'G'), (2,'B')]:        
-                    if self.panel.histSizePolicy == 'bins':
-                        bins = self.panel.histSizes['bins']
-                        hist, starts, stepsize = hist2d(arr[:, :, clr_ch], bins=bins-1, plot=False, use_numba=use_numba)     
-                        if self.panel.log:
-                            hist = semilog(hist)
-                        
-                    elif self.panel.histSizePolicy == 'step':
-                        step = self.panel.histSizes['step']
-                        hist, starts, stepsize = hist2d(arr[:, :, clr_ch], step=step, pow2snap=True, plot=False, use_numba=use_numba)            
-                        if self.panel.log:
-                            hist = semilog(hist)                       
-                        
-                    if relative:
-                        hist = hist /  (arr.shape[0] * arr.shape[1] * stepsize)                    
-                        
-                    starts, histbar = self.xy_as_steps(starts, hist, stepsize)                 
-                    self.levelplot.plot_curve(clr_str, starts, histbar)
+                starts, histbar = self.xy_as_steps(starts, hist, stepsize)                 
+                self.levelplot.plot_curve(clr_str, starts, histbar) 
                     
             self.panel.histSizes['step'] = stepsize
             self.panel.histSizes['bins'] = len(hist)
