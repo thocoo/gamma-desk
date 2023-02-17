@@ -338,7 +338,7 @@ class Levels(QtWidgets.QWidget):
             bins = int(self.panel.histSize)               
         else:
             bins = None
-            stepsize = self.panel.histSize
+            step = self.panel.histSize
         
         if self.panel.roi and image_panel.imviewer.roi.isVisible():
             clr_filter = set(('RK','RR', 'RG', 'RB'))
@@ -356,18 +356,19 @@ class Levels(QtWidgets.QWidget):
                 chanstat.calc_histogram()            
             
             if bins is None:                
-                step = round(stepsize / chanstat._cache['stepsize'])
-                step = max(1, step)
+                stepmult = round(step / chanstat._cache['stepsize'])
+                stepmult = max(1, stepmult)                
             else:
-                step = chanstat.step_for_bins(bins)
-            
-            hist = chanstat.histogram(step)
+                stepmult = chanstat.step_for_bins(bins)
+                                      
+            hist = chanstat.histogram(stepmult)
             
             if self.panel.log:           
                 hist = semilog(hist)
                 
-            starts = chanstat.starts(step)            
-            barstarts, histbar = self.xy_as_steps(starts, hist, chanstat.stepsize(step))
+            starts = chanstat.starts(stepmult)            
+            step = int(round(starts[1] - starts[0]))
+            barstarts, histbar = self.xy_as_steps(starts, hist, chanstat.stepsize(stepmult))
             self.levelplot.plot_curve(clr, barstarts, histbar) 
             
             if self.panel.gaussview:
@@ -377,7 +378,7 @@ class Levels(QtWidgets.QWidget):
                 m =  chanstat.mean()
                 npixel = chanstat.n()
                 
-                guass = scipy.signal.gaussian(len(starts), std= std / step)
+                guass = scipy.signal.gaussian(len(starts), std= std / stepmult)
                 offset = starts.mean() - m
                 xvec = starts - offset
                 yvec = guass * (npixel / guass.sum())
