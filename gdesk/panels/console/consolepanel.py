@@ -223,10 +223,14 @@ class StdInputPanel(QPlainTextEdit):
                         self.textCursor().insertBlock()
 
         elif event.key() == Qt.Key_Tab:
-            if key_ctrl or key_shift:
-                self.startAutoCompleter(wild=True)
+            if self.mode == 'input':
+                logger.info('Autocomplete not supported during input mode')
+                self.insertText('    ')
             else:
-                self.startAutoCompleter()
+                if key_ctrl or key_shift:
+                    self.startAutoCompleter(wild=True)
+                else:
+                    self.startAutoCompleter()
 
         elif event.key() == Qt.Key_Up and self.textCursor().block().blockNumber() == 0:
             if self.hist_prefix is None:
