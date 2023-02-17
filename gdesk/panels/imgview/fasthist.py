@@ -150,7 +150,6 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
         bins = min(math.ceil((last_edge - first_edge) / stepsize), 65536)    
     
     starts = first_edge + np.arange(bins) * stepsize
-    offset = first_edge
       
     if not len(starts) <= 65536:    
         logger.warning(f'To many bins {len(starts)} is larger then 65536')
@@ -159,19 +158,21 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
     
     #TO DO, clipping is only needed if values are outside the bins
     #This means that minimum and maximum should always be calculated
-    if (offset != 0) and (stepsize != 1):
-        array16bit = ((array - offset) / stepsize).clip(0, 65535).astype('uint16') 
+    if (first_edge != 0) and (stepsize != 1):
+        scaled = (array - first_edge) / stepsize
     elif (stepsize != 1):    
-        array16bit = (array / stepsize).clip(0, 65535).astype('uint16') 
-    elif (offset != 0):        
-        array16bit = (array - offset).clip(0, 65535).astype('uint16') 
+        scaled = array / stepsize
+    elif (first_edge != 0):
+        scaled = array - first_edge
     else:
-        array16bit = array.clip(0, 65535).astype('uint16')
+        scaled = array
+        
+    array16bit = scaled.clip(0, 65535).astype('uint16')
     
     if use_numba and has_numba:
-        hist = numba_func.bincount2d(array16bit, 65536)[:len(starts)] 
+        hist = numba_func.bincount2d(array16bit, 65536) 
     else:
-        hist = np.bincount2d(array16bit, minlength=65536)[:len(starts)]        
+        hist = np.bincount2d(array16bit, minlength=65536)
     
-    return hist, starts, stepsize  
+    return hist[:len(starts)], starts, stepsize  
     
