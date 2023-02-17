@@ -147,14 +147,14 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
     
     if pow2snap:
         stepsize = 2**math.floor(np.log2(stepsize))
-        bins = min(math.ceil((last_edge - first_edge) / stepsize), 65536)    
+        # bins = min(math.ceil((last_edge - first_edge) / stepsize), 65536)    
     
-    starts = first_edge + np.arange(bins) * stepsize
+    # starts = first_edge + np.arange(bins) * stepsize
       
-    if not len(starts) <= 65536:    
-        logger.warning(f'To many bins {len(starts)} is larger then 65536')
-        logger.warning(f'first_edge: {first_edge}; last_edge: {last_edge}; stepsize: {stepsize}')
-        starts = starts[:65536]
+    # if not len(starts) <= 65536:    
+        # logger.warning(f'To many bins {len(starts)} is larger then 65536')
+        # logger.warning(f'first_edge: {first_edge}; last_edge: {last_edge}; stepsize: {stepsize}')
+        # starts = starts[:65536]
     
     #TO DO, clipping is only needed if values are outside the bins
     #This means that minimum and maximum should always be calculated
@@ -173,6 +173,9 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
         hist = numba_func.bincount2d(array16bit, 65536) 
     else:
         hist = np.bincount2d(array16bit, minlength=65536)
+        
+    bins = len(hist) - np.nonzero(hist[::-1])[0][0]
+    starts = first_edge + np.arange(bins) * stepsize
     
     return hist[:len(starts)], starts, stepsize  
     
