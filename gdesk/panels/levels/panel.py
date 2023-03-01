@@ -366,8 +366,7 @@ class Levels(QtWidgets.QWidget):
             if self.panel.log:           
                 hist = semilog(hist)
                 
-            starts = chanstat.starts(stepmult)            
-            step = int(round(starts[1] - starts[0]))
+            starts = chanstat.starts(stepmult)                      
             barstarts, histbar = self.xy_as_steps(starts, hist, chanstat.stepsize(stepmult))
             self.levelplot.plot_curve(clr, barstarts, histbar) 
             
@@ -388,7 +387,10 @@ class Levels(QtWidgets.QWidget):
                 
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
                 
-        self.panel.histSizes['step'] = step
+        if len(starts) > 1:       
+            step = int(round(starts[1] - starts[0]))
+            self.panel.histSizes['step'] = step
+            
         self.panel.histSizes['bins'] = len(hist)
         self.panel.toolbar.updateStepCount()
                 
