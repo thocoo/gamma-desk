@@ -23,7 +23,8 @@ AUTHOR = 'Thomas Cools'
 modpath = herepath / 'gdesk'
 
 REQUIRED = [
-    'numpy',
+    'numpy<1.24',
+    'pillow',
     'imageio',
     'imageio-ffmpeg',
     'matplotlib',
