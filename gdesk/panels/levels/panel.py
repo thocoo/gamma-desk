@@ -366,8 +366,9 @@ class Levels(QtWidgets.QWidget):
             if self.panel.log:           
                 hist = semilog(hist)
                 
-            starts = chanstat.starts(stepmult)                      
-            barstarts, histbar = self.xy_as_steps(starts, hist, chanstat.stepsize(stepmult))
+            starts = chanstat.starts(stepmult)   
+            stepsize = chanstat.stepsize(stepmult)
+            barstarts, histbar = self.xy_as_steps(starts, hist, stepsize)
             self.levelplot.plot_curve(clr, barstarts, histbar) 
             
             if self.panel.gaussview:
@@ -384,15 +385,15 @@ class Levels(QtWidgets.QWidget):
                 
                 if self.panel.log:
                     yvec = semilog(yvec)
+                    
+                xvec, yvec = self.xy_as_steps(xvec, yvec, stepsize)
                 
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
-                
-        if len(starts) > 1:       
-            step = int(round(starts[1] - starts[0]))
-            self.panel.histSizes['step'] = step
-            
-        self.panel.histSizes['bins'] = len(hist)
-        self.panel.toolbar.updateStepCount()
+                    
+        # step = int(round(starts[1] - starts[0]))
+        # self.panel.histSizes['step'] = step 
+        # self.panel.histSizes['bins'] = len(hist)
+        # self.panel.toolbar.updateStepCount()
                 
         
     def updateHist(self, panelId=None):
