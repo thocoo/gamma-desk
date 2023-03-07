@@ -22,7 +22,8 @@ A Python work environment with image viewers & Plots
 - Advanced window & panel docking
 - Linked Image Viewers
 
-# Installaion
+
+# Installation
 
 It is prefered to use gdesk with pyside2
 
