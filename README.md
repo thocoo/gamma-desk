@@ -27,11 +27,11 @@ A Python work environment with image viewers & Plots
 
 It is prefered to use gdesk with pyside2
 
-    pip install gdesk[pyside2] 
+    pip install gamma-desk[pyside2] 
 
 but it should also work with pyside6
 
-    pip install gdesk[pyside6] 
+    pip install gamma-desk[pyside6] 
   
 
 # Usage
@@ -48,6 +48,8 @@ or
 [Program Help](https://thocoo.github.io/gdesk-data/docs)
 
 [Source Code](https://github.com/thocoo/gamma-desk)
+
+[On PyPi](https://pypi.org/project/gamma-desk)
 
 
 # Dependencies 
