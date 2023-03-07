@@ -26,20 +26,20 @@ A Python work environment with image viewers & Plots
 
 It is prefered to use gdesk with pyside2
 
-  pip install gdesk[pyside2] 
+    pip install gdesk[pyside2] 
 
 but it should also work with pyside6
 
-  pip install gdesk[pyside6] 
+    pip install gdesk[pyside6] 
   
 
 # Usage
 
-  python -m gdesk
+    python -m gdesk
   
 or
 
-  gdesk
+    gdesk
   
 
 # More documentation
