@@ -57,7 +57,11 @@ or
 `scipy`
 `PySide2`
 `qtpy`
-`psutils`
+`psutil`
 `pyzmq`
-`ninja2`
 `toml`
+`pillow`
+`imageio`
+`imageio-ffmpeg`
+`numba`
+`pywinpty`
