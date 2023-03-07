@@ -2605,7 +2605,12 @@ class ImageProfilePanel(ImageViewerBase):
             checkcall=lambda: self.imgprof.profilesVisible,
             statusTip="Show or Hide the image column and row profiles")
             
-        if not kwargs.get('empty', False): self.openTestImage()
+        if not kwargs.get('empty', True): self.openTestImage()
+        
+        
+    def postLayoutInit(self):
+        self.openTestImage()
+        
             
     def openTestImage(self):        
         self.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)

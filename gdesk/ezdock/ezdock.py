@@ -162,6 +162,7 @@ class DockManager(object):
         self.detach_all()
         
         panels = perspective['panels']
+        postlayinits = []
         
         #Create panels
         for panelinfo in panels:
@@ -198,6 +199,9 @@ class DockManager(object):
                     continue                    
                      
             panel = self.panels.new_panel(Cls, None, panid, floating=True) 
+            
+            if hasattr(panel, 'postLayoutInit'):
+                postlayinits.append(panel.postLayoutInit)
 
         #Setup of bindings
         for panelinfo in panels:
@@ -229,7 +233,6 @@ class DockManager(object):
         
         #Put all the floating pannels together in tabs and one seperate window
         floating_panels = []
-        floating_panels = []
         for category in self.panels.keys():
             for panid, panel in self.panels[category].items():
                 if panel.parent() is None:
@@ -246,6 +249,9 @@ class DockManager(object):
             win = self.new_window_using_layout(layout)
             win.hide()            
             
-        gui.qapp.deleteEmptyWindows(True)  
+        gui.qapp.deleteEmptyWindows(True)     
+
+        for postLayoutInit in postlayinits:
+            postLayoutInit()
 
         self.panels.reselect_all()
