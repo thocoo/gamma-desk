@@ -20,9 +20,17 @@ A Python work environment with image viewers & Plots
 - Advanced window & panel docking
 - Linked Image Viewers
 
+# Installaion
+
+  pip install gdesk[pyside2] 
+
+or
+
+  pip install gdesk[pyside6] 
+
 # Usage
 
-python -m gdesk
+  python -m gdesk
 
 # More documentation
 
