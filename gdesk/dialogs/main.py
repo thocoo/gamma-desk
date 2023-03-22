@@ -292,6 +292,10 @@ class MainDialog(QtWidgets.QMainWindow):
         helpAct = QtWidgets.QAction("&Help", self, triggered=self.help)
         helpAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'help.png')))
         self.helpMenu.addAction(helpAct)
+        
+        reportIssueAct = QtWidgets.QAction(f"Report Issue", self, triggered=self.reportIssue)
+        reportIssueAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bug.png')))
+        self.helpMenu.addAction(reportIssueAct)
 
         aboutGhQtAct = QtWidgets.QAction(f"About {PROGNAME}", self, triggered=self.about)
         self.helpMenu.addAction(aboutGhQtAct)
@@ -332,6 +336,9 @@ class MainDialog(QtWidgets.QMainWindow):
     def help(self):
         print("Opening %s" % DOC_HTML)
         os.system('start "help" "%s"' % DOC_HTML)
+        
+    def reportIssue(self):
+        os.system('start "issue" "https://github.com/thocoo/gamma-desk/issues"')
 
     def about(self):
         aboutScreen = AboutScreen()
@@ -339,7 +346,10 @@ class MainDialog(QtWidgets.QMainWindow):
 
     def license(self):
         message = open(respath / 'LICENSE.txt', 'r').read()
+        self.qapp.panels['console'][0].clear()
+        print(80 * '=')
         print(message)
+        print(37 * '=' + ' EOD ' + 38 * '=')
         self.qapp.panels['console'][0].show_me()
 
     def info(self):
