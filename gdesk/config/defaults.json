@@ -68,7 +68,8 @@
   "roi color": [255,0,0],
   "image color map": "grey",
   "matplotlib": {
-    "backend": "module://gdesk.matplotbe"
+    "backend": "module://gdesk.matplotbe",
+    "many_show_warning": true
   },
   "shortcutmenu": {
     "Ctrl+Shift+N": {"image": ["File", "New..."]},

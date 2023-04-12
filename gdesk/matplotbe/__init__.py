@@ -25,6 +25,7 @@ from matplotlib.backends.backend_qt5 import (
   
 from matplotlib.backends.qt_compat import QT_API
 from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
+from matplotlib import rcParams
 
 from .. import gui
 
@@ -83,7 +84,16 @@ def show(*, block=None):
     #manager = Gcf.get_active()   
     if matplotlib.is_interactive(): return
     
-    for manager in Gcf.get_all_fig_managers():
+    max_open_warning = rcParams['figure.max_open_warning']
+    
+    all_fig_managers = Gcf.get_all_fig_managers()
+    many_show_warning = config.get("matplotlib", {}).get("many_show_warning", True)
+    
+    for i, manager in enumerate(all_fig_managers):
+        if many_show_warning and (i == max_open_warning):
+            left = len(all_fig_managers) - i
+            do_continue = gui.dialog.question(f'Continue for next {left} figures?')
+            if not do_continue: break
         manager.show()
         
 def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
