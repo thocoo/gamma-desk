@@ -109,6 +109,8 @@ class QueueInterpreter(object):
         flowcode = 1
         
         self.shell.stdout.route_stream(self.stdout)
+        ident = threading.currentThread().ident
+        GuiMap.gui_proxies[ident] = self.gui_proxy
         
         try:
             while flowcode == 1:
@@ -116,6 +118,7 @@ class QueueInterpreter(object):
                 
         finally:
             self.shell.stdout.unregister()
+            GuiMap.gui_proxies.pop(ident)
             sys.__stdout__.write(f'Exiting control loop of thread {self.thread_id}\n')
             sys.__stdout__.flush() 
         
