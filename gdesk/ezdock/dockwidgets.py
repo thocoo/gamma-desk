@@ -115,7 +115,7 @@ class DockTabBar(QTabBar):
         
         return window, node        
         
-class DockTabBase(QTabWidget, DockBase):
+class DockTabBase(DockBase, QTabWidget):
 
     def __init__(self, parent=None, collapse=None):
         QTabWidget.__init__(self, parent=parent)                 

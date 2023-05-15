@@ -8,7 +8,7 @@ class AreaSplitterHandle(QtWidgets.QSplitterHandle):
     def mouseDoubleClickEvent(self, event):
         self.parent().distributeWidgets()        
 
-class DockBox(QtWidgets.QSplitter, DockBase):
+class DockBox(DockBase, QtWidgets.QSplitter):
     SplitArea = 0
     PinArea = 1
     ScrollArea = 2
