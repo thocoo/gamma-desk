@@ -113,7 +113,26 @@ class GuiApplication(QApplication):
         self.menuCallShortCuts = dict()
         self.menuCallShortCuts['main'] = dict()
         
-        self.panelsDialog.showMinimized()
+        self.panelsDialog.showMinimized()        
+        
+        
+    def screenInfo(self):
+    
+        for screen in self.screens():
+            name = screen.name()
+            size = screen.size()
+            width = size.width()
+            height = size.height()
+            depth = screen.depth()
+            scale = screen.devicePixelRatio()
+            
+            print(f'{name}: {width}x{height}x{depth} scale: {scale}')
+            
+            if scale != 1.0:
+                logger.warning('Screen scale in application is not 1 !!!')
+                logger.warning('Scaling on PySide6 can be disabled by environmental variable')
+                logger.warning('QT_ENABLE_HIGHDPI_SCALING= 0')                            
+            
 
     def setShortCuts(self):        
         for layid in range(1,10):
@@ -314,6 +333,9 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
             # qapp.panels.restore_state_from_config(config['default_perspective'])
     
     qapp.processEvents()    
+    
+    qapp.screenInfo()
+    
     qapp.cmdserver = CommandServer(shell)
     
     if not init_file is None:
