@@ -317,6 +317,11 @@ try:
     import readline
 except ImportError:
     _readline_available = False
+except AttributeError:
+    # For some installations, I have the following error
+    # module 'collections' has no attribute 'Callable'
+    pass
+    
 else:
     readline.set_completer(Completer().complete)
     # Release references early at shutdown (the readline module's
