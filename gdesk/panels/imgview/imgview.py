@@ -1361,8 +1361,7 @@ class ImageViewerBase(BasePanel):
 
     def openImageImafio(self, filepath, format=None):
         with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
-            FormatClass = imageio.formats[str(filepath)]
-            logger.info(f'Using FormatClass {repr(FormatClass)}')
+            logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
             arr = imageio.imread(str(filepath), format=format)
         return arr
 
