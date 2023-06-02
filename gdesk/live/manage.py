@@ -263,7 +263,7 @@ class LiveScriptManager(object):
         result = []
         
         for path in self.path:
-            #It is note sure every path exists
+            #It is not sure every path exists
             path = Path(path).absolute()
             if (path / modpath).with_suffix('.py').exists():
                 result.append(((path / modpath).with_suffix('.py'), 'file'))
