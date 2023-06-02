@@ -47,7 +47,7 @@ elif LooseVersion(matplotlib.__version__) == LooseVersion('3.3'):
     setDevicePixelRatio = _setDevicePixelRatioF
     DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
     
-elif LooseVersion(matplotlib.__version__) == LooseVersion('3.4'):
+elif LooseVersion(matplotlib.__version__) < LooseVersion('3.5'):
     from matplotlib.backends.qt_compat import _setDevicePixelRatio
     setDevicePixelRatio = _setDevicePixelRatio
     DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
