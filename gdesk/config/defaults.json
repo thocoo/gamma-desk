@@ -29,7 +29,8 @@
     "maxblockcount": 20000,
     "completer": "key",
     "max_complete": 2000,
-    "redbull": 300
+    "redbull": 300,
+    "logformat": "%(name)s %(lineno)s: %(message)s"
   },
   "image": {
     "threads": 8,

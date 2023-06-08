@@ -21,6 +21,10 @@ RED_PREFIX = ESC + '38;5;9m'
 RED_SUFFIX = ESC + '0m'
 
 LOG_PREFIX = '\033[48;5;7mLOG\033[0m '
+LOG_PREFIX_DGB= '\033[48;5;7mDBG\033[0m '
+LOG_PREFIX_INFO = '\033[48;5;7mNFO\033[0m '
+LOG_PREFIX_WARN = '\033[48;5;7mWRN\033[0m '
+LOG_PREFIX_ERROR = '\033[48;5;7mERR\033[0m '
 
 DEBUG_PREFIX = ESC + '38;5;6m'
 DEBUG_SUFFIX = ESC + '0m'
@@ -98,21 +102,25 @@ class GhStreamHandler(Handler):
         self.stream = stream
         self.set_name('ghstream')
         
+        if not config['console'].get('logformat') is None:
+            formatter = logging.Formatter(config['console'].get('logformat'))            
+            self.setFormatter(formatter)        
+        
     def setStream(self, stream):
         self.stream.flush()
         self.stream = stream
 
-    def emit(self, record):
+    def emit(self, record):            
         text = self.format(record)               
 
         if record.levelno <= logging.DEBUG:
-            self.stream.write(f'{LOG_PREFIX}{DEBUG_PREFIX}{text}{DEBUG_SUFFIX}\n')
+            self.stream.write(f'{LOG_PREFIX_DGB}{DEBUG_PREFIX}{text}{DEBUG_SUFFIX}\n')
         elif record.levelno <= logging.INFO:
-            self.stream.write(f'{LOG_PREFIX}{INFO_PREFIX}{text}{INFO_SUFFIX}\n')            
+            self.stream.write(f'{LOG_PREFIX_INFO}{INFO_PREFIX}{text}{INFO_SUFFIX}\n')            
         elif record.levelno <= logging.WARNING:
-            self.stream.write(f'{LOG_PREFIX}{WARNING_PREFIX}{text}{WARNING_SUFFIX}\n')
+            self.stream.write(f'{LOG_PREFIX_WARN}{WARNING_PREFIX}{text}{WARNING_SUFFIX}\n')
         elif record.levelno <= logging.ERROR:
-            self.stream.write(f'{LOG_PREFIX}{ERROR_PREFIX}{text}{ERROR_SUFFIX}\n')
+            self.stream.write(f'{LOG_PREFIX_ERROR}{ERROR_PREFIX}{text}{ERROR_SUFFIX}\n')
         elif record.levelno <= logging.CRITICAL:
             self.stream.write(f'{LOG_PREFIX}{CRITICAL_PREFIX}{text}{CRITICAL_SUFFIX}\n')            
         else:        
