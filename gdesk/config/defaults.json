@@ -1,6 +1,7 @@
 {
-  "path_log": "%USERPROFILE%/AppData/Local/Gamma-Desk",
+  "path_log": "%USERPROFILE%/AppData/Local/Gamma-Desk",  
   "max_log_paths": 10,
+  "high_dpiscaling": false,
   "path_config_files": ["%USERPROFILE%/AppData/Local/Gamma-Desk/gdconf.json", "gdconf.json"],
   "save_config_file": "gdconf.json",
   "init_file": null,

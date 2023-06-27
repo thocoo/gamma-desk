@@ -107,7 +107,7 @@ def configure(**overwrites):
     else:
         configured = True
 
-    os.environ['GDESKROOT'] = str(here.parent.absolute())
+    os.environ['GDESKROOT'] = str(here.parent.absolute())    
 
     config_file = FIRST_CONFIG_FILE
     print(f'Loading config: {config_file}')
@@ -131,13 +131,16 @@ def configure(**overwrites):
 
     deep_update(config, overwrites)
     
+    if not 'QT_ENABLE_HIGHDPI_SCALING' in os.environ:    
+        os.environ['QT_ENABLE_HIGHDPI_SCALING'] = '1' if config.get('high_dpiscaling', False) else '0'
+    
     if 'QT_API' in os.environ.keys():
         pass
     
     elif 'qt_api' in config.keys():
         print('Configuring PySide version by the config json')
         os.environ['QT_API'] = config['qt_api']        
-        os.environ['FORCE_QT_API'] = '1'
+        os.environ['FORCE_QT_API'] = '1'        
         
     else:
         for i in range(1):
