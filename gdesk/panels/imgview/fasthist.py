@@ -78,8 +78,8 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         if use_numba and has_numba:
             hist = numba_func.bincount2d(array, length)    
         else:
-            if use_numba:
-                logger.warning('Numba is not available')
+            # if use_numba:
+                # logger.warning('Numba is not available')
             hist = np.bincount(array.ravel(), minlength=length)
             
     elif array.dtype in ['int8', 'int16']:
@@ -90,8 +90,8 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         if use_numba and has_numba:
             hist = numba_func.bincount2d(unsigned_array, length)    
         else:
-            if use_numba:
-                logger.warning('Numba is not available, using numpy')
+            # if use_numba:
+                # logger.warning('Numba is not available, using numpy')
             hist = np.bincount(unsigned_array.ravel(), minlength=length)        
                     
         hist = np.r_[hist[len(hist)//2:], hist[:len(hist)//2]]
