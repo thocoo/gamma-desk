@@ -15,7 +15,15 @@
 #-------------------------------------------------------------------------------
 
 """This file is executed with python -m gdesk"""
+import os, sys
+import subprocess
 
-if __name__ == '__main__':
-    from .console import argexec
-    shell = argexec()
+if __name__ == '__main__':        
+    if not 'QT_ENABLE_HIGHDPI_SCALING' in os.environ:    
+        env = os.environ.copy()
+        env['QT_ENABLE_HIGHDPI_SCALING'] = '0'
+        subprocess.Popen(f'{sys.executable} {" ".join(sys.argv)}', env=env)
+        
+    else:
+        from gdesk.console import argexec
+        shell = argexec()
