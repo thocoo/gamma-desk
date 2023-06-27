@@ -887,7 +887,7 @@ class ImageViewerWidget(QWidget):
             
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
-            qp.setRenderHint(qp.Antialiasing, False)
+            #qp.setRenderHint(qp.Antialiasing, False)
             
             x, y, w, h = self.visibleRegion()
             mh, mw = self.imgdata.statarr.shape[:2]
