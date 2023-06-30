@@ -190,59 +190,58 @@ class ImageData(object):
         self.qimg = QImage(str(path))
         
     def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1, log=True):
-        with gui.qapp.waitCursor():
-            threadcount = config['image']['threads'] 
-            use_numba = config['image']['numba'] and has_numba        
-            
+        threadcount = config['image']['threads'] 
+        use_numba = config['image']['numba'] and has_numba        
         
-            if array is None:
-                #offset and gain adjust of current viewer
-                pass
+    
+        if array is None:
+            #offset and gain adjust of current viewer
+            pass
+            
+        elif isinstance(array, int) and array == -1:
+            #Content of current array has been updated
+            for name, stat in self.chanstats.items():
+                stat.clear()
+            
+        else:
+            if log and not self.array is None:
+                self.imghist.push(self.array)
+            
+            self.array = array                    
+            self.chanstats.clear()
                 
-            elif isinstance(array, int) and array == -1:
-                #Content of current array has been updated
-                for name, stat in self.chanstats.items():
-                    stat.clear()
+            if len(self.shape) == 2:
+                self.chanstats['K'] = ImageStatistics()
+                self.chanstats['K'].attach_arr2d(self.statarr)
+                self.chanstats['RK'] = ImageStatistics()
+                self.update_roi_statistics()
                 
             else:
-                if log and not self.array is None:
-                    self.imghist.push(self.array)
-                
-                self.array = array                    
-                self.chanstats.clear()
-                    
-                if len(self.shape) == 2:
-                    self.chanstats['K'] = ImageStatistics()
-                    self.chanstats['K'].attach_arr2d(self.statarr)
-                    self.chanstats['RK'] = ImageStatistics()
-                    self.update_roi_statistics()
-                    
-                else:
-                    self.chanstats['R'] = ImageStatistics()
-                    self.chanstats['G'] = ImageStatistics()
-                    self.chanstats['B'] = ImageStatistics()
-                    self.chanstats['R'].attach_arr2d(self.statarr[:,:,0])
-                    self.chanstats['G'].attach_arr2d(self.statarr[:,:,1])
-                    self.chanstats['B'].attach_arr2d(self.statarr[:,:,2])                   
-                    self.chanstats['RR'] = ImageStatistics()
-                    self.chanstats['RG'] = ImageStatistics()
-                    self.chanstats['RB'] = ImageStatistics()
-                    self.update_roi_statistics()
-                
-            if self.selroi.isfullrange():
-                self.selroi.xr.maxstop = self.width
-                self.selroi.yr.maxstop = self.height
-                self.selroi.reset()
-            else:
-                self.selroi.xr.maxstop = self.width
-                self.selroi.yr.maxstop = self.height
-                self.selroi.clip()
-                   
-            natrange = imconvert.natural_range(self.statarr.dtype)                   
-            gain = natrange / (white - black)
-            self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
-                self.statarr, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
-                gamma=gamma)
+                self.chanstats['R'] = ImageStatistics()
+                self.chanstats['G'] = ImageStatistics()
+                self.chanstats['B'] = ImageStatistics()
+                self.chanstats['R'].attach_arr2d(self.statarr[:,:,0])
+                self.chanstats['G'].attach_arr2d(self.statarr[:,:,1])
+                self.chanstats['B'].attach_arr2d(self.statarr[:,:,2])                   
+                self.chanstats['RR'] = ImageStatistics()
+                self.chanstats['RG'] = ImageStatistics()
+                self.chanstats['RB'] = ImageStatistics()
+                self.update_roi_statistics()
+            
+        if self.selroi.isfullrange():
+            self.selroi.xr.maxstop = self.width
+            self.selroi.yr.maxstop = self.height
+            self.selroi.reset()
+        else:
+            self.selroi.xr.maxstop = self.width
+            self.selroi.yr.maxstop = self.height
+            self.selroi.clip()
+               
+        natrange = imconvert.natural_range(self.statarr.dtype)                   
+        gain = natrange / (white - black)
+        self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
+            self.statarr, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
+            gamma=gamma)
     
     @property    
     def statarr(self):

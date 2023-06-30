@@ -1582,8 +1582,8 @@ class ImageViewerBase(BasePanel):
     # View Menu Connections
 
     def refresh(self):
-        with gui.qapp.waitCursor(f'Refreshing {self.short_title}'):
-            self.show_array(None)
+        #with gui.qapp.waitCursor(f'Refreshing {self.short_title}'):
+        self.show_array(None)
         
     def get_gain(self):
         natrange = self.imviewer.imgdata.get_natural_range()
