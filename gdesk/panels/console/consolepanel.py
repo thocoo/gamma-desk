@@ -139,6 +139,7 @@ class LineNumberArea(QWidget):
 
     def sizeHint(self):
         return QSize(self.prefixwidth, 0)
+        
 
 class StdInputPanel(QPlainTextEdit):
     def __init__(self, parent, task, outputPanel):
@@ -448,12 +449,14 @@ class StdInputPanel(QPlainTextEdit):
         key_ctrl = modifiers & Qt.ControlModifier
 
         if key_ctrl:
-            if event.delta() < 0:
+            wheel_delta = event.angleDelta().y()
+            
+            if wheel_delta < 0:
                 font = self.font()
                 font.setPointSize(font.pointSize()-1)
                 self.setFont(font)
 
-            elif event.delta() > 0:
+            elif wheel_delta > 0:
                 font = self.font()
                 font.setPointSize(font.pointSize()+1)
                 self.setFont(font)
