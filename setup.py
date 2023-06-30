@@ -23,7 +23,7 @@ AUTHOR = 'Thomas Cools'
 modpath = herepath / 'gdesk'
 
 REQUIRED = [
-    'numpy<1.24',
+    'numpy',
     'pillow',
     'imageio',
     'imageio-ffmpeg',
@@ -31,9 +31,7 @@ REQUIRED = [
     'scipy',
     'qtpy',
     'psutil',
-    # Numba is not yet released for Python 3.11.
-    # See https://github.com/numba/numba/issues/8304
-    'numba;python_version<"3.11"',
+    'numba',
     'pyzmq',
     'pywinpty; sys_platform=="win32"',
 ]
