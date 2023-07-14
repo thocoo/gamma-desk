@@ -2437,7 +2437,6 @@ class ImageViewerBase(BasePanel):
             self.contentChanged.emit(self.panid, False)
         return was_selected
 
-
     def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
@@ -2446,7 +2445,11 @@ class ImageViewerBase(BasePanel):
 
     @property
     def ndarray(self):
-        return self.imviewer.imgdata.statarr
+        return self.imviewer.imgdata.statarr    
+    
+    @property    
+    def roi_slices(self):            
+        return self.imviewer.imgdata.selroi.getslices()
         
     @property
     def srcarray(self):
@@ -2559,13 +2562,37 @@ class ImageProfileWidget(QWidget):
         if arr.ndim > 2:
             arr = arr.mean(2)
 
-        rowProfile = arr.mean(0)
-        colProfile = arr.mean(1)
-
-        self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
-        self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
+        if self.rowPanel.view.fullActive.isChecked():
+            rowProfile = arr.mean(0)        
+            self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
+        
+        if self.colPanel.view.fullActive.isChecked():
+            colProfile = arr.mean(1)
+            self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
 
         self.refresh_profile_views()
+        
+        
+    def drawRoiProfile(self):       
+        rowChecked = self.rowPanel.view.roiActive.isChecked()
+        colChecked = self.colPanel.view.roiActive.isChecked()
+
+        if arr.ndim > 2 and (rowChecked or colChecked):
+            arr = arr.mean(2)
+            
+        arr = self.ndarray
+        slices = self.roi_slices        
+
+        if rowChecked:
+            rowProfile = arr[slices].mean(0)            
+            self.rowPanel.drawRoiProfile(np.arange(*slices[1].indices(arr.shape[1])), rowProfile)
+            
+        if colChecked:
+            colProfile = arr[slices].mean(1)
+            self.colPanel.drawRoiProfile(np.arange(*slices[0].indices(arr.shape[0])), colProfile)
+
+        if rowChecked or colChecked:
+            self.refresh_profile_views()        
 
 
     def set_profiles_visible(self, value):
@@ -2588,8 +2615,13 @@ class ImageProfileWidget(QWidget):
         self.rowPanel.view.refresh()
         
     @property
-    def ndarray(self):
+    def ndarray(self):    
         return self.imviewer.imgdata.statarr
+        
+        
+    @property
+    def roi_slices(self):
+        return self.imviewer.imgdata.selroi.getslices()
 
 
 class ImageProfilePanel(ImageViewerBase):
@@ -2639,12 +2671,14 @@ class ImageProfilePanel(ImageViewerBase):
 
     def passRoiChanged(self):
         self.roiChanged.emit(self.panid)
+        self.imgprof.drawRoiProfile()
 
 
     def show_array(self, array, zoomFitHist=False, log=True):
         super().show_array(array, zoomFitHist, log=log)
         if self.imgprof.profilesVisible:
             self.imgprof.drawMeanProfile()
+            self.imgprof.drawRoiProfile()
         else:
             self.imgprof.refresh_profile_views()
 

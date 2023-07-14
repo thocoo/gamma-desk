@@ -13,7 +13,17 @@ from ...utils.ticks import tickValues
 class ProfileGraphicView(PlotView):
 
     def __init__(self, parent=None):
-        super().__init__(parent)                                    
+        super().__init__(parent)        
+
+        self.fullActive = QtWidgets.QAction('Full Image', self)
+        self.fullActive.setCheckable(True)
+        self.fullActive.setChecked(True)
+        self.menu.addAction(self.fullActive)
+        
+        self.roiActive = QtWidgets.QAction('Region of Interest', self)
+        self.roiActive.setCheckable(True)
+        self.roiActive.setChecked(False)
+        self.menu.addAction(self.roiActive)        
            
                    
 class ProfilerPanel(QtWidgets.QWidget):
@@ -248,12 +258,12 @@ class ProfilerPanel(QtWidgets.QWidget):
         if self.roiProfileCurve is not None:
             self.scene.removeItem(self.roiProfileCurve)
         
-        self.roiProfileCurve = self.createCurve(x, y, color=QtCore.Qt.darkGreen, z=0.25)
+        self.roiProfileCurve = self.createCurve(x, y, color=QtCore.Qt.red, z=0.25)
         self.scene.addItem(self.roiProfileCurve)          
         
     def drawPixelProfile(self, x, y):
         self.removePixelProfile()        
-        self.pixProfileCurve = self.createCurve(x, y, color=QtCore.Qt.red, z=0)
+        self.pixProfileCurve = self.createCurve(x, y, color=QtCore.Qt.darkGreen, z=0)
         self.scene.addItem(self.pixProfileCurve)                
 
     def removeRoiProfile(self):
