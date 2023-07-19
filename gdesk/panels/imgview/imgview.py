@@ -2558,41 +2558,50 @@ class ImageProfileWidget(QWidget):
 
     def drawMeanProfile(self):       
         arr = self.ndarray
+        rowChecked = self.rowPanel.view.fullActive.isChecked()
+        colChecked = self.colPanel.view.fullActive.isChecked()     
 
         if arr.ndim > 2:
             arr = arr.mean(2)
 
-        if self.rowPanel.view.fullActive.isChecked():
+        if rowChecked:
             rowProfile = arr.mean(0)        
             self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
+            
+        else:
+            self.rowPanel.removeMeanProfile()            
         
-        if self.colPanel.view.fullActive.isChecked():
+        if colChecked:
             colProfile = arr.mean(1)
             self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
-
-        self.refresh_profile_views()
+            
+        else:
+            self.colPanel.removeMeanProfile()   
         
         
     def drawRoiProfile(self):       
+        arr = self.ndarray
         rowChecked = self.rowPanel.view.roiActive.isChecked()
-        colChecked = self.colPanel.view.roiActive.isChecked()
+        colChecked = self.colPanel.view.roiActive.isChecked()        
 
         if arr.ndim > 2 and (rowChecked or colChecked):
-            arr = arr.mean(2)
-            
-        arr = self.ndarray
+            arr = arr.mean(2)           
+        
         slices = self.roi_slices        
 
         if rowChecked:
             rowProfile = arr[slices].mean(0)            
             self.rowPanel.drawRoiProfile(np.arange(*slices[1].indices(arr.shape[1])), rowProfile)
             
+        else:
+            self.rowPanel.removeRoiProfile()
+            
         if colChecked:
             colProfile = arr[slices].mean(1)
             self.colPanel.drawRoiProfile(np.arange(*slices[0].indices(arr.shape[0])), colProfile)
-
-        if rowChecked or colChecked:
-            self.refresh_profile_views()        
+            
+        else:
+            self.colPanel.removeRoiProfile()            
 
 
     def set_profiles_visible(self, value):
@@ -2609,9 +2618,12 @@ class ImageProfileWidget(QWidget):
 
         if self.colPanel.view.auto_zoom:
             self.colPanel.zoomFit()
+            
         self.colPanel.view.refresh()
+        
         if self.rowPanel.view.auto_zoom:
             self.rowPanel.zoomFit()
+            
         self.rowPanel.view.refresh()
         
     @property
@@ -2672,13 +2684,17 @@ class ImageProfilePanel(ImageViewerBase):
     def passRoiChanged(self):
         self.roiChanged.emit(self.panid)
         self.imgprof.drawRoiProfile()
+        self.imgprof.refresh_profile_views()
 
 
     def show_array(self, array, zoomFitHist=False, log=True):
         super().show_array(array, zoomFitHist, log=log)
+        
         if self.imgprof.profilesVisible:
             self.imgprof.drawMeanProfile()
             self.imgprof.drawRoiProfile()
+            self.imgprof.refresh_profile_views()
+            
         else:
             self.imgprof.refresh_profile_views()
 
