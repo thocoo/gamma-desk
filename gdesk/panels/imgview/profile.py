@@ -18,12 +18,18 @@ class ProfileGraphicView(PlotView):
         self.fullActive = QtWidgets.QAction('Full Image', self)
         self.fullActive.setCheckable(True)
         self.fullActive.setChecked(True)
+        self.fullActive.triggered.connect(self.refresh_profiles)        
         self.menu.addAction(self.fullActive)
         
         self.roiActive = QtWidgets.QAction('Region of Interest', self)
         self.roiActive.setCheckable(True)
         self.roiActive.setChecked(False)
-        self.menu.addAction(self.roiActive)        
+        self.roiActive.triggered.connect(self.refresh_profiles)
+        self.menu.addAction(self.roiActive)
+        
+
+    def refresh_profiles(self):
+        self.parent().parent().parent().refresh_profiles()
            
                    
 class ProfilerPanel(QtWidgets.QWidget):

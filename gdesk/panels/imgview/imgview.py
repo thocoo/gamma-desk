@@ -2495,7 +2495,6 @@ class ImageProfileWidget(QWidget):
 
         self.gridsplit = GridSplitter(None)
 
-
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
         self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
 
@@ -2677,19 +2676,17 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
         self.imgprof.drawRoiProfile()
         self.imgprof.refresh_profile_views()
-
-
-    def show_array(self, array, zoomFitHist=False, log=True):
-        super().show_array(array, zoomFitHist, log=log)
         
+    
+    def refresh_profiles(self):    
         if self.imgprof.profilesVisible:
             self.imgprof.drawMeanProfile()
             self.imgprof.drawRoiProfile()
-            self.imgprof.refresh_profile_views()
-            
-        else:
-            self.imgprof.refresh_profile_views()
+            self.imgprof.refresh_profile_views()            
 
+    def show_array(self, array, zoomFitHist=False, log=True):
+        super().show_array(array, zoomFitHist, log=log)        
+        self.refresh_profiles()
 
     @property
     def imviewer(self):
