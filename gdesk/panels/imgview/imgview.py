@@ -1133,6 +1133,8 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, 'Select dialog...', self.setRoi,
             statusTip="Select with input numbers dialog",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
+        self.addMenuItem(self.selectMenu, 'Copy slices to clipboard...', self.copySliceToClipboard,
+            statusTip="Copy the slice definition to the clipboard")            
         self.addMenuItem(self.selectMenu, 'Jump to Coordinates'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
@@ -1916,6 +1918,12 @@ class ImageViewerBase(BasePanel):
             
         config['roi color'] = list(rgb)
         self.imviewer.roi.initUI()
+        
+        
+    def copySliceToClipboard(self):
+        clipboard = self.qapp.clipboard()
+        sls =self.imviewer.imgdata.selroi.getslices()
+        clipboard.setText(str(sls))        
         
         
     def togglePixelLabels(self):
