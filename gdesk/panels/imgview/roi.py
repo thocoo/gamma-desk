@@ -14,8 +14,6 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 from ... import config
 
-AUTO_APPLY = False
-
 class SelRoiWidget(QtWidgets.QWidget):
     
     """
@@ -287,8 +285,6 @@ class SelRoiWidget(QtWidgets.QWidget):
                 #self.parent().myContextMenuEvent(event)
             else:
                 self.clip()
-                if AUTO_APPLY:
-                    self.applyRoi()            
                 self.roiChanged.emit()
 
         if self.mouseMidWasDown:
@@ -304,22 +300,15 @@ class SelRoiWidget(QtWidgets.QWidget):
     def release_creation(self):
         self.createState = False        
         self.clip()
-        if AUTO_APPLY:
-            self.applyRoi()
         self.roiChanged.emit()
         self.repaint()                
         
     def hideRoi(self):
         self.selroi.reset()
-        if AUTO_APPLY:
-            self.applyRoi()
         self.hide()
         self.unsetCursor()
         self.roiRemoved.emit()
         self.repaint()   
-
-    def applyRoi(self):
-        self.parent().vd.applyroi()
 
     def paintEvent(self, e):
         qp = QtGui.QPainter()
