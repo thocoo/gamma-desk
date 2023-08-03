@@ -462,7 +462,7 @@ class ImageViewerWidget(QWidget):
         
         self.set_val_item_format('dec')
 
-        self.roi = SelRoiWidget(self)
+        self.roi = SelRoiWidget(self)        
 
         self.pickCursor = QCursor(QPixmap(str(respath / "icons" / "pixPick256.png")), 15, 15)
         self.dragCursor = QCursor(Qt.OpenHandCursor)
@@ -1940,9 +1940,7 @@ class ImageViewerBase(BasePanel):
         self.imviewer.roi.show()
 
     def selectNone(self):
-        self.imviewer.imgdata.selroi.reset()
-        self.imviewer.roi.clip()
-        self.imviewer.roi.hide()
+        self.imviewer.roi.hideRoi()
 
     def setRoi(self):
         selroi = self.imviewer.imgdata.selroi
@@ -2557,6 +2555,7 @@ class ImageProfileWidget(QWidget):
 
     def drawMeanProfile(self):       
         arr = self.ndarray
+        
         rowChecked = self.rowPanel.view.fullActive.isChecked()
         colChecked = self.colPanel.view.fullActive.isChecked()     
 
@@ -2580,6 +2579,7 @@ class ImageProfileWidget(QWidget):
         
     def drawRoiProfile(self):       
         arr = self.ndarray
+        roiVisible = self.imviewer.roi.isVisible()
         rowChecked = self.rowPanel.view.roiActive.isChecked()
         colChecked = self.colPanel.view.roiActive.isChecked()        
 
@@ -2588,20 +2588,26 @@ class ImageProfileWidget(QWidget):
         
         slices = self.roi_slices        
 
-        if rowChecked:
+        if roiVisible and rowChecked:
             rowProfile = arr[slices].mean(0)            
             self.rowPanel.drawRoiProfile(np.arange(*slices[1].indices(arr.shape[1])), rowProfile)
             
         else:
             self.rowPanel.removeRoiProfile()
             
-        if colChecked:
+        if roiVisible and colChecked:
             colProfile = arr[slices].mean(1)
             self.colPanel.drawRoiProfile(np.arange(*slices[0].indices(arr.shape[0])), colProfile)
             
         else:
-            self.colPanel.removeRoiProfile()            
+            self.colPanel.removeRoiProfile()
 
+    
+    def removeRoiProfile(self):
+        self.rowPanel.removeRoiProfile()
+        self.colPanel.removeRoiProfile()
+        self.refresh_profile_views()
+        
 
     def set_profiles_visible(self, value):
         if value:
@@ -2649,6 +2655,8 @@ class ImageProfilePanel(ImageViewerBase):
         self.imviewer.zoomChanged.connect(self.statuspanel.set_zoom)
         self.imviewer.zoomPanChanged.connect(self.emitVisibleRegionChanged)
         self.imviewer.roi.roiChanged.connect(self.passRoiChanged)
+        self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)
+        
         self.imviewer.roi.get_context_menu = self.get_select_menu
 
         self.addMenuItem(self.viewMenu, 'Show/Hide Profiles'    , self.showHideProfiles,
@@ -2684,6 +2692,10 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
         self.imgprof.drawRoiProfile()
         self.imgprof.refresh_profile_views()
+        
+        
+    def removeRoiProfile(self):
+        self.imgprof.removeRoiProfile()        
         
     
     def refresh_profiles(self):    
