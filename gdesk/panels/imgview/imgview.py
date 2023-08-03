@@ -2555,7 +2555,6 @@ class ImageProfileWidget(QWidget):
 
     def drawMeanProfile(self):       
         arr = self.ndarray
-        
         rowChecked = self.rowPanel.view.fullActive.isChecked()
         colChecked = self.colPanel.view.fullActive.isChecked()     
 
@@ -2601,7 +2600,6 @@ class ImageProfileWidget(QWidget):
             
         else:
             self.colPanel.removeRoiProfile()
-
     
     def removeRoiProfile(self):
         self.rowPanel.removeRoiProfile()
@@ -2695,7 +2693,7 @@ class ImageProfilePanel(ImageViewerBase):
         
         
     def removeRoiProfile(self):
-        self.imgprof.removeRoiProfile()        
+        self.imgprof.removeRoiProfile()                
         
     
     def refresh_profiles(self):    
