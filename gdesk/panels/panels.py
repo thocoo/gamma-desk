@@ -232,7 +232,7 @@ class Panels(object):
 
         return position
 
-    def get_menu_action(self, category, panid, menutrace):
+    def get_menu_action(self, category, panid, menutrace, refresh=True):
         """
         Trigger a menu action of a panel.
 
@@ -255,7 +255,7 @@ class Panels(object):
 
         panel = self[category][panid]
 
-        return getMenuAction(panel.menuBar(), menutrace)
+        return getMenuAction(panel.menuBar(), menutrace, refresh=refresh)
 
 
     def removeBindingsTo(self, category, panid):

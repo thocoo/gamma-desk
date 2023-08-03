@@ -462,7 +462,7 @@ class GuiProxy(object):
         :param list action_names: Example ['File', 'New...']
         """
         try:
-            action = gui.qapp.panels.get_menu_action(category, pandid, action_names)                   
+            action = gui.qapp.panels.get_menu_action(category, pandid, action_names, refresh=False)                   
         except KeyError:    
             logger.error(f'Menu action {action_names} not found')
             return

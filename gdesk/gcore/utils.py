@@ -41,7 +41,7 @@ def getMenuTrace(menu):
 
     return menutrace[::-1]
 
-def getMenuAction(menubar, menutrace):
+def getMenuAction(menubar, menutrace, refresh=True):
     """Locate the action in a menubar"""
     actions = menubar.actions()
     action = None
@@ -57,9 +57,11 @@ def getMenuAction(menubar, menutrace):
                 menu = action.menu()
                 if not menu is None:
                     #Cause showEvent which is sometimes used to refresh the menu content
-                    menu.show()
+                    if refresh:
+                        menu.show()
                     actions = action.menu().actions()
-                    menu.hide()
+                    if refresh:
+                        menu.hide()
                 else:
                     actions = []
                 break
