@@ -27,7 +27,7 @@ colors = {
     
 def semilog(vec):
     with np.errstate(divide='ignore'):
-        result = np.nan_to_num(np.log10(vec), neginf=0)
+        result = np.nan_to_num(np.log10(vec), neginf=-0.5) + 0.5
     return result
 
 class LevelPlot(QtWidgets.QWidget):
