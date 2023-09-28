@@ -160,6 +160,7 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
         polygon = QtGui.QPolygonF()
         
         self.text = text
+        self.logscale = False
         
         if text is None:            
             self.setBrush(color)
@@ -179,6 +180,7 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
             #self.addItem(self.label)
             
         self.ylabels = []
+        
         
     def attach_curves(self, curves):
         self.curves = curves
@@ -205,7 +207,14 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
             elif ypos < (-view.height()+23):
                 ypos = -view.height()+23
             ylabel.setPos(0, ypos)
-            ylabel.updateText("%0.4g" % yval)                    
+            
+            if self.logscale:
+                v = 10**(yval - 1)
+            else:
+                v =yval
+            
+            ylabel.updateText("%0.4g" % v)                    
+                
             ylabel.setPen(curve.pen())
         self.declutter_ylabels(-view.height()+22)
 

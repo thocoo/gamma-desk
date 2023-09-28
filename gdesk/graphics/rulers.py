@@ -93,10 +93,11 @@ class TickedRuler(QtWidgets.QGraphicsPolygonItem):
         
         self.orientation = orientation
         self.noDecimals = noDecimals        
+        self.logscale = False
         self.create_ticks(start, stop, scale)         
         self.init_bg()
         self.labelItems = dict()
-        self.make_labels(self.ticks.push_values)
+        self.make_labels(self.ticks.push_values)        
         
     def create_ticks(self, start, stop, scale):
         self.start = start
@@ -181,14 +182,24 @@ class TickedRuler(QtWidgets.QGraphicsPolygonItem):
             
         if abs(self.orientation) == 90:
             for i in push_values[0]:
-                i0 = LabelItem(fmt % i, 0, grid, self)            
+                if self.logscale:
+                    v = 10**(i-1)
+                else:
+                    v = i
+                i0 = LabelItem(fmt % v, 0, grid, self)            
+                
                 i0.setRightAlign()
                 i0.setPos(0, i)
                 i0.setRotation(-self.orientation)
                 self.labelItems[i] = i0
 
             for i in push_values[1]:
-                i0 = LabelItem(fmt % i, 1, grid, self)            
+                if self.logscale:
+                    v = 10**(i-1)
+                else:
+                    v = i            
+                i0 = LabelItem(fmt % v, 1, grid, self)            
+                
                 i0.setRightAlign()
                 i0.setPos(0, i)
                 i0.setRotation(-self.orientation)

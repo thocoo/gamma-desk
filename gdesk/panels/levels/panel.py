@@ -27,7 +27,7 @@ colors = {
     
 def semilog(vec):
     with np.errstate(divide='ignore'):
-        result = np.nan_to_num(np.log10(vec), neginf=-0.5) + 0.5
+        result = np.nan_to_num(np.log10(vec), neginf=-1) + 1
     return result
 
 class LevelPlot(QtWidgets.QWidget):
@@ -88,6 +88,14 @@ class LevelPlot(QtWidgets.QWidget):
         indicator.mouse_released.connect(slot)
         self.indicators.append(indicator)
         #self.scene.addItem(indicator)
+        
+        
+    def set_logscale(self, enable=False):    
+        for ind in self.indicators:
+            ind.logscale = enable
+            
+        self.y_ruler.logscale = enable
+            
         
     def create_x_ruler(self):
         x0, y0, x1, y1 = self.view.viewRectCoord()
@@ -394,6 +402,7 @@ class Levels(QtWidgets.QWidget):
         # self.panel.histSizes['step'] = step 
         # self.panel.histSizes['bins'] = len(hist)
         # self.panel.toolbar.updateStepCount()
+        self.levelplot.set_logscale(self.panel.log)
                 
         
     def updateHist(self, panelId=None):       
@@ -445,6 +454,8 @@ class Levels(QtWidgets.QWidget):
                 
             starts, histbar = self.xy_as_steps(starts, hist, stepsize)                 
             self.levelplot.plot_curve(clr_str, starts, histbar) 
+        
+        self.levelplot.set_logscale(self.panel.log)
                 
         self.panel.histSizes['step'] = stepsize
         self.panel.histSizes['bins'] = len(hist)
