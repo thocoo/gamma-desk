@@ -473,8 +473,8 @@ class Levels(QtWidgets.QWidget):
     def indicZoom(self):
         self.levelplot.zoomBetweenIndicators()
         
-    def bringIndicVisible(self):
-        self.levelplot.zoomBetweenIndicators(skip_if_visible=True)
+    def bringIndicVisible(self, skip_if_visible=True):
+        self.levelplot.zoomBetweenIndicators(skip_if_visible=skip_if_visible)
         
     def fullZoom(self):
         self.levelplot.zoomFull(enforce_ymin=0)        
@@ -803,7 +803,11 @@ class LevelsPanel(BasePanel):
             elif not bits is None or 'bit' in text:
                 panel.changeBlackWhite(0, 2**self.bits)      
             
-        self.levels.bringIndicVisible()        
+        if not sigma is None:            
+            self.levels.bringIndicVisible(skip_if_visible=True)
+          
+        if not bits is None:          
+            self.levels.bringIndicVisible(skip_if_visible=False)
             
     def gain1(self):    
         #self.offsetGainChanged.emit('default', 'default', 'default')
