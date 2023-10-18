@@ -27,7 +27,7 @@ from ..rectable import RecordTable
 from ..live import use, manager
 from ..live.manage import LiveScriptModule
 
-if config['console']['completer'] == 'native':
+if config.get('console', {}).get('completer') == 'native':
     from rlcompleter import Completer
 else:
     from ..live.completer import Completer

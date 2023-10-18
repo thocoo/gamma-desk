@@ -1,6 +1,6 @@
 from ... import config
 
-if config['qapp']:
+if config.get('qapp', False):
     from .plotpanel import PlotPanel
     
 from .plotproxy import PlotGuiProxy
