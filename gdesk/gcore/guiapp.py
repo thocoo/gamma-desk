@@ -354,7 +354,10 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp.cmdserver.cmd_queue.put(cmd)
     
     qapp.cmdserver.start_queue_loop(qapp)
-    qapp.cmdserver.start(qapp)    
+    
+    if config['watcher']:
+        qapp.cmdserver.start(qapp)    
+        
     exit_code = qapp.exec_()
     
     #Kill all the children

@@ -23,6 +23,7 @@ class CommandServer(object):
         self.socket_loop = False
         self.queue_loop = False
         self.cmd_queue = queue.Queue()
+        self.port = None
 
     def start(self, qapp):
         self.socket = context.socket(zmq.REP)

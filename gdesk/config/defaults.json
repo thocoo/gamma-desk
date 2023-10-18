@@ -10,6 +10,7 @@
   "zmq_watcher_max_port": 5560,
   "zmq_queue_min_port": 5560,
   "zmq_queue_max_port": 5600,
+  "watcher": false,
   "watcher_port": 5998,
   "path_imageio_freeimage_lib": null,
   "solo": false,
