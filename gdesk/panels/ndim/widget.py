@@ -302,12 +302,9 @@ class NdimWidget(QtWidgets.QWidget):
         for dim, combo in reversed(self._dim_combos.items()):
             combo_text = combo.currentText()
             if combo_text == 'step':
-                pass
+                im = im.squeeze(axis=dim)
             else:
                 im = self.DIM_CALC[combo_text](im, axis=dim)
-
-        # get rid of any dims with len 1
-        im = im.squeeze()
 
         # move around the axis until we have row/col and optionally color in this particular order
         if self.color_dim is None:
