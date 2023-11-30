@@ -388,7 +388,7 @@ class StdInputPanel(QPlainTextEdit):
             self.lineNumberArea.start_profiling()
             self.setReadOnly(True)
 
-        if mode == 'running':
+        elif mode == 'running':
             self.setStyleSheet(self.styles[mode])
             self.mode = mode
             self.lineNumberArea.firstlinecode = [' ... ',
