@@ -32,7 +32,8 @@
     "completer": "key",
     "max_complete": 2000,
     "redbull": 300,
-    "logformat": "%(name)s %(lineno)s: %(message)s"
+    "logformat": "%(name)s %(lineno)s: %(message)s",
+    "trace": false
   },
   "image": {
     "threads": 8,

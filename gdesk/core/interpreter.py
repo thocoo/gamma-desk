@@ -42,7 +42,7 @@ class QueueInterpreter(object):
         self.thread_id = thread_id = this_thread.ident
         self.console_id = console_id
         
-        self.enable_trace = True
+        self.enable_trace = config['console'].get('trace', False)
         self.breakable = False
         self.break_sent = False
         self.stop = False
