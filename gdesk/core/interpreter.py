@@ -279,7 +279,22 @@ class QueueInterpreter(object):
                     error_code = 1
                     
                 callbackargs = (mode, error_code, result)
-                retvalue = 1                   
+                retvalue = 1
+                
+            else:
+                #func is not encoded
+                try:                    
+                    result = func(*args)
+                    error_code = 0
+                    
+                except Exception:
+                    traceback.print_exc() 
+                    result = None
+                    error_code = 1
+                    
+                callbackargs = (mode, error_code, result)
+                retvalue = 1                
+                
             
         elif mode == 'eval':
             try:                    

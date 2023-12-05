@@ -126,7 +126,7 @@ class TaskBase(object):
             return result[0]
         
     def call_func(self, func, args=(), callback=None, wait=False, queue='stdin'):           
-        if not isinstance(func, str):
+        if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
             func = self.gui_proxy.encode_func(func)
         
         if queue == 'stdin':
