@@ -15,7 +15,7 @@ import collections
 import platform
 import logging
 from multiprocessing import Process, Lock
-from queue import Queue
+from queue import Queue, Empty
     
 try:
     import zmq
@@ -161,13 +161,22 @@ class TaskBase(object):
                 self.mainshell.interpreters[self.thread_id].control()        
 
         if callback is None and wait:
-            #This is an high risk for a deathlock
-            #Waiting here will block the eventloop
-            #If still prior callbacks are queued, the eventloop can not respond to it -> deathlock     
+            # This is an high risk for a deathlock
+            # Waiting here will block the eventloop
+            # If still prior callbacks are queued, the eventloop can not respond to it -> deathlock
+            # The execution interpreter should not call gui_call
             
-            mode, error_code, result = self.return_queue.get(timeout=5)               
-                
-            assert error_code == 0
+            while True:
+                try:
+                    self.gui_proxy._qapp.processEvents()
+                    mode, error_code, result = self.return_queue.get(timeout=0.1)                               
+                    assert error_code == 0
+                    break
+                    
+                # TO DO: empty sentinel depends on type of queueu
+                except Empty:
+                    pass                             
+                    
             return result               
         
     def register(self, mainshell):
