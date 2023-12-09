@@ -144,7 +144,7 @@ class ImageGuiProxy(GuiProxyBase):
     def show_array_cont(array=None, cmap=None):            
         
         lock = threading.Lock()
-        lock.acquire()
+        lock.acquire(timeout=3)
         
         def _gui_show(array, cmap, lock):
             panel = gui.qapp.panels.selected('image')
