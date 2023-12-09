@@ -1,6 +1,7 @@
 import platform
 import numpy as np
 import logging
+import threading
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,7 @@ class ImageGuiProxy(GuiProxyBase):
         panel = gui.qapp.panels.select_or_new('image', panid, defaulttype='image-profile')
         return panel.panid
     
-    def show(self, array, cmap=None):   
+    def show(self, array, cmap=None, wait=True):   
         """
         Show array in the image viewer.
         
@@ -106,22 +107,28 @@ class ImageGuiProxy(GuiProxyBase):
         :param str cmap: 'grey', 'jet' or 'turbo'
         """
         
+        if wait:
+            shwarr = ImageGuiProxy.show_array
+            
+        else:
+            shwarr = ImageGuiProxy.show_array_cont    
+        
         if config['image']['queue_array_shared_mem']:            
             if self.current_image_is_shared():
                 current_array = self.get_image_view_source()
                 if current_array.shape == array.shape and current_array.dtype == array.dtype:
                     current_array[:] = array
-                    return ImageGuiProxy.show_array(-1, cmap)
+                    return shwarr(-1, cmap)
                 else:
                     sharray = SharedArray(array.shape, array.dtype)
                     sharray[:] = array                
-                    return ImageGuiProxy.show_array(sharray, cmap)
+                    return shwarr(sharray, cmap)
             else:            
                 sharray = SharedArray(array.shape, array.dtype)
                 sharray[:] = array                
-                return ImageGuiProxy.show_array(sharray, cmap)                
+                return shwarr(sharray, cmap)                
         else:
-            return ImageGuiProxy.show_array(array.copy(), cmap)
+            return shwarr(array.copy(), cmap)
 
     @StaticGuiCall
     def show_array(array=None, cmap=None):
@@ -132,6 +139,24 @@ class ImageGuiProxy(GuiProxyBase):
 
         panel.show_array(array)
         return panel.panid
+
+    @staticmethod
+    def show_array_cont(array=None, cmap=None):            
+        
+        lock = threading.Lock()
+        lock.acquire()
+        
+        def _gui_show(array, cmap, lock):
+            panel = gui.qapp.panels.selected('image')
+
+            if not cmap is None:
+                panel.colormap = cmap        
+
+            panel.show_array(array)
+            lock.release()
+        
+        gui._call_no_wait(_gui_show, array, cmap, lock)
+        
     
     @StaticGuiCall    
     def show_mask(array=None, composition='sourceover'):

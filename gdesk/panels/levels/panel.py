@@ -841,7 +841,8 @@ class LevelsPanel(BasePanel):
             panel.setCurrentOffsetGainAsDefault()
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
-        self.levels.updateHistOfPanel(image_panel_id)
+        if self.levels.isVisible():
+            self.levels.updateHistOfPanel(image_panel_id)
         
         if self.statPanel.isVisible():
             self.statPanel.updateStatistics()

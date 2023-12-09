@@ -161,21 +161,22 @@ class TaskBase(object):
                 self.mainshell.interpreters[self.thread_id].control()        
 
         if callback is None and wait:
-            # This is an high risk for a deathlock
-            # Waiting here will block the eventloop
-            # If still prior callbacks are queued, the eventloop can not respond to it -> deathlock
-            # The execution interpreter should not call gui_call
             
-            while True:
-                try:
-                    self.gui_proxy._qapp.processEvents()
-                    mode, error_code, result = self.return_queue.get(timeout=0.1)                               
-                    assert error_code == 0
-                    break
+            with self.gui_proxy.qapp.waitCursor():            
+                # Start some pseudo event loop while wating for the response
+                # The queue timeout causes poor performance on this event loop
+                while True:
+                    try:
+                        self.gui_proxy._qapp.processEvents()
+                        mode, error_code, result = self.return_queue.get(timeout=0.1)
+                        break
+                        
+                    # TO DO: empty sentinel depends on type of queueu
+                    except Empty:
+                        pass
                     
-                # TO DO: empty sentinel depends on type of queueu
-                except Empty:
-                    pass                             
+            if not error_code == 0:
+                raise RuntimeError(f'Error code {error_code}: {result}')                
                     
             return result               
         

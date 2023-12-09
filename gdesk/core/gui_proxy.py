@@ -349,7 +349,7 @@ class GuiProxy(object):
         return self._call(func, *args, **kwargs)        
             
     def _call(self, func, *args, **kwargs):                     
-        return self._call_base(True, func, *args, **kwargs)            
+        return self._call_base(self.block, func, *args, **kwargs)            
 
     def _call_no_wait(self, func, *args, **kwargs):
         return self._call_base(False, func, *args, **kwargs)
@@ -359,7 +359,7 @@ class GuiProxy(object):
             #Multi Threading Child
             #Direct handover to eventloop
             func = self.decode_func(func)
-            return self._qapp.handover.send(self.block, func, *args, **kwargs)
+            return self._qapp.handover.send(wait, func, *args, **kwargs)
             
         else:
             #Multi Processing Child
