@@ -1,8 +1,10 @@
 import platform
 import numpy as np
 import logging
-import threading
 from pathlib import Path
+import time
+import threading
+import multiprocessing
 
 logger = logging.getLogger(__name__)
 
@@ -140,22 +142,32 @@ class ImageGuiProxy(GuiProxyBase):
         panel.show_array(array)
         return panel.panid
 
+
     @staticmethod
-    def show_array_cont(array=None, cmap=None):            
+    def show_array_cont(array=None, cmap=None):                    
         
-        lock = threading.Lock()
-        lock.acquire(timeout=3)
+        retries = 0
         
-        def _gui_show(array, cmap, lock):
+        if not gui.call_queue is None:
+            q = gui.call_queue
+            
+        else:
+            q = gui._qapp.handover.signal_call_queue
+            
+        while not q.empty():
+            time.sleep(0.01)   
+            retries += 1            
+        
+        def _gui_show(array, cmap):
             panel = gui.qapp.panels.selected('image')
 
             if not cmap is None:
                 panel.colormap = cmap        
 
             panel.show_array(array)
-            lock.release()
         
-        gui._call_no_wait(_gui_show, array, cmap, lock)
+        gui._call_no_wait(_gui_show, array, cmap)
+        return retries
         
     
     @StaticGuiCall    
