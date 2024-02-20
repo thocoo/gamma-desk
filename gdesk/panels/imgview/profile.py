@@ -115,7 +115,9 @@ class ProfilerPanel(QtWidgets.QWidget):
             x0, x1 = self.view.getXLimits()
             x0 = max(round(x0), 0)
             x1 = min(round(x1), len(xvec))
-            y0, y1 = yvec[x0:x1].min(), yvec[x0:x1].max()
+            yvecsel = yvec[x0:x1]
+            if len(yvecsel) == 0: return
+            y0, y1 = yvecsel.min(), yvecsel.max()
             if y0 != y1:
                 self.view.setYLimits(y0, y1, 20)
             else:
@@ -125,7 +127,9 @@ class ProfilerPanel(QtWidgets.QWidget):
             y0, y1 = self.view.getYLimits()
             y0 = max(round(y0), 0)
             y1 = min(round(y1), len(yvec))
-            x0, x1 = xvec[y0:y1].min(), xvec[y0:y1].max()
+            xvecsel = xvec[y0:y1]
+            if len(xvecsel) == 0: return
+            x0, x1 = xvecsel.min(), xvecsel.max()
             if x0 != x1:
                 self.view.setXLimits(x1, x0, 20)
             else:
