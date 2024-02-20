@@ -104,6 +104,7 @@
     "Ctrl+I": {"plot": ["View", "Interactive"]},
     "Ctrl+B": {"image": ["View", "Black & White..."]},
     "Ctrl+Shift+H": {"image": ["View", "HQ Zoom Out"]},
+    "Ctrl+P": {"image": ["View", "Show/Hide Profiles"]},
     "Ctrl+Shift+A": {"image": ["Select", "Select Full Image"]},
     "Ctrl+D": {"image": ["Select", "Deselect"]},
     "Ctrl+J": {"image": ["Select", "Jump to Coordinates"]},
