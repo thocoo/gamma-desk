@@ -2493,6 +2493,7 @@ class ImageProfileWidget(QWidget):
         self.imviewer = ImageViewerWidget(self)
 
         self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        self.profBtn.setToolTip('Show/Hide row and column profiles')
         self.profBtn.setFixedHeight(20)
         self.profBtn.setFixedWidth(20)
         self.profBtn.clicked.connect(self.toggleProfileVisible)
