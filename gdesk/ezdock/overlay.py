@@ -79,7 +79,7 @@ class DockOverlay(QWidget):
             super().__init__(parent=parent)
             self.container = parent
             palette = QPalette(self.palette())
-            palette.setColor(palette.Base, Qt.transparent)
+            palette.setColor(QPalette.Base, Qt.transparent)
             self.setPalette(palette)        
         
         #self.setMouseTracking(True)                        
