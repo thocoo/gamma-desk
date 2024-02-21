@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class Shell(object):
     instance = None
     
-    def __init__(self, workspace=None):
+    def __init__(self, workspace=None, redirect=True, logdir=True):
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
              
@@ -48,12 +48,16 @@ class Shell(object):
         self.wsdict['use'] = use     
         self.wsdict['__name__'] = '__main__'        
         
-        self.redirect_stdout()            
-        self.redirect_input()
+        if redirect:
+            self.redirect_stdout()            
+            self.redirect_input()
         
         self.comp = Completer(self.wsdict)
         self.interpreters = dict()
-        self.logdir = LogDir(config['path_log'])    
+        
+        if logdir:
+            self.logdir = LogDir(config['path_log'])
+            
         self.bootpath = Path('.').resolve()
         
     def redirect_stdout(self):

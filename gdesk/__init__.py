@@ -14,7 +14,9 @@
 # limitations under the License.
 #-------------------------------------------------------------------------------
 
-"""Bench Desk"""
+"""Gamma Desk"""
+
+import sys
 from .version import VERSION_INFO
 from .core.conf import config, configure
 
@@ -32,10 +34,35 @@ __version__ = ".".join(map(str, VERSION_INFO[:3]))
 
 shell = None
 
+
+def init_tiny_gdesk(workspace=None):
+    """
+    Init the most minimal gdesk environment.
+    Load no gui components.
+    Init a shell object but leave the stdout and input as is.
+    Do not initialize the logging.
+    Init a fake gui object.
+    """
+    from gdesk.core import shellmod
+    from gdesk.core import gui_proxy
+    
+    if workspace is None:
+        frame = sys._getframe(1)
+        workspace = frame.f_globals
+        
+    shell = shellmod.Shell(workspace, redirect=False, logdir=False)
+    refer_shell_instance(shell)
+        
+    gui = gui_proxy.FakeGui()
+    shell.wsdict['gui'] = gui    
+    refer_gui_instance(gui)
+    
+
 def refer_shell_instance(shellinst):
     """refer_shell_instance"""
     global shell
     shell = shellinst
+
 
 def refer_gui_instance(guiinst):
     global gui

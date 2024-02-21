@@ -88,6 +88,12 @@ class RedBull(object):
     def do(self):
         PressKey(self.keycode)  
         ReleaseKey(self.keycode)       
+        
+        
+class FakeGui(object):
+    
+    def show(self, *args, **kwargs):
+        print(*args)
     
         
 class GuiProxyBase(object):
