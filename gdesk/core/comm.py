@@ -19,6 +19,9 @@ if sys.platform == 'win32':
 elif sys.platform == 'linux':
     NonDuplexQueue = None
 
+elif sys.platform == 'darwin':
+    NonDuplexQueue = None
+
 sentinel = object()
 
 class CommQueues(object):

@@ -4,7 +4,7 @@ import time
 from collections.abc import Mapping
 from pathlib import Path
 import json
-import importlib
+import importlib.util
 import copy
 import re
 import logging
@@ -24,7 +24,8 @@ if sys.platform == 'win32':
     
 elif sys.platform == 'linux':
     FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_linux.json'
-    
+elif sys.platform == 'darwin':
+    FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_darwin.json'
 else:
     ImportError(f'platfrom {sys.platform()} not supported')
 
