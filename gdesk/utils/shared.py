@@ -24,7 +24,6 @@ elif sys.platform == 'linux':
 elif sys.platform == 'darwin':
     get_last_error = lambda : 0
     ERROR_ALREADY_EXISTS = 0
-        
 else:
     raise ImportError(f'platform {sys.platform} not supported')
 
