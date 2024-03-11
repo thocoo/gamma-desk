@@ -20,6 +20,7 @@ if sys.platform == 'win32':
 elif sys.platform == 'linux':
     get_last_error = lambda : 0
     ERROR_ALREADY_EXISTS = 0
+
 elif sys.platform == 'darwin':
     get_last_error = lambda : 0
     ERROR_ALREADY_EXISTS = 0
