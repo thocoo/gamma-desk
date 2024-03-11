@@ -24,6 +24,7 @@ if sys.platform == 'win32':
     
 elif sys.platform == 'linux':
     FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_linux.json'
+
 elif sys.platform == 'darwin':
     FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_darwin.json'
 else:
