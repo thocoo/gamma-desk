@@ -44,19 +44,17 @@ EXTRAS_REQUIRED = {
 
 PYTHON_REQUIRED = '>=3.6'
 
-def get_resources():
-    found_resources = []    
 
-    if sys.platform == "linux":
-        found_resources.append(str(modpath / 'config' / 'defaults_linux.json'))
-    else:
-        found_resources.append(str(modpath / 'config' / 'defaults.json'))
+def get_resources():
+    found_resources = [str(modpath / 'config' / 'defaults.json'), str(modpath / 'config' / 'defaults_unix.json')]
 
     for path in modpath.glob('resources/**/*'):
-        if path.is_dir(): continue
+        if path.is_dir():
+            continue
         found_resources.append(str(path))
 
     return found_resources
+
 
 with open(modpath / 'version.py') as fp:
     exec(fp.read())
@@ -81,7 +79,7 @@ setup(
     install_requires=REQUIRED,
     include_package_data=True,
     python_requires=PYTHON_REQUIRED,
-    extras_require = EXTRAS_REQUIRED,
+    extras_require=EXTRAS_REQUIRED,
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
