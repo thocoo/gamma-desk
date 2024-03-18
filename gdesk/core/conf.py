@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from pathlib import Path
 import json
 import importlib
+import importlib.util
 import copy
 import re
 import logging
@@ -21,10 +22,8 @@ here = Path(__file__).parent.absolute()
 
 if sys.platform == 'win32':
     FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults.json'
-    
-elif sys.platform == 'linux':
-    FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_linux.json'
-    
+elif sys.platform in ('linux', 'darwin'):
+    FIRST_CONFIG_FILE = here.parent / 'config' / 'defaults_unix.json'
 else:
     ImportError(f'platfrom {sys.platform()} not supported')
 
@@ -40,6 +39,7 @@ REQUIRED = [
 ]
 
 PATHPATTERN = re.compile('path_\w*')
+
 
 def deep_update(source, overrides):
     """

@@ -14,12 +14,12 @@ zmq_context = zmq.Context()
 from .conf import config
 
 if sys.platform == 'win32':
-    from .comm_nonduplex import NonDuplexQueue    
-
-elif sys.platform == 'linux':
+    from .comm_nonduplex import NonDuplexQueue
+elif sys.platform in ('linux', 'darwin'):
     NonDuplexQueue = None
 
 sentinel = object()
+
 
 class CommQueues(object):
     def __init__(self, QueueCls, process=False):

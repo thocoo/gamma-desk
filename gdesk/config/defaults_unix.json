@@ -9,18 +9,20 @@
   "zmq_watcher_max_port": 5560,
   "zmq_queue_min_port": 5560,
   "zmq_queue_max_port": 5600,
+  "watcher": false,
   "watcher_port": 5998,
   "path_imageio_freeimage_lib": null,
   "solo": false,
   "panic": false,
   "scroll_area": false,
   "hide_solo_panel": true,
+  "keep_children": false,
   "debug": {
     "skip_restore_perspective": false,
     "skip_main_stdout_redirect": false,
     "skip_main_stderr_redirect": false,
     "place select button": false,
-    "list_packages": true
+    "list_packages": false
   },
   "console": {
     "fontsize": 8,
@@ -28,7 +30,9 @@
     "maxblockcount": 20000,
     "completer": "key",
     "max_complete": 2000,
-    "redbull": 300
+    "redbull": 300,
+    "logformat": "%(name)s %(lineno)s: %(message)s",
+    "trace": false
   },
   "image": {
     "threads": 8,
@@ -51,7 +55,6 @@
   "sphinx": false,
   "stdoutmode": "ansi",
   "respath": "$GDESKROOT/resources",
-  "qt_api": "pyside2",
   "path_channel_script": "$GDESKROOT/external/scripts/connect_from_canvas.py",
   "path_channel_ini": "$GDESKROOT/external/scripts/connect.ini",
   "logging_level": "INFO",
@@ -68,7 +71,8 @@
   "roi color": [255,0,0],
   "image color map": "grey",
   "matplotlib": {
-    "backend": "module://gdesk.matplotbe"
+    "backend": "module://gdesk.matplotbe",
+    "many_show_warning": true
   },
   "shortcutmenu": {
     "Ctrl+Shift+N": {"image": ["File", "New..."]},
@@ -99,13 +103,14 @@
     "Ctrl+I": {"plot": ["View", "Interactive"]},
     "Ctrl+B": {"image": ["View", "Black & White..."]},
     "Ctrl+Shift+H": {"image": ["View", "HQ Zoom Out"]},
+    "Ctrl+P": {"image": ["View", "Show/Hide Profiles"]},
     "Ctrl+Shift+A": {"image": ["Select", "Select Full Image"]},
     "Ctrl+D": {"image": ["Select", "Deselect"]},
     "Ctrl+J": {"image": ["Select", "Jump to Coordinates"]},
     "Ctrl+Shift+X": {"image": ["Canvas", "Crop on Selection"]},
     "Ctrl+Shift+I": {"image": ["Image", "Invert"]},
-    "Esc": {"console": ["Execution", "Sync Break"]},
-    "Shift+Esc": {"console": ["Execution", "Async Break"]},
+    "Esc": {"console": ["Execution", "Async Break"]},
+    "Shift+Esc": {"console": ["Execution", "Sync Break"]},
     "ScrollLock": {"console": ["View", "Auto Scroll"]},
     "F10": {"window": ["Cycle Tag Level"]},
     "F11": {"window": ["Full Screen"]},
@@ -128,7 +133,8 @@
     "gdesk.panels.console",
     "gdesk.panels.matplot",
     "gdesk.panels.imgview",
-    "gdesk.panels.levels"],
+    "gdesk.panels.levels",
+    "gdesk.panels.ndim"],
   "default_perspective": "console",
   "layout": {
     "base": {
