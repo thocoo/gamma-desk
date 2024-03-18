@@ -27,10 +27,11 @@ from ..rectable import RecordTable
 from ..live import use, manager
 from ..live.manage import LiveScriptModule
 
-if config.get('console', {}).get('completer') == 'native':
-    from rlcompleter import Completer
-else:
-    from ..live.completer import Completer
+from rlcompleter import Completer
+from ..live.completer import Completer as LiveCompleter
+
+completer = config.get('console', {}).get('completer', 'native')      
+multikey =  config.get('console', {}).get('multikey', False)
 
 here = Path(__file__).absolute().parent
 logger = logging.getLogger(__name__) 
@@ -52,7 +53,11 @@ class Shell(object):
             self.redirect_stdout()            
             self.redirect_input()
         
-        self.comp = Completer(self.wsdict)
+        if completer == 'native':
+            self.comp = Completer(self.wsdict)
+        else:
+            self.comp = LiveCompleter(self.wsdict, multikey=multikey)
+            
         self.interpreters = dict()
         
         if logdir:

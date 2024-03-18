@@ -80,7 +80,7 @@ def is_matched(expression, opening='({[', closing=')}]'):
     return not queue    
 
 class Completer:
-    def __init__(self, namespace = None):
+    def __init__(self, namespace = None, multikey=False):
         """Create a new completer for the command line.
 
         Completer([namespace]) -> completer instance.
@@ -97,6 +97,8 @@ class Completer:
 
         if namespace and not isinstance(namespace, dict):
             raise TypeError('namespace must be a dictionary')
+            
+        self.multikey = multikey
 
         # Don't bind to namespace quite yet, but flag whether the user wants a
         # specific namespace or to use __main__.__dict__. This will allow us
@@ -134,7 +136,10 @@ class Completer:
         if state == 0:
             self.wild = wild
             if not is_matched(text, '[', ']'):
-                self.matches = self.key_matches(text)        
+                if self.multikey:
+                    self.matches = self.multi_key_matches(text)                        
+                else:
+                    self.matches = self.key_matches(text)
             elif "." in text:
                 self.matches = self.attr_matches(text)                
             else:
@@ -305,6 +310,53 @@ class Completer:
             matches =  [f"{expr}[{key}" for key in keys if str(key)[:n] == attr]
 
         return matches        
+        
+
+    def multi_key_matches(self, text):
+ 
+        try:
+            ind = text[::-1].index('[')
+            
+        except ValueError:
+            return []
+        
+        
+        if not ind == 0:
+            expr, attr = text[:-ind-1], text[-ind:]
+        else:
+            expr, attr = text[:-1], ''
+        
+        if attr.startswith('"'):
+            delim = '"'
+            attr = attr[1:]
+        elif  attr.startswith("'"):
+            delim = "'"
+            attr = attr[1:]
+        else:
+            delim = "'"                    
+        
+        try:
+            thisobject = eval(expr, self.namespace)
+        except Exception:
+            return []
+
+        # get the content of the object, except __builtins__
+        try:
+            keys = list(thisobject.keys())
+        except:
+            keys = []
+            
+        if sum([isinstance(key, str) for key in keys]) == len(keys):            
+            #It are all strings
+            n = len(attr)
+            matches =  [f"{expr}[{delim}{key}" for key in keys if key[:n] == attr]
+        else:
+            attr = str(attr)
+            n = len(attr)
+            matches =  [f"{expr}[{key}" for key in keys if str(key)[:n] == attr]
+
+        return matches     
+        
 
 def get_class_members(klass):
     ret = dir(klass)
