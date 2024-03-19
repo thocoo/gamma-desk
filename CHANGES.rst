@@ -1,3 +1,71 @@
+v1.0.0
+------
+
+date: 2024-03-22
+
+- Add support for Darwin
+- Add successive key auto-complete
+
+
+v0.9.0
+------
+
+date: 2024-02-24
+
+- Bug Fixes
+
+
+v0.8.0
+------
+
+date: 2023-12-15
+
+- Bug Fixes 
+
+
+v0.7.0
+------
+
+date: 2023-08-29
+
+- Add support for roi on column and row profiles
+
+
+v0.6.0
+------
+
+date: 2023-06-30
+
+- Support for more recent matplotlib 
+
+
+v0.5.0
+------
+
+date: 2023-03-07
+
+- Improve histogram
+- Fix numpy with numba compatibility
+- Add support for Python 3.11
+
+
+v0.4.0
+------
+
+date: 2022-10-11
+
+- Add support for Python 3.10
+- Add support for PySide6
+
+
+v0.3.0
+------
+
+date: 2022-02-25
+
+- Fixes for Linux
+
+
 v0.2.0
 ------
 
