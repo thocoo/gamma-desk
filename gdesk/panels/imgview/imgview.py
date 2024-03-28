@@ -1108,7 +1108,7 @@ class ImageViewerBase(BasePanel):
             statusTip = "If binded to other image viewer, bind with absolute zoom value")        
         
         self.addMenuItem(self.viewMenu, 'Colormap...'    , self.setColorMap,
-            statusTip="Set the color map for monochroom images",
+            statusTip="Set the color map for monochrome images",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')))
         self.addMenuItem(self.viewMenu, 'Background Color...'    , self.setBackground,
             statusTip="Set the background color...",
@@ -1173,11 +1173,11 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.imageMenu, 'Swap RGB | BGR', self.swapRGB,
             statusTip="Swap the blue with red channel",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color.png')))
-        self.addMenuItem(self.imageMenu, 'to Monochroom', self.toMonochroom,
-            statusTip="Convert an RGB image to monochroom grey",
+        self.addMenuItem(self.imageMenu, 'to Monochrome', self.toMonochrome,
+            statusTip="Convert an RGB image to monochrome grey",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'convert_color_to_gray.png')))
-        self.addMenuItem(self.imageMenu, 'to Photometric Monochroom', self.toPhotoMonochroom,
-            statusTip="Convert an RGB image to photometric monochroom grey",
+        self.addMenuItem(self.imageMenu, 'to Photometric Monochrome', self.toPhotoMonochrome,
+            statusTip="Convert an RGB image to photometric monochrome grey",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'convert_color_to_gray.png')))
         self.addMenuItem(self.imageMenu, 'to 8-bit', self.to8bit,
             enablecall = self.is16bit)
@@ -2203,7 +2203,7 @@ class ImageViewerBase(BasePanel):
         self.show_array(procarr)
 
 
-    def toMonochroom(self):
+    def toMonochrome(self):
         array = self.ndarray
 
         if not array.ndim == 3:
@@ -2214,7 +2214,7 @@ class ImageViewerBase(BasePanel):
         self.show_array(procarr)
 
 
-    def toPhotoMonochroom(self):
+    def toPhotoMonochrome(self):
         array = self.ndarray
 
         if not array.ndim == 3:
