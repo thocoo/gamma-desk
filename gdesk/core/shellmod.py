@@ -497,6 +497,8 @@ class Shell(object):
         filepath = str(Path(filepath).absolute())
         source = open(filepath, 'r').read()
         code = compile(source, filepath, 'exec')
+        locals = locals or {}
+        locals["__file__"] = filepath
         exec(code, globals, locals)
         
     def execfilews(self, filepath, wsname='__execfilews__'):
