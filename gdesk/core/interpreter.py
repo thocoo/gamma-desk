@@ -43,6 +43,7 @@ class QueueInterpreter(object):
         self.console_id = console_id
         
         self.enable_trace = config['console'].get('trace', False)
+        self.prevent_trace = config['console'].get('prevent_trace', False)
         self.breakable = False
         self.break_sent = False
         self.stop = False
@@ -346,12 +347,13 @@ class QueueInterpreter(object):
             try:
                 self.breakable = True
                 self.stop = False
-                
-                #the tracer seemed to be disabled after every sync break ???
-                if self.enable_trace:
-                    sys.settrace(self.system_tracer)
-                else:
-                    sys.settrace(None)
+                                
+                if not self.prevent_trace:
+                    #the tracer seemed to be disabled after every sync break ???
+                    if self.enable_trace:
+                        sys.settrace(self.system_tracer)
+                    else:
+                        sys.settrace(None)
                     
                 if self.enable_profile:
                     self.profile = cProfile.Profile()
@@ -391,7 +393,8 @@ class QueueInterpreter(object):
                     profile_stats = pstats.Stats(self.profile).sort_stats(self.profile_sortby)
                     profile_stats.print_stats()
 
-                sys.settrace(None)                
+                if not self.prevent_trace:
+                    sys.settrace(None)                
                 
                 if self.break_sent:
                     #A async KeyboardInterrupt was sent but still have to occur
