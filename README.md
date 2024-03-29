@@ -55,9 +55,10 @@ or
 # Dependencies 
 
 `numpy`
+`numba`
 `matplotlib`
 `scipy`
-`PySide2`
+`PySide6` or `PySide2`
 `qtpy`
 `psutil`
 `pyzmq`

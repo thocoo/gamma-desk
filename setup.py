@@ -27,7 +27,8 @@ REQUIRED = [
     'pillow',
     'imageio',
     'imageio-ffmpeg',
-    'matplotlib',
+    # Exclude MatPlotLib 3.5.2 because it crashes plotting on PySide6.
+    'matplotlib != 3.5.2',
     'scipy',
     'qtpy',
     'psutil',

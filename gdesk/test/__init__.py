@@ -192,9 +192,9 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.select(1)
         gui.show(arr)
 
-        gui.menu_trigger('image', None, ['Image', 'to Monochroom'])
+        gui.menu_trigger('image', None, ['Image', 'to Monochrome'])
         gui.menu_trigger('image', None, ['Edit', 'Show Prior Image'])
-        gui.menu_trigger('image', None, ['Image', 'to Photometric Monochroom'])
+        gui.menu_trigger('image', None, ['Image', 'to Photometric Monochrome'])
         gui.menu_trigger('image', None, ['Edit', 'Show Prior Image'])
 
         assert (arr == gui.vs).all()
