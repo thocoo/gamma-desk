@@ -155,9 +155,12 @@ class GuiApplication(QApplication):
                 
             self.setShortCut(keySequence, lambda keySequence=keySequence: self.menuShortCutCall(keySequence))
         
+        
     def setShortCut(self, keySequence, func):
         sc = QShortcut(QKeySequence(keySequence), self.panelsDialog, func)
         sc.setContext(Qt.ApplicationShortcut)
+        return sc
+        
         
     def setPanelsDialogShortCut(self, keySequence, menuTrace):
         menuTrace = relax_menu_trace(menuTrace)
