@@ -113,7 +113,7 @@ class LiveScriptTree(object):
         return lst
         
     def __getattr__(self, attr):
-        path = self.__path__ / attr
+        path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
         return self.__script_manager__.using_path(path, top=self.__top__, name=qualname)        
             
@@ -349,7 +349,10 @@ class LiveScriptManager(object):
                 stype = 'dir'                
             else:
                 path = path.with_suffix('.py')
-                stype = 'file'
+                if not path.exists():
+                    path = None 
+                else:
+                    stype = 'file'
                 
         if path is None:
             raise ImportError(f'LiveScript {modstr} not found')
