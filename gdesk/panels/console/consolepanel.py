@@ -983,13 +983,14 @@ class SubThreadConsole(Console):
     panelShortName = 'thread'
     userVisible = True
 
-    def __init__(self, mainWindow, panid, hide_input=False):
+    def __init__(self, mainWindow, panid, hide_input=False, log_level='WARNING'):
         shell = QApplication.instance().shell
         task = tasks.ThreadTask(shell, new_thread=True)
         super().__init__(mainWindow, panid, task)
         task.panid = self.panid
         task.start()
         if hide_input: self.stdio.stdInputPanel.hide()
+        self.setLogLevel(log_level)
 
 
 class ChildProcessConsole(Console):
