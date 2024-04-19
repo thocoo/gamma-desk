@@ -1,3 +1,13 @@
+v1.1.0
+------
+
+date: 2024-04-19
+
+- gcore.guiapp: return the shortcut instance on setShortCut
+- Raise Import error if live script is not found
+- Add log_level argument to SubThreadConsole init
+
+
 v1.0.0
 ------
 
