@@ -376,7 +376,6 @@ class StdInputPanel(QPlainTextEdit):
     def set_mode(self, mode='interprete'):
         if mode == 'wait':
             self.setStyleSheet(self.styles[mode])
-            self.mode = mode
             self.lineNumberArea.firstlinecode = [' ... ',
                                                  '  ...',
                                                  '   ..',
@@ -390,7 +389,6 @@ class StdInputPanel(QPlainTextEdit):
 
         elif mode == 'running':
             self.setStyleSheet(self.styles[mode])
-            self.mode = mode
             self.lineNumberArea.firstlinecode = [' ... ',
                                                  '  ...',
                                                  '   ..',
@@ -404,25 +402,24 @@ class StdInputPanel(QPlainTextEdit):
 
         elif mode == 'interprete':
             self.setStyleSheet(self.styles[mode])
-            self.mode = mode
             self.lineNumberArea.firstlinecode = [' >>> ']
             self.lineNumberArea.stop_profiling()
             self.setReadOnly(False)
 
         elif mode == 'input':
             self.setStyleSheet(self.styles[mode])
-            self.mode = mode
             self.lineNumberArea.firstlinecode = ['>?   ', '   >?']
             self.lineNumberArea.stop_profiling()
             self.setReadOnly(False)
 
         elif mode == 'ended':
             self.outputPanel.setStyleSheet(self.styles[mode])
-            self.hide()
-            self.mode = mode
+            self.hide()            
             self.lineNumberArea.firstlinecode = ['Ended']
             self.lineNumberArea.stop_profiling()
             self.setReadOnly(True)
+            
+        self.mode = mode
 
         self.lineNumberArea.update()
 
@@ -501,6 +498,13 @@ class StdPlainOutputPanel(QPlainTextEdit):
         self.setReadOnly(True)
         self._ansi_processor = None
         self.auto_scroll = True
+        
+        self.styles = dict()
+        self.styles['interprete'] = "background-color:white;"
+        self.styles['wait'] = "background-color:#DDBBBB;"
+        self.styles['running'] = "background-color:#FFFFE0;"
+        self.styles['input'] = "background-color:#BBBBDD;"
+        self.styles['ended'] = "background-color:#EFEFEF;"        
         self.configure(config)
 
     @property
@@ -623,6 +627,9 @@ class StdPlainOutputPanel(QPlainTextEdit):
 
         cursor.setBlockCharFormat(QTextCharFormat())
         cursor.endEditBlock()
+        
+    def set_mode(self, mode='interprete'):
+        pass 
 
 
 class StdioFrame(QWidget):
@@ -829,6 +836,7 @@ class Console(BasePanel):
 
     def set_mode(self, mode):
         self.stdio.stdInputPanel.set_mode(mode)
+        self.stdio.stdOutputPanel.set_mode(mode)
 
     def newThread(self):
         self.duplicate()
