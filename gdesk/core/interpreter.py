@@ -361,8 +361,7 @@ class QueueInterpreter(object):
             error_code = None
             result = None
             
-            try:
-                self.breakable = True
+            try:                
                 self.stop = False
                                 
                 if not self.prevent_trace:
@@ -399,27 +398,36 @@ class QueueInterpreter(object):
                             print(source)
                         except:
                             print('source not found')
-                            
-                    error_code, result = interpreter.use_one_func(func, func_args)                    
-                else:
-                    error_code, result = interpreter.use_one_command(*args)
-                
-                if self.enable_profile:
-                    self.profile.disable()
-                    self.enable_profile = False                    
-                    profile_stats = pstats.Stats(self.profile).sort_stats(self.profile_sortby)
-                    profile_stats.print_stats()
 
-                if not self.prevent_trace:
-                    sys.settrace(None)                
+                    self.breakable = True
+                    error_code, result = interpreter.use_one_func(func, func_args)
+                    self.breakable = False
+                else:
+                    self.breakable = True
+                    error_code, result = interpreter.use_one_command(*args)
+                    self.breakable = False                               
                 
                 if self.break_sent:
                     #A async KeyboardInterrupt was sent but still have to occur
                     #This situation is rare, but can happen
                     #Keep on stepping in the Python interpreter
                     print('WARNING: KeyboardInterrupt is on its way')
-                    for i in range(100):
-                        time.sleep(0.010)                                   
+                    try:
+                        for i in range(1000):
+                            time.sleep(0.010)
+                            
+                    except KeyboardInterrupt:
+                        raise KeyboardInterrupt()
+                        
+                if not self.prevent_trace:
+                    sys.settrace(None)                        
+                        
+                if self.enable_profile:
+                    self.profile.disable()
+                    self.enable_profile = False                    
+                    profile_stats = pstats.Stats(self.profile).sort_stats(self.profile_sortby)
+                    profile_stats.print_stats()
+                         
                 
             except KeyboardInterrupt:                        
                 error_code = 3
