@@ -1799,7 +1799,6 @@ class ImageViewerBase(BasePanel):
 
         if self.ndarray.dtype in ['uint8', 'uint16']:
             if black == white:
-                self.defaultOffsetGain()
                 return
             else:
                 white += 1
