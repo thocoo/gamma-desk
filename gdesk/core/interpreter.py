@@ -44,6 +44,8 @@ class QueueInterpreter(object):
         
         self.enable_trace = config['console'].get('trace', False)
         self.prevent_trace = config['console'].get('prevent_trace', False)
+        self.clear_stdin_on_break = config['console'].get('clear_on_break', False)
+        
         self.breakable = False
         self.break_sent = False
         self.stop = False
@@ -321,7 +323,22 @@ class QueueInterpreter(object):
         else:
             gui_proxy._call(callback, *callbackargs)                                                                                    
 
-        return retvalue          
+        return retvalue
+        
+        
+    def clear_stdin_queue(self):
+        cqs = self.cqs
+        
+        while True:
+            try:
+                content = cqs.stdin_queue.get(timeout=0.1)
+                
+            except queue.Empty:
+                break    
+        
+            except KeyboardInterrupt:
+                pass  
+                
         
     def execute(self):    
         cqs = self.cqs
@@ -407,7 +424,10 @@ class QueueInterpreter(object):
             except KeyboardInterrupt:                        
                 error_code = 3
                 result = 'Thread Interrupted by KeyboardInterrupt'
-                print(result)                
+                print(result)    
+                if self.clear_stdin_on_break:
+                    print('Clearing command queue')
+                    self.clear_stdin_queue()
                 
             except SyncBreaked:
                 error_code = 3
