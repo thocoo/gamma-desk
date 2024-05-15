@@ -1,3 +1,14 @@
+v1.2.0
+------
+
+date: 2024-05-15
+
+- On image sigma gain, when calculated black and white points are the same, ignore the action
+- Add option to clear the stdin queue on Keyboardbreak
+  config.json: console.clear_on_break = true
+- Limit the Keyboard breakable part to use_one_func() and use_one_command()
+
+
 v1.1.0
 ------
 
