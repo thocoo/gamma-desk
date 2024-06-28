@@ -271,20 +271,49 @@ class ColorLayout(QHBoxLayout):
 
 class FileLayout(QHBoxLayout):
     """File-specialized QLineEdit layout"""
-    def __init__(self, value, parent=None):
+    def __init__(self, value, parent=None, new=False):
         QHBoxLayout.__init__(self)
         self.value = value
         self.lineedit = QLineEdit('', parent)
         self.addWidget(self.lineedit)
         self.filebtn = QPushButton('Browse')
-        self.filebtn.clicked.connect(self.getfile)
+        if new:
+            self.filebtn.clicked.connect(self.setfile)
+        else:
+            self.filebtn.clicked.connect(self.getfile)
         self.addWidget(self.filebtn)
+        
+    def setfile(self):
+        if self.value.startswith('file'):
+        
+            defaultDir = None
+            defaultFilter = None
+                                               
+            if QT_LIB in ['PySide', 'PySide2', 'PySide6']:
+                name = QFileDialog.getSaveFileName(
+                    caption = 'Give new file name',
+                    filter = self.value[5:],
+                    dir = defaultDir,
+                    selectedFilter = defaultFilter)
+                    
+            else:
+                name = QFileDialog.getSaveFileNameAndFilter(
+                    caption = title,
+                    filter = self.value[5:],
+                    directory = defaultDir,
+                    selectedFilter = defaultFilter)
+            
+            if QT_LIB in ['PyQt5', 'PySide2']:            
+                name, _filter = name
+                
+        if name:
+            self.lineedit.setText(name)        
 
     def getfile(self):
         if self.value.startswith('file'):
             name = QFileDialog.getOpenFileName(None, 'Select file',
                                                filter=self.value[5:])
-            if QT_LIB == 'PyQt5':
+            if QT_LIB in ['PyQt5', 'PySide2']:
                 name, _filter = name
         elif self.value == 'dir':
             name = QFileDialog.getExistingDirectory(None, 'Select directory')
@@ -609,6 +638,10 @@ class FormWidget(QWidget):
             elif is_text_string(value):
                 if value in ['file', 'dir'] or value.startswith('file:'):
                     field = FileLayout(value, self)
+                    
+                elif value in ['newfile'] or value.startswith('newfile:'):
+                    field = FileLayout(value[3:], self, new=True)                    
+                    
                 elif value == 'slider' or value.startswith('slider:') \
                                        or value.startswith('slider@'):
                     field = SliderLayout(value, self)
