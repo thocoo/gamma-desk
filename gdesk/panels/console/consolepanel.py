@@ -818,7 +818,7 @@ class Console(BasePanel):
     def refresh_pid_tid(self):
         self.pid.setText(f'Pid:{self.stdio.task.process_id}')
         self.tid.setText(f'Tid:{self.stdio.task.thread_id}')
-        self.long_title = f'{self.short_title} Pid {self.stdio.task.process_id} Tid {self.stdio.task.thread_id}'
+        #self.long_title = f'{self.short_title} Pid {self.stdio.task.process_id} Tid {self.stdio.task.thread_id}'
 
     def updateProcessInfo(self):
         if self.stdio.task.process_id == -1:

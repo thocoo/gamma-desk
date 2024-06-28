@@ -163,7 +163,7 @@ class Panels(object):
         panelClassesCat = panelClasses.get(category, [])
         return dict([(Cls.panelShortName, Cls) for Cls in panelClassesCat])
 
-    def new_panel(self, PanelClass, parentName=None, panid=None, floating=False,
+    def new_panel(self, PanelClass, parentName=None, panid=None, floating=False, title=None,
             position=None, size=None, args=(), kwargs={}):
 
         if parentName is None:
@@ -172,6 +172,8 @@ class Panels(object):
                 parentName =  activeWindow.name
 
         panel = PanelClass(None, panid, *args, **kwargs)
+        if not title is None:
+            panel.long_title = title
         
         if not size is None:
             panel.setGeometry(0, 0, size[0], size[1])

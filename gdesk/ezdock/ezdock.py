@@ -169,9 +169,10 @@ class DockManager(object):
             category = panelinfo['category']
             panid = panelinfo['id']
             module = panelinfo['module']
-            qualname = panelinfo['qualname']            
+            qualname = panelinfo['qualname']
+            title = panelinfo.get('title')
             args = panelinfo.get('args', ())
-            kwargs = panelinfo.get('kwargs', {})
+            kwargs = panelinfo.get('kwargs', {})            
             
             #base_window_name = panelinfo['basewindow']
             
@@ -201,7 +202,7 @@ class DockManager(object):
                     logger.debug(f'Existing panids of {category}: {exist_cat_panids}')
                     continue                    
                      
-            panel = self.panels.new_panel(Cls, None, panid, floating=True, args=args, kwargs=kwargs) 
+            panel = self.panels.new_panel(Cls, None, panid, floating=True, title=title, args=args, kwargs=kwargs) 
             
             if hasattr(panel, 'postLayoutInit'):
                 postlayinits.append(panel.postLayoutInit)
