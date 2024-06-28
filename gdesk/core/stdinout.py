@@ -189,7 +189,6 @@ class FlushPipeStream(io.TextIOBase):
         self.echo_enabled = False
         self.flusher = FlushReducer(flusher)
         
-        
     def write(self, text):
         self._write_mode(text, config['stdoutmode'])
 
