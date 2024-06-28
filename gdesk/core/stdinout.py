@@ -65,7 +65,7 @@ class StreamRouter(object):
     
     def route_stream(self, stream, ident=None):  
         if ident is None:
-            ident = threading.get_ident()
+            ident = threading.get_ident()                    
         self.streams[ident] = stream
         
     def unregister(self, ident=None):  
@@ -147,11 +147,13 @@ class PopupHandler(Handler):
         elif record.levelno == logging.CRITICAL:
             gui.dialog.msgbox(text, 'Critical', 'error')           
 
+
 def enable_ghstream_handler():    
     global streamhandler
     streamhandler = GhStreamHandler(sys.stdout)
     streamhandler.setLevel(config.get('logging_level_console', 'WARNING'))
     logging.root.addHandler(streamhandler)       
+
 
 class FlushReducer(object):
     def __init__(self, flusher):
@@ -177,11 +179,16 @@ class FlushReducer(object):
         while not self.q.empty():
             time.sleep(0.01)
         self.q.put(sentinel)
+
         
 class FlushPipeStream(io.TextIOBase):
     def __init__(self, streamqueue, flusher):
         self.streamqueue = streamqueue
-        self.flusher = FlushReducer(flusher)        
+        self.echo = None
+        self.echo_prefix = ''
+        self.echo_enabled = False
+        self.flusher = FlushReducer(flusher)
+        
         
     def write(self, text):
         self._write_mode(text, config['stdoutmode'])
@@ -191,13 +198,18 @@ class FlushPipeStream(io.TextIOBase):
         
     def _write_mode(self, text, mode, prefix='', suffix=''):            
         if mode == 'ansi':
-            text = f'{prefix}{text}{suffix}'
+            text_fmt = f'{prefix}{text}{suffix}'
             
-        self.streamqueue.put((mode, text))
+        self.streamqueue.put((mode, text_fmt))
+        
+        if not self.echo is None and self.echo_enabled:
+            self.echo._write_mode(text_fmt, mode, f'{self.echo_prefix}{prefix}', suffix)
+            
         self.flush()               
         
     def flush(self): 
         self.flusher()      
+
 
 class ErrLogStream(io.TextIOBase):
     def __init__(self):
@@ -209,6 +221,7 @@ class ErrLogStream(io.TextIOBase):
         if text.endswith('\n'):        
             logger.error(self.line_cache.rstrip('\n'))
             self.line_cache = ''        
+
         
 class ProcessStdInput(io.TextIOBase):   
     stdin_queues = dict()   
