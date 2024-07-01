@@ -1,3 +1,21 @@
+v1.3.1
+------
+
+date: 2024-07-01
+
+- Fix for extra argument 'title' of new_panel()
+
+
+v1.3.0
+------
+
+date: 2024-06-28
+
+- formlayout: add setfile
+- Add echo feature to stdout
+- pass title from json setting file to panel long_title
+
+
 v1.2.0
 ------
 
