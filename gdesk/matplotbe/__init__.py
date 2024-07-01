@@ -223,7 +223,7 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 def make_and_hide_plot_panel(PanelClass, parentName=None, panid=None, floating=False,
         position=None, size=None, args=(), kwargs={}):
         
-    panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position, size, args, kwargs)
+    panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position=position, size=size, args=args, kwargs=kwargs)
     # if not matplotlib.is_interactive():
         # panel.window().hide()
     return panel        
