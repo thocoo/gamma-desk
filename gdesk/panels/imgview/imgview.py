@@ -2455,13 +2455,10 @@ class ImageViewerBase(BasePanel):
 
 class ImageViewer(ImageViewerBase):
 
-    #contentChanged = Signal(int)
-    #gainChanged = Signal(int)
     panelShortName = 'basic'
     userVisible = True
 
     def __init__(self, *args, **kwargs):
-        #super().__init__(parent, panid, 'image')
         super().__init__(*args, **kwargs)
 
         self.imviewer = ImageViewerWidget(self)
@@ -2547,7 +2544,6 @@ class ImageProfileWidget(QWidget):
         self.rowPanel.showAll()
 
         self._profilesVisible = True
-        self.drawMeanProfile()
         self.drawMaskProfiles()
 
         gui.qapp.processEvents()
@@ -2556,39 +2552,12 @@ class ImageProfileWidget(QWidget):
         
     def drawMaskProfiles(self):
         arr = self.ndarray
-        # rowChecked = self.rowPanel.view.fullActive.isChecked()
-        # colChecked = self.colPanel.view.fullActive.isChecked()  
 
         if arr.ndim > 2:
             arr = arr.mean(2)
             
         self.rowPanel.drawMaskProfiles(arr)
         self.colPanel.drawMaskProfiles(arr)                           
-
-
-    def drawMeanProfile(self):       
-        pass
-        
-        # arr = self.ndarray
-        # rowChecked = self.rowPanel.view.fullActive.isChecked()
-        # colChecked = self.colPanel.view.fullActive.isChecked()     
-
-        # if arr.ndim > 2:
-            # arr = arr.mean(2)
-
-        # if rowChecked:
-            # rowProfile = arr.mean(0)        
-            # self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
-            
-        # else:
-            # self.rowPanel.removeMeanProfile()            
-        
-        # if colChecked:
-            # colProfile = arr.mean(1)
-            # self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
-            
-        # else:
-            # self.colPanel.removeMeanProfile()   
         
         
     def drawRoiProfile(self):       
@@ -2616,6 +2585,7 @@ class ImageProfileWidget(QWidget):
         else:
             self.colPanel.removeRoiProfile()
     
+    
     def removeRoiProfile(self):
         self.rowPanel.removeRoiProfile()
         self.colPanel.removeRoiProfile()
@@ -2628,7 +2598,9 @@ class ImageProfileWidget(QWidget):
         else:
             self.showOnlyRuler()
 
+
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
+
 
     def refresh_profile_views(self):
         self.colPanel.zoomToImage()
@@ -2713,14 +2685,15 @@ class ImageProfilePanel(ImageViewerBase):
     
     def refresh_profiles(self):    
         if self.imgprof.profilesVisible:
-            #self.imgprof.drawMeanProfile()
             self.imgprof.drawMaskProfiles()
             self.imgprof.drawRoiProfile()
-            self.imgprof.refresh_profile_views()            
+            self.imgprof.refresh_profile_views()  
+            
 
     def show_array(self, array, zoomFitHist=False, log=True):
         super().show_array(array, zoomFitHist, log=log)        
         self.refresh_profiles()
+        
 
     @property
     def imviewer(self):

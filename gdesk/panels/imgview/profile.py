@@ -88,7 +88,6 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.masks = dict()
         self.profiles = dict()
         
-        #self.meanProfileCurve = None
         self.roiProfileCurve = None
         self.pixProfileCurve = None
         
@@ -145,37 +144,10 @@ class ProfilerPanel(QtWidgets.QWidget):
                 scale = -(self.width() - 20)/ max(width, 1e-9)
                 self.view.setXPosScale(right, scale)
                 
-    def zoomFit(self):
-        # if self.meanProfileCurve is None:
-        self.zoomFull()
-        return
-        
-        # xvec = self.meanProfileCurve.xvector
-        # yvec = self.meanProfileCurve.yvector
-            
-        # if self.direction == 0:
-            # x0, x1 = self.view.getXLimits()
-            # x0 = max(round(x0), 0)
-            # x1 = min(round(x1), len(xvec))
-            # yvecsel = yvec[x0:x1]
-            # if len(yvecsel) == 0: return
-            # y0, y1 = yvecsel.min(), yvecsel.max()
-            # if y0 != y1:
-                # self.view.setYLimits(y0, y1, 20)
-            # else:
-                # self.view.setYLimits(y0-0.5, y1+0.5, 20)
                 
-        # elif self.direction == 90:
-            # y0, y1 = self.view.getYLimits()
-            # y0 = max(round(y0), 0)
-            # y1 = min(round(y1), len(yvec))
-            # xvecsel = xvec[y0:y1]
-            # if len(xvecsel) == 0: return
-            # x0, x1 = xvecsel.min(), xvecsel.max()
-            # if x0 != x1:
-                # self.view.setXLimits(x1, x0, 20)
-            # else:
-                # self.view.setXLimits(x1+0.5, x0-0.5, 20)
+    def zoomFit(self):
+        self.zoomFull()
+        
                 
     def refresh(self):
         self.removeAllItems()                    
@@ -227,9 +199,8 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.yAxis.setZValue(0.9)
         self.scene.addItem(self.yAxis)
         
-    def createRuler(self):
-        #self.ruler = Ruler(self.direction, self.startX, self.stopX, self.stepX)
         
+    def createRuler(self):        
         if self.direction == 0:
             scaleX = self.view.scale[0]
             
@@ -259,12 +230,14 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.ruler.setZValue(1)
         self.scene.addItem(self.ruler)
         
+        
     def repositionRuler(self):
         tr = self.view.mapToScene(self.width()-20, self.height()-20)
         if self.direction == 0:
             self.ruler.setY(tr.y())
         elif self.direction == 90:
             self.ruler.setX(tr.x())
+            
                   
     def repositionYAxis(self):
         if self.yAxis == None:
@@ -274,6 +247,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.yAxis.setX(tr.x())
         elif self.direction == 90:
             self.yAxis.setY(tr.y())
+            
 
     def zoomToImage(self):
         scale = self.imagePanel.zoomValue
@@ -289,17 +263,7 @@ class ProfilerPanel(QtWidgets.QWidget):
     def addPlot(self, x, y, color=None, z=0):
         curve = self.createCurve(x, y, color, z)
         self.curves.append(curve)
-        
-        
-    def drawMeanProfile(self, x, y):
-        return
-        
-        # if self.meanProfileCurve is not None:
-            # self.scene.removeItem(self.meanProfileCurve)
-        
-        # self.meanProfileCurve = self.createCurve(x, y, color=QtCore.Qt.blue, z=0.5)
-        # self.scene.addItem(self.meanProfileCurve)               
-        
+                   
         
     def drawRoiProfile(self, x, y):
         if self.roiProfileCurve is not None:
@@ -341,16 +305,11 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.scene.removeItem(self.roiProfileCurve)
             self.roiProfileCurve = None
             
+            
     def removePixelProfile(self):
         if self.pixProfileCurve is not None:
             self.scene.removeItem(self.pixProfileCurve)
-            self.pixProfileCurve = None            
-            
-    def removeMeanProfile(self):
-        return
-        # if self.meanProfileCurve is not None:
-            # self.scene.removeItem(self.meanProfileCurve)
-            # self.meanProfileCurve = None            
+            self.pixProfileCurve = None
             
             
     def removeMaskProfiles(self):
@@ -396,7 +355,6 @@ class ProfilerPanel(QtWidgets.QWidget):
 
                         
     def clear(self):
-        #self.meanProfileCurve = None
         self.profiles.clear()
         self.roiProfileCurve = None
         self.pixProfileCurve = None
@@ -411,12 +369,14 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.yAxisEnabled = False
         self.plotsEnabled = False
         self.refresh()
+
         
     def showAll(self):
         self.gridEnabled = True
         self.yAxisEnabled = True
         self.plotsEnabled = True
         self.refresh()
+
         
     def removelast(self):
         if len(self.curves) > 0:
@@ -424,6 +384,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             if lastCurve in self.scene.items():
                 self.scene.removeItem(lastCurve)
             self.curves.pop()
+
         
     def createGrid(self):
         self.grid = []
@@ -465,6 +426,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.grid[-1].setPen(pens[i])
             self.grid[-1].setZValue(-2)
             self.scene.addItem(self.grid[-1])                                      
+
         
     def redrawSlices(self):   
         if not self.ruler is None:
@@ -481,6 +443,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.scene.removeItem(items) 
             
         self.createGrid()   
+
 
     def resizeEvent(self, ev):    
         self.redrawSlices()
