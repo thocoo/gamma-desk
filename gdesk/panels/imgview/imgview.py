@@ -2567,26 +2567,28 @@ class ImageProfileWidget(QWidget):
 
 
     def drawMeanProfile(self):       
-        arr = self.ndarray
-        rowChecked = self.rowPanel.view.fullActive.isChecked()
-        colChecked = self.colPanel.view.fullActive.isChecked()     
-
-        if arr.ndim > 2:
-            arr = arr.mean(2)
-
-        if rowChecked:
-            rowProfile = arr.mean(0)        
-            self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
-            
-        else:
-            self.rowPanel.removeMeanProfile()            
+        pass
         
-        if colChecked:
-            colProfile = arr.mean(1)
-            self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
+        # arr = self.ndarray
+        # rowChecked = self.rowPanel.view.fullActive.isChecked()
+        # colChecked = self.colPanel.view.fullActive.isChecked()     
+
+        # if arr.ndim > 2:
+            # arr = arr.mean(2)
+
+        # if rowChecked:
+            # rowProfile = arr.mean(0)        
+            # self.rowPanel.drawMeanProfile(np.arange(len(rowProfile)), rowProfile)
             
-        else:
-            self.colPanel.removeMeanProfile()   
+        # else:
+            # self.rowPanel.removeMeanProfile()            
+        
+        # if colChecked:
+            # colProfile = arr.mean(1)
+            # self.colPanel.drawMeanProfile(np.arange(len(colProfile)), colProfile)
+            
+        # else:
+            # self.colPanel.removeMeanProfile()   
         
         
     def drawRoiProfile(self):       
@@ -2711,7 +2713,7 @@ class ImageProfilePanel(ImageViewerBase):
     
     def refresh_profiles(self):    
         if self.imgprof.profilesVisible:
-            self.imgprof.drawMeanProfile()
+            #self.imgprof.drawMeanProfile()
             self.imgprof.drawMaskProfiles()
             self.imgprof.drawRoiProfile()
             self.imgprof.refresh_profile_views()            

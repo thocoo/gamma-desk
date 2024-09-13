@@ -12,22 +12,16 @@ from ...utils.ticks import tickValues
 
 MASK_OPTIONS = {}
 MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.Qt.black}
-MASK_OPTIONS['c00'] = {'slices':(slice(0,None, 2), slice(0, None, 2)), 'color': QtGui.QColor('teal')}
-MASK_OPTIONS['c01'] = {'slices':(slice(0,None, 2), slice(1, None, 2)), 'color': QtCore.Qt.blue}
-MASK_OPTIONS['c10'] = {'slices':(slice(1,None, 2), slice(0, None, 2)), 'color': QtCore.Qt.red}
-MASK_OPTIONS['c11'] = {'slices':(slice(1,None, 2), slice(1, None, 2)), 'color': QtGui.QColor('olive')}
+MASK_OPTIONS['c00'] = {'slices':(slice(0,None, 2), slice(0, None, 2)), 'color': QtCore.Qt.blue}
+MASK_OPTIONS['c01'] = {'slices':(slice(0,None, 2), slice(1, None, 2)), 'color': QtGui.QColor('teal')}
+MASK_OPTIONS['c10'] = {'slices':(slice(1,None, 2), slice(0, None, 2)), 'color': QtGui.QColor('olive')}
+MASK_OPTIONS['c11'] = {'slices':(slice(1,None, 2), slice(1, None, 2)), 'color': QtCore.Qt.red}
 
 
 class ProfileGraphicView(PlotView):
 
     def __init__(self, parent=None):
-        super().__init__(parent)        
-
-        self.fullActive = QtWidgets.QAction('Full Image', self)
-        self.fullActive.setCheckable(True)
-        self.fullActive.setChecked(True)
-        self.fullActive.triggered.connect(self.refresh_profiles)        
-        self.menu.addAction(self.fullActive)
+        super().__init__(parent)
         
         self.roiActive = QtWidgets.QAction('Region of Interest', self)
         self.roiActive.setCheckable(True)
@@ -38,7 +32,7 @@ class ProfileGraphicView(PlotView):
         for mask in MASK_OPTIONS:
             maskMenuAction = QtWidgets.QAction(mask, self)
             maskMenuAction.setCheckable(True)
-            maskMenuAction.setChecked(False)
+            maskMenuAction.setChecked(True if mask == 'all' else False)
             maskMenuAction.triggered.connect(self.selectMask)
             self.menu.addAction(maskMenuAction)            
         
@@ -94,11 +88,11 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.masks = dict()
         self.profiles = dict()
         
-        self.meanProfileCurve = None
+        #self.meanProfileCurve = None
         self.roiProfileCurve = None
         self.pixProfileCurve = None
         
-        self.defineMasks()
+        self.defineMasks(['all'])
         
         self.grid = []
         self.ruler = None
@@ -115,7 +109,15 @@ class ProfilerPanel(QtWidgets.QWidget):
     def zoomFull(self):
             
         top = bottom = left = right = None
-        for curve in [self.pixProfileCurve, self.roiProfileCurve, self.meanProfileCurve]:
+        
+        for mask, curve in self.profiles.items():
+            r = curve.boundingRect()
+            top = r.top() if top is None else min(r.top(), top)
+            bottom = r.bottom() if bottom is None else max(r.bottom(), bottom)
+            left = r.left() if left is None else min(r.left(), left)
+            right = r.right()if right is None else max(r.right(), right)            
+        
+        for curve in [self.pixProfileCurve, self.roiProfileCurve]:
             if curve is None:
                 continue
             r = curve.boundingRect()
@@ -144,50 +146,39 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.view.setXPosScale(right, scale)
                 
     def zoomFit(self):
-        if self.meanProfileCurve is None:
-            self.zoomFull()
-            return
+        # if self.meanProfileCurve is None:
+        self.zoomFull()
+        return
         
-        xvec = self.meanProfileCurve.xvector
-        yvec = self.meanProfileCurve.yvector
+        # xvec = self.meanProfileCurve.xvector
+        # yvec = self.meanProfileCurve.yvector
             
-        if self.direction == 0:
-            x0, x1 = self.view.getXLimits()
-            x0 = max(round(x0), 0)
-            x1 = min(round(x1), len(xvec))
-            yvecsel = yvec[x0:x1]
-            if len(yvecsel) == 0: return
-            y0, y1 = yvecsel.min(), yvecsel.max()
-            if y0 != y1:
-                self.view.setYLimits(y0, y1, 20)
-            else:
-                self.view.setYLimits(y0-0.5, y1+0.5, 20)
+        # if self.direction == 0:
+            # x0, x1 = self.view.getXLimits()
+            # x0 = max(round(x0), 0)
+            # x1 = min(round(x1), len(xvec))
+            # yvecsel = yvec[x0:x1]
+            # if len(yvecsel) == 0: return
+            # y0, y1 = yvecsel.min(), yvecsel.max()
+            # if y0 != y1:
+                # self.view.setYLimits(y0, y1, 20)
+            # else:
+                # self.view.setYLimits(y0-0.5, y1+0.5, 20)
                 
-        elif self.direction == 90:
-            y0, y1 = self.view.getYLimits()
-            y0 = max(round(y0), 0)
-            y1 = min(round(y1), len(yvec))
-            xvecsel = xvec[y0:y1]
-            if len(xvecsel) == 0: return
-            x0, x1 = xvecsel.min(), xvecsel.max()
-            if x0 != x1:
-                self.view.setXLimits(x1, x0, 20)
-            else:
-                self.view.setXLimits(x1+0.5, x0-0.5, 20)
+        # elif self.direction == 90:
+            # y0, y1 = self.view.getYLimits()
+            # y0 = max(round(y0), 0)
+            # y1 = min(round(y1), len(yvec))
+            # xvecsel = xvec[y0:y1]
+            # if len(xvecsel) == 0: return
+            # x0, x1 = xvecsel.min(), xvecsel.max()
+            # if x0 != x1:
+                # self.view.setXLimits(x1, x0, 20)
+            # else:
+                # self.view.setXLimits(x1+0.5, x0-0.5, 20)
                 
     def refresh(self):
-        self.removeAllItems()
-
-        #self.createRuler()
-        #self.createYAxis()
-        #self.createGrid()                                
-        
-        if self.meanProfileCurve is not None:
-            self.scene.addItem(self.meanProfileCurve)
-            
-        if self.pixProfileCurve is not None:
-            self.scene.addItem(self.pixProfileCurve)
-                    
+        self.removeAllItems()                    
         self.view.refresh()       
         self.redrawSlices()
         self.repositionRuler()
@@ -199,10 +190,11 @@ class ProfilerPanel(QtWidgets.QWidget):
             #only need to remove top level items
             if i.parentItem() == None:
                 self.scene.removeItem(i)
-                
-        self.meanProfileCurve = None
+        
+        self.profiles.clear()
         self.roiProfileCurve = None
         self.pixProfileCurve = None
+        
         self.grid = []
         self.ruler = None
         self.yAxis = None
@@ -221,6 +213,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.startY = sceneBotRight.y()                        
             self.thicksY = tickValues(self.startY, self.stopY, scaleY)           
             self.yAxis = Axis(0, self.startY, self.stopY, self.thicksY)
+            
         elif self.direction == 90:
             scaleY = -self.view.scale[0]
             sceneTopLeft = self.view.mapToScene(0,0)
@@ -299,11 +292,13 @@ class ProfilerPanel(QtWidgets.QWidget):
         
         
     def drawMeanProfile(self, x, y):
-        if self.meanProfileCurve is not None:
-            self.scene.removeItem(self.meanProfileCurve)
+        return
         
-        self.meanProfileCurve = self.createCurve(x, y, color=QtCore.Qt.blue, z=0.5)
-        self.scene.addItem(self.meanProfileCurve)               
+        # if self.meanProfileCurve is not None:
+            # self.scene.removeItem(self.meanProfileCurve)
+        
+        # self.meanProfileCurve = self.createCurve(x, y, color=QtCore.Qt.blue, z=0.5)
+        # self.scene.addItem(self.meanProfileCurve)               
         
         
     def drawRoiProfile(self, x, y):
@@ -352,9 +347,10 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.pixProfileCurve = None            
             
     def removeMeanProfile(self):
-        if self.meanProfileCurve is not None:
-            self.scene.removeItem(self.meanProfileCurve)
-            self.meanProfileCurve = None            
+        return
+        # if self.meanProfileCurve is not None:
+            # self.scene.removeItem(self.meanProfileCurve)
+            # self.meanProfileCurve = None            
             
             
     def removeMaskProfiles(self):
@@ -397,11 +393,14 @@ class ProfilerPanel(QtWidgets.QWidget):
             curve.setPen(pen)
         
         return curve
+
                         
     def clear(self):
-        self.meanProfileCurve = None
+        #self.meanProfileCurve = None
+        self.profiles.clear()
         self.roiProfileCurve = None
         self.pixProfileCurve = None
+
         
     def showOnlyRuler(self):
         if self.direction == 0:
