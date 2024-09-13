@@ -2548,9 +2548,22 @@ class ImageProfileWidget(QWidget):
 
         self._profilesVisible = True
         self.drawMeanProfile()
+        self.drawMaskProfiles()
 
         gui.qapp.processEvents()
         self.refresh_profile_views()
+        
+        
+    def drawMaskProfiles(self):
+        arr = self.ndarray
+        # rowChecked = self.rowPanel.view.fullActive.isChecked()
+        # colChecked = self.colPanel.view.fullActive.isChecked()  
+
+        if arr.ndim > 2:
+            arr = arr.mean(2)
+            
+        self.rowPanel.drawMaskProfiles(arr)
+        self.colPanel.drawMaskProfiles(arr)                           
 
 
     def drawMeanProfile(self):       
@@ -2699,6 +2712,7 @@ class ImageProfilePanel(ImageViewerBase):
     def refresh_profiles(self):    
         if self.imgprof.profilesVisible:
             self.imgprof.drawMeanProfile()
+            self.imgprof.drawMaskProfiles()
             self.imgprof.drawRoiProfile()
             self.imgprof.refresh_profile_views()            
 

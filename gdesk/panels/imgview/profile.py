@@ -10,6 +10,14 @@ from ...graphics.items import createCurve
 
 from ...utils.ticks import tickValues
 
+MASK_OPTIONS = {}
+MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.Qt.black}
+MASK_OPTIONS['c00'] = {'slices':(slice(0,None, 2), slice(0, None, 2)), 'color': QtGui.QColor('teal')}
+MASK_OPTIONS['c01'] = {'slices':(slice(0,None, 2), slice(1, None, 2)), 'color': QtCore.Qt.blue}
+MASK_OPTIONS['c10'] = {'slices':(slice(1,None, 2), slice(0, None, 2)), 'color': QtCore.Qt.red}
+MASK_OPTIONS['c11'] = {'slices':(slice(1,None, 2), slice(1, None, 2)), 'color': QtGui.QColor('olive')}
+
+
 class ProfileGraphicView(PlotView):
 
     def __init__(self, parent=None):
@@ -27,9 +35,27 @@ class ProfileGraphicView(PlotView):
         self.roiActive.triggered.connect(self.refresh_profiles)
         self.menu.addAction(self.roiActive)
         
+        for mask in MASK_OPTIONS:
+            maskMenuAction = QtWidgets.QAction(mask, self)
+            maskMenuAction.setCheckable(True)
+            maskMenuAction.setChecked(False)
+            maskMenuAction.triggered.connect(self.selectMask)
+            self.menu.addAction(maskMenuAction)            
+        
 
     def refresh_profiles(self):
         self.parent().parent().parent().refresh_profiles()
+        
+        
+    def selectMask(self):
+        masks = []
+       
+        for act in self.menu.actions():
+            mask = act.text()            
+            if mask in ['Auto Zoom', 'Full Image', 'Region of Interest']: continue
+            if act.isChecked():  masks.append(mask)
+        
+        self.parent().defineMasks(masks)       
            
                    
 class ProfilerPanel(QtWidgets.QWidget):
@@ -64,13 +90,27 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.view.matrixUpdated.connect(self.repositionRuler)        
         self.view.matrixUpdated.connect(self.repositionYAxis)
         self.view.doubleClicked.connect(self.zoomFit)           
-                
+        
+        self.masks = dict()
+        self.profiles = dict()
+        
         self.meanProfileCurve = None
         self.roiProfileCurve = None
         self.pixProfileCurve = None
+        
+        self.defineMasks()
+        
         self.grid = []
         self.ruler = None
         self.yAxis = None
+        
+        
+    def defineMasks(self, selection=[]):
+        self.masks.clear()
+        
+        for mask in selection:
+            self.masks[mask] = MASK_OPTIONS[mask]
+        
         
     def zoomFull(self):
             
@@ -257,12 +297,14 @@ class ProfilerPanel(QtWidgets.QWidget):
         curve = self.createCurve(x, y, color, z)
         self.curves.append(curve)
         
+        
     def drawMeanProfile(self, x, y):
         if self.meanProfileCurve is not None:
             self.scene.removeItem(self.meanProfileCurve)
         
         self.meanProfileCurve = self.createCurve(x, y, color=QtCore.Qt.blue, z=0.5)
         self.scene.addItem(self.meanProfileCurve)               
+        
         
     def drawRoiProfile(self, x, y):
         if self.roiProfileCurve is not None:
@@ -271,10 +313,33 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.roiProfileCurve = self.createCurve(x, y, color=QtCore.Qt.red, z=0.25)
         self.scene.addItem(self.roiProfileCurve)          
         
+        
     def drawPixelProfile(self, x, y):
         self.removePixelProfile()        
         self.pixProfileCurve = self.createCurve(x, y, color=QtCore.Qt.darkGreen, z=0)
-        self.scene.addItem(self.pixProfileCurve)                
+        self.scene.addItem(self.pixProfileCurve)    
+
+    
+    def drawMaskProfiles(self, array):
+    
+        self.removeMaskProfiles()
+            
+        if self.direction == 0:
+            axis = 0
+            
+        else:
+            axis = 1
+        
+        for mask_name, mask in self.masks.items():
+            slices = mask['slices']
+            color = mask['color']
+            roi = array[slices]            
+            y = roi.mean(axis)
+            x = np.arange(array.shape[1-axis])[slices[1-axis]]
+            profile = self.createCurve(x, y, color=color, z=0.5)
+            self.scene.addItem(profile)
+            self.profiles[mask_name] = profile
+            
 
     def removeRoiProfile(self):
         if self.roiProfileCurve is not None:
@@ -290,6 +355,15 @@ class ProfilerPanel(QtWidgets.QWidget):
         if self.meanProfileCurve is not None:
             self.scene.removeItem(self.meanProfileCurve)
             self.meanProfileCurve = None            
+            
+            
+    def removeMaskProfiles(self):
+        profile_names = list(self.profiles)
+        
+        for mask_name in profile_names:
+            profile = self.profiles[mask_name]
+            self.scene.removeItem(profile)   
+            self.profiles.pop(mask_name)
             
         
     def createCurve(self, x, y, color=None, z=0):
