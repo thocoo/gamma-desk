@@ -2562,33 +2562,22 @@ class ImageProfileWidget(QWidget):
         
     def drawRoiProfile(self):       
         arr = self.ndarray
-        roiVisible = self.imviewer.roi.isVisible()
-        rowChecked = self.rowPanel.view.roiActive.isChecked()
-        colChecked = self.colPanel.view.roiActive.isChecked()        
-
-        if arr.ndim > 2 and (rowChecked or colChecked):
-            arr = arr.mean(2)           
         
-        slices = self.roi_slices        
+        if arr.ndim > 2:
+            arr = arr.mean(2)
+        
+        slices = self.roi_slices
 
-        if roiVisible and rowChecked:
-            rowProfile = arr[slices].mean(0)            
-            self.rowPanel.drawRoiProfile(np.arange(*slices[1].indices(arr.shape[1])), rowProfile)
-            
-        else:
-            self.rowPanel.removeRoiProfile()
-            
-        if roiVisible and colChecked:
-            colProfile = arr[slices].mean(1)
-            self.colPanel.drawRoiProfile(np.arange(*slices[0].indices(arr.shape[0])), colProfile)
-            
-        else:
-            self.colPanel.removeRoiProfile()
-    
+        self.rowPanel.defineRoiMasks(slices)
+        self.colPanel.defineRoiMasks(slices)
+        
+        self.rowPanel.drawMaskProfiles(arr, roi_only=True)
+        self.colPanel.drawMaskProfiles(arr, roi_only=True)         
+
     
     def removeRoiProfile(self):
-        self.rowPanel.removeRoiProfile()
-        self.colPanel.removeRoiProfile()
+        self.rowPanel.removeRoiMasks()
+        self.colPanel.removeRoiMasks()
         self.refresh_profile_views()
         
 
@@ -2686,7 +2675,6 @@ class ImageProfilePanel(ImageViewerBase):
     def refresh_profiles(self):    
         if self.imgprof.profilesVisible:
             self.imgprof.drawMaskProfiles()
-            self.imgprof.drawRoiProfile()
             self.imgprof.refresh_profile_views()  
             
 

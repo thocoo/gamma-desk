@@ -12,10 +12,10 @@ from ...utils.ticks import tickValues
 
 MASK_OPTIONS = {}
 MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.Qt.black}
-MASK_OPTIONS['c00'] = {'slices':(slice(0,None, 2), slice(0, None, 2)), 'color': QtCore.Qt.blue}
-MASK_OPTIONS['c01'] = {'slices':(slice(0,None, 2), slice(1, None, 2)), 'color': QtGui.QColor('teal')}
-MASK_OPTIONS['c10'] = {'slices':(slice(1,None, 2), slice(0, None, 2)), 'color': QtGui.QColor('olive')}
-MASK_OPTIONS['c11'] = {'slices':(slice(1,None, 2), slice(1, None, 2)), 'color': QtCore.Qt.red}
+MASK_OPTIONS['c00'] = {'slices':(slice(0, None, 2), slice(0, None, 2)), 'color': QtCore.Qt.blue}
+MASK_OPTIONS['c01'] = {'slices':(slice(0, None, 2), slice(1, None, 2)), 'color': QtGui.QColor('teal')}
+MASK_OPTIONS['c10'] = {'slices':(slice(1, None, 2), slice(0, None, 2)), 'color': QtGui.QColor('olive')}
+MASK_OPTIONS['c11'] = {'slices':(slice(1, None, 2), slice(1, None, 2)), 'color': QtCore.Qt.red}
 
 
 class ProfileGraphicView(PlotView):
@@ -86,10 +86,7 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.view.doubleClicked.connect(self.zoomFit)           
         
         self.masks = dict()
-        self.profiles = dict()
-        
-        self.roiProfileCurve = None
-        self.pixProfileCurve = None
+        self.profiles = dict()        
         
         self.defineMasks(['all'])
         
@@ -103,6 +100,40 @@ class ProfilerPanel(QtWidgets.QWidget):
         
         for mask in selection:
             self.masks[mask] = MASK_OPTIONS[mask]
+            
+            
+    def defineRoiMasks(self, slices):      
+    
+        for mask_name in list(self.masks):    
+            if mask_name.startswith('roi.'): continue
+            
+            mask = self.masks[mask_name]
+            mask['color']
+            
+            mask_slices = []
+            
+            for mask_slc, roi_slice in zip(mask['slices'], slices):           
+                    
+                stop = roi_slice.stop
+                
+                if not mask_slc.step is None:
+                    step = mask_slc.step * roi_slice.step
+                else:
+                    step = roi_slice.step
+                    
+                if mask_slc.start is None:
+                    start = roi_slice.start // step * step
+                else:
+                    start = mask_slc.start + roi_slice.start // step * step
+                    
+                mask_slices.append(slice(start, stop, step))
+
+            self.masks[f'roi.{mask_name}'] = {'slices': tuple(mask_slices), 'color': mask['color']}
+            
+            
+    def removeRoiMasks(self):        
+        for mask in list(self.masks):
+            if mask.startswith('roi.'): self.masks.pop(mask)             
         
         
     def zoomFull(self):
@@ -115,15 +146,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             bottom = r.bottom() if bottom is None else max(r.bottom(), bottom)
             left = r.left() if left is None else min(r.left(), left)
             right = r.right()if right is None else max(r.right(), right)            
-        
-        for curve in [self.pixProfileCurve, self.roiProfileCurve]:
-            if curve is None:
-                continue
-            r = curve.boundingRect()
-            top = r.top() if top is None else min(r.top(), top)
-            bottom = r.bottom() if bottom is None else max(r.bottom(), bottom)
-            left = r.left() if left is None else min(r.left(), left)
-            right = r.right()if right is None else max(r.right(), right)
+
             
         if top is None:
             return           
@@ -164,8 +187,6 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.scene.removeItem(i)
         
         self.profiles.clear()
-        self.roiProfileCurve = None
-        self.pixProfileCurve = None
         
         self.grid = []
         self.ruler = None
@@ -195,7 +216,6 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.thicksY = tickValues(self.startY, self.stopY, scaleY)
             self.yAxis = Axis(90, self.startY, self.stopY, self.thicksY)
             
-        #self.yAxis.setZValue(-1)
         self.yAxis.setZValue(0.9)
         self.scene.addItem(self.yAxis)
         
@@ -262,26 +282,12 @@ class ProfilerPanel(QtWidgets.QWidget):
         
     def addPlot(self, x, y, color=None, z=0):
         curve = self.createCurve(x, y, color, z)
-        self.curves.append(curve)
-                   
-        
-    def drawRoiProfile(self, x, y):
-        if self.roiProfileCurve is not None:
-            self.scene.removeItem(self.roiProfileCurve)
-        
-        self.roiProfileCurve = self.createCurve(x, y, color=QtCore.Qt.red, z=0.25)
-        self.scene.addItem(self.roiProfileCurve)          
-        
-        
-    def drawPixelProfile(self, x, y):
-        self.removePixelProfile()        
-        self.pixProfileCurve = self.createCurve(x, y, color=QtCore.Qt.darkGreen, z=0)
-        self.scene.addItem(self.pixProfileCurve)    
+        self.curves.append(curve)                                 
 
     
-    def drawMaskProfiles(self, array):
+    def drawMaskProfiles(self, array, roi_only=False):
     
-        self.removeMaskProfiles()
+        self.removeMaskProfiles(roi_only)
             
         if self.direction == 0:
             axis = 0
@@ -290,6 +296,8 @@ class ProfilerPanel(QtWidgets.QWidget):
             axis = 1
         
         for mask_name, mask in self.masks.items():
+            if roi_only and not mask_name.startswith('roi.'): continue
+            
             slices = mask['slices']
             color = mask['color']
             roi = array[slices]            
@@ -297,25 +305,14 @@ class ProfilerPanel(QtWidgets.QWidget):
             x = np.arange(array.shape[1-axis])[slices[1-axis]]
             profile = self.createCurve(x, y, color=color, z=0.5)
             self.scene.addItem(profile)
-            self.profiles[mask_name] = profile
-            
-
-    def removeRoiProfile(self):
-        if self.roiProfileCurve is not None:
-            self.scene.removeItem(self.roiProfileCurve)
-            self.roiProfileCurve = None
+            self.profiles[mask_name] = profile                    
             
             
-    def removePixelProfile(self):
-        if self.pixProfileCurve is not None:
-            self.scene.removeItem(self.pixProfileCurve)
-            self.pixProfileCurve = None
-            
-            
-    def removeMaskProfiles(self):
+    def removeMaskProfiles(self, roi_only=False):
         profile_names = list(self.profiles)
         
         for mask_name in profile_names:
+            if roi_only and not mask_name.startswith('roi.'): continue
             profile = self.profiles[mask_name]
             self.scene.removeItem(profile)   
             self.profiles.pop(mask_name)
@@ -356,8 +353,6 @@ class ProfilerPanel(QtWidgets.QWidget):
                         
     def clear(self):
         self.profiles.clear()
-        self.roiProfileCurve = None
-        self.pixProfileCurve = None
 
         
     def showOnlyRuler(self):
