@@ -2553,8 +2553,8 @@ class ImageProfileWidget(QWidget):
     def drawMaskProfiles(self):
         arr = self.ndarray
 
-        if arr.ndim > 2:
-            arr = arr.mean(2)
+        # if arr.ndim > 2:
+            # arr = arr.mean(2)
             
         self.rowPanel.drawMaskProfiles(arr)
         self.colPanel.drawMaskProfiles(arr)                           
@@ -2563,8 +2563,8 @@ class ImageProfileWidget(QWidget):
     def drawRoiProfile(self):       
         arr = self.ndarray
         
-        if arr.ndim > 2:
-            arr = arr.mean(2)
+        # if arr.ndim > 2:
+            # arr = arr.mean(2)
         
         slices = self.roi_slices
 

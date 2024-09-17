@@ -12,10 +12,15 @@ from ...utils.ticks import tickValues
 
 MASK_OPTIONS = {}
 MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.Qt.black}
+
 MASK_OPTIONS['c00'] = {'slices':(slice(0, None, 2), slice(0, None, 2)), 'color': QtCore.Qt.blue}
 MASK_OPTIONS['c01'] = {'slices':(slice(0, None, 2), slice(1, None, 2)), 'color': QtGui.QColor('teal')}
 MASK_OPTIONS['c10'] = {'slices':(slice(1, None, 2), slice(0, None, 2)), 'color': QtGui.QColor('olive')}
 MASK_OPTIONS['c11'] = {'slices':(slice(1, None, 2), slice(1, None, 2)), 'color': QtCore.Qt.red}
+
+MASK_OPTIONS['R'] = {'slices':(slice(None), slice(None), 0), 'color': QtCore.Qt.red}
+MASK_OPTIONS['G'] = {'slices':(slice(None), slice(None), 1), 'color': QtCore.Qt.green}
+MASK_OPTIONS['B'] = {'slices':(slice(None), slice(None), 2), 'color': QtCore.Qt.blue}
 
 
 class ProfileGraphicView(PlotView):
@@ -127,6 +132,9 @@ class ProfilerPanel(QtWidgets.QWidget):
                     start = mask_slc.start + roi_slice.start // step * step
                     
                 mask_slices.append(slice(start, stop, step))
+                
+            if len(mask['slices']) == 3:
+                mask_slices.append(mask['slices'][-1])
 
             self.masks[f'roi.{mask_name}'] = {'slices': tuple(mask_slices), 'color': mask['color']}
             
@@ -302,6 +310,11 @@ class ProfilerPanel(QtWidgets.QWidget):
             color = mask['color']
             roi = array[slices]            
             y = roi.mean(axis)
+
+            if y.ndim > 1:
+                #Probably, still RGB split up
+                y = y.mean(-1)
+            
             x = np.arange(array.shape[1-axis])[slices[1-axis]]
             profile = self.createCurve(x, y, color=color, z=0.5)
             self.scene.addItem(profile)
