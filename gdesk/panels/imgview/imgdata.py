@@ -283,26 +283,29 @@ class ImageData(object):
                 'B': (slice(None), slice(None), slice(2, 3))
                 }
                 
-        elif mode == 'bg':
-            self.masks = {
-                'R': (slice(1, None, 2), slice(1, None, 2)),
-                'Gr': (slice(1, None, 2), slice(1, None, 2)),
-                'Gb': (slice(0, None, 2), slice(0, None, 2)),
-                'B': (slice(0, None, 2), slice(1, None, 2))
-                }
+        elif mode in ['bg', 'gb', 'rg', 'gr']:
+            c00 = (slice(0, None, 2), slice(0, None, 2))            
+            c01 = (slice(0, None, 2), slice(1, None, 2))
+            c10 = (slice(0, None, 2), slice(0, None, 2))        
+            c11 = (slice(1, None, 2), slice(1, None, 2))
+            
+            if mode == 'bg':                    
+                self.masks = {'B': c00, 'Gb': c01, 'Gr': c10, 'R': c11}
         
-        elif mode == 'gb':
-            pass
-        
-        elif mode == 'rg':
-            pass
-        
-        elif mode == 'gr':
-            pass
+            elif mode == 'gb':
+                self.masks = {'Gb': c00, 'B': c01, 'R': c10, 'Gr': c11}
+            
+            elif mode == 'rg':
+                self.masks = {'R': c00, 'Gr': c01, 'Gb': c10, 'B': c11}
+            
+            elif mode == 'gr':
+                self.masks = {'Gr': c00, 'R': c01, 'B': c10, 'Gb': c11}
             
         for mask, slices in self.masks.items():
             self.chanstats[mask] = ImageStatistics()
-            self.chanstats[mask].attach_arr2d(self.statarr[slices])
+            ndim = self.statarr.ndim
+            slices_ndim = slices[:ndim]
+            self.chanstats[mask].attach_arr2d(self.statarr[slices_ndim])
             self.chanstats[f'roi.{mask}'] = ImageStatistics()
         
     

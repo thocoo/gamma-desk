@@ -68,9 +68,7 @@ class LevelPlot(QtWidgets.QWidget):
         self.create_indicator(256, QtGui.QColor(255,127,127), 'W:%0.5g', self.IndicatorWMoved)        
         
         self.curves = dict()                      
-        self.plot_curve('K', np.array([0, 0, 64, 64, 128, 128, 192, 192, 256, 256]), np.array([0, 1, 1, 0, 0, 2, 2, 1, 1, 0]))        
-        #self.plot_curve('G', [-2, -1, 0 , 1, 2], [0, 0.5, 1.0, 0.5 ,0])
-        #self.plot_curve('B', [-2, -1, 0 , 1, 2], [1, 1.0, 1.0, 0.25 ,0])
+        self.plot_curve('K', np.array([0, 0, 64, 64, 128, 128, 192, 192, 256, 256]), np.array([0, 1, 1, 0, 0, 2, 2, 1, 1, 0]))
         
         for indicator in self.indicators:
             indicator.attach_curves(self.curves)
@@ -354,16 +352,8 @@ class Levels(QtWidgets.QWidget):
             bins = None
             step = self.panel.histSize
         
-        roi_visible = image_panel.imviewer.roi.isVisible()
-        
-        # if self.panel.roi and image_panel.imviewer.roi.isVisible():
-            # clr_filter = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
-        # else:
-            # clr_filter = set(('K', 'R', 'G', 'B'))
-        
-        # clr_to_draw = clr_filter.intersection(set(chanstats.keys()))
-        
-        clr_to_draw = [m for m in chanstats.keys() if m.startswith('roi.') == roi_visible]
+        do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                
+        clr_to_draw = [m for m in chanstats.keys() if m.startswith('roi.') == do_roi]
         
         self.levelplot.remove_all_but(clr_to_draw)
         
@@ -409,10 +399,6 @@ class Levels(QtWidgets.QWidget):
                 
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
                     
-        # step = int(round(starts[1] - starts[0]))
-        # self.panel.histSizes['step'] = step 
-        # self.panel.histSizes['bins'] = len(hist)
-        # self.panel.toolbar.updateStepCount()
         self.levelplot.set_logscale(self.panel.log)
                 
         

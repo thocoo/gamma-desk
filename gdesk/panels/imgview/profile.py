@@ -304,13 +304,15 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         else:
             axis = 1
+            
+        ndim = array.ndim
         
         for mask_name, mask in self.masks.items():
             if roi_only and not mask_name.startswith('roi.'): continue
             
             slices = mask['slices']
             color = mask['color']
-            roi = array[slices]            
+            roi = array[slices[:ndim]]            
             y = roi.mean(axis)
 
             if y.ndim > 1:
