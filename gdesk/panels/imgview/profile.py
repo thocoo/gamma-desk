@@ -11,16 +11,16 @@ from ...graphics.items import createCurve
 from ...utils.ticks import tickValues
 
 MASK_OPTIONS = {}
-MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.Qt.black}
+MASK_OPTIONS['all'] = {'slices':(slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255)}
 
-MASK_OPTIONS['c00'] = {'slices':(slice(0, None, 2), slice(0, None, 2)), 'color': QtCore.Qt.blue}
-MASK_OPTIONS['c01'] = {'slices':(slice(0, None, 2), slice(1, None, 2)), 'color': QtGui.QColor('teal')}
-MASK_OPTIONS['c10'] = {'slices':(slice(1, None, 2), slice(0, None, 2)), 'color': QtGui.QColor('olive')}
-MASK_OPTIONS['c11'] = {'slices':(slice(1, None, 2), slice(1, None, 2)), 'color': QtCore.Qt.red}
+MASK_OPTIONS['c00'] = {'slices':(slice(0, None, 2), slice(0, None, 2)), 'color': QtGui.QColor(0, 0, 255, 255)}
+MASK_OPTIONS['c01'] = {'slices':(slice(0, None, 2), slice(1, None, 2)), 'color': QtGui.QColor(0, 0x80, 0x80, 255)}
+MASK_OPTIONS['c10'] = {'slices':(slice(1, None, 2), slice(0, None, 2)), 'color': QtGui.QColor(0x80, 0x80, 0, 255)}
+MASK_OPTIONS['c11'] = {'slices':(slice(1, None, 2), slice(1, None, 2)), 'color': QtGui.QColor(255, 0, 0, 255)}
 
-MASK_OPTIONS['R'] = {'slices':(slice(None), slice(None), 0), 'color': QtCore.Qt.red}
-MASK_OPTIONS['G'] = {'slices':(slice(None), slice(None), 1), 'color': QtCore.Qt.green}
-MASK_OPTIONS['B'] = {'slices':(slice(None), slice(None), 2), 'color': QtCore.Qt.blue}
+MASK_OPTIONS['R'] = {'slices':(slice(None), slice(None), 0), 'color': QtGui.QColor(255, 0, 0, 255)}
+MASK_OPTIONS['G'] = {'slices':(slice(None), slice(None), 1), 'color': QtGui.QColor(0, 255, 0, 255)}
+MASK_OPTIONS['B'] = {'slices':(slice(None), slice(None), 2), 'color': QtGui.QColor(0, 0, 255, 255)}
 
 
 class ProfileGraphicView(PlotView):
@@ -113,7 +113,9 @@ class ProfilerPanel(QtWidgets.QWidget):
             if mask_name.startswith('roi.'): continue
             
             mask = self.masks[mask_name]
-            mask['color']
+            
+            roi_color = mask['color']
+            mask['color'] = QtGui.QColor(roi_color.red(), roi_color.green(), roi_color.blue(), 128)
             
             mask_slices = []
             
@@ -136,7 +138,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             if len(mask['slices']) == 3:
                 mask_slices.append(mask['slices'][-1])
 
-            self.masks[f'roi.{mask_name}'] = {'slices': tuple(mask_slices), 'color': mask['color']}
+            self.masks[f'roi.{mask_name}'] = {'slices': tuple(mask_slices), 'color': roi_color}
             
             
     def removeRoiMasks(self):        
