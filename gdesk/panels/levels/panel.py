@@ -17,13 +17,13 @@ respath = pathlib.Path(config['respath'])
 
 colors = {
     'K': QtGui.QColor(0, 0, 0),
-    'RK': QtGui.QColor(255, 0, 0),
+    'roi.K': QtGui.QColor(255, 0, 0),
     'R': QtGui.QColor(255, 0, 0),
     'G': QtGui.QColor(0, 255, 0),
     'B': QtGui.QColor(0, 0, 255),
-    'RR': QtGui.QColor(192, 0, 0),
-    'RG': QtGui.QColor(64, 127, 0),
-    'RB': QtGui.QColor(64, 0, 127)}    
+    'roi.R': QtGui.QColor(192, 0, 0),
+    'roi.G': QtGui.QColor(64, 127, 0),
+    'roi.B': QtGui.QColor(64, 0, 127)}    
     
 def semilog(vec):
     with np.errstate(divide='ignore'):
@@ -349,7 +349,7 @@ class Levels(QtWidgets.QWidget):
             step = self.panel.histSize
         
         if self.panel.roi and image_panel.imviewer.roi.isVisible():
-            clr_filter = set(('RK','RR', 'RG', 'RB'))
+            clr_filter = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
         else:
             clr_filter = set(('K', 'R', 'G', 'B'))
         
@@ -425,13 +425,13 @@ class Levels(QtWidgets.QWidget):
             arr = arr[..., None] #create extra dimension
             
             if do_roi:            
-                channames = ['RK']
+                channames = ['roi.K']
             else:
                 channames = ['K']     
             
         elif len(arr.shape) == 3:
             if do_roi:            
-                channames = ['RR', 'RG', 'RB']
+                channames = ['roi.R', 'roi.G', 'roi.B']
             else:
                 channames = ['R', 'G', 'B']
                 

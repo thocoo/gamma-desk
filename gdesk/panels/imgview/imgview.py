@@ -1779,7 +1779,7 @@ class ImageViewerBase(BasePanel):
             roi = False
 
         if roi:
-            clrs = set(('RK','RR', 'RG', 'RB'))
+            clrs = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
         else:
             clrs = set(('K', 'R', 'G', 'B'))
 

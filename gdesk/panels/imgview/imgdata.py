@@ -274,7 +274,7 @@ class ImageData(object):
         for mask, slices in self.masks.items():
             self.chanstats[mask] = ImageStatistics()
             self.chanstats[mask].attach_arr2d(self.statarr[slices])
-            self.chanstats[f'R{mask}'] = ImageStatistics()
+            self.chanstats[f'roi.{mask}'] = ImageStatistics()
         
     
     @property    
@@ -324,10 +324,10 @@ class ImageData(object):
     def update_roi_statistics(self):
         slices = self.selroi.getslices()
             
-        clr_slices = {'RK': slices,
-            'RR': (slices[0], slices[1], 0),
-            'RG': (slices[0], slices[1], 1),
-            'RB': (slices[0], slices[1], 2)}
+        clr_slices = {'roi.K': slices,
+            'roi.R': (slices[0], slices[1], 0),
+            'roi.G': (slices[0], slices[1], 1),
+            'roi.B': (slices[0], slices[1], 2)}
             
         for clr, chanstat in self.chanstats.items():  
             if not clr in clr_slices.keys(): continue
