@@ -181,10 +181,13 @@ class ImageData(object):
         
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
+        
+        self.masks = dict()
         self.chanstats = dict()
         
-        self.show_array(arr)
+        self.show_array(arr)        
         self.layers = collections.OrderedDict()
+        
     
     def load_by_qt(self, path):
         self.qimg = QImage(str(path))
@@ -211,21 +214,12 @@ class ImageData(object):
             self.chanstats.clear()
                 
             if len(self.shape) == 2:
-                self.chanstats['K'] = ImageStatistics()
-                self.chanstats['K'].attach_arr2d(self.statarr)
-                self.chanstats['RK'] = ImageStatistics()
+                self.init_channel_statistics('mono')
+                #self.init_channel_statistics('bg')
                 self.update_roi_statistics()
                 
             else:
-                self.chanstats['R'] = ImageStatistics()
-                self.chanstats['G'] = ImageStatistics()
-                self.chanstats['B'] = ImageStatistics()
-                self.chanstats['R'].attach_arr2d(self.statarr[:,:,0])
-                self.chanstats['G'].attach_arr2d(self.statarr[:,:,1])
-                self.chanstats['B'].attach_arr2d(self.statarr[:,:,2])                   
-                self.chanstats['RR'] = ImageStatistics()
-                self.chanstats['RG'] = ImageStatistics()
-                self.chanstats['RB'] = ImageStatistics()
+                self.init_channel_statistics('rgb')
                 self.update_roi_statistics()
             
         if self.selroi.isfullrange():
@@ -242,6 +236,46 @@ class ImageData(object):
         self.array8bit, self.qimg = imconvert.process_ndarray_to_qimage_8bit(
             self.statarr, black, gain, colormap, refer=True, shared=config["image"].get("qimg_shared_mem", False),
             gamma=gamma)
+            
+            
+    def init_channel_statistics(self, mode='mono'):                    
+        
+        self.masks.clear()
+        
+        if mode == 'mono':
+            self.masks = {
+                'K': (slice(None), slice(None))
+                }  
+        
+        elif mode == 'rgb':
+            self.masks = {
+                'R': (slice(None), slice(None), 0),
+                'G': (slice(None), slice(None), 1),
+                'B': (slice(None), slice(None), 2)
+                }                     
+        
+        elif mode == 'bg':
+            self.masks = {
+                'R': (slice(1, None, 2), slice(1, None, 2)),
+                'Gr': (slice(1, None, 2), slice(1, None, 2)),
+                'Gb': (slice(0, None, 2), slice(0, None, 2)),
+                'B': (slice(0, None, 2), slice(1, None, 2))
+                } 
+        
+        elif mode == 'gb':
+            pass
+        
+        elif mode == 'rg':
+            pass
+        
+        elif mode == 'gr':
+            pass
+            
+        for mask, slices in self.masks.items():
+            self.chanstats[mask] = ImageStatistics()
+            self.chanstats[mask].attach_arr2d(self.statarr[slices])
+            self.chanstats[f'R{mask}'] = ImageStatistics()
+        
     
     @property    
     def statarr(self):
