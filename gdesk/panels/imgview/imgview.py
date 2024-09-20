@@ -1778,18 +1778,12 @@ class ImageViewerBase(BasePanel):
         elif roi and not self.imviewer.roi.isVisible():
             roi = False
 
-        if roi:
-            clrs = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
-        else:
-            clrs = set(('K', 'R', 'G', 'B'))
-
-        clrs = clrs.intersection(set(chanstats.keys()))
-
         blacks = dict()
         whites = dict()
-        for clr in clrs:
-            stats = chanstats[clr]
-            if stats.arr2d is None: continue
+        
+        for clr, stats in  self.imviewer.imgdata.chanstats.items():            
+            if roi != clr.startswith('roi.'): continue
+            
             hist = stats.histogram(1)
             starts = stats.starts(1)
             blacks[clr], whites[clr] = get_sigma_range_for_hist(starts, hist, sigma)

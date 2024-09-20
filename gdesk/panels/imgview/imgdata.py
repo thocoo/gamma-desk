@@ -171,6 +171,35 @@ class ImageStatistics(object):
         result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1)) ** 0.5
         return result
         
+        
+def apply_roi_slice(large_slices, roi_slices):
+
+    merged_slices = []
+    
+    large_ndim = len(large_slices)
+    roi_ndim = len(roi_slices)
+    
+    if large_ndim > roi_ndim:
+        roi_slices = list(roi_slices) + [slice(0, None, 1)]
+        
+    elif large_ndim < roi_ndim:
+        large_slices = list(large_slices) + [slice(0, None, 1)]
+        
+
+    for large_slice, roi_slice in zip(large_slices, roi_slices):
+          
+        start = 1 if large_slice.start is None else large_slice.start
+        step = 1 if large_slice.step is None else large_slice.step
+        
+        start = (roi_slice.start // step) * step + start
+        stop = large_slice.stop if roi_slice.stop is None else roi_slice.stop
+        
+        sl = slice(start, stop, step)
+        
+        merged_slices.append(sl)            
+        
+    return tuple(merged_slices)
+        
 
 class ImageData(object):        
     def __init__(self):
@@ -214,8 +243,8 @@ class ImageData(object):
             self.chanstats.clear()
                 
             if len(self.shape) == 2:
-                self.init_channel_statistics('mono')
-                #self.init_channel_statistics('bg')
+                #self.init_channel_statistics('mono')
+                self.init_channel_statistics('bg')
                 self.update_roi_statistics()
                 
             else:
@@ -249,18 +278,18 @@ class ImageData(object):
         
         elif mode == 'rgb':
             self.masks = {
-                'R': (slice(None), slice(None), 0),
-                'G': (slice(None), slice(None), 1),
-                'B': (slice(None), slice(None), 2)
-                }                     
-        
+                'R': (slice(None), slice(None), slice(0, 1)),
+                'G': (slice(None), slice(None), slice(1, 2)),
+                'B': (slice(None), slice(None), slice(2, 3))
+                }
+                
         elif mode == 'bg':
             self.masks = {
                 'R': (slice(1, None, 2), slice(1, None, 2)),
                 'Gr': (slice(1, None, 2), slice(1, None, 2)),
                 'Gb': (slice(0, None, 2), slice(0, None, 2)),
                 'B': (slice(0, None, 2), slice(1, None, 2))
-                } 
+                }
         
         elif mode == 'gb':
             pass
@@ -300,8 +329,10 @@ class ImageData(object):
     def get_natural_range(self):
         return imconvert.natural_range(self.statarr.dtype)
         
+        
     def set_mask(self, array=None, composition='sourceover'):
-        self.set_layer('mask', array, composition)        
+        self.set_layer('mask', array, composition)
+        
         
     def set_layer(self, name, array=None, composition='sourceover'):
         if array is None:
@@ -322,16 +353,21 @@ class ImageData(object):
         
         
     def update_roi_statistics(self):
-        slices = self.selroi.getslices()
+        roi_slices = self.selroi.getslices()
+        
+        for mask_name, chanstat in list(self.chanstats.items()):  
+        
+            if mask_name.startswith('roi.'): 
+                mask_name = mask_name[4:]
+                
+            else:
+                continue
             
-        clr_slices = {'roi.K': slices,
-            'roi.R': (slices[0], slices[1], 0),
-            'roi.G': (slices[0], slices[1], 1),
-            'roi.B': (slices[0], slices[1], 2)}
+            large_slices = self.masks[mask_name]            
+            merged_slices = apply_roi_slice(large_slices, roi_slices)            
+            print(f'{mask_name}: {merged_slices=}')
+            chanstat.attach_arr2d(self.statarr[merged_slices])            
             
-        for clr, chanstat in self.chanstats.items():  
-            if not clr in clr_slices.keys(): continue
-            chanstat.attach_arr2d(self.statarr[clr_slices[clr]])
 
     def update_array8bit_by_slices(self, slices):
         def takemap(source_slice, target_slice):
@@ -345,13 +381,15 @@ class ImageData(object):
             thread.start()
             
         for thread in threads:
-            thread.join()               
+            thread.join()       
+            
         
     def get_number_of_bytes(self): 
         nbytes = 0
         nbytes += self.statarr.nbytes
         nbytes += self.array8bit.nbytes
         return nbytes
+        
         
 class ArrayHistory(object):
 

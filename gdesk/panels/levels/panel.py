@@ -20,15 +20,21 @@ colors = {
     'roi.K': QtGui.QColor(255, 0, 0),
     'R': QtGui.QColor(255, 0, 0),
     'G': QtGui.QColor(0, 255, 0),
+    'Gr': QtGui.QColor(0x80, 0x80, 0),
+    'Gb': QtGui.QColor(0, 0x80, 0x80),
     'B': QtGui.QColor(0, 0, 255),
     'roi.R': QtGui.QColor(192, 0, 0),
     'roi.G': QtGui.QColor(64, 127, 0),
+    'roi.Gr': QtGui.QColor(0x40, 0x80, 0),
+    'roi.Gb': QtGui.QColor(0, 0x80, 0x40),
     'roi.B': QtGui.QColor(64, 0, 127)}    
+    
     
 def semilog(vec):
     with np.errstate(divide='ignore'):
         result = np.nan_to_num(np.log10(vec), neginf=-1) + 1
     return result
+    
 
 class LevelPlot(QtWidgets.QWidget):
     
@@ -348,12 +354,17 @@ class Levels(QtWidgets.QWidget):
             bins = None
             step = self.panel.histSize
         
-        if self.panel.roi and image_panel.imviewer.roi.isVisible():
-            clr_filter = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
-        else:
-            clr_filter = set(('K', 'R', 'G', 'B'))
+        roi_visible = image_panel.imviewer.roi.isVisible()
         
-        clr_to_draw = clr_filter.intersection(set(chanstats.keys()))
+        # if self.panel.roi and image_panel.imviewer.roi.isVisible():
+            # clr_filter = set(('roi.K','roi.R', 'roi.G', 'roi.B'))
+        # else:
+            # clr_filter = set(('K', 'R', 'G', 'B'))
+        
+        # clr_to_draw = clr_filter.intersection(set(chanstats.keys()))
+        
+        clr_to_draw = [m for m in chanstats.keys() if m.startswith('roi.') == roi_visible]
+        
         self.levelplot.remove_all_but(clr_to_draw)
         
         for clr in clr_to_draw: 
@@ -411,29 +422,21 @@ class Levels(QtWidgets.QWidget):
         relative = config['levels']['relative']
         hist2d = fasthist.hist2d                
         
-        imagePanel = self.image_panel(panelId)                   
+        image_panel = self.image_panel(panelId)                   
             
-        do_roi = self.panel.roi and imagePanel.imviewer.roi.isVisible()            
+        do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()            
 
         if do_roi: 
-            slices = imagePanel.imviewer.imgdata.selroi.getslices()
-            arr = imagePanel.ndarray[slices]
+            slices = image_panel.imviewer.imgdata.selroi.getslices()
+            arr = image_panel.ndarray[slices]
         else:
-            arr = imagePanel.ndarray    
+            arr = image_panel.ndarray    
             
         if len(arr.shape) == 2:        
-            arr = arr[..., None] #create extra dimension
-            
-            if do_roi:            
-                channames = ['roi.K']
-            else:
-                channames = ['K']     
-            
-        elif len(arr.shape) == 3:
-            if do_roi:            
-                channames = ['roi.R', 'roi.G', 'roi.B']
-            else:
-                channames = ['R', 'G', 'B']
+            arr = arr[..., None] #create extra dimension            
+                
+        chanstats = image_panel.imviewer.imgdata.chanstats
+        channames = [m for m in chanstats.keys() if m.startswith('roi.') == do_roi]
                 
         self.levelplot.remove_all_but(channames)
         for clr_ch, clr_str in enumerate(channames):
@@ -493,8 +496,6 @@ class Levels(QtWidgets.QWidget):
     def zoomFitYRange(self):
         self.levelplot.zoomFitYRange(ymin=0)           
         
-    # def focusInEvent(self, event):
-        # self.parent().select()     
 
 class LevelsToolBar(QtWidgets.QToolBar):
     def __init__(self, *args, **kwargs):    
