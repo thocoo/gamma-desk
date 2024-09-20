@@ -368,7 +368,6 @@ class ImageData(object):
             
             large_slices = self.masks[mask_name]            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            print(f'{mask_name}: {merged_slices=}')
             chanstat.attach_arr2d(self.statarr[merged_slices])            
             
 
