@@ -2571,10 +2571,7 @@ class ImageProfileWidget(QWidget):
         
         
     def drawRoiProfile(self):       
-        arr = self.ndarray
-        
-        # if arr.ndim > 2:
-            # arr = arr.mean(2)
+        arr = self.ndarray        
         
         slices = self.roi_slices
 
@@ -2588,7 +2585,6 @@ class ImageProfileWidget(QWidget):
     def removeRoiProfile(self):
         self.rowPanel.removeRoiMasks()
         self.colPanel.removeRoiMasks()
-        self.refresh_profile_views()
         
 
     def set_profiles_visible(self, value):
@@ -2680,6 +2676,7 @@ class ImageProfilePanel(ImageViewerBase):
         
     def removeRoiProfile(self):
         self.imgprof.removeRoiProfile()                
+        self.imgprof.refresh_profile_views()
         
     
     def refresh_profiles(self):    

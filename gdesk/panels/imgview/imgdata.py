@@ -240,8 +240,7 @@ class ImageData(object):
             if log and not self.array is None:
                 self.imghist.push(self.array)
             
-            self.array = array                    
-            self.chanstats.clear()
+            self.array = array
                 
             if len(self.shape) == 2:
                 self.init_channel_statistics(self.cfa)
@@ -288,14 +287,14 @@ class ImageData(object):
         if mode == 'mono':
             self.cfa = mode
             self.masks = {
-                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255)}
+                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255), 'roi.color': QtGui.QColor(255, 0, 0, 255)}
                 }
         
         elif mode == 'rgb':
             self.masks = {
-                'R':  {'slices': (slice(None), slice(None), slice(0, 1)), 'color': QtGui.QColor(255, 0, 0, 255)},
-                'G':  {'slices': (slice(None), slice(None), slice(1, 2)), 'color': QtGui.QColor(0, 255, 0, 255)},
-                'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255)}
+                'R':  {'slices': (slice(None), slice(None), slice(0, 1)), 'color': QtGui.QColor(255, 0, 0, 255), 'roi.color': QtGui.QColor(192, 0, 0, 255)},
+                'G':  {'slices': (slice(None), slice(None), slice(1, 2)), 'color': QtGui.QColor(0, 255, 0, 255), 'roi.color': QtGui.QColor(64, 128, 0, 255)},
+                'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255), 'roi.color': QtGui.QColor(64, 0, 128, 255)}
                 }
                 
         elif mode in ['bg', 'gb', 'rg', 'gr']:
@@ -306,33 +305,44 @@ class ImageData(object):
             
             self.cfa = mode
             
+            red = QtGui.QColor(255, 0, 0, 255)
+            teal = QtGui.QColor(0, 0x80, 0x80, 255)
+            olive = QtGui.QColor(0x80, 0x80, 0, 255)
+            blue = QtGui.QColor(0, 0, 255, 255)
+            
+            hot_red = QtGui.QColor(192, 0, 0, 255)
+            hot_teal = QtGui.QColor(0, 0x80, 0x60, 255)
+            hot_olive = QtGui.QColor(0x60, 0x80, 0, 255)
+            hot_blue = QtGui.QColor(64, 0, 128, 255)            
+            
+            
             if mode == 'bg':                    
                 self.masks = {
-                    'B':  {'slices': c00, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'Gb': {'slices': c01, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'Gr': {'slices': c10, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'R':  {'slices': c11, 'color': QtGui.QColor(255, 0, 0, 255)}}
+                    'B':  {'slices': c00, 'color': blue, 'roi.color': hot_blue}, 
+                    'Gb': {'slices': c01, 'color': teal, 'roi.color': hot_teal}, 
+                    'Gr': {'slices': c10, 'color': olive, 'roi.color': hot_olive},
+                    'R':  {'slices': c11, 'color': red, 'roi.color': hot_red}}
         
             elif mode == 'gb':
                 self.masks = {
-                    'Gb': {'slices': c00, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'B':  {'slices': c01, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'R':  {'slices': c10, 'color': QtGui.QColor(255, 0, 0, 255)},
-                    'Gr': {'slices': c11, 'color': QtGui.QColor(0x80, 0x80, 0, 255)}}
+                    'Gb': {'slices': c00, 'color': teal, 'roi.color': hot_teal}, 
+                    'B':  {'slices': c01, 'color': blue, 'roi.color': hot_blue}, 
+                    'R':  {'slices': c10, 'color': red, 'roi.color': hot_red},
+                    'Gr': {'slices': c11, 'color': olive, 'roi.color': hot_olive}}
             
             elif mode == 'rg':
                 self.masks = {
-                    'R':  {'slices': c00, 'color': QtGui.QColor(255, 0, 0, 255)},
-                    'Gr': {'slices': c01, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'Gb': {'slices': c10, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'B':  {'slices': c11, 'color': QtGui.QColor(0, 0, 255, 255)}}
+                    'R':  {'slices': c00, 'color': red, 'roi.color': hot_red},
+                    'Gr': {'slices': c01, 'color': olive, 'roi.color': hot_olive},
+                    'Gb': {'slices': c10, 'color': teal, 'roi.color': hot_teal}, 
+                    'B':  {'slices': c11, 'color': blue, 'roi.color': hot_blue}}
             
             elif mode == 'gr':
                 self.masks = {
-                    'Gr': {'slices': c00, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'R':  {'slices': c01, 'color': QtGui.QColor(255, 0, 0, 255)},       
-                    'B':  {'slices': c10, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'Gb': {'slices': c11, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}}            
+                    'Gr': {'slices': c00, 'color': olive, 'roi.color': hot_olive},
+                    'R':  {'slices': c01, 'color': red, 'roi.color': hot_red},       
+                    'B':  {'slices': c10, 'color': blue, 'roi.color': hot_blue}, 
+                    'Gb': {'slices': c11, 'color': teal, 'roi.color': hot_teal}}            
         
     
     @property    

@@ -15,7 +15,7 @@ from ..imgview import fasthist
 
 respath = pathlib.Path(config['respath'])
 
-colors = {
+COLORS = {
     'K': QtGui.QColor(0, 0, 0),
     'roi.K': QtGui.QColor(255, 0, 0),
     'R': QtGui.QColor(255, 0, 0),
@@ -181,7 +181,7 @@ class LevelPlot(QtWidgets.QWidget):
         
         if color is None:
             if oldcolor is None:
-                color = colors[curveid]
+                color = COLORS[curveid]
             else:
                 color = oldcolor
             
@@ -344,7 +344,9 @@ class Levels(QtWidgets.QWidget):
 
     def updatedCachedHistogram(self, panid):      
         image_panel = self.image_panel(panid)
+        
         chanstats = image_panel.imviewer.imgdata.chanstats 
+        masks = image_panel.imviewer.imgdata.masks 
         
         if self.panel.histSizePolicy == 'bins':
             bins = int(self.panel.histSize)               
@@ -358,7 +360,10 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.remove_all_but(clr_to_draw)
         
         for clr in clr_to_draw: 
-            chanstat = chanstats[clr]                                            
+            chanstat = chanstats[clr]
+            
+            color = masks[clr[4:]]['roi.color'] if clr.startswith('roi.') else masks[clr]['color']
+            
             if chanstat.arr2d is None: continue
             
             if len(chanstat._cache.keys()) == 0:
@@ -378,7 +383,7 @@ class Levels(QtWidgets.QWidget):
             starts = chanstat.starts(stepmult)   
             stepsize = chanstat.stepsize(stepmult)
             barstarts, histbar = self.xy_as_steps(starts, hist, stepsize)
-            self.levelplot.plot_curve(clr, barstarts, histbar) 
+            self.levelplot.plot_curve(clr, barstarts, histbar, color) 
             
             if self.panel.gaussview:
                 import scipy.signal
@@ -397,7 +402,7 @@ class Levels(QtWidgets.QWidget):
                     
                 xvec, yvec = self.xy_as_steps(xvec, yvec, stepsize)
                 
-                self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, colors[clr], fill=0)
+                self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, color, fill=0)
                     
         self.levelplot.set_logscale(self.panel.log)
                 

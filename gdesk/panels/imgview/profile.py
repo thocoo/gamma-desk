@@ -16,11 +16,11 @@ class ProfileGraphicView(PlotView):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        self.roiActive = QtWidgets.QAction('Region of Interest', self)
-        self.roiActive.setCheckable(True)
-        self.roiActive.setChecked(False)
-        self.roiActive.triggered.connect(self.refresh_profiles)
-        self.menu.addAction(self.roiActive)
+        # self.roiActive = QtWidgets.QAction('Region of Interest', self)
+        # self.roiActive.setCheckable(True)
+        # self.roiActive.setChecked(False)
+        # self.roiActive.triggered.connect(self.refresh_profiles)
+        # self.menu.addAction(self.roiActive)
         
         for mode in ['mono', 'rgb', 'gb', 'gr', 'bg', 'rg']:
             maskMenuAction = QtWidgets.QAction(mode, self)
@@ -96,10 +96,8 @@ class ProfilerPanel(QtWidgets.QWidget):
         for mask_name in list(self.masks):    
             if mask_name.startswith('roi.'): continue
             
-            mask = self.masks[mask_name]
-            
-            roi_color = mask['color']
-            mask['color'] = QtGui.QColor(roi_color.red(), roi_color.green(), roi_color.blue(), 128)
+            mask = self.masks[mask_name]                        
+            roi_color = mask['roi.color']
             
             mask_slices = []
             
