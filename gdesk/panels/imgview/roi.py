@@ -282,10 +282,10 @@ class SelRoiWidget(QtWidgets.QWidget):
                 event.accept()                
                 return
 
-        elif event.button() == Qt.MidButton:
-            shiftX, shiftY = self.getMouseShifts(event)
-            if (shiftX == 0) and (shiftY == 0):
-                self.parent().zoomAuto()
+        # elif event.button() == Qt.MidButton:
+            # shiftX, shiftY = self.getMouseShifts(event)
+            # if (shiftX == 0) and (shiftY == 0):
+                # self.parent().zoomAuto()
         
         self.unsetCursor()
         self.repaint()
