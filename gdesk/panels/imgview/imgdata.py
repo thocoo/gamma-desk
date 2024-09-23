@@ -213,6 +213,7 @@ class ImageData(object):
         
         self.masks = dict()
         self.chanstats = dict()
+        self.cfa = 'mono'
         
         self.show_array(arr)        
         self.layers = collections.OrderedDict()
@@ -243,8 +244,7 @@ class ImageData(object):
             self.chanstats.clear()
                 
             if len(self.shape) == 2:
-                #self.init_channel_statistics('mono')
-                self.init_channel_statistics('bg')
+                self.init_channel_statistics(self.cfa)
                 self.update_roi_statistics()
                 
             else:
@@ -270,8 +270,10 @@ class ImageData(object):
     def init_channel_statistics(self, mode='mono'):                    
         
         self.masks.clear()
+        self.chanstats.clear()
         
         if mode == 'mono':
+            self.cfa = 'mono'
             self.masks = {
                 'K': (slice(None), slice(None))
                 }  
@@ -289,7 +291,9 @@ class ImageData(object):
             c10 = (slice(0, None, 2), slice(0, None, 2))        
             c11 = (slice(1, None, 2), slice(1, None, 2))
             
-            if mode == 'bg':                    
+            self.cfa = mode
+            
+            if mode == 'bg':                                    
                 self.masks = {'B': c00, 'Gb': c01, 'Gr': c10, 'R': c11}
         
             elif mode == 'gb':
