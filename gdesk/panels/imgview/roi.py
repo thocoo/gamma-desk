@@ -163,7 +163,8 @@ class SelRoiWidget(QtWidgets.QWidget):
             event.ignore()
         else:
             #propagated up the parent widget
-             event.ignore()
+             event.ignore()             
+        
 
     def checkNearEdge(self, event):
         x = event.pos().x()
@@ -262,7 +263,10 @@ class SelRoiWidget(QtWidgets.QWidget):
                 self.setStartEndPoints(self.dragSliceStartX, self.dragSliceStartY,\
                     self.dragSliceEndX + shiftX - 1, self.dragSliceEndY + shiftY - 1)
             self.repaint()
+            
         else:
+            self.edgePosition = self.checkNearEdge(event)
+            self.setCursorShape(self.edgePosition) 
             event.ignore()
 
     def mouseReleaseEvent(self, event):
