@@ -301,7 +301,7 @@ class ImageData(object):
         elif mode in ['bg', 'gb', 'rg', 'gr']:
             c00 = (slice(0, None, 2), slice(0, None, 2))            
             c01 = (slice(0, None, 2), slice(1, None, 2))
-            c10 = (slice(0, None, 2), slice(0, None, 2))        
+            c10 = (slice(1, None, 2), slice(0, None, 2))        
             c11 = (slice(1, None, 2), slice(1, None, 2))
             
             self.cfa = mode
