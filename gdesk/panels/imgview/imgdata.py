@@ -283,6 +283,7 @@ class ImageData(object):
     def defineModeMasks(self, mode='mono'):
     
         self.masks.clear()
+        mode = mode.lower()
            
         if mode == 'mono':
             self.cfa = mode

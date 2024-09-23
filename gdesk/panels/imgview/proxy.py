@@ -342,6 +342,13 @@ class ImageGuiProxy(GuiProxyBase):
         roi.setStartEndPoints(x0, y0, x0 + width - 1, y0 + height - 1)        
         roi.show()
         roi.roiChanged.emit()      
+        
+        
+    @StaticGuiCall
+    def set_cfa(cfa='mono'):
+        panel = gui.qapp.panels.selected('image')
+        panel.setStatMasks(cfa)
+    
 
     @StaticGuiCall
     def get_roi_slices():
