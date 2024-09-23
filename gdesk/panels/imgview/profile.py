@@ -14,30 +14,7 @@ from ...utils.ticks import tickValues
 class ProfileGraphicView(PlotView):
 
     def __init__(self, parent=None):
-        super().__init__(parent)
-        
-        # self.roiActive = QtWidgets.QAction('Region of Interest', self)
-        # self.roiActive.setCheckable(True)
-        # self.roiActive.setChecked(False)
-        # self.roiActive.triggered.connect(self.refresh_profiles)
-        # self.menu.addAction(self.roiActive)
-        
-        for mode in ['mono', 'rgb', 'gb', 'gr', 'bg', 'rg']:
-            maskMenuAction = QtWidgets.QAction(mode, self)
-            maskMenuAction.triggered.connect(self.selectMask)
-            self.menu.addAction(maskMenuAction)            
-        
-
-    def refresh_profiles(self):
-        self.parent().parent().parent().refresh_profiles()
-        
-        
-    def selectMask(self):
-       
-        for act in self.menu.actions():
-            mode = act.text()            
-            if mode in ['Auto Zoom', 'Full Image', 'Region of Interest']: continue
-            if act.isChecked(): self.parent().defineModeMasks(mode)          
+        super().__init__(parent)      
            
                    
 class ProfilerPanel(QtWidgets.QWidget):
