@@ -817,10 +817,13 @@ class ImageViewerWidget(QWidget):
         if (event.button() == Qt.RightButton):
             if self.roi.createState:
                 self.roi.release_creation()
-                self.setCursor(self.pickCursor)
+                #self.setCursor(self.pickCursor)
+                
             else:
                 menu = self.parent().parent().get_select_menu()
                 menu.exec_(QtGui.QCursor.pos())        
+                
+        self.setCursor(self.pickCursor)
 
     def refresh(self):
         self._scaledImage = None
