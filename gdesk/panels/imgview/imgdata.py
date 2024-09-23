@@ -269,20 +269,32 @@ class ImageData(object):
             
     def init_channel_statistics(self, mode='mono'):                    
         
-        self.masks.clear()
+        self.defineModeMasks(mode)                
         self.chanstats.clear()
-        
+            
+        for mask, mask_props in self.masks.items():
+            self.chanstats[mask] = ImageStatistics()
+            ndim = self.statarr.ndim
+            slices_ndim = mask_props['slices'][:ndim]
+            self.chanstats[mask].attach_arr2d(self.statarr[slices_ndim])
+            self.chanstats[f'roi.{mask}'] = ImageStatistics()
+            
+            
+    def defineModeMasks(self, mode='mono'):
+    
+        self.masks.clear()
+           
         if mode == 'mono':
-            self.cfa = 'mono'
+            self.cfa = mode
             self.masks = {
-                'K': (slice(None), slice(None))
-                }  
+                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255)}
+                }
         
         elif mode == 'rgb':
             self.masks = {
-                'R': (slice(None), slice(None), slice(0, 1)),
-                'G': (slice(None), slice(None), slice(1, 2)),
-                'B': (slice(None), slice(None), slice(2, 3))
+                'R':  {'slices': (slice(None), slice(None), slice(0, 1)), 'color': QtGui.QColor(255, 0, 0, 255)},
+                'G':  {'slices': (slice(None), slice(None), slice(1, 2)), 'color': QtGui.QColor(0, 255, 0, 255)},
+                'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255)}
                 }
                 
         elif mode in ['bg', 'gb', 'rg', 'gr']:
@@ -293,24 +305,33 @@ class ImageData(object):
             
             self.cfa = mode
             
-            if mode == 'bg':                                    
-                self.masks = {'B': c00, 'Gb': c01, 'Gr': c10, 'R': c11}
+            if mode == 'bg':                    
+                self.masks = {
+                    'B':  {'slices': c00, 'color': QtGui.QColor(0, 0, 255, 255)}, 
+                    'Gb': {'slices': c01, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
+                    'Gr': {'slices': c10, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
+                    'R':  {'slices': c11, 'color': QtGui.QColor(255, 0, 0, 255)}}
         
             elif mode == 'gb':
-                self.masks = {'Gb': c00, 'B': c01, 'R': c10, 'Gr': c11}
+                self.masks = {
+                    'Gb': {'slices': c00, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
+                    'B':  {'slices': c01, 'color': QtGui.QColor(0, 0, 255, 255)}, 
+                    'R':  {'slices': c10, 'color': QtGui.QColor(255, 0, 0, 255)},
+                    'Gr': {'slices': c11, 'color': QtGui.QColor(0x80, 0x80, 0, 255)}}
             
             elif mode == 'rg':
-                self.masks = {'R': c00, 'Gr': c01, 'Gb': c10, 'B': c11}
+                self.masks = {
+                    'R':  {'slices': c00, 'color': QtGui.QColor(255, 0, 0, 255)},
+                    'Gr': {'slices': c01, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
+                    'Gb': {'slices': c10, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
+                    'B':  {'slices': c11, 'color': QtGui.QColor(0, 0, 255, 255)}}
             
             elif mode == 'gr':
-                self.masks = {'Gr': c00, 'R': c01, 'B': c10, 'Gb': c11}
-            
-        for mask, slices in self.masks.items():
-            self.chanstats[mask] = ImageStatistics()
-            ndim = self.statarr.ndim
-            slices_ndim = slices[:ndim]
-            self.chanstats[mask].attach_arr2d(self.statarr[slices_ndim])
-            self.chanstats[f'roi.{mask}'] = ImageStatistics()
+                self.masks = {
+                    'Gr': {'slices': c00, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
+                    'R':  {'slices': c01, 'color': QtGui.QColor(255, 0, 0, 255)},       
+                    'B':  {'slices': c10, 'color': QtGui.QColor(0, 0, 255, 255)}, 
+                    'Gb': {'slices': c11, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}}            
         
     
     @property    
@@ -370,7 +391,7 @@ class ImageData(object):
             else:
                 continue
             
-            large_slices = self.masks[mask_name]            
+            large_slices = self.masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
             chanstat.attach_arr2d(self.statarr[merged_slices])            
             

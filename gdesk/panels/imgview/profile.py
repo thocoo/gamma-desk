@@ -24,8 +24,6 @@ class ProfileGraphicView(PlotView):
         
         for mode in ['mono', 'rgb', 'gb', 'gr', 'bg', 'rg']:
             maskMenuAction = QtWidgets.QAction(mode, self)
-            maskMenuAction.setCheckable(True)
-            maskMenuAction.setChecked(True if mode == 'mono' else False)
             maskMenuAction.triggered.connect(self.selectMask)
             self.menu.addAction(maskMenuAction)            
         
@@ -75,64 +73,23 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.view.matrixUpdated.connect(self.repositionYAxis)
         self.view.doubleClicked.connect(self.zoomFit)           
         
-        self.masks = dict()
+        #self.masks = dict()
         self.profiles = dict()        
         
-        self.defineModeMasks('mono')
+        #self.defineModeMasks('mono')
         
         self.grid = []
         self.ruler = None
-        self.yAxis = None                
+        self.yAxis = None  
+
+    @property
+    def masks(self):
+        return self.imagePanel.imgdata.masks
             
 
-    def defineModeMasks(self, mode='mono'):
-           
-        if mode == 'mono':
-            self.masks = {
-                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255)}
-                }
-        
-        elif mode == 'rgb':
-            self.masks = {
-                'R':  {'slices': (slice(None), slice(None), slice(0, 1)), 'color': QtGui.QColor(255, 0, 0, 255)},
-                'G':  {'slices': (slice(None), slice(None), slice(1, 2)), 'color': QtGui.QColor(0, 255, 0, 255)},
-                'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255)}
-                }
-                
-        elif mode in ['bg', 'gb', 'rg', 'gr']:
-            c00 = (slice(0, None, 2), slice(0, None, 2))            
-            c01 = (slice(0, None, 2), slice(1, None, 2))
-            c10 = (slice(0, None, 2), slice(0, None, 2))        
-            c11 = (slice(1, None, 2), slice(1, None, 2))
-            
-            if mode == 'bg':                    
-                self.masks = {
-                    'B':  {'slices': c00, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'Gb': {'slices': c01, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'Gr': {'slices': c10, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'R':  {'slices': c11, 'color': QtGui.QColor(255, 0, 0, 255)}}
-        
-            elif mode == 'gb':
-                self.masks = {
-                    'Gb': {'slices': c00, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'B':  {'slices': c01, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'R':  {'slices': c10, 'color': QtGui.QColor(255, 0, 0, 255)},
-                    'Gr': {'slices': c11, 'color': QtGui.QColor(0x80, 0x80, 0, 255)}}
-            
-            elif mode == 'rg':
-                self.masks = {
-                    'R':  {'slices': c00, 'color': QtGui.QColor(255, 0, 0, 255)},
-                    'Gr': {'slices': c01, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'Gb': {'slices': c10, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}, 
-                    'B':  {'slices': c11, 'color': QtGui.QColor(0, 0, 255, 255)}}
-            
-            elif mode == 'gr':
-                self.masks = {
-                    'Gr': {'slices': c00, 'color': QtGui.QColor(0x80, 0x80, 0, 255)},
-                    'R':  {'slices': c01, 'color': QtGui.QColor(255, 0, 0, 255)},       
-                    'B':  {'slices': c10, 'color': QtGui.QColor(0, 0, 255, 255)}, 
-                    'Gb': {'slices': c11, 'color': QtGui.QColor(0, 0x80, 0x80, 255)}}
-            
+    def defineModeMasks(self, mode='mono'):    
+        self.imagePanel.imgdata.defineModeMasks(mode)
+
             
     def defineRoiMasks(self, slices):      
     

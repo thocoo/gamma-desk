@@ -1139,8 +1139,8 @@ class ImageViewerBase(BasePanel):
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
             
-        dataSplitMenu = QMenu('Data Split')
-        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')))
+        dataSplitMenu = QMenu('Histogram & Profiles')
+        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')))
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
         self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'))
@@ -1595,7 +1595,6 @@ class ImageViewerBase(BasePanel):
     # View Menu Connections
 
     def refresh(self):
-        #with gui.qapp.waitCursor(f'Refreshing {self.short_title}'):
         self.show_array(None)
         
     def get_gain(self):
@@ -2052,6 +2051,7 @@ class ImageViewerBase(BasePanel):
         
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
+        self.refresh()
         
 
     ############################
