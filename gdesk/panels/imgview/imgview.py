@@ -1138,9 +1138,20 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, 'Jump to Coordinates'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
+            
+        dataSplitMenu = QMenu('Data Split')
+        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')))
+        self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
+        self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
+        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'))
+        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'))
+        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'))
+        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))                   
+        self.selectMenu.addMenu(dataSplitMenu)            
+            
         self.addMenuItem(self.selectMenu, 'Mask Value...'   , self.maskValue,
             statusTip="Mask pixels based on value",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))                                              
 
         ### Canvas
         self.addMenuItem(self.canvasMenu, 'Flip Horizontal', self.flipHorizontal,
@@ -2037,6 +2048,11 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.imgdata.set_mask(mask)
         self.imviewer.refresh()
+        
+        
+    def setStatMasks(self, mode):
+        self.imviewer.imgdata.init_channel_statistics(mode)
+        
 
     ############################
     # Canvas Menu Connections
