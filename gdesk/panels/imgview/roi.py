@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 
 from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtCore import Qt, Signal
 
 from ... import config
 
@@ -20,15 +21,15 @@ class SelRoiWidget(QtWidgets.QWidget):
     Selection widget of a region of interest.
     """
     
-    roiChanged = QtCore.Signal()
-    roiRemoved = QtCore.Signal()
+    roiChanged = Signal()
+    roiRemoved = Signal()
     
     def __init__(self, parent=None):
         #width and height are the dimensions of the image (not the roi)
         super().__init__(parent=parent)
 
         self.phase = 0
-        self.solidColor = QtCore.Qt.white        
+        self.solidColor = Qt.white        
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.newPhase)
@@ -43,7 +44,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.get_context_menu = lambda: None  
 
     def initUI(self):
-        self.scaleCursor = QtGui.QCursor(QtCore.Qt.SizeAllCursor)
+        self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
         self.fillColor = QtGui.QColor(*config['roi color'])
         self.dashColor = QtGui.QColor(*config['roi color'])
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, False)
@@ -61,8 +62,6 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.dragSliceStartY = self.selroi.yr.start
         self.dragStartX = 0
         self.dragStartY = 0
-        self.mouseRightWasDown = False
-        self.mouseMidWasDown = False
         self.mouseDoubleClicked = False
 
         self.overscan = 5
@@ -153,13 +152,10 @@ class SelRoiWidget(QtWidgets.QWidget):
                 self.dragSliceEndX = self.selroi.xr.stop
                 self.dragSliceEndY = self.selroi.yr.stop
 
-                self.mouseRightWasDown = True
                 self.repaint()
         elif (event.buttons() == QtCore.Qt.MidButton):
             self.dragStartX  = event.globalX()
             self.dragStartY  = event.globalY()
-            self.mouseMidWasDown = True
-            #propagated up the parent widget
             event.ignore()
         else:
             #propagated up the parent widget
@@ -193,15 +189,15 @@ class SelRoiWidget(QtWidgets.QWidget):
 
     def setCursorShape(self, edgePosition):
         if edgePosition in (0, 8):
-            self.setCursor(QtCore.Qt.SizeFDiagCursor)
+            self.setCursor(Qt.SizeFDiagCursor)
         elif edgePosition in (1, 7):
-            self.setCursor(QtCore.Qt.SizeVerCursor)
+            self.setCursor(Qt.SizeVerCursor)
         elif edgePosition in (2, 6):
-            self.setCursor(QtCore.Qt.SizeBDiagCursor)
+            self.setCursor(Qt.SizeBDiagCursor)
         elif edgePosition in (3, 5):
-            self.setCursor(QtCore.Qt.SizeHorCursor)
+            self.setCursor(Qt.SizeHorCursor)
         elif edgePosition == 4:
-            self.setCursor(QtCore.Qt.SizeAllCursor)
+            self.setCursor(Qt.SizeAllCursor)
 
     def getMouseShifts(self, event, manhattan=False):
         if manhattan:
@@ -274,25 +270,19 @@ class SelRoiWidget(QtWidgets.QWidget):
         
         contextMenu = self.get_context_menu()
 
-        if self.mouseRightWasDown:
-            self.mouseRightWasDown = False
+        if event.button() == Qt.RightButton:
             shiftX, shiftY = self.getMouseShifts(event)
-            if (shiftX == 0) and (shiftY == 0):   
-                pos = QtGui.QCursor.pos()
-                pos.setX(pos.x() - 10)
-                pos.setY(pos.y() - 10)
-                
-                if not contextMenu is None:
-                    contextMenu.exec_(pos)              
-                    
-                #return None
-                #self.parent().myContextMenuEvent(event)
-            else:
+            
+            if not ((shiftX == 0) and (shiftY == 0)):   
+            
                 self.clip()
                 self.roiChanged.emit()
+                self.unsetCursor()
+                self.repaint()
+                event.accept()                
+                return
 
-        if self.mouseMidWasDown:
-            self.mouseMidWasDown = False
+        elif event.button() == Qt.MidButton:
             shiftX, shiftY = self.getMouseShifts(event)
             if (shiftX == 0) and (shiftY == 0):
                 self.parent().zoomAuto()

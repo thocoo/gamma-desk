@@ -462,7 +462,7 @@ class ImageViewerWidget(QWidget):
         
         self.set_val_item_format('dec')
 
-        self.roi = SelRoiWidget(self)        
+        self.roi = SelRoiWidget(self)                
 
         self.pickCursor = QCursor(QPixmap(str(respath / "icons" / "pixPick256.png")), 15, 15)
         self.dragCursor = QCursor(Qt.OpenHandCursor)
@@ -783,7 +783,8 @@ class ImageViewerWidget(QWidget):
             self.dispRoiStartX = self.dispOffsetX
             self.dispRoiStartY = self.dispOffsetY
 
-        elif event.buttons() == Qt.RightButton:
+        elif event.buttons() == Qt.RightButton:        
+            #menu = self.parent().parent().get_select_menu()
             self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -811,20 +812,15 @@ class ImageViewerWidget(QWidget):
         pos = event.pos()
         return ((pos.x() - self.dragStartX)**2 + (pos.y() - self.dragStartY)**2) ** 0.5
 
-    def mouseReleaseEvent(self, event):
-        drag_distance = self.dragDistance(event)
-        if not drag_distance is None and drag_distance <= 2:
-            pixel_position = self.getImageCoordOfMouseEvent(event)
-            if self.push_selected_pixel:
-                panel = gui.qapp.panels.selected('console')
-                panel.task.send_input(str(pixel_position))
-                self.push_selected_pixel = False
-            self.pixelSelected.emit(*pixel_position)
-
-        self.setCursor(self.pickCursor)
-
-        if self.roi.createState:
-            self.roi.release_creation()
+    def mouseReleaseEvent(self, event):        
+            
+        if (event.button() == Qt.RightButton):
+            if self.roi.createState:
+                self.roi.release_creation()
+                self.setCursor(self.pickCursor)
+            else:
+                menu = self.parent().parent().get_select_menu()
+                menu.exec_(QtGui.QCursor.pos())        
 
     def refresh(self):
         self._scaledImage = None
