@@ -443,7 +443,13 @@ class ImageData(object):
             
             large_slices = self.masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_arr2d(self.statarr, merged_slices)            
+            chanstat.attach_arr2d(self.statarr, merged_slices)      
+
+    def disable_roi_statistics(self):
+    
+        for mask_name, chanstat in list(self.chanstats.items()):          
+            if not mask_name.startswith('roi.'): continue
+            chanstat.attach_arr2d(None, None)
             
 
     def update_array8bit_by_slices(self, slices):

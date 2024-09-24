@@ -2560,30 +2560,16 @@ class ImageProfileWidget(QWidget):
         
         
     def drawMaskProfiles(self):
-        arr = self.ndarray
-
-        # if arr.ndim > 2:
-            # arr = arr.mean(2)
-            
+        arr = self.ndarray            
         self.rowPanel.drawMaskProfiles(arr)
         self.colPanel.drawMaskProfiles(arr)                           
         
         
     def drawRoiProfile(self):       
-        arr = self.ndarray        
-        
-        slices = self.roi_slices
-
-        self.rowPanel.defineRoiMasks(slices)
-        self.colPanel.defineRoiMasks(slices)
-        
+        arr = self.ndarray                
+        slices = self.roi_slices        
         self.rowPanel.drawMaskProfiles(arr, roi_only=True)
-        self.colPanel.drawMaskProfiles(arr, roi_only=True)         
-
-    
-    def removeRoiProfile(self):
-        self.rowPanel.removeRoiMasks()
-        self.colPanel.removeRoiMasks()
+        self.colPanel.drawMaskProfiles(arr, roi_only=True)            
         
 
     def set_profiles_visible(self, value):
@@ -2674,7 +2660,7 @@ class ImageProfilePanel(ImageViewerBase):
         
         
     def removeRoiProfile(self):
-        self.imgprof.removeRoiProfile()                
+        self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.refresh_profile_views()
         
     

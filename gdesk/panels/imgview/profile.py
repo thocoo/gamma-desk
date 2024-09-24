@@ -71,44 +71,7 @@ class ProfilerPanel(QtWidgets.QWidget):
 
     def defineModeMasks(self, mode='mono'):    
         self.imagePanel.imgdata.defineModeMasks(mode)
-
             
-    def defineRoiMasks(self, slices):      
-    
-        for mask_name in list(self.masks):    
-            if mask_name.startswith('roi.'): continue
-            
-            mask = self.masks[mask_name]                        
-            roi_color = mask['roi.color']
-            
-            mask_slices = []
-            
-            for mask_slc, roi_slice in zip(mask['slices'], slices):           
-                    
-                stop = roi_slice.stop
-                
-                if not mask_slc.step is None:
-                    step = mask_slc.step * roi_slice.step
-                else:
-                    step = roi_slice.step
-                    
-                if mask_slc.start is None:
-                    start = roi_slice.start // step * step
-                else:
-                    start = mask_slc.start + roi_slice.start // step * step
-                    
-                mask_slices.append(slice(start, stop, step))
-                
-            if len(mask['slices']) == 3:
-                mask_slices.append(mask['slices'][-1])
-
-            self.masks[f'roi.{mask_name}'] = {'slices': tuple(mask_slices), 'color': roi_color}
-            
-            
-    def removeRoiMasks(self):        
-        for mask in list(self.masks):
-            if mask.startswith('roi.'): self.masks.pop(mask)             
-        
         
     def zoomFull(self):
             
