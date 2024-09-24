@@ -62,6 +62,11 @@ class ProfilerPanel(QtWidgets.QWidget):
     @property
     def masks(self):
         return self.imagePanel.imgdata.masks
+        
+    
+    @property
+    def chanstats(self):        
+        return self.imagePanel.imgdata.chanstats
             
 
     def defineModeMasks(self, mode='mono'):    
@@ -261,19 +266,12 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         ndim = array.ndim
         
-        for mask_name, mask in self.masks.items():
-            if roi_only and not mask_name.startswith('roi.'): continue
+        for mask_name, chanstat in self.chanstats.items():
+            if roi_only and not mask_name.startswith('roi.'): continue            
+            if not chanstat.is_valid(): continue
             
-            slices = mask['slices']
-            color = mask['color']
-            roi = array[slices[:ndim]]            
-            y = roi.mean(axis)
-
-            if y.ndim > 1:
-                #Probably, still RGB split up
-                y = y.mean(-1)
-            
-            x = np.arange(array.shape[1-axis])[slices[1-axis]]
+            x, y = chanstat.profile(axis)
+            color = chanstat.plot_color
             
             profile = self.createCurve(x, y, color=color, z=0.5)
             self.scene.addItem(profile)

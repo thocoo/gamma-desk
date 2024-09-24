@@ -362,7 +362,8 @@ class Levels(QtWidgets.QWidget):
         for clr in clr_to_draw: 
             chanstat = chanstats[clr]
             
-            color = masks[clr[4:]]['roi.color'] if clr.startswith('roi.') else masks[clr]['color']
+            #color = masks[clr[4:]]['roi.color'] if clr.startswith('roi.') else masks[clr]['color']
+            color = chanstat.plot_color
             
             if chanstat.arr2d is None: continue
             

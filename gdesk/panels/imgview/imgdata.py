@@ -45,45 +45,67 @@ class SelectRoi(DimRanges):
     def __init__(self, height, width, update_statistics_func=None):
         DimRanges.__init__(self, (height, width))
         self.update_statistics_func = update_statistics_func
+
         
     @property
     def yr(self):
         return self.rngs[0]
+
     
     @property    
     def xr(self):
         return self.rngs[1]
+
 
     def ensure_rising(self):
         for rng in self.rngs:
             if rng.start > rng.stop:
                 rng.start, rng.stop = rng.stop, rng.start
 
+
     def copy(self):
         s = SelectRoi(self.rngs[0].maxstop, self.rngs[1].maxstop)
         s.inherite(self)
         return s
+
         
     def update_statistics(self):
         if not self.update_statistics_func is None:
             self.update_statistics_func()
+            
         
 class ImageStatistics(object):
 
-    def __init__(self):
+    def __init__(self, plot_color):
         self._cache = dict()
-        self.arr2d = None        
+        self.full_array = None   
+        self.slices = None
+        self.plot_color = plot_color
+
         
-    def attach_arr2d(self, arr2d):
-        self.arr2d = arr2d
+    def attach_arr2d(self, full_array, slices):
+        self.full_array = full_array
+        self.slices = slices
         self.clear()
+        
+        
+    @property
+    def arr2d(self):
+        return self.full_array[self.slices]
+        
         
     @property
     def dtype(self):
-        return self.arr2d.dtype        
+        return self.arr2d.dtype
+        
+                
+    def is_valid(self):
+        return not ((self.full_array is None) or (self.slices is None))
+        
         
     def clear(self):
         self._cache.clear()
+        
         
     def step_for_bins(self, bins):
         if self.dtype in ['float16', 'float32', 'float64']:
@@ -170,6 +192,23 @@ class ImageStatistics(object):
         n = self.n()
         result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1)) ** 0.5
         return result
+        
+        
+    def profile(self, axis=0):        
+        roi = self.arr2d  
+        array = self.full_array
+        
+        y = roi.mean(axis)
+        
+        slices = self.slices
+
+        if y.ndim > 1:
+            #Probably, still RGB split up
+            y = y.mean(-1)
+            
+        x = np.arange(array.shape[1-axis])[slices[1-axis]]
+        
+        return x, y
         
         
 def apply_roi_slice(large_slices, roi_slices):
@@ -272,11 +311,11 @@ class ImageData(object):
         self.chanstats.clear()
             
         for mask, mask_props in self.masks.items():
-            self.chanstats[mask] = ImageStatistics()
+            self.chanstats[mask] = ImageStatistics(mask_props['color'])
             ndim = self.statarr.ndim
             slices_ndim = mask_props['slices'][:ndim]
-            self.chanstats[mask].attach_arr2d(self.statarr[slices_ndim])
-            self.chanstats[f'roi.{mask}'] = ImageStatistics()
+            self.chanstats[mask].attach_arr2d(self.statarr, slices_ndim)
+            self.chanstats[f'roi.{mask}'] = ImageStatistics(mask_props['roi.color'])
             
             
     def defineModeMasks(self, mode='mono'):
@@ -404,7 +443,7 @@ class ImageData(object):
             
             large_slices = self.masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_arr2d(self.statarr[merged_slices])            
+            chanstat.attach_arr2d(self.statarr, merged_slices)            
             
 
     def update_array8bit_by_slices(self, slices):
