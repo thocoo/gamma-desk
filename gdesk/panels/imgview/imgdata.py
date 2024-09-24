@@ -198,9 +198,8 @@ class ImageStatistics(object):
         roi = self.arr2d  
         array = self.full_array
         
-        y = roi.mean(axis)
-        
         slices = self.slices
+        y = roi.mean(axis)
 
         if y.ndim > 1:
             #Probably, still RGB split up
@@ -227,7 +226,7 @@ def apply_roi_slice(large_slices, roi_slices):
 
     for large_slice, roi_slice in zip(large_slices, roi_slices):
           
-        start = 1 if large_slice.start is None else large_slice.start
+        start = 0 if large_slice.start is None else large_slice.start
         step = 1 if large_slice.step is None else large_slice.step
         
         start = (roi_slice.start // step) * step + start
