@@ -248,11 +248,6 @@ class ProfilerPanel(QtWidgets.QWidget):
             y = self.imagePanel.dispOffsetY       
             self.view.setYPosScale(y, scale)
 
-        
-    def addPlot(self, x, y, color=None, z=0):
-        curve = self.createCurve(x, y, color, z)
-        self.curves.append(curve)                                 
-
     
     def drawMaskProfiles(self, array, roi_only=False):
     
@@ -279,6 +274,7 @@ class ProfilerPanel(QtWidgets.QWidget):
                 y = y.mean(-1)
             
             x = np.arange(array.shape[1-axis])[slices[1-axis]]
+            
             profile = self.createCurve(x, y, color=color, z=0.5)
             self.scene.addItem(profile)
             self.profiles[mask_name] = profile                    
