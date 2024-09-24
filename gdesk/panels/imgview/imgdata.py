@@ -59,8 +59,13 @@ class SelectRoi(DimRanges):
 
     def ensure_rising(self):
         for rng in self.rngs:
-            if rng.start > rng.stop:
+            if rng.start == rng.stop:
+                rng.stop = rng.stop + 1
+                
+            elif rng.start > rng.stop:
                 rng.start, rng.stop = rng.stop, rng.start
+                
+            
 
 
     def copy(self):
