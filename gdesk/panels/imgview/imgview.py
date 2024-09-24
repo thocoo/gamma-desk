@@ -1138,7 +1138,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
             
-        dataSplitMenu = QMenu('Histogram & Profiles')
+        dataSplitMenu = QMenu('Histogram && Profiles')
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')))
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
@@ -2663,6 +2663,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()
+        self.roiChanged.emit(self.panid)
         
     
     def refresh_profiles(self):    
