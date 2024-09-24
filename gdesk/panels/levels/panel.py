@@ -613,6 +613,8 @@ class StatisticsPanel(QtWidgets.QWidget):
         t = []
         
         for k, stats in self.imagePanel().imviewer.imgdata.chanstats.items():
+            if not stats.is_valid(): continue
+            
             m = stats.mean()
             s = stats.std()
             t.append(f'{k}:{m:.5g}±{s:.5g}')

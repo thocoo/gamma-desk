@@ -64,9 +64,6 @@ class SelectRoi(DimRanges):
                 
             elif rng.start > rng.stop:
                 rng.start, rng.stop = rng.stop, rng.start
-                
-            
-
 
     def copy(self):
         s = SelectRoi(self.rngs[0].maxstop, self.rngs[1].maxstop)
@@ -285,13 +282,8 @@ class ImageData(object):
             
             self.array = array
                 
-            if len(self.shape) == 2:
-                self.init_channel_statistics(self.cfa)
-                self.update_roi_statistics()
-                
-            else:
-                self.init_channel_statistics('rgb')
-                self.update_roi_statistics()
+            self.init_channel_statistics()
+            
             
         if self.selroi.isfullrange():
             self.selroi.xr.maxstop = self.width
@@ -309,7 +301,13 @@ class ImageData(object):
             gamma=gamma)
             
             
-    def init_channel_statistics(self, mode='mono'):                    
+    def init_channel_statistics(self, mode=None):
+    
+        if mode is None:
+            if len(self.shape) == 2:
+                mode = self.cfa
+            else:
+                mode = 'rgb'
         
         self.defineModeMasks(mode)                
         self.chanstats.clear()

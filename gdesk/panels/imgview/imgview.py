@@ -828,6 +828,9 @@ class ImageViewerWidget(QWidget):
     def refresh(self):
         self._scaledImage = None
         self.repaint()
+        
+        if self.roi.isVisible():
+            self.imgdata.update_roi_statistics()        
 
     def paintEvent(self, event):
         try:
@@ -2433,7 +2436,7 @@ class ImageViewerBase(BasePanel):
     #############################
 
     def show_array(self, array, zoomFitHist=False, log=True):
-        self.refresh_offset_gain(array, log=log)
+        self.refresh_offset_gain(array, log=log)                   
         self.contentChanged.emit(self.panid, zoomFitHist)
 
     def select(self):
@@ -2448,6 +2451,7 @@ class ImageViewerBase(BasePanel):
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
         self.gainChanged.emit(self.panid, zoomFitHist)
         self.imviewer.refresh()
+        
 
     @property
     def ndarray(self):
