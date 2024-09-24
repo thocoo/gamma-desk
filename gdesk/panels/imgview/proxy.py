@@ -155,8 +155,8 @@ class ImageGuiProxy(GuiProxyBase):
             q = gui._qapp.handover.signal_call_queue
             
         while not q.empty():
-            time.sleep(0.01)   
-            retries += 1            
+            time.sleep(0.01)
+            retries += 1
         
         def _gui_show(array, cmap):
             panel = gui.qapp.panels.selected('image')
@@ -166,8 +166,8 @@ class ImageGuiProxy(GuiProxyBase):
 
             panel.show_array(array)
         
-        gui._call_no_wait(_gui_show, array, cmap)
-        return retries
+        lock = gui._call_no_wait(_gui_show, array, cmap)
+        return retries, lock
         
     
     @StaticGuiCall    
