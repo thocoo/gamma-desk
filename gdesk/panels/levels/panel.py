@@ -639,7 +639,6 @@ class LevelsPanel(BasePanel):
         step = config['levels'].get('step', 4)
         self.histSizes = {'bins': bins, 'step': step}
         
-        #self.cached = True
         self.fitheight = True
         self.gaussview = False
         self.log = False
@@ -667,7 +666,6 @@ class LevelsPanel(BasePanel):
             statusTip="Close this levels panel",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cross.png')))
         
-        #self.addMenuItem(self.modeMenu, 'Cached', self.toggle_cached, checkcall=lambda: self.cached)
         self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
@@ -701,11 +699,6 @@ class LevelsPanel(BasePanel):
         self.offsetGainChanged.disconnect(targetPanel.changeOffsetGain)        
         self.blackWhiteChanged.disconnect(targetPanel.changeBlackWhite)        
         return targetPanel         
-        
-    # def toggle_cached(self):
-        # self.cached = not self.cached
-        # self.toolbar.updateButtonStates()
-        # self.levels.updateActiveHist()
         
     def toggle_fitheight(self):
         self.fitheight= not self.fitheight
