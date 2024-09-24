@@ -334,10 +334,7 @@ class Levels(QtWidgets.QWidget):
         self.updateHistOfPanel(None)
             
     def updateHistOfPanel(self, panelId=None):
-        if self.panel.cached:
-            self.updatedCachedHistogram(panelId)            
-        else:
-            self.updateHist(panelId)        
+        self.updatedCachedHistogram(panelId)                
             
         if self.panel.fitheight:
             self.levelplot.zoomFitYRange(ymin=0)
@@ -362,10 +359,9 @@ class Levels(QtWidgets.QWidget):
         for clr in clr_to_draw: 
             chanstat = chanstats[clr]
             
-            #color = masks[clr[4:]]['roi.color'] if clr.startswith('roi.') else masks[clr]['color']
-            color = chanstat.plot_color
+            if not chanstat.is_valid(): continue
             
-            if chanstat.arr2d is None: continue
+            color = chanstat.plot_color
             
             if len(chanstat._cache.keys()) == 0:
                 chanstat.calc_histogram()            
@@ -406,55 +402,6 @@ class Levels(QtWidgets.QWidget):
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, color, fill=0)
                     
         self.levelplot.set_logscale(self.panel.log)
-                
-        
-    def updateHist(self, panelId=None):       
-        qapp = gui.qapp        
-        use_numba = config['levels']['numba']
-        relative = config['levels']['relative']
-        hist2d = fasthist.hist2d                
-        
-        image_panel = self.image_panel(panelId)                   
-            
-        do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()            
-
-        if do_roi: 
-            slices = image_panel.imviewer.imgdata.selroi.getslices()
-            arr = image_panel.ndarray[slices]
-        else:
-            arr = image_panel.ndarray    
-            
-        if len(arr.shape) == 2:        
-            arr = arr[..., None] #create extra dimension            
-                
-        chanstats = image_panel.imviewer.imgdata.chanstats
-        channames = [m for m in chanstats.keys() if m.startswith('roi.') == do_roi]
-                
-        self.levelplot.remove_all_but(channames)
-        for clr_ch, clr_str in enumerate(channames):
-            if self.panel.histSizePolicy == 'bins':
-                bins = self.panel.histSizes['bins']
-                hist, starts, stepsize = hist2d(arr[:, :, clr_ch], bins=bins-1, plot=False, use_numba=use_numba)     
-                if self.panel.log:
-                    hist = semilog(hist)
-                
-            elif self.panel.histSizePolicy == 'step':
-                step = self.panel.histSizes['step']
-                hist, starts, stepsize = hist2d(arr[:, :, clr_ch], step=step, pow2snap=True, plot=False, use_numba=use_numba)            
-                if self.panel.log:
-                    hist = semilog(hist)
-                
-            if relative:
-                hist = hist / (arr.shape[0] * arr.shape[1] * stepsize)
-                
-            starts, histbar = self.xy_as_steps(starts, hist, stepsize)                 
-            self.levelplot.plot_curve(clr_str, starts, histbar) 
-        
-        self.levelplot.set_logscale(self.panel.log)
-                
-        self.panel.histSizes['step'] = stepsize
-        self.panel.histSizes['bins'] = len(hist)
-        self.panel.toolbar.updateStepCount()
         
 
     def updateIndicators(self, image_panel_id):
@@ -692,7 +639,7 @@ class LevelsPanel(BasePanel):
         step = config['levels'].get('step', 4)
         self.histSizes = {'bins': bins, 'step': step}
         
-        self.cached = True
+        #self.cached = True
         self.fitheight = True
         self.gaussview = False
         self.log = False
@@ -720,7 +667,7 @@ class LevelsPanel(BasePanel):
             statusTip="Close this levels panel",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cross.png')))
         
-        self.addMenuItem(self.modeMenu, 'Cached', self.toggle_cached, checkcall=lambda: self.cached)
+        #self.addMenuItem(self.modeMenu, 'Cached', self.toggle_cached, checkcall=lambda: self.cached)
         self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
@@ -755,10 +702,10 @@ class LevelsPanel(BasePanel):
         self.blackWhiteChanged.disconnect(targetPanel.changeBlackWhite)        
         return targetPanel         
         
-    def toggle_cached(self):
-        self.cached = not self.cached
-        self.toolbar.updateButtonStates()
-        self.levels.updateActiveHist()
+    # def toggle_cached(self):
+        # self.cached = not self.cached
+        # self.toolbar.updateButtonStates()
+        # self.levels.updateActiveHist()
         
     def toggle_fitheight(self):
         self.fitheight= not self.fitheight
