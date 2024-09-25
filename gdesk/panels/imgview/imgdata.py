@@ -93,7 +93,8 @@ class ImageStatistics(object):
         
     @property
     def arr2d(self):
-        return self.full_array[self.slices]
+        min_ndim = min(len(self.slices), self.full_array.ndim)
+        return self.full_array[self.slices[:min_ndim]]
         
         
     @property
