@@ -85,21 +85,21 @@ class ImageStatistics(object):
         self.plot_color = plot_color
 
         
-    def attach_arr2d(self, full_array, slices):
+    def attach_full_array(self, full_array, slices):
         self.full_array = full_array
         self.slices = slices
         self.clear()
         
         
     @property
-    def arr2d(self):
+    def roi(self):
         min_ndim = min(len(self.slices), self.full_array.ndim)
         return self.full_array[self.slices[:min_ndim]]
         
         
     @property
     def dtype(self):
-        return self.arr2d.dtype
+        return self.roi.dtype
         
                 
     def is_valid(self):
@@ -152,10 +152,10 @@ class ImageStatistics(object):
     
     def calc_histogram(self, bins=None, step=None):  
         if self.dtype in ['int8', 'uint8', 'int16', 'uint16']:
-            hist, starts, stepsize = fasthist.hist16bit(self.arr2d, bins=None, step=1, use_numba=True)
+            hist, starts, stepsize = fasthist.hist16bit(self.roi, bins=None, step=1, use_numba=True)
             
         elif self.dtype in ['int32', 'uint32', 'int64', 'uint64', 'float16', 'float32', 'float64']:
-            hist, starts, stepsize = fasthist.histfloat(self.arr2d, bins=65536, step=None, pow2snap=False, use_numba=True)
+            hist, starts, stepsize = fasthist.histfloat(self.roi, bins=65536, step=None, pow2snap=False, use_numba=True)
             
         self._cache['hist'] = hist
         self._cache['starts'] = starts
@@ -169,7 +169,7 @@ class ImageStatistics(object):
         return self._cache['stepsize'] * step
         
     def n(self):
-        return self.arr2d.shape[0] * self.arr2d.shape[1]
+        return self.roi.shape[0] * self.roi.shape[1]
         
     def sum(self):
         return (self.histogram() * self.starts()).sum()
@@ -198,7 +198,7 @@ class ImageStatistics(object):
         
         
     def profile(self, axis=0):        
-        roi = self.arr2d  
+        roi = self.roi  
         array = self.full_array
         
         slices = self.slices
@@ -317,7 +317,7 @@ class ImageData(object):
             self.chanstats[mask] = ImageStatistics(mask_props['color'])
             ndim = self.statarr.ndim
             slices_ndim = mask_props['slices'][:ndim]
-            self.chanstats[mask].attach_arr2d(self.statarr, slices_ndim)
+            self.chanstats[mask].attach_full_array(self.statarr, slices_ndim)
             self.chanstats[f'roi.{mask}'] = ImageStatistics(mask_props['roi.color'])
             
             
@@ -446,13 +446,13 @@ class ImageData(object):
             
             large_slices = self.masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_arr2d(self.statarr, merged_slices)      
+            chanstat.attach_full_array(self.statarr, merged_slices)      
 
     def disable_roi_statistics(self):
     
         for mask_name, chanstat in list(self.chanstats.items()):          
             if not mask_name.startswith('roi.'): continue
-            chanstat.attach_arr2d(None, None)
+            chanstat.attach_full_array(None, None)
             
 
     def update_array8bit_by_slices(self, slices):
