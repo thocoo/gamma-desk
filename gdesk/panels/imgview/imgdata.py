@@ -91,6 +91,7 @@ class ImageStatistics(object):
         self.slices = slices
         self.clear()
         
+        
     @property
     def full_array(self):
         return self.imgdata.statarr
@@ -286,8 +287,7 @@ class ImageData(object):
             if log and not self.array is None:
                 self.imghist.push(self.array)
             
-            self.array = array
-                
+            self.array = array                
             self.init_channel_statistics()
             
             
@@ -313,13 +313,20 @@ class ImageData(object):
             if len(self.shape) == 2:
                 mode = self.cfa
             else:
-                mode = 'rgb'                        
+                mode = 'rgb'  
+
+        # TO DO
+        # It is not always needed to redefine masks and chanstats
+        # masks and chanstats that are still valid should be kept
         
         self.defineModeMasks(mode)
         
         for mask in RESERVED_MASK_NAMES:            
             if mask in self.chanstats: self.chanstats.pop(mask)
-            if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')
+            if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')            
+            
+        for mask, chanstat in self.chanstats.items():
+            chanstat.clear()
             
         for mask, mask_props in self.masks.items():
             self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
