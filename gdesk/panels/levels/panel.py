@@ -589,52 +589,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         panids = self.panel.panIdsOfBounded('image')
         for panid in panids:
             gui.menu_trigger('image', panid, ['View','Colormap...'])
-            
-        
-class StatisticsPanel(QtWidgets.QWidget):        
-    def __init__(self, *args, **kwargs):    
-        super().__init__(*args, **kwargs) 
-        self.initUi()
-        
-    def initUi(self):        
-        self.table = QtWidgets.QTableWidget()        
-        self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Name", "Means", "Std"])        
-        self.table.horizontalHeader().setDefaultSectionSize(20)
-        self.table.verticalHeader().hide()
-        
-        self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setContentsMargins(0,0,0,0)
-        self.vbox.setSpacing(0)
-        self.setLayout(self.vbox)                       
-        self.vbox.addWidget(self.table)
-
-        
-    def imagePanel(self):
-        return self.parent().parent().bindedPanel('image')
-
-        
-    def updateStatistics(self):        
-    
-        chanstats = self.imagePanel().imviewer.imgdata.chanstats
-        
-        self.table.setRowCount(len(chanstats))
-        
-        for i, (name, stats) in  enumerate(chanstats.items()):
-            if not stats.is_valid(): continue
-            
-            item_name = QtWidgets.QTableWidgetItem(name)            
-            R, G, B, A = stats.plot_color.toTuple()
-            item_name.setBackground(QtGui.QColor(R, G, B, 128))
-            item_m = QtWidgets.QTableWidgetItem(f'{stats.mean():.4g}')
-            item_s = QtWidgets.QTableWidgetItem(f'{stats.std():.4g}')
-    
-            self.table.setItem(i, 0, item_name)
-            self.table.setItem(i, 1, item_m)
-            self.table.setItem(i, 2, item_s)
-            self.table.setRowHeight(i, 20)
-        
-
+                    
         
 class LevelsPanel(BasePanel):
 
@@ -659,7 +614,6 @@ class LevelsPanel(BasePanel):
         self.gaussview = False
         self.log = False
         self.roi = False
-        self.stats = False
         self.sigma = 3
         
         self.levels = Levels(self)
@@ -667,12 +621,6 @@ class LevelsPanel(BasePanel):
         
         self.toolbar = LevelsToolBar(self)
         self.addToolBar(self.toolbar)           
-
-        self.statDock = QtWidgets.QDockWidget("Statistics", self)
-        self.statPanel = StatisticsPanel()
-        self.statDock.setWidget(self.statPanel)                
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.statDock)
-        #self.statDock.hide()
         
         self.fileMenu = self.menuBar().addMenu("&File")
         self.modeMenu = CheckMenu("&Mode", self.menuBar())
@@ -686,7 +634,6 @@ class LevelsPanel(BasePanel):
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
-        self.addMenuItem(self.modeMenu, 'Statistics', self.toggle_stats, checkcall=lambda: self.stats)
         
         self.addBaseMenu(['image'])
         
@@ -791,10 +738,7 @@ class LevelsPanel(BasePanel):
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         if self.levels.isVisible():
-            self.levels.updateHistOfPanel(image_panel_id)
-        
-        if self.statPanel.isVisible():
-            self.statPanel.updateStatistics()
+            self.levels.updateHistOfPanel(image_panel_id)        
             
         if zoomFit:
             self.levels.fullZoom()
@@ -807,8 +751,5 @@ class LevelsPanel(BasePanel):
     def roiChanged(self, image_panel_id):
         if self.roi:
             self.levels.updateHistOfPanel(image_panel_id)
-        
-        if self.statPanel.isVisible():
-            self.statPanel.updateStatistics()
         
         
