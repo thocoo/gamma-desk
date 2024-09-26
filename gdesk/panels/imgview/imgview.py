@@ -1998,7 +1998,9 @@ class ImageViewerBase(BasePanel):
 
         
     def removeRoiStatistics(self):
-        masks = self.imviewer.imgdata.customMaskNames()        
+        masks = self.imviewer.imgdata.customMaskNames()                
+        
+        if len(masks) < 1: return
         
         form = [('Mask', [1] + masks)]
         result = fedit(form, title='Removing Mask')
