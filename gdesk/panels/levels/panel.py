@@ -597,29 +597,42 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.initUi()
         
     def initUi(self):
-        self.mean = QtWidgets.QPlainTextEdit(parent=self)        
+        #self.mean = QtWidgets.QPlainTextEdit(parent=self)        
+        
+        self.table = QtWidgets.QTableWidget()        
+        self.table.setColumnCount(3)
+        self.table.setHorizontalHeaderLabels(["Name", "Means", "Std"])        
+        self.table.horizontalHeader().setDefaultSectionSize(20)
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
         self.vbox.setSpacing(0)
         self.setLayout(self.vbox)                       
-        self.vbox.addWidget(self.mean)
+        self.vbox.addWidget(self.table)
         
     def imagePanel(self):
         return self.parent().parent().bindedPanel('image')
         
-    def updateStatistics(self):       
+    def updateStatistics(self):        
+    
+        chanstats = self.imagePanel().imviewer.imgdata.chanstats
         
-        t = []
+        self.table.setRowCount(len(chanstats))
         
-        for k, stats in self.imagePanel().imviewer.imgdata.chanstats.items():
+        for i, (name, stats) in  enumerate(chanstats.items()):
             if not stats.is_valid(): continue
             
-            m = stats.mean()
-            s = stats.std()
-            t.append(f'{k}:{m:.5g}±{s:.5g}')
+            item_name = QtWidgets.QTableWidgetItem(name)            
+            R, G, B, A = stats.plot_color.toTuple()
+            item_name.setBackground(QtGui.QColor(R, G, B, 128))
+            item_m = QtWidgets.QTableWidgetItem(f'{stats.mean():.4g}')
+            item_s = QtWidgets.QTableWidgetItem(f'{stats.std():.4g}')
+    
+            self.table.setItem(i, 0, item_name)
+            self.table.setItem(i, 1, item_m)
+            self.table.setItem(i, 2, item_s)
+            self.table.setRowHeight(i, 20)
         
-        self.mean.setPlainText('\n'.join(t))        
 
         
 class LevelsPanel(BasePanel):
@@ -658,7 +671,7 @@ class LevelsPanel(BasePanel):
         self.statPanel = StatisticsPanel()
         self.statDock.setWidget(self.statPanel)                
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.statDock)
-        self.statDock.hide()
+        #self.statDock.hide()
         
         self.fileMenu = self.menuBar().addMenu("&File")
         self.modeMenu = CheckMenu("&Mode", self.menuBar())
@@ -793,5 +806,8 @@ class LevelsPanel(BasePanel):
     def roiChanged(self, image_panel_id):
         if self.roi:
             self.levels.updateHistOfPanel(image_panel_id)
+        
+        if self.statPanel.isVisible():
+            self.statPanel.updateStatistics()
         
         
