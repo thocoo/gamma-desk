@@ -54,6 +54,11 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.profiles = dict()        
         
         #self.defineModeMasks('mono')
+        self.fullImageVisible = QtWidgets.QAction('Full Image', self)
+        self.fullImageVisible.setCheckable(True)
+        self.fullImageVisible.setChecked(True)
+        self.fullImageVisible.triggered.connect(self.drawMaskProfiles)
+        self.view.menu.addAction(self.fullImageVisible)           
         
         self.grid = []
         self.ruler = None
@@ -217,9 +222,11 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.view.setYPosScale(y, scale)
 
     
-    def drawMaskProfiles(self, array, roi_only=False):
+    def drawMaskProfiles(self, array=None, roi_only=False):
     
-        self.removeMaskProfiles(roi_only)
+        hide_full_image = not self.fullImageVisible.isChecked()
+        
+        self.removeMaskProfiles(roi_only and not hide_full_image)
             
         if self.direction == 0:
             axis = 0
@@ -227,10 +234,11 @@ class ProfilerPanel(QtWidgets.QWidget):
         else:
             axis = 1
             
-        ndim = array.ndim
-        
         for mask_name, chanstat in self.chanstats.items():
-            if roi_only and not mask_name.startswith('roi.'): continue            
+            if not mask_name.startswith('roi.'):
+                if roi_only: continue
+                if hide_full_image: continue
+            
             if not chanstat.is_valid(): continue
             
             x, y = chanstat.profile(axis)

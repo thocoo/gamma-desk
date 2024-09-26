@@ -35,6 +35,8 @@ COMPMODE['screen'] = QtGui.QPainter.CompositionMode_Screen
 COMPMODE['overlay'] = QtGui.QPainter.CompositionMode_Overlay  
 COMPMODE['darken'] = QtGui.QPainter.CompositionMode_Darken  
 COMPMODE['lighten'] = QtGui.QPainter.CompositionMode_Lighten 
+
+RESERVED_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
     
 class SelectRoi(DimRanges):
 
@@ -78,21 +80,24 @@ class SelectRoi(DimRanges):
         
 class ImageStatistics(object):
 
-    def __init__(self, plot_color):
+    def __init__(self, imgdata, plot_color):
+        self.imgdata = imgdata
         self._cache = dict()
-        self.full_array = None   
         self.slices = None
         self.plot_color = plot_color
 
         
-    def attach_full_array(self, full_array, slices):
-        self.full_array = full_array
+    def attach_full_array(self, slices):
         self.slices = slices
         self.clear()
         
+    @property
+    def full_array(self):
+        return self.imgdata.statarr
+        
         
     @property
-    def roi(self):
+    def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
         return self.full_array[self.slices[:min_ndim]]
         
@@ -103,7 +108,7 @@ class ImageStatistics(object):
         
                 
     def is_valid(self):
-        return not ((self.full_array is None) or (self.slices is None))
+        return not ((self.imgdata.statarr is None) or (self.slices is None))
         
         
     def clear(self):
@@ -308,17 +313,26 @@ class ImageData(object):
             if len(self.shape) == 2:
                 mode = self.cfa
             else:
-                mode = 'rgb'
+                mode = 'rgb'                        
         
-        self.defineModeMasks(mode)                
-        self.chanstats.clear()
+        self.defineModeMasks(mode)
+        
+        for mask in RESERVED_MASK_NAMES:            
+            if mask in self.chanstats: self.chanstats.pop(mask)
+            if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')
             
         for mask, mask_props in self.masks.items():
-            self.chanstats[mask] = ImageStatistics(mask_props['color'])
-            ndim = self.statarr.ndim
-            slices_ndim = mask_props['slices'][:ndim]
-            self.chanstats[mask].attach_full_array(self.statarr, slices_ndim)
-            self.chanstats[f'roi.{mask}'] = ImageStatistics(mask_props['roi.color'])
+            self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
+            self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
+            
+            
+    def addMaskStatistics(self, name, slices, color):
+    
+        if not isinstance(color, QtGui.QColor):
+            color = QtGui.QColor(*color)
+        
+        self.chanstats[name] = ImageStatistics(self, color)
+        self.chanstats[name].attach_full_array(slices)
             
             
     def defineModeMasks(self, mode='mono'):
@@ -353,9 +367,9 @@ class ImageData(object):
             blue = QtGui.QColor(0, 0, 255, 255)
             
             hot_red = QtGui.QColor(192, 0, 0, 255)
-            hot_teal = QtGui.QColor(0, 0x80, 0x60, 255)
-            hot_olive = QtGui.QColor(0x60, 0x80, 0, 255)
-            hot_blue = QtGui.QColor(64, 0, 128, 255)            
+            hot_teal = QtGui.QColor(0x40, 0x60, 0x60, 255)
+            hot_olive = QtGui.QColor(0xa0, 0x60, 0, 255)
+            hot_blue = QtGui.QColor(0x40, 0, 0x80, 255)            
             
             
             if mode == 'bg':                    
@@ -446,13 +460,13 @@ class ImageData(object):
             
             large_slices = self.masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_full_array(self.statarr, merged_slices)      
+            chanstat.attach_full_array(merged_slices)      
 
     def disable_roi_statistics(self):
     
         for mask_name, chanstat in list(self.chanstats.items()):          
             if not mask_name.startswith('roi.'): continue
-            chanstat.attach_full_array(None, None)
+            chanstat.attach_full_array(None)
             
 
     def update_array8bit_by_slices(self, slices):

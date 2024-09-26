@@ -1227,6 +1227,8 @@ class ImageViewerBase(BasePanel):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'map_blue.png')))
 
         #Analyse
+        self.addMenuItem(self.analyseMenu, 'Add Roi Statistics...', self.addRoiStaistics)
+            
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             statusTip="Horizontal Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Vertical Spectrogram', self.verticalSpectrogram,
@@ -1970,6 +1972,30 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
+        
+
+    def addRoiStaistics(self):
+        selroi = self.imviewer.imgdata.selroi
+
+        form = [('Name',  'custom'),
+                ('Color',  'green'),
+                ('x start', selroi.xr.start),
+                ('x stop', selroi.xr.stop),
+                ('x step', selroi.xr.step),
+                ('y start', selroi.yr.start),
+                ('y stop', selroi.yr.stop),
+                ('y step', selroi.yr.step)]
+
+        r = fedit(form, title='Add Roi Statistics')
+        if r is None: return
+
+        name = r[0]                
+        color = QtGui.QColor(r[1])
+        h_slice = slice(r[2], r[3], r[4])
+        v_slice = slice(r[5], r[6], r[7])
+
+        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)
+        
 
     def jumpToDialog(self):
         selroi = self.imviewer.imgdata.selroi
@@ -2504,8 +2530,8 @@ class ImageProfileWidget(QWidget):
 
         self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
         self.profBtn.setToolTip('Show/Hide row and column profiles')
-        #self.profBtn.setFixedHeight(20)
-        #self.profBtn.setFixedWidth(20)
+        self.profBtn.setFixedHeight(20)
+        self.profBtn.setFixedWidth(20)
         self.profBtn.clicked.connect(self.toggleProfileVisible)        
         
         self.corner = QtWidgets.QMainWindow()        
