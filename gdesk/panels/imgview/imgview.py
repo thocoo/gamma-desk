@@ -110,6 +110,7 @@ from .spectrogram import spectr_hori, spectr_vert
 from .imgdata import ImageData
 from .roi import SelRoiWidget
 from .dialogs import RawImportDialog
+from .statspanel import StatisticsPanel
 
 
 ZOOM_VALUES = [
@@ -2505,7 +2506,16 @@ class ImageProfileWidget(QWidget):
         self.profBtn.setToolTip('Show/Hide row and column profiles')
         self.profBtn.setFixedHeight(20)
         self.profBtn.setFixedWidth(20)
-        self.profBtn.clicked.connect(self.toggleProfileVisible)
+        self.profBtn.clicked.connect(self.toggleProfileVisible)        
+        
+        self.corner = QtWidgets.QMainWindow()        
+        self.corner.setCentralWidget(self.profBtn)
+        
+        self.statsPanel = StatisticsPanel()
+        self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
+        self.statsDock.setWidget(self.statsPanel) 
+        
+        #self.corner.hide()
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
 
@@ -2514,6 +2524,7 @@ class ImageProfileWidget(QWidget):
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
         self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
 
+        self.gridsplit.addWidget(self.corner, 0, 0)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
         self.gridsplit.addWidget(self.colPanel, 1, 0)
         self.gridsplit.addWidget(self.imviewer, 1, 1)
@@ -2531,7 +2542,7 @@ class ImageProfileWidget(QWidget):
         self.profilesVisible = not self.profilesVisible
 
 
-    def showOnlyRuler(self):
+    def showOnlyRuler(self):        
         self.rowPanel.showOnlyRuler()
         self.colPanel.showOnlyRuler()
         self._profilesVisible = False
@@ -2581,7 +2592,6 @@ class ImageProfileWidget(QWidget):
             self.showProfiles()
         else:
             self.showOnlyRuler()
-
 
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
 
@@ -2659,6 +2669,7 @@ class ImageProfilePanel(ImageViewerBase):
 
     def passRoiChanged(self):
         self.roiChanged.emit(self.panid)
+        self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile()
         self.imgprof.refresh_profile_views()
         
@@ -2670,7 +2681,11 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
         
     
-    def refresh_profiles(self):    
+    def refresh_profiles_and_stats(self):  
+    
+        if self.imgprof.statsPanel.isVisible():        
+            self.imgprof.statsPanel.updateStatistics()    
+        
         if self.imgprof.profilesVisible:
             self.imgprof.drawMaskProfiles()
             self.imgprof.refresh_profile_views()  
@@ -2678,7 +2693,7 @@ class ImageProfilePanel(ImageViewerBase):
 
     def show_array(self, array, zoomFitHist=False, log=True):
         super().show_array(array, zoomFitHist, log=log)        
-        self.refresh_profiles()
+        self.refresh_profiles_and_stats()
         
 
     @property

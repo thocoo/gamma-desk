@@ -596,22 +596,23 @@ class StatisticsPanel(QtWidgets.QWidget):
         super().__init__(*args, **kwargs) 
         self.initUi()
         
-    def initUi(self):
-        #self.mean = QtWidgets.QPlainTextEdit(parent=self)        
-        
+    def initUi(self):        
         self.table = QtWidgets.QTableWidget()        
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(["Name", "Means", "Std"])        
         self.table.horizontalHeader().setDefaultSectionSize(20)
+        self.table.verticalHeader().hide()
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
         self.vbox.setSpacing(0)
         self.setLayout(self.vbox)                       
         self.vbox.addWidget(self.table)
+
         
     def imagePanel(self):
         return self.parent().parent().bindedPanel('image')
+
         
     def updateStatistics(self):        
     
