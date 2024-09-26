@@ -2610,17 +2610,15 @@ class ImageProfileWidget(QWidget):
         self.refresh_profile_views()
         
         
-    def drawMaskProfiles(self):
-        arr = self.ndarray            
-        self.rowPanel.drawMaskProfiles(arr)
-        self.colPanel.drawMaskProfiles(arr)                           
+    def drawMaskProfiles(self):         
+        self.rowPanel.drawMaskProfiles()
+        self.colPanel.drawMaskProfiles()                           
         
         
-    def drawRoiProfile(self):       
-        arr = self.ndarray                
+    def drawRoiProfile(self):                     
         slices = self.roi_slices        
-        self.rowPanel.drawMaskProfiles(arr, roi_only=True)
-        self.colPanel.drawMaskProfiles(arr, roi_only=True)            
+        self.rowPanel.drawMaskProfiles(roi_only=True)
+        self.colPanel.drawMaskProfiles(roi_only=True)            
         
 
     def set_profiles_visible(self, value):

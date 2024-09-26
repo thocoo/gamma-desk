@@ -222,7 +222,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.view.setYPosScale(y, scale)
 
     
-    def drawMaskProfiles(self, array=None, roi_only=False):
+    def drawMaskProfiles(self, roi_only=False):
     
         hide_full_image = not self.fullImageVisible.isChecked()
         
