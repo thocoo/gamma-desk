@@ -10,20 +10,26 @@ class GridSplitter(QtWidgets.QGridLayout):
         self.setContentsMargins(0,0,0,0)
         self.splitters = []
         
-    def addWidget(self, widget, row, col, rowspan=1, colspan=1):        
+    def addWidget(self, widget, row, col, rowspan=1, colspan=1, alignment=None):        
         super().addWidget(widget, row*2, col*2, rowspan*2-1, colspan*2-1)
         
         if (self.itemAtPosition(row*2-1, col*2) == None) and (row > 0):
             splitter = GridSeperator(self.parent(), QtCore.Qt.Vertical)
             splitter.attachGridSplitter(self, row-1, row)
             self.splitters.append(splitter)
-            super().addWidget(splitter, row*2-1, col*2)
+            if not alignment is None:
+                super().addWidget(splitter, row*2-1, col*2, alignment=alignment)
+            else:
+                super().addWidget(splitter, row*2-1, col*2)
             
         if (self.itemAtPosition(row*2, col*2-1) == None) and (col > 0):
             splitter = GridSeperator(self.parent(), QtCore.Qt.Horizontal)
             splitter.attachGridSplitter(self, col-1, col)
             self.splitters.append(splitter)
-            super().addWidget(splitter, row*2, col*2-1)
+            if not alignment is None:
+                super().addWidget(splitter, row*2, col*2-1, alignment=alignment)
+            else:
+                super().addWidget(splitter, row*2, col*2-1)
         
     def getRowStretches(self):
         """get the row streches from all rows, skip the row splitters"""

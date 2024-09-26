@@ -2504,14 +2504,15 @@ class ImageProfileWidget(QWidget):
 
         self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
         self.profBtn.setToolTip('Show/Hide row and column profiles')
-        self.profBtn.setFixedHeight(20)
-        self.profBtn.setFixedWidth(20)
+        #self.profBtn.setFixedHeight(20)
+        #self.profBtn.setFixedWidth(20)
         self.profBtn.clicked.connect(self.toggleProfileVisible)        
         
         self.corner = QtWidgets.QMainWindow()        
         self.corner.setCentralWidget(self.profBtn)
         
         self.statsPanel = StatisticsPanel()
+        
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         self.statsDock.setWidget(self.statsPanel) 
         
@@ -2524,14 +2525,10 @@ class ImageProfileWidget(QWidget):
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
         self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
 
-        self.gridsplit.addWidget(self.corner, 0, 0)
+        self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
         self.gridsplit.addWidget(self.colPanel, 1, 0)
         self.gridsplit.addWidget(self.imviewer, 1, 1)
-
-        self.cornerLayout = QtWidgets.QGridLayout()
-        self.cornerLayout.addWidget(self.profBtn, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
-        self.gridsplit.addLayout(self.cornerLayout, 0, 0)
 
         self.setLayout(self.gridsplit)
 
@@ -2542,7 +2539,13 @@ class ImageProfileWidget(QWidget):
         self.profilesVisible = not self.profilesVisible
 
 
-    def showOnlyRuler(self):        
+    def showOnlyRuler(self):
+    
+        if not self.statsDock.isFloating():
+            self.statsDock.hide()
+            
+        self.corner.setFixedWidth(20)
+        self.corner.setFixedHeight(20)
         self.rowPanel.showOnlyRuler()
         self.colPanel.showOnlyRuler()
         self._profilesVisible = False
@@ -2552,6 +2555,13 @@ class ImageProfileWidget(QWidget):
 
 
     def showProfiles(self):
+
+        self.statsDock.show()
+        #self.corner.setMinimumHeight(20)
+        self.corner.setMaximumHeight(500)
+        #self.corner.setMinimumWidth(20)
+        self.corner.setMaximumWidth(500)        
+        
         self.rowPanel.setMinimumHeight(20)
         self.rowPanel.setMaximumHeight(500)
         self.colPanel.setMinimumWidth(20)
