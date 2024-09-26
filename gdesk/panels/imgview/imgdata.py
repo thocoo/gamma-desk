@@ -354,7 +354,7 @@ class ImageData(object):
         if mode == 'mono':
             self.cfa = mode
             self.masks = {
-                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0, 0, 0, 255), 'roi.color': QtGui.QColor(255, 0, 0, 255)}
+                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0x40, 0x40, 0x40, 255), 'roi.color': QtGui.QColor(255, 0, 0, 255)}
                 }
         
         elif mode == 'rgb':
