@@ -1133,9 +1133,11 @@ class ImageViewerBase(BasePanel):
             statusTip="Select Full Image")
         self.addMenuItem(self.selectMenu, 'Deselect', self.selectNone,
             statusTip="Deselect, select nothing")
-        self.addMenuItem(self.selectMenu, 'Select dialog...', self.setRoi,
+        self.addMenuItem(self.selectMenu, 'Select Roi...', self.setRoi,
             statusTip="Select with input numbers dialog",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
+        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addRoiStaistics)            
+        self.addMenuItem(self.selectMenu, 'Remove Roi Statistics...', self.removeRoiStatistics)            
         self.addMenuItem(self.selectMenu, 'Copy slices to clipboard...', self.copySliceToClipboard,
             statusTip="Copy the slice definition to the clipboard")            
         self.addMenuItem(self.selectMenu, 'Jump to Coordinates'   , self.jumpToDialog,
@@ -1226,9 +1228,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Make a thumbnail (8x smaller) with blowup high frequencies",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'map_blue.png')))
 
-        #Analyse
-        self.addMenuItem(self.analyseMenu, 'Add Roi Statistics...', self.addRoiStaistics)
-            
+        #Analyse                    
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             statusTip="Horizontal Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Vertical Spectrogram', self.verticalSpectrogram,
@@ -1994,7 +1994,16 @@ class ImageViewerBase(BasePanel):
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])
 
-        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)
+        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)        
+
+        
+    def removeRoiStatistics(self):
+        masks = self.imviewer.imgdata.customMaskNames()        
+        
+        form = [('Mask', [1] + masks)]
+        result = fedit(form, title='Removing Mask')
+        mask = masks[result[0] - 1]
+        self.imviewer.imgdata.chanstats.pop(mask)
         
 
     def jumpToDialog(self):
@@ -2538,9 +2547,11 @@ class ImageProfileWidget(QWidget):
         self.corner.setCentralWidget(self.profBtn)
         
         self.statsPanel = StatisticsPanel()
+        self.statsPanel.maskSelected.connect(self.selectMask)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
-        self.statsDock.setWidget(self.statsPanel) 
+        self.statsDock.setWidget(self.statsPanel)        
+        self.corner.addDockWidget(Qt.TopDockWidgetArea, self.statsDock)
         
         #self.corner.hide()
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
@@ -2613,6 +2624,11 @@ class ImageProfileWidget(QWidget):
     def drawMaskProfiles(self):         
         self.rowPanel.drawMaskProfiles()
         self.colPanel.drawMaskProfiles()                           
+        
+    
+    def selectMask(self, mask):
+        self.rowPanel.selectProfile(mask)
+        self.colPanel.selectProfile(mask)
         
         
     def drawRoiProfile(self):                     

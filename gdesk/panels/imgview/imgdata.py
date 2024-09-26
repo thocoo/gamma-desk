@@ -195,7 +195,7 @@ class ImageStatistics(object):
     def max(self):
         non_zeros_indices = np.argwhere(self.histogram() > 0)
         max_index = non_zeros_indices[-1][0]
-        return self.starts()[max_index]     
+        return self.starts()[max_index]    
         
     def std(self):
         n = self.n()
@@ -340,6 +340,10 @@ class ImageData(object):
         
         self.chanstats[name] = ImageStatistics(self, color)
         self.chanstats[name].attach_full_array(slices)
+        
+        
+    def customMaskNames(self):
+        return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in RESERVED_MASK_NAMES)]
             
             
     def defineModeMasks(self, mode='mono'):

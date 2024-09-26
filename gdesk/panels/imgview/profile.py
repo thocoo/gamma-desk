@@ -2,6 +2,7 @@ import math
 import numpy as np
 
 from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtCore import Qt
 
 from ...graphics.plotview import PlotView
 from ...graphics.rulers import TickedRuler, Axis
@@ -246,7 +247,18 @@ class ProfilerPanel(QtWidgets.QWidget):
             
             profile = self.createCurve(x, y, color=color, z=0.5)
             self.scene.addItem(profile)
-            self.profiles[mask_name] = profile                    
+            self.profiles[mask_name] = profile
+
+                
+    def selectProfile(self, maskToSelect):
+        for mask, profile in self.profiles.items():
+            if mask == maskToSelect:
+                profile.setZValue(1)
+                profile.setOpacity(1)
+            else:
+                profile.setOpacity(0.25)
+                profile.setZValue(0)
+        self.view.refresh()         
             
             
     def removeMaskProfiles(self, roi_only=False):
