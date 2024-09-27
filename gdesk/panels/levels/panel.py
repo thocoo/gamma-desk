@@ -372,14 +372,15 @@ class Levels(QtWidgets.QWidget):
             step = self.panel.histSize
         
         do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                
-        clr_to_draw = [m for m in chanstats.keys() if (not do_roi) or (m.startswith('roi.') == do_roi)]  
+        
+        clr_to_draw = [m for m, chanstat in chanstats.items() if ((not do_roi) or (m.startswith('roi.') == do_roi))and chanstat.is_valid() and chanstat.active]  
         
         self.levelplot.remove_all_but(clr_to_draw)
         
         for clr in clr_to_draw: 
             chanstat = chanstats[clr]
             
-            if not chanstat.is_valid(): continue
+            #if not (chanstat.is_valid() and chanstat.active): continue           
             
             color = chanstat.plot_color
             dim = chanstat.dim

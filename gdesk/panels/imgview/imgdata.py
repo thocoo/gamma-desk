@@ -86,6 +86,7 @@ class ImageStatistics(object):
         self.slices = None
         self.plot_color = plot_color
         self.dim = False
+        self.active = True
 
         
     def attach_full_array(self, slices):

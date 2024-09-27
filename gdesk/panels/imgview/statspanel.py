@@ -22,6 +22,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().currentRowChanged.connect(self.rowSelected)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.modifyMask)
+        self.table.cellChanged.connect(self.cellChanged)
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
@@ -97,7 +98,12 @@ class StatisticsPanel(QtWidgets.QWidget):
             
             item_name = QtWidgets.QTableWidgetItem(name)            
             R, G, B, A = stats.plot_color.toTuple()
+            
             item_name.setBackground(QtGui.QColor(R, G, B, 128))
+            #item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
+            
             self.table.setItem(i, 0, item_name)
             
             for j, column in enumerate(self.columns[1:]):
@@ -107,3 +113,10 @@ class StatisticsPanel(QtWidgets.QWidget):
                 self.table.setItem(i, 1 + j, item)           
             
             self.table.setRowHeight(i, 20)
+            
+            
+    def cellChanged(self, row, column):
+        if column != 0: return
+        nameCell = self.table.item(row, 0)
+        mask = nameCell.text()
+        self.imviewer.imgdata.chanstats[mask].active = (nameCell.checkState() == Qt.Checked)

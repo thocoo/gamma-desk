@@ -240,7 +240,7 @@ class ProfilerPanel(QtWidgets.QWidget):
                 if roi_only: continue
                 if hide_full_image: continue
             
-            if not chanstat.is_valid(): continue
+            if not (chanstat.is_valid() and chanstat.active): continue
             
             x, y = chanstat.profile(axis)
             color = chanstat.plot_color
