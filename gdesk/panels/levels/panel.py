@@ -168,7 +168,7 @@ class LevelPlot(QtWidgets.QWidget):
             self.scene.removeItem(oldcurve)
             self.curves.pop(curveid)
         
-    def plot_curve(self, curveid=None, x=[], y=[], color = None, fill=50):
+    def plot_curve(self, curveid=None, x=[], y=[], color = None, fill=50, dim=False):
         oldcolor = None
         
         if curveid in self.curves.keys():
@@ -185,8 +185,15 @@ class LevelPlot(QtWidgets.QWidget):
             else:
                 color = oldcolor
             
-        curve = createCurve(x, y, color = color, fill=fill)
-        curve.setZValue(0)            
+        curve = createCurve(x, y, color = color, fill=fill)        
+        
+        if dim:
+            curve.setZValue(0)
+            curve.setOpacity(0.25)
+            
+        else:
+            curve.setZValue(1)
+            
         
         self.curves[curveid] = curve                     
         self.scene.addItem(curve)
@@ -290,8 +297,9 @@ class LevelPlot(QtWidgets.QWidget):
 
 
     def selectCurve(self, curveName):
+    
         for name, curve in self.curves.items():
-            if name == curveName:
+            if (curveName == '')  or (name == curveName):
                 curve.setZValue(1)
                 curve.setOpacity(1)
                 
@@ -374,6 +382,7 @@ class Levels(QtWidgets.QWidget):
             if not chanstat.is_valid(): continue
             
             color = chanstat.plot_color
+            dim = chanstat.dim
             
             if len(chanstat._cache.keys()) == 0:
                 chanstat.calc_histogram()            
@@ -392,7 +401,7 @@ class Levels(QtWidgets.QWidget):
             starts = chanstat.starts(stepmult)   
             stepsize = chanstat.stepsize(stepmult)
             barstarts, histbar = self.xy_as_steps(starts, hist, stepsize)
-            self.levelplot.plot_curve(clr, barstarts, histbar, color) 
+            self.levelplot.plot_curve(clr, barstarts, histbar, color, dim=dim) 
             
             if self.panel.gaussview:
                 import scipy.signal

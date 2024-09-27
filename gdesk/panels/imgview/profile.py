@@ -245,14 +245,19 @@ class ProfilerPanel(QtWidgets.QWidget):
             x, y = chanstat.profile(axis)
             color = chanstat.plot_color
             
-            profile = self.createCurve(x, y, color=color, z=0.5)
+            profile = self.createCurve(x, y, color=color, z=1)
+            
+            if chanstat.dim:
+                profile.setZValue(0)
+                profile.setOpacity(0.25)                
+                
             self.scene.addItem(profile)
             self.profiles[mask_name] = profile
 
                 
     def selectProfile(self, maskToSelect):
         for mask, profile in self.profiles.items():
-            if mask == maskToSelect:
+            if (maskToSelect == '') or (mask == maskToSelect):
                 profile.setZValue(1)
                 profile.setOpacity(1)
             else:
