@@ -200,8 +200,12 @@ class ImageStatistics(object):
         
     def std(self):
         n = self.n()
-        result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1)) ** 0.5
-        return result
+        
+        if n >= 2:
+            result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1)) ** 0.5        
+            return result
+        else:
+            return np.nan
         
         
     def profile(self, axis=0):        
