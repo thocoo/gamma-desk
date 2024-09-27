@@ -372,7 +372,7 @@ class Levels(QtWidgets.QWidget):
             step = self.panel.histSize
         
         do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                
-        clr_to_draw = [m for m in chanstats.keys() if m.startswith('roi.') == do_roi]
+        clr_to_draw = [m for m in chanstats.keys() if (not do_roi) or (m.startswith('roi.') == do_roi)]  
         
         self.levelplot.remove_all_but(clr_to_draw)
         
@@ -397,6 +397,9 @@ class Levels(QtWidgets.QWidget):
             
             if self.panel.log:           
                 hist = semilog(hist)
+                
+            if self.panel.normalize:
+                hist = hist / max(1, hist.max())
                 
             starts = chanstat.starts(stepmult)   
             stepsize = chanstat.stepsize(stepmult)
@@ -560,12 +563,19 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.useRoiBtn.clicked.connect(self.toggleRoi)
         self.addWidget(self.useRoiBtn)     
         
-        self.sqrtBtn = QtWidgets.QToolButton(self)
-        self.sqrtBtn.setText('log')
-        self.sqrtBtn.setCheckable(True)
-        self.sqrtBtn.setToolTip('Use Logaritmic Y-scale')
-        self.sqrtBtn.clicked.connect(self.toggleSqrt)
-        self.addWidget(self.sqrtBtn)        
+        self.logBtn = QtWidgets.QToolButton(self)
+        self.logBtn.setText('log')
+        self.logBtn.setCheckable(True)
+        self.logBtn.setToolTip('Use Logaritmic Y-scale')
+        self.logBtn.clicked.connect(self.toggleLog)
+        self.addWidget(self.logBtn)      
+
+        self.normBtn = QtWidgets.QToolButton(self)
+        self.normBtn.setText('1')
+        self.normBtn.setCheckable(True)
+        self.normBtn.setToolTip('Use Normalized scale')
+        self.normBtn.clicked.connect(self.toggleNormalize)
+        self.addWidget(self.normBtn)           
 
         self.applyUnityBtn = QtWidgets.QToolButton(self)
         self.applyUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_decrease.png')))
@@ -600,15 +610,21 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.panel.roi = sender.isChecked()
         self.levels.updateActiveHist()
         
-    def toggleSqrt(self):
+    def toggleLog(self):
         sender = self.sender()
         self.panel.log = sender.isChecked()
-        self.levels.updateActiveHist()       
+        self.levels.updateActiveHist()
+        
+    def toggleNormalize(self):
+        sender = self.sender()
+        self.panel.normalize = sender.isChecked()
+        self.levels.updateActiveHist()        
         
     def updateButtonStates(self):
         self.histSizePolicyBox.setCurrentText(self.panel.histSizePolicy)
         self.useRoiBtn.setChecked(self.panel.roi)
-        self.sqrtBtn.setChecked(self.panel.log)
+        self.logBtn.setChecked(self.panel.log)
+        self.normBtn.setChecked(self.panel.normalize)
         
     def colorMap(self):
         panids = self.panel.panIdsOfBounded('image')
@@ -639,6 +655,8 @@ class LevelsPanel(BasePanel):
         self.gaussview = False
         self.log = False
         self.roi = False
+        self.normalize = False
+        
         self.sigma = 3
         
         self.levels = Levels(self)
@@ -659,6 +677,7 @@ class LevelsPanel(BasePanel):
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
+        self.addMenuItem(self.modeMenu, 'Normalize', self.toggle_log, checkcall=lambda: self.normalize)
         
         self.addBaseMenu(['image'])
         
@@ -706,7 +725,12 @@ class LevelsPanel(BasePanel):
     def toggle_log(self):
         self.log = not self.log
         self.toolbar.updateButtonStates()
-        self.levels.updateActiveHist()     
+        self.levels.updateActiveHist()   
+
+    def toggle_normalize(self):
+        self.normalize = not self.normalize
+        self.toolbar.updateButtonStates()
+        self.levels.updateActiveHist()          
 
     def toggle_stats(self):
         self.stats = not self.stats
@@ -774,8 +798,7 @@ class LevelsPanel(BasePanel):
             self.levels.indicZoom()
         
     def roiChanged(self, image_panel_id):
-        if self.roi:
-            self.levels.updateHistOfPanel(image_panel_id)
+        self.levels.updateHistOfPanel(image_panel_id)
             
            
     def selectMask(self, mask):
