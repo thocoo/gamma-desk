@@ -2743,6 +2743,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()
+        self.imgprof.statsPanel.updateStatistics()  
         self.roiChanged.emit(self.panid)
         
     
