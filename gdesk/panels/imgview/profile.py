@@ -55,11 +55,11 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.profiles = dict()        
         
         #self.defineModeMasks('mono')
-        self.fullImageVisible = QtWidgets.QAction('Full Image', self)
-        self.fullImageVisible.setCheckable(True)
-        self.fullImageVisible.setChecked(True)
-        self.fullImageVisible.triggered.connect(self.drawMaskProfiles)
-        self.view.menu.addAction(self.fullImageVisible)           
+        # self.fullImageVisible = QtWidgets.QAction('Full Image', self)
+        # self.fullImageVisible.setCheckable(True)
+        # self.fullImageVisible.setChecked(True)
+        # self.fullImageVisible.triggered.connect(self.drawMaskProfiles)
+        # self.view.menu.addAction(self.fullImageVisible)           
         
         self.grid = []
         self.ruler = None
@@ -225,7 +225,8 @@ class ProfilerPanel(QtWidgets.QWidget):
     
     def drawMaskProfiles(self, roi_only=False):
     
-        hide_full_image = not self.fullImageVisible.isChecked()
+        #hide_full_image = not self.fullImageVisible.isChecked()
+        hide_full_image = False
         
         self.removeMaskProfiles(roi_only and not hide_full_image)
             
