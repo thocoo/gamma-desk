@@ -2552,8 +2552,10 @@ class ImageProfileWidget(QWidget):
         self.statsPanel.maskSelected.connect(self.selectMask)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
+        self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
+        self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
         self.statsDock.setWidget(self.statsPanel)        
-        self.corner.addDockWidget(Qt.TopDockWidgetArea, self.statsDock)
+        self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
         #self.corner.hide()
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
