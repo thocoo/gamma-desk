@@ -286,8 +286,20 @@ class LevelPlot(QtWidgets.QWidget):
     def resizeEvent(self, ev):
         self.view.setYLimits(self.ymin, self.ymax, 22, 0)
         self.view.setXLimits(self.xmin, self.xmax, 22, 0)
-        self.update_rulers(True, True)         
+        self.update_rulers(True, True)       
+
+
+    def selectCurve(self, curveName):
+        for name, curve in self.curves.items():
+            if name == curveName:
+                curve.setZValue(1)
+                curve.setOpacity(1)
+                
+            else:
+                curve.setOpacity(0.25)
+                curve.setZValue(0)
         
+        self.view.refresh()   
        
 class Levels(QtWidgets.QWidget):    
         
@@ -433,7 +445,11 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.zoomFull(enforce_ymin=0)        
 
     def zoomFitYRange(self):
-        self.levelplot.zoomFitYRange(ymin=0)           
+        self.levelplot.zoomFitYRange(ymin=0)    
+
+
+    def selectMask(self, mask):
+        self.levelplot.selectCurve(mask)
         
 
 class LevelsToolBar(QtWidgets.QToolBar):
@@ -751,5 +767,10 @@ class LevelsPanel(BasePanel):
     def roiChanged(self, image_panel_id):
         if self.roi:
             self.levels.updateHistOfPanel(image_panel_id)
+            
+           
+    def selectMask(self, mask):
+        self.levels.selectMask(mask)
+    
         
         

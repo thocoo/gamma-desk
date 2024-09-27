@@ -258,7 +258,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             else:
                 profile.setOpacity(0.25)
                 profile.setZValue(0)
-        self.view.refresh()         
+        self.view.refresh()
             
             
     def removeMaskProfiles(self, roi_only=False):
