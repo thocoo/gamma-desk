@@ -192,8 +192,7 @@ class LevelPlot(QtWidgets.QWidget):
             curve.setOpacity(0.25)
             
         else:
-            curve.setZValue(1)
-            
+            curve.setZValue(0.5)            
         
         self.curves[curveid] = curve                     
         self.scene.addItem(curve)
@@ -300,7 +299,7 @@ class LevelPlot(QtWidgets.QWidget):
     
         for name, curve in self.curves.items():
             if (curveName == '')  or (name == curveName):
-                curve.setZValue(1)
+                curve.setZValue(0.5)
                 curve.setOpacity(1)
                 
             else:
