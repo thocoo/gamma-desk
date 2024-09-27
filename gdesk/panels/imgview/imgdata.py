@@ -85,6 +85,7 @@ class ImageStatistics(object):
         self._cache = dict()
         self.slices = None
         self.plot_color = plot_color
+        self.dim = False
 
         
     def attach_full_array(self, slices):
@@ -269,7 +270,7 @@ class ImageData(object):
     def load_by_qt(self, path):
         self.qimg = QImage(str(path))
         
-    def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1, log=True):
+    def show_array(self, array=None, black=0, white=256, colormap=None, gamma=1, log=True, skip_init=False):
         threadcount = config['image']['threads'] 
         use_numba = config['image']['numba'] and has_numba        
         
@@ -279,7 +280,8 @@ class ImageData(object):
             pass
             
         elif isinstance(array, int) and array == -1:
-            #Content of current array has been updated
+            # Content of current array buffer has been updated
+            # Re-evaluate the self.array
             for name, stat in self.chanstats.items():
                 stat.clear()
             
@@ -288,7 +290,13 @@ class ImageData(object):
                 self.imghist.push(self.array)
             
             self.array = array                
-            self.init_channel_statistics()
+            
+            if not skip_init:
+                self.init_channel_statistics()
+                
+            else:
+                for name, stat in self.chanstats.items():
+                    stat.clear()
             
             
         if self.selroi.isfullrange():
@@ -493,6 +501,16 @@ class ImageData(object):
             
         for thread in threads:
             thread.join()       
+            
+            
+    def selectChannelStat(self, statsName):
+    
+        for name, chanstat in self.chanstats.items():
+            if (statsName == '')  or (name == statsName):
+                chanstat.dim = False
+                
+            else:
+                chanstat.dim = True        
             
         
     def get_number_of_bytes(self): 

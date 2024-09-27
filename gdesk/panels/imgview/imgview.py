@@ -2473,8 +2473,8 @@ class ImageViewerBase(BasePanel):
 
     #############################
 
-    def show_array(self, array, zoomFitHist=False, log=True):
-        self.refresh_offset_gain(array, log=log)                   
+    def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
+        self.refresh_offset_gain(array, log=log, skip_init=skip_init)                   
         self.contentChanged.emit(self.panid, zoomFitHist)
 
     def select(self):
@@ -2484,8 +2484,8 @@ class ImageViewerBase(BasePanel):
             self.contentChanged.emit(self.panid, False)
         return was_selected
 
-    def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True):
-        self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log)
+    def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True, skip_init=False):
+        self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log, skip_init)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
         self.gainChanged.emit(self.panid, zoomFitHist)
         self.imviewer.refresh()
@@ -2631,6 +2631,7 @@ class ImageProfileWidget(QWidget):
         
     
     def selectMask(self, mask):
+        self.imviewer.imgdata.selectChannelStat(mask)
         self.rowPanel.selectProfile(mask)
         self.colPanel.selectProfile(mask)
         
@@ -2641,9 +2642,11 @@ class ImageProfileWidget(QWidget):
         self.colPanel.drawMaskProfiles(roi_only=True)            
         
 
-    def set_profiles_visible(self, value):
-        if value:
+    def set_profiles_visible(self, visible):
+        if visible:
             self.showProfiles()
+            self.statsPanel.updateStatistics()
+            
         else:
             self.showOnlyRuler()
 
@@ -2753,8 +2756,8 @@ class ImageProfilePanel(ImageViewerBase):
             self.imgprof.refresh_profile_views()  
             
 
-    def show_array(self, array, zoomFitHist=False, log=True):
-        super().show_array(array, zoomFitHist, log=log)        
+    def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
+        super().show_array(array, zoomFitHist, log=log, skip_init=skip_init)        
         self.refresh_profiles_and_stats()
         
 

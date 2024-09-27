@@ -144,7 +144,7 @@ class ImageGuiProxy(GuiProxyBase):
 
 
     @staticmethod
-    def show_array_cont(array=None, cmap=None):                    
+    def show_array_cont(array=None, cmap=None, log=True, skip_init=False):                    
         
         retries = 0
         
@@ -164,7 +164,7 @@ class ImageGuiProxy(GuiProxyBase):
             if not cmap is None:
                 panel.colormap = cmap        
 
-            panel.show_array(array)
+            panel.show_array(array, log=log, skip_init=skip_init)
         
         lock = gui._call_no_wait(_gui_show, array, cmap)
         return retries, lock
