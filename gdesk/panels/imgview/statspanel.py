@@ -1,7 +1,24 @@
+import numpy as np
+
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal
 
 from ...dialogs.formlayout import fedit
+
+PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
+
+
+def sort_masks(masks):
+    
+    def location(mask):
+        try:
+            return PREFERED_MASK_ORDER.index(mask)        
+            
+        except ValueError:
+            return -1
+            
+    return sorted(masks, key=location)
+    
 
 class StatisticsPanel(QtWidgets.QWidget):    
     
@@ -77,7 +94,7 @@ class StatisticsPanel(QtWidgets.QWidget):
 
         self.imviewer.imgdata.chanstats.pop(maskName)
         self.imviewer.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)        
-        self.updateStatistics()
+        self.updateStatistics()        
 
         
     def updateStatistics(self):    
@@ -93,24 +110,27 @@ class StatisticsPanel(QtWidgets.QWidget):
         valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]
         self.table.setRowCount(len(valid_stats_names))
         
-        for i, name in  enumerate(valid_stats_names):
+        for i, name in  enumerate(sort_masks(valid_stats_names)):
             stats = chanstats[name]
             
             item_name = QtWidgets.QTableWidgetItem(name)            
             R, G, B, A = stats.plot_color.toTuple()
             
             item_name.setBackground(QtGui.QColor(R, G, B, 128))
-            #item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
             
             self.table.setItem(i, 0, item_name)
-            
+                        
             for j, column in enumerate(self.columns[1:]):
             
-                value = getattr(stats, funcmap[column])()
+                if stats.active:
+                    value = getattr(stats, funcmap[column])()
+                else:
+                    value = np.nan
+                    
                 item = QtWidgets.QTableWidgetItem(f'{value:.4g}')                                        
-                self.table.setItem(i, 1 + j, item)           
+                self.table.setItem(i, 1 + j, item)
             
             self.table.setRowHeight(i, 20)
             
