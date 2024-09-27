@@ -128,9 +128,14 @@ class ImageStatistics(object):
         hist1 = self._cache['hist']  
         
         return math.ceil(len(hist1) / bins)
+    
+    
+    def isCleared(self):
+        return len(self._cache.keys()) == 0
+    
         
     def histogram(self, step=1):
-        if len(self._cache.keys()) == 0:
+        if self.isCleared():
             self.calc_histogram()
         
         hist1 = self._cache['hist']      
