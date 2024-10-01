@@ -2715,8 +2715,9 @@ class ImageProfilePanel(ImageViewerBase):
         if not kwargs.get('empty', True): self.openTestImage()
         
         
-    def addBindingTo(self, category, panid):        
-        targetPanel = super().addBindingTo(category, panid)
+    def addBindingTo(self, category, panid):            
+        targetPanel = super().addBindingTo(category, panid)    
+        if targetPanel is None: return None        
         
         if targetPanel.category == 'levels':
             self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMask)
