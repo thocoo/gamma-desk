@@ -77,6 +77,12 @@ class SelectRoi(DimRanges):
         if not self.update_statistics_func is None:
             self.update_statistics_func()
             
+def int_none_repr(v):
+    if v is None:
+        return ''
+    else:
+        return v
+            
         
 class ImageStatistics(object):
 
@@ -92,6 +98,10 @@ class ImageStatistics(object):
     def attach_full_array(self, slices):
         self.slices = slices
         self.clear()
+        
+        
+    def slices_repr(self):
+        return ','.join([f'{int_none_repr(slc.start)}:{int_none_repr(slc.stop)}:{int_none_repr(slc.step)}' for slc in self.slices])
         
         
     @property

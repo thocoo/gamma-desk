@@ -7,6 +7,15 @@ from ...dialogs.formlayout import fedit
 
 PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
 
+FUNCMAP = {
+    'Slices': 'slices_repr',
+    'Mean': 'mean',
+    'Std': 'std',
+    'Min': 'min',
+    'Max': 'max',
+    'N': 'n',
+    'Sum': 'sum'}
+
 
 def sort_masks(masks):
     
@@ -30,6 +39,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def initUi(self):        
         self.table = QtWidgets.QTableWidget()        
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.setActiveColumns(["Mean", "Std", "Min", "Max"])
         
@@ -40,6 +50,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.modifyMask)
         self.table.cellChanged.connect(self.cellChanged)
+        self.table.customContextMenuRequested.connect(self.handleContextMenu)
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
@@ -98,12 +109,6 @@ class StatisticsPanel(QtWidgets.QWidget):
 
         
     def updateStatistics(self):    
-
-        funcmap = {
-            'Mean': 'mean',
-            'Std': 'std',
-            'Min': 'min',
-            'Max': 'max'}
     
         chanstats = self.imviewer.imgdata.chanstats
         
@@ -125,11 +130,15 @@ class StatisticsPanel(QtWidgets.QWidget):
             for j, column in enumerate(self.columns[1:]):
             
                 if stats.active:
-                    value = getattr(stats, funcmap[column])()
+                    value = getattr(stats, FUNCMAP[column])()
+                    if isinstance(value, str):
+                        text = value
+                    else:
+                        text = f'{value:.4g}'
                 else:
-                    value = np.nan
+                    text = ''
                     
-                item = QtWidgets.QTableWidgetItem(f'{value:.4g}')                                        
+                item = QtWidgets.QTableWidgetItem(text)                                        
                 self.table.setItem(i, 1 + j, item)
             
             self.table.setRowHeight(i, 20)
@@ -140,3 +149,18 @@ class StatisticsPanel(QtWidgets.QWidget):
         nameCell = self.table.item(row, 0)
         mask = nameCell.text()
         self.imviewer.imgdata.chanstats[mask].active = (nameCell.checkState() == Qt.Checked)
+        
+        
+    def handleContextMenu(self, pos):
+    
+        form = []
+        
+        for stat in FUNCMAP.keys():
+            form.append((stat, stat in self.columns))
+            
+        r = fedit(form, title='Choose Items')
+
+        actives = [form[i][0] for i in range(len(form)) if r[i]]
+        
+        self.setActiveColumns(actives)
+        self.updateStatistics()
