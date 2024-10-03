@@ -134,6 +134,14 @@ class TaskBase(object):
         elif queue == 'flow':
             return self.send_func_and_call('flow_func', (func, args), callback, wait)
             
+
+    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False):           
+        if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
+            func = self.gui_proxy.encode_func(func)
+        
+        return self.send_func_and_call('func_ext', (func, (args, kwargs)), callback, wait)
+            
+            
     def send_func_and_call(self, mode, args=(), callback=None, wait=False, timeout=0):
         if callback is None and not wait:
             callback = self.getReturnedValues    
@@ -148,7 +156,7 @@ class TaskBase(object):
         else:
             call_back_id = None
             
-        if mode in ['input', 'interprete', 'func', 'exit']:
+        if mode in ['input', 'interprete', 'func', 'func_ext', 'exit']:
             self.stdin_queue.put((mode, args, call_back_id))
             
             if self.is_current_thread():

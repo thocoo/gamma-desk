@@ -357,7 +357,7 @@ class QueueInterpreter(object):
             except KeyboardInterrupt:
                 pass
 
-        if mode in ['interprete', 'func']:
+        if mode in ['interprete', 'func', 'func_ext']:
             error_code = None
             result = None
             
@@ -402,6 +402,29 @@ class QueueInterpreter(object):
                     self.breakable = True
                     error_code, result = interpreter.use_one_func(func, func_args)
                     self.breakable = False
+                    
+                elif mode == 'func_ext':
+                    func = gui_proxy.decode_func(args[0])
+                    func_args = args[1][0]
+                    func_kwargs = args[1][1]
+                    
+                    if self.enable_inspect:                    
+                        try:
+                            filename = inspect.getfile(func)
+                            print(filename)
+                        except:
+                            print('filename not found')
+                            
+                        try:
+                            source = inspect.getsource(func)
+                            print(source)
+                        except:
+                            print('source not found')
+
+                    self.breakable = True
+                    error_code, result = interpreter.use_one_func(func, func_args, func_kwargs)
+                    self.breakable = False                    
+                    
                 else:
                     self.breakable = True
                     error_code, result = interpreter.use_one_command(*args)
@@ -607,12 +630,12 @@ class Interpreter(object):
     def write_error(self, text):
         sys.stderr.write(text)
         
-    def use_one_func(self, func, args):
-        return 0, self.exec_func(func, args)
+    def use_one_func(self, func, args, kwargs={}):
+        return 0, self.exec_func(func, args, kwargs)
         
-    def exec_func(self, func, args):
+    def exec_func(self, func, args, kwargs={}):
         try:
-            return func(*args)
+            return func(*args, **kwargs)
         except (SystemExit, KeyboardInterrupt, SyncBreaked):            
             raise
         except:           
