@@ -274,7 +274,17 @@ class FileLayout(QHBoxLayout):
     def __init__(self, value, parent=None, new=False):
         QHBoxLayout.__init__(self)
         self.value = value
-        self.lineedit = QLineEdit('', parent)
+        
+        if value.startswith('file:'):
+            text = value[5:]
+            
+        elif value.startswith('dir:'):
+            text = value[4:]
+            
+        else:
+            text = value
+        
+        self.lineedit = QLineEdit(text, parent)        
         self.addWidget(self.lineedit)
         self.filebtn = QPushButton('Browse')
         if new:
@@ -311,12 +321,33 @@ class FileLayout(QHBoxLayout):
 
     def getfile(self):
         if self.value.startswith('file'):
-            name = QFileDialog.getOpenFileName(None, 'Select file',
-                                               filter=self.value[5:])
+            defaultDir = None
+            defaultFilter = None
+            
+            if '*' in self.text():
+                p = Path(text)
+                if not p.parent is None:
+                    defaultDir = str(p.parent)
+                defaultFilter = p.name
+
+            elif len(self.text()) > 0:
+                p = Path(text)
+                if not p.parent is None:
+                    defaultDir = str(p.parent)
+                               
+            name = QFileDialog.getOpenFileName(None, 'Select file', dir=defaultDir, filter=defaultFilter)
+                
             if QT_LIB in ['PyQt5', 'PySide2']:
                 name, _filter = name
-        elif self.value == 'dir':
-            name = QFileDialog.getExistingDirectory(None, 'Select directory')
+                
+        elif self.value.startswith('dir'):
+            name = QFileDialog.getExistingDirectory(None, 'Select directory', dir=self.lineedit.text())
+            
+        else:
+            name = QFileDialog.getOpenFileName(None, 'Select file')
+            if QT_LIB in ['PyQt5', 'PySide2']:
+                name, _filter = name                    
+            
         if name:
             self.lineedit.setText(name)
 
@@ -636,8 +667,11 @@ class FormWidget(QWidget):
             elif text_to_qcolor(value).isValid():
                 field = ColorLayout(QColor(value), self)
             elif is_text_string(value):
-                if value in ['file', 'dir'] or value.startswith('file:'):
+                if value in ['file'] or value.startswith('file:'):
                     field = FileLayout(value, self)
+
+                elif value in ['dir'] or value.startswith('dir:'):
+                    field = FileLayout(value, self)         
                     
                 elif value in ['newfile'] or value.startswith('newfile:'):
                     field = FileLayout(value[3:], self, new=True)                    
