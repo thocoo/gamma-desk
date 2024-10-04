@@ -631,7 +631,12 @@ class Interpreter(object):
         sys.stderr.write(text)
         
     def use_one_func(self, func, args, kwargs={}):
-        return 0, self.exec_func(func, args, kwargs)
+        try:
+            result = self.exec_func(func, args, kwargs)
+            return 0, result
+            
+        except:
+            return 1, result
         
     def exec_func(self, func, args, kwargs={}):
         try:
@@ -639,7 +644,8 @@ class Interpreter(object):
         except (SystemExit, KeyboardInterrupt, SyncBreaked):            
             raise
         except:           
-            self.showtraceback() 
+            self.showtraceback()
+            raise
             
     def use_one_command(self, cmd):                        
         error_code, code = self.compile_source(cmd, symbol='auto')
@@ -647,8 +653,13 @@ class Interpreter(object):
         if error_code != 0:  
             return error_code, cmd
             
-        else:
-            return error_code, self.exec_code(code)
+        try:
+            result = self.exec_code(code)
+            return 0, result
+             
+        except:
+            return 1, result
+            
             
     def exec_code(self, code):
         """
@@ -667,7 +678,8 @@ class Interpreter(object):
         except (SystemExit, KeyboardInterrupt, SyncBreaked):            
             raise
         except:           
-            self.showtraceback()             
+            self.showtraceback()  
+            raise
             
     def async_break(self):
         async_break(self.thread_id)  
