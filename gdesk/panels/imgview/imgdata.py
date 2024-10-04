@@ -192,7 +192,7 @@ class ImageStatistics(object):
         return self._cache['stepsize'] * step
         
     def n(self):
-        return self.roi.shape[0] * self.roi.shape[1]
+        return np.prod(self.roi.shape)
         
     def sum(self):
         return (self.histogram() * self.starts()).sum()
@@ -218,8 +218,11 @@ class ImageStatistics(object):
         n = self.n()
         
         if n >= 2:
-            result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1)) ** 0.5        
-            return result
+            result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1))
+            if result >= 0:
+                return result ** 0.5
+            else:
+                return np.nan
         else:
             return np.nan
         
