@@ -133,6 +133,10 @@ class TaskBase(object):
         else:
             result = self.send_func_and_call('eval', args, wait=True)
             return result[0]
+            
+    def dump(self, varname, value, represent='who', callback=None, wait=False):
+        return self.send_func_and_call('dump', (varname, value, represent), callback, wait)
+        
         
     def call_func(self, func, args=(), callback=None, wait=False, queue='stdin'):           
         if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
@@ -177,7 +181,7 @@ class TaskBase(object):
             if self.is_current_thread():
                 self.mainshell.interpreters[self.thread_id].execute()
             
-        elif mode in ['flow', 'eval', 'flow_func']:        
+        elif mode in ['flow', 'eval', 'flow_func', 'dump']:        
             self.flow_queue.put((mode, args, call_back_id))
             
             if self.is_current_thread():

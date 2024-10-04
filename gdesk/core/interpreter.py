@@ -310,7 +310,38 @@ class QueueInterpreter(object):
                 error_code = 1
                 
             callbackargs = (mode, error_code, result)
-            retvalue = 1            
+            retvalue = 1     
+
+
+        elif mode == 'dump':
+            try:          
+                varname = args[0]
+                value = args[1]                
+                    
+                self.shell.wsdict[varname] = value
+                
+                represent = args[2]               
+                    
+                if represent == 'who':
+                    self.shell.who(varname)                    
+                
+                elif represent == 'print':
+                    print(self.shell.wsdict[varname])
+                    
+                elif represent == 'pprint':
+                    self.shell.pprint(self.shell.wsdict[varname])                       
+                    
+                result = None
+                error_code = 0
+                
+            except Exception:
+                traceback.print_exc()
+                result = None
+                error_code = 1
+                
+            callbackargs = (mode, error_code, result)
+            retvalue = 1              
+
                 
         else:        
             callbackargs = (mode, 1, 'unkown')

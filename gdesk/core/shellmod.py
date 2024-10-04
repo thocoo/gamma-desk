@@ -574,4 +574,9 @@ class Shell(object):
         manager.update_now(True)
         
         
+    def who(self, varname=None):
+        value = self.wsdict.get(varname)        
+        print(f'{varname}: {type(value)} = ')
+        self.pprint(value)
+        
     
