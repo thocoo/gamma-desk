@@ -116,8 +116,9 @@ def make_map8(dtype='uint16', offset=0, gain=1, gamma=1):
             return ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange).clip(0, 255).astype('uint8')        
             
         else:
-            temp = ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange)
-            return (temp ** gamma * 255 ** (1-gamma)).clip(0, 255).astype('uint8')
+            linear = ((np.arange(natrange, dtype='double') - offset) * gain * 256 / natrange).clip(0)            
+            scale = 255 / 255**gamma
+            return (linear ** gamma * scale).clip(0, 255).astype('uint8')
             
     elif dtype in ['int8', 'int16']:
         halfrange = natrange // 2
