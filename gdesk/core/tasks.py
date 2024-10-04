@@ -38,7 +38,7 @@ process_name = multiprocessing.current_process().name
 logger.debug(f'import of {__name__} by {process_name}\n')
 
 from .shellmod import Shell
-from .gui_proxy import GuiProxy
+from .gui_proxy import GuiProxy, gui
 from .interpreter import Interpreter, QueueInterpreter
 from .comm import NonDuplexQueue, ZmqQueues, CommQueues
 
@@ -75,6 +75,15 @@ class TimeOutGuiCall(object):
             self.callback(*args)
         finally:
             self.lock.release()
+            
+            
+def callbackexcept(func, mode, error_code, result):
+
+    if not error_code == 0:
+        gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')
+        
+    else:
+        func(result)
         
 
 class TaskBase(object):   
@@ -138,8 +147,14 @@ class TaskBase(object):
     def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False):           
         if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
             func = self.gui_proxy.encode_func(func)
+            
+        if not callback is None:
+            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, mode, error_code, result)
+            
+        else:
+            callback_errhandle = None
         
-        return self.send_func_and_call('func_ext', (func, (args, kwargs)), callback, wait)
+        return self.send_func_and_call('func_ext', (func, (args, kwargs)), callback_errhandle, wait)
             
             
     def send_func_and_call(self, mode, args=(), callback=None, wait=False, timeout=0):
