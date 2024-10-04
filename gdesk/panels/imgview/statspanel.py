@@ -8,13 +8,13 @@ from ...dialogs.formlayout import fedit
 PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
 
 FUNCMAP = {
-    'Slices': 'slices_repr',
-    'Mean': 'mean',
-    'Std': 'std',
-    'Min': 'min',
-    'Max': 'max',
-    'N': 'n',
-    'Sum': 'sum'}
+    'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},
+    'Mean':   {'fmt': '{0:.4f}', 'attr': 'mean'},
+    'Std':    {'fmt': '{0:.4f}', 'attr': 'std'},
+    'Min':    {'fmt': '{0:.4f}', 'attr': 'min'},
+    'Max':    {'fmt': '{0:.4f}', 'attr': 'max'},
+    'N':      {'fmt': '{0:d}', 'attr': 'n'},
+    'Sum':    {'fmt': '{0:.4f}', 'attr': 'sum'}}
 
 
 def sort_masks(masks):
@@ -130,11 +130,13 @@ class StatisticsPanel(QtWidgets.QWidget):
             for j, column in enumerate(self.columns[1:]):
             
                 if stats.active:
-                    value = getattr(stats, FUNCMAP[column])()
+                    attr = FUNCMAP[column]['attr']
+                    fmt = FUNCMAP[column]['fmt']
+                    value = getattr(stats, attr)()                    
                     if isinstance(value, str):
                         text = value
                     else:
-                        text = f'{value:.4g}'
+                        text = fmt.format(value)
                 else:
                     text = ''
                     
@@ -159,6 +161,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             form.append((stat, stat in self.columns))
             
         r = fedit(form, title='Choose Items')
+        if r is None: return
 
         actives = [form[i][0] for i in range(len(form)) if r[i]]
         
