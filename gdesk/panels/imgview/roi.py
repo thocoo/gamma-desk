@@ -24,13 +24,13 @@ class SelRoiWidget(QtWidgets.QWidget):
     roiChanged = Signal()
     roiRemoved = Signal()
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, color=None):
         #width and height are the dimensions of the image (not the roi)
         super().__init__(parent=parent)
                              
         #  is this timer also active when roi isn't visible ???
         self.initProps()
-        self.initUI()
+        self.initUI(color)
         self.hide()
         
         self.timer = QtCore.QTimer(self)
@@ -42,11 +42,14 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.timer.start(100)
 
 
-    def initUI(self):
+    def initUI(self, color=None):
         self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
-        self.fillColor = QtGui.QColor(*config['roi color'])
         self.solidColor = Qt.white
-        self.dashColor = QtGui.QColor(*config['roi color'])
+        
+        if color is None: color = QtGui.QColor(*config['roi color'])
+        self.fillColor = color
+        self.dashColor = color
+        
         self.pensolid = QtGui.QPen(self.solidColor, 1, QtCore.Qt.SolidLine)        
         self.pendash = QtGui.QPen(self.dashColor, 1, QtCore.Qt.CustomDashLine)        
         self.pendash.setDashPattern([7, 5, 3, 5])   
