@@ -27,35 +27,41 @@ class SelRoiWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         #width and height are the dimensions of the image (not the roi)
         super().__init__(parent=parent)
-
-        self.phase = 0
-        self.solidColor = Qt.white        
-
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.newPhase)
-        self.timer.setSingleShot(True)
-        self.setMouseTracking(True)        
+                             
         #  is this timer also active when roi isn't visible ???
-
         self.initProps()
         self.initUI()
         self.hide()
         
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.newPhase)
+        self.timer.setSingleShot(True)
+        self.setMouseTracking(True)
+        
         self.get_context_menu = lambda: None  
+        self.timer.start(100)
+
 
     def initUI(self):
         self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
         self.fillColor = QtGui.QColor(*config['roi color'])
+        self.solidColor = Qt.white
         self.dashColor = QtGui.QColor(*config['roi color'])
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, False)
+        self.pensolid = QtGui.QPen(self.solidColor, 1, QtCore.Qt.SolidLine)        
+        self.pendash = QtGui.QPen(self.dashColor, 1, QtCore.Qt.CustomDashLine)        
+        self.pendash.setDashPattern([7, 5, 3, 5])   
+        self.phase = 0
+
         
     @property
     def vd(self):
         return self.parent().vd
+
         
     @property
     def selroi(self):
         return self.vd.selroi
+
 
     def initProps(self):
         self.dragSliceStartX = self.selroi.xr.start
@@ -67,30 +73,25 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.overscan = 5
         self.createState = False
 
+
     def selectAll(self):
         self.selroi.reset()
         self.selroi.update_statistics()
         self.recalcGeometry()
 
-    def newPhase(self):
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, True)
-        
-        self.phase = (self.phase + 1) % 8
 
-        #self.parent().setUpdatesEnabled(False)
-        #self.setUpdatesEnabled(True)                        
+    def newPhase(self):
+        self.phase = (self.phase + 1) % 20        
         
-        #self.blockSignals(True)
         self.repaint(0,self.overscan,self.width(),1)
         self.repaint(self.overscan,0,1,self.height())
         self.repaint(0,self.height()-self.overscan-1,self.width(),1)
         self.repaint(self.width()-self.overscan-1,0,1,self.height())
         
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, False)
-        #self.update()
-        #self.parent().blockSignals(False)
         self.timer.start(100)
-        #self.parent().setUpdatesEnabled(True)
+        
+        return
+        
 
     def setStartEndPoints(self, startX, startY, endX, endY):
     
@@ -115,15 +116,18 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         self.clip()
 
+
     def clip(self):
         self.selroi.ensure_rising()
         self.selroi.clip()
         self.selroi.update_statistics()
         self.recalcGeometry()
 
+
     def asSliceTupple(self):
         return (slice(self.selroi.xr.start, self.selroi.xr.stop), \
             slice(self.selroi.yr.start, self.selroi.yr.stop))
+
 
     def recalcGeometry(self):
         x0 = round((self.selroi.xr.start - self.parent().dispOffsetX) * self.parent().zoomValue)
@@ -134,6 +138,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         height = max(abs(y1 - y0),1)
 
         self.setGeometry(min(x0,x1)-self.overscan, min(y0,y1)-self.overscan, width+2*self.overscan, height+2*self.overscan)
+
 
     def mousePressEvent(self, event):
         if (event.buttons() == QtCore.Qt.RightButton) and \
@@ -187,6 +192,7 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         return vert * 3 + hori
 
+
     def setCursorShape(self, edgePosition):
         if edgePosition in (0, 8):
             self.setCursor(Qt.SizeFDiagCursor)
@@ -198,6 +204,7 @@ class SelRoiWidget(QtWidgets.QWidget):
             self.setCursor(Qt.SizeHorCursor)
         elif edgePosition == 4:
             self.setCursor(Qt.SizeAllCursor)
+
 
     def getMouseShifts(self, event, manhattan=False):
         if manhattan:
@@ -213,6 +220,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         shiftX = round((self.dragEndX - self.dragStartX) / self.parent().zoomValue)
         shiftY = round((self.dragEndY - self.dragStartY) / self.parent().zoomValue)
         return (shiftX, shiftY)
+
 
     def mouseMoveEvent(self, event):
         if event.buttons() == QtCore.Qt.RightButton:            
@@ -265,6 +273,7 @@ class SelRoiWidget(QtWidgets.QWidget):
             self.setCursorShape(self.edgePosition) 
             event.ignore()
 
+
     def mouseReleaseEvent(self, event):
         self.createState = False
         
@@ -290,12 +299,14 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.unsetCursor()
         self.repaint()
         event.ignore()
+
         
     def release_creation(self):
         self.createState = False        
         self.clip()
         self.roiChanged.emit()
         self.repaint()                
+
         
     def hideRoi(self):
         self.selroi.reset()
@@ -304,11 +315,13 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.roiRemoved.emit()
         self.repaint()   
 
+
     def paintEvent(self, e):
         qp = QtGui.QPainter()
         qp.begin(self)
         self.drawRoi(qp)
         qp.end()        
+
 
     def getRelativeCoord(self):
         x0 = self.overscan
@@ -317,19 +330,14 @@ class SelRoiWidget(QtWidgets.QWidget):
         y1 = self.size().height()-1-self.overscan
         return (x0, y0, x1, y1)
 
-    def drawRoi(self, qp):
-        pensolid = QtGui.QPen(self.solidColor, 1, QtCore.Qt.SolidLine)
-        pendash = QtGui.QPen(self.dashColor, 1, QtCore.Qt.CustomDashLine)
-##        pendash.setDashPattern([3, 3, 1, 5, 3, 3, 5, 1])
-        pendash.setDashPattern([4,4])
 
+    def drawRoi(self, qp):        
         x0 = self.overscan
         y0 = self.overscan        
-        #max-> keep is visible even if it is smaller then 1x1
+        
+        #max-> keep is visible even if it is smaller then 1x1        
         x1 = max(self.size().width() - 1 - self.overscan, x0 + 1)
-        y1 = max(self.size().height() - 1 - self.overscan, y0 + 1)
-
-        pendash.setDashOffset(8-self.phase)
+        y1 = max(self.size().height() - 1 - self.overscan, y0 + 1)        
 
         polygonRect = QtGui.QPolygon()
         polygonNe = QtGui.QPolygon()
@@ -344,19 +352,20 @@ class SelRoiWidget(QtWidgets.QWidget):
 
 
         if self.createState:
-            self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent, False)
             qp.setOpacity(0.25)
             qp.fillRect(x0, y0, x1-x0+1, y1-y0+1, self.fillColor)
-            qp.setOpacity(0.5)
+            
         else:
             qp.setOpacity(1.0)
-            self.timer.start(100)
-            
 
-        qp.setPen(pensolid)
-        qp.drawPolygon(polygonRect)
-        qp.setPen(pendash)
-        qp.drawPolyline(polygonNe)
-        qp.drawPolyline(polygonSw)
+        self.pendash.setDashOffset(8-self.phase)
+
+        # The background of the line
+        qp.setPen(self.pensolid)
+        qp.drawPolygon(polygonRect)                        
         
-        #self.parent().blockSignals(False)
+        # The Dashes
+        qp.setPen(self.pendash)        
+        qp.drawPolyline(polygonNe)
+        qp.drawPolyline(polygonSw)  
+        
