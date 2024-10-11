@@ -341,7 +341,17 @@ class ImageGuiProxy(GuiProxyBase):
         roi = panel.imviewer.roi
         roi.setStartEndPoints(x0, y0, x0 + width - 1, y0 + height - 1)        
         roi.show()
-        roi.roiChanged.emit()      
+        roi.roiChanged.emit()    
+
+    @StaticGuiCall
+    def add_roi_slices(name, slices, color='#FF0000'):
+        """
+        Add the region of interest on the current viewport.        
+        
+        :param tuple slices: Tuple of slices accross the dimensions.     
+        """    
+        panel = gui.qapp.panels.selected('image')
+        panel.imviewer.imgdata.addMaskStatistics(name, slices, color) 
         
         
     @StaticGuiCall
