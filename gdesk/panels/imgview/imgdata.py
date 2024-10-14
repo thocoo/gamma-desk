@@ -77,6 +77,7 @@ class SelectRoi(DimRanges):
         if not self.update_statistics_func is None:
             self.update_statistics_func()
             
+            
 def int_none_repr(v):
     if v is None:
         return ''
@@ -375,6 +376,30 @@ class ImageData(object):
         
     def customMaskNames(self):
         return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in RESERVED_MASK_NAMES)]
+        
+        
+    def find_chanstat_for_pixel(self, x, y):
+    
+        found = []
+    
+        for name, chanstat in self.chanstats.items():
+            if name in RESERVED_MASK_NAMES: continue
+            if name.startswith('roi.'): continue
+            
+            if y in range(*chanstat.slices[0].indices(self.height)) and \
+                x in range(*chanstat.slices[1].indices(self.width)):
+                found.append(name)
+                
+        for name in RESERVED_MASK_NAMES:
+            if not name in self.chanstats: continue
+            chanstat = self.chanstats[name]
+            
+            if y in range(*chanstat.slices[0].indices(self.height)) and \
+                x in range(*chanstat.slices[1].indices(self.width)):
+                found.append(name)
+                
+        return found
+                    
             
             
     def defineModeMasks(self, mode='mono'):

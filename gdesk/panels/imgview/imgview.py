@@ -5,6 +5,7 @@ from pathlib import Path
 import types
 from collections.abc import Iterable
 import queue
+from itertools import zip_longest
 import logging
 
 import numpy as np
@@ -431,6 +432,14 @@ class RecentMenu(QMenu):
             action.triggered.connect(OpenImage(self.imgpanel, path))
             self.addAction(action)
             self.actions.append(action)
+            
+            
+def wrap(func, *args, **kwargs):
+
+    def wrapper():
+        func(*args, **kwargs)
+        
+    return wrapper
 
 
 class ImageViewerWidget(QWidget):
@@ -458,6 +467,9 @@ class ImageViewerWidget(QWidget):
 
         self.dispRoiStartX = self.dispOffsetX
         self.dispRoiStartY = self.dispOffsetY
+        
+        self.sel_pix_x = 0
+        self.sel_pix_y = 0
 
         self.setBackgroundColor(*config['image background'])
         
@@ -821,8 +833,9 @@ class ImageViewerWidget(QWidget):
                 #self.setCursor(self.pickCursor)
                 
             else:
-                menu = self.parent().parent().get_select_menu()
-                menu.exec_(QtGui.QCursor.pos())        
+                x, y = self.getImageCoordOfMouseEvent(event)
+                self.parent().parent().exec_select_menu(x, y)
+                
                 
         self.setCursor(self.pickCursor)
 
@@ -971,7 +984,7 @@ class ImageViewerBase(BasePanel):
         self.defaults['gamma'] = 1
 
         self.createMenus()
-        self.createStatusBar()                
+        self.createStatusBar()
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
@@ -1142,7 +1155,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Copy the slice definition to the clipboard")            
         self.addMenuItem(self.selectMenu, 'Jump to Coordinates'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))                    
             
         dataSplitMenu = QMenu('Histogram && Profiles')
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')))
@@ -1153,10 +1166,22 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'))
         self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))                   
         self.selectMenu.addMenu(dataSplitMenu)            
+        
+        # self.addMenuItem(self.selectMenu, 'Pixel Properties', self.searchForRoi,
+            # icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'information.png')))
             
-        self.addMenuItem(self.selectMenu, 'Mask Value...'   , self.maskValue,
-            statusTip="Mask pixels based on value",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))                                              
+        self.selectMenu.addSeparator()
+        
+        self.searchForRoiSlots = []
+        
+        for i in range(4):
+            action = QAction(f"Custom Roi {i}", self, triggered=wrap(self.selectNamedRoi, i))
+            self.searchForRoiSlots.append(action)
+            self.selectMenu.addAction(action)
+            
+        # self.addMenuItem(self.selectMenu, 'Mask Value...'   , self.maskValue,
+            # statusTip="Mask pixels based on value",
+            # icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))                                              
 
         ### Canvas
         self.addMenuItem(self.canvasMenu, 'Flip Horizontal', self.flipHorizontal,
@@ -1238,14 +1263,31 @@ class ImageViewerBase(BasePanel):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'geolocation_sight.png')))
 
         self.addBaseMenu(['levels', 'values', 'image'])                                
-
+        
+        
     def get_select_menu(self):
-        #The select menu should be index 4 from the menuBar children
         return self.menuBar().children()[4]
+        
+
+    def exec_select_menu(self, x, y):
+        #The select menu should be index 4 from the menuBar children
+        roi_names = self.imviewer.imgdata.find_chanstat_for_pixel(x, y)   
+        
+        for roi_name, searchForRoiSlot in zip_longest(roi_names, self.searchForRoiSlots):
+            if roi_name is None:
+                searchForRoiSlot.setVisible(False)
+            else:
+                searchForRoiSlot.setVisible(True)
+                searchForRoiSlot.setText(roi_name)
+        
+        selectMenu = self.get_select_menu()
+        selectMenu.exec_(QtGui.QCursor.pos())
+        
 
     def createStatusBar(self):
         self.statuspanel = StatusPanel(self)
         self.statusBar().addWidget(self.statuspanel)
+        
 
     def set_info_xy_val(self, x, y):
         try:
@@ -1253,8 +1295,16 @@ class ImageViewerBase(BasePanel):
 
         except:
             val = None
-
+                    
         self.statuspanel.set_xy_val(x, y, val)
+        
+        
+    def selectNamedRoi(self, i):
+        roiName = self.searchForRoiSlots[i].text()
+        #self.parent().parent().selectMask(roiName)
+        self.imgprof.selectMask(roiName)
+        #gui.msgbox(f'Custom Roi {roiName}')        
+    
 
     def addBindingTo(self, category, panid):
         targetPanel = super().addBindingTo(category, panid)
@@ -2632,17 +2682,22 @@ class ImageProfileWidget(QWidget):
     
     def selectMask(self, mask):        
         
-        if not (mask in ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R'] or mask==''):
-            chanstats = self.imviewer.imgdata.chanstats[mask]
-
-            selroi = self.imviewer.imgdata.selroi  
-            selroi.xr.setfromslice(chanstats.slices[1])
-            selroi.yr.setfromslice(chanstats.slices[0])
+        roi = self.imviewer.roi
         
-            roi = self.imviewer.roi
-            roi.clip()
-            roi.show()
-            roi.roiChanged.emit()
+        if roi.isVisible() and not mask == '':
+            if not mask in ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']:            
+            
+                chanstats = self.imviewer.imgdata.chanstats[mask]
+            
+                selroi = self.imviewer.imgdata.selroi  
+                selroi.xr.setfromslice(chanstats.slices[1])
+                selroi.yr.setfromslice(chanstats.slices[0])
+        
+                
+            
+                roi.clip()
+                roi.show()
+                roi.roiChanged.emit()
             
         self.imviewer.imgdata.selectChannelStat(mask)
         self.rowPanel.selectProfile(mask)
