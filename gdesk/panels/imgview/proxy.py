@@ -11,13 +11,43 @@ logger = logging.getLogger(__name__)
 from ...core.gui_proxy import GuiProxyBase, StaticGuiCall
 from ... import gui, config
 from ...utils.shared import SharedArray
+
+
+class ViewerRoiAccess():
+
+    def __init__(self, parent):
+        self.parent = parent
+        
+        
+    def keys(self):
+        return self.parent.get_roi_names()
+        
+        
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            slices = self.parent.get_roi_slices(key)            
+        else:
+            slices = self.parent.get_roi_slices(None)
+            
+        return self.parent.vs[slices]
+        
+        
+    def __setitem__(self, key, value):
+        if isinstance(key, str):
+            #How to set the color
+            self.parent.add_roi_slices(key, value)
+        else:            
+            slices = self.parent.get_roi_slices(None)
+            self.parent.vs[slices][key] = value
+        
+    
         
 class ImageGuiProxy(GuiProxyBase):    
     category = 'image'
     opens_with = ['.tif', '.png', '.gif']
     
     def __init__(self):
-        pass
+        self.vrn = ViewerRoiAccess(self)
         
     def attach(self, gui):
         gui.img = self   
@@ -192,9 +222,9 @@ class ImageGuiProxy(GuiProxyBase):
         else:
             return array
         
-    @property    
-    def vr(self):
-        return self.get_image_view_region()
+    # @property    
+    # def vr(self):
+        # return self.get_image_view_region()
 
     @property    
     def buff(self):
@@ -344,7 +374,7 @@ class ImageGuiProxy(GuiProxyBase):
         roi.roiChanged.emit()    
 
     @StaticGuiCall
-    def add_roi_slices(name, slices, color='#FF0000'):
+    def add_roi_slices(name, slices, color=(0, 255, 0)):
         """
         Add the region of interest on the current viewport.        
         
@@ -358,16 +388,34 @@ class ImageGuiProxy(GuiProxyBase):
     def set_cfa(cfa='mono'):
         panel = gui.qapp.panels.selected('image')
         panel.setStatMasks(cfa)
+        
+        
+    @StaticGuiCall
+    def get_roi_names():
+        """
+        Get the current region of interest as a tupple of slice objects
+        """
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return []        
+        return list(panel.imviewer.imgdata.chanstats.keys())
     
 
     @StaticGuiCall
-    def get_roi_slices():
+    def get_roi_slices(name=None):
         """
         Get the current region of interest as a tupple of slice objects
         """
         panel = gui.qapp.panels.selected('image')
         if panel is None: return
-        return panel.imviewer.imgdata.selroi.getslices()
+        
+        if name is None:
+            return panel.imviewer.imgdata.selroi.getslices()
+            
+        else:
+            chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
+            if chanstat is None:
+                raise KeyError(f'{name} not found')
+            return chanstat.slices
         
     @StaticGuiCall
     def get_roi():
@@ -386,7 +434,7 @@ class ImageGuiProxy(GuiProxyBase):
     @property
     def vr(self):
         slices =  self.get_roi_slices()
-        return self.vs[slices]        
+        return self.vs[slices]
         
     @staticmethod
     def mirror_x():
