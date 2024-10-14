@@ -402,6 +402,7 @@ class Levels(QtWidgets.QWidget):
                 hist = hist / max(1, hist.max())
                 
             starts = chanstat.starts(stepmult)   
+            if len(starts) == 0: continue
             stepsize = chanstat.stepsize(stepmult)
             barstarts, histbar = self.xy_as_steps(starts, hist, stepsize)
             self.levelplot.plot_curve(clr, barstarts, histbar, color, dim=dim) 

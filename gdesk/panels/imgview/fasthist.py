@@ -97,6 +97,10 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         hist = np.r_[hist[len(hist)//2:], hist[:len(hist)//2]]
     
     non_zeros_indices = np.argwhere(hist > 0)
+    
+    if len(non_zeros_indices) == 0:
+        return hist[0:0], np.arange(0), 1
+        
     min_index = non_zeros_indices[0][0]
     max_index = non_zeros_indices[-1][0]
     

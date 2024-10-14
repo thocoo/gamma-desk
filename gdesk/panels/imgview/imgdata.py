@@ -199,21 +199,29 @@ class ImageStatistics(object):
         return (self.histogram() * self.starts()).sum()
         
     def mean(self):
-        return self.sum() / self.n()
+        n = self.n()
+        if n == 0:
+            return np.nan
+        return self.sum() / n
 
     def sumsq(self):
         return (self.histogram() * self.starts()**2).sum()
         
     def min(self):
-        non_zeros_indices = np.argwhere(self.histogram() > 0)
-        min_index = non_zeros_indices[0][0]
-        max_index = non_zeros_indices[-1][0]
-        return self.starts()[min_index]
+        hist = self.histogram()
+        starts = self._cache['starts']
+        if len(starts) > 0:
+            return starts[0]
+        else:
+            return np.nan
         
     def max(self):
-        non_zeros_indices = np.argwhere(self.histogram() > 0)
-        max_index = non_zeros_indices[-1][0]
-        return self.starts()[max_index]    
+        hist = self.histogram()
+        starts = self._cache['starts']
+        if len(starts) > 0:
+            return starts[-1]
+        else:
+            return np.nan
         
     def std(self):
         n = self.n()
@@ -233,7 +241,11 @@ class ImageStatistics(object):
         array = self.full_array
         
         slices = self.slices
-        y = roi.mean(axis)
+        
+        if roi.nbytes == 0:
+            return np.arange(0), np.arange(0)
+        
+        y = roi.mean(axis)        
 
         if y.ndim > 1:
             #Probably, still RGB split up
