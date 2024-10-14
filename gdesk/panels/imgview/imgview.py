@@ -1142,7 +1142,7 @@ class ImageViewerBase(BasePanel):
         self.viewMenu.addMenu(self.chooseValFormat)
 
         ### Select
-        self.addMenuItem(self.selectMenu, 'Select Full Image', self.selectAll,
+        self.addMenuItem(self.selectMenu, 'Reselect', self.reselect,
             statusTip="Select Full Image")
         self.addMenuItem(self.selectMenu, 'Deselect', self.selectNone,
             statusTip="Deselect, select nothing")
@@ -1991,14 +1991,13 @@ class ImageViewerBase(BasePanel):
     ############################
     # Select Menu Connections
 
-    def selectAll(self):
-        selroi = self.imviewer.imgdata.selroi
-        selroi.reset()
-        self.imviewer.roi.clip()
-        self.imviewer.roi.show()
+    def reselect(self):
+        self.imviewer.roi.showRoi()
+        
 
     def selectNone(self):
         self.imviewer.roi.hideRoi()
+        
 
     def setRoi(self):
         selroi = self.imviewer.imgdata.selroi

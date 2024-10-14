@@ -312,11 +312,20 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         
     def hideRoi(self):
-        self.selroi.reset()
+        #self.selroi.reset()
         self.hide()
         self.unsetCursor()
         self.roiRemoved.emit()
         self.repaint()   
+        
+        
+    def showRoi(self):
+        #self.selroi.reset()
+        self.show()
+        #self.unsetCursor()
+        self.clip()
+        self.roiChanged.emit()
+        self.repaint()          
 
 
     def paintEvent(self, e):
