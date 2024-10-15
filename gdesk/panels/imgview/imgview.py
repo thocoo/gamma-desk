@@ -440,6 +440,43 @@ def wrap(func, *args, **kwargs):
         func(*args, **kwargs)
         
     return wrapper
+    
+    
+#self.imviewer.imgdata.customMaskNames()
+
+class SelectNamedRoi():
+    def __init__(self, imgpanel, roiName):
+        self.imgpanel = imgpanel
+        self.roiName = roiName
+        
+    def __call__(self):
+        self.imgpanel.imgprof.selectMask(self.roiName)        
+        self.imgpanel.imgprof.imviewer.roi.show()
+    
+
+class CustomRoiMenu(QMenu):
+    def __init__(self, parent=None):
+        super().__init__('Custom Roi', parent)
+        self.imgpanel = self.parent()
+        self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
+
+    def showEvent(self, event):
+        self.initactions()
+
+    def initactions(self):
+        self.clear()
+        self.actions = []
+        
+        try:
+            roiNames = self.imgpanel.imviewer.imgdata.customMaskNames()
+        except:
+            roiNames = []
+                
+        for roiName in roiNames:
+            action = QAction(roiName, self)
+            action.triggered.connect(SelectNamedRoi(self.imgpanel, roiName))
+            self.addAction(action)
+            self.actions.append(action)
 
 
 class ImageViewerWidget(QWidget):
@@ -1143,32 +1180,41 @@ class ImageViewerBase(BasePanel):
 
         ### Select
         self.addMenuItem(self.selectMenu, 'Reselect', self.reselect,
-            statusTip="Select Full Image")
+            statusTip="Select or reselect a region of interest",
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_restangular.png')))
+            
         self.addMenuItem(self.selectMenu, 'Deselect', self.selectNone,
             statusTip="Deselect, select nothing")
+            
         self.addMenuItem(self.selectMenu, 'Select Roi...', self.setRoi,
-            statusTip="Select with input numbers dialog",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
-        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addRoiStaistics)            
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layer_select.png')),
+            statusTip="Select with input numbers dialog")
+            
+        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addRoiStaistics,
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
+            
         self.addMenuItem(self.selectMenu, 'Remove Roi Statistics...', self.removeRoiStatistics)            
-        self.addMenuItem(self.selectMenu, 'Copy slices to clipboard...', self.copySliceToClipboard,
-            statusTip="Copy the slice definition to the clipboard")            
-        self.addMenuItem(self.selectMenu, 'Jump to Coordinates'   , self.jumpToDialog,
+        
+        # self.addMenuItem(self.selectMenu, 'Copy slices to clipboard...', self.copySliceToClipboard,
+            # statusTip="Copy the slice definition to the clipboard")            
+            
+        self.addMenuItem(self.selectMenu, 'Select 1 Pixel...'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))                    
             
-        dataSplitMenu = QMenu('Histogram && Profiles')
-        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')))
+        dataSplitMenu = QMenu('Default Masks')
+        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
         self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'))
         self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'))
         self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'))
-        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))                   
-        self.selectMenu.addMenu(dataSplitMenu)            
+        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))
+                
         
-        # self.addMenuItem(self.selectMenu, 'Pixel Properties', self.searchForRoi,
-            # icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'information.png')))
+        self.selectMenu.addMenu(dataSplitMenu)                    
+        
+        self.selectMenu.addMenu(CustomRoiMenu(self))
             
         self.selectMenu.addSeparator()
         
@@ -1176,12 +1222,10 @@ class ImageViewerBase(BasePanel):
         
         for i in range(4):
             action = QAction(f"Custom Roi {i}", self, triggered=wrap(self.selectNamedRoi, i))
+            action.setVisible(False)
             self.searchForRoiSlots.append(action)
             self.selectMenu.addAction(action)
-            
-        # self.addMenuItem(self.selectMenu, 'Mask Value...'   , self.maskValue,
-            # statusTip="Mask pixels based on value",
-            # icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))                                              
+                                                      
 
         ### Canvas
         self.addMenuItem(self.canvasMenu, 'Flip Horizontal', self.flipHorizontal,
