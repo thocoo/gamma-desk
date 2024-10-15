@@ -9,12 +9,12 @@ PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G'
 
 FUNCMAP = {
     'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},
-    'Mean':   {'fmt': '{0:.4f}', 'attr': 'mean'},
-    'Std':    {'fmt': '{0:.4f}', 'attr': 'std'},
-    'Min':    {'fmt': '{0:.4f}', 'attr': 'min'},
-    'Max':    {'fmt': '{0:.4f}', 'attr': 'max'},
+    'Mean':   {'fmt': '{0:.4g}', 'attr': 'mean'},
+    'Std':    {'fmt': '{0:.4g}', 'attr': 'std'},
+    'Min':    {'fmt': '{0:.4g}', 'attr': 'min'},
+    'Max':    {'fmt': '{0:.4g}', 'attr': 'max'},
     'N':      {'fmt': '{0:d}', 'attr': 'n'},
-    'Sum':    {'fmt': '{0:.4f}', 'attr': 'sum'}}
+    'Sum':    {'fmt': '{0:.4g}', 'attr': 'sum'}}
 
 
 def sort_masks(masks):
