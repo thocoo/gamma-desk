@@ -3,11 +3,14 @@ import collections
 import queue
 import threading
 import math
+from collections import OrderedDict
 
 from qtpy import QtGui, QtCore
 from qtpy.QtGui import QImage
 
 import numpy as np
+
+import matplotlib as mpl
 
 from ... import gui, config
 
@@ -18,6 +21,8 @@ from .dimensions import DimRanges
 from . import fasthist
 
 here = pathlib.Path(__file__).absolute().parent
+
+PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
 
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb
@@ -37,6 +42,13 @@ COMPMODE['darken'] = QtGui.QPainter.CompositionMode_Darken
 COMPMODE['lighten'] = QtGui.QPainter.CompositionMode_Lighten 
 
 RESERVED_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
+
+
+def get_next_color_tuple():
+    plot_color = tuple([int(round(ch)) for ch in PLOT_COLORS[0]])
+    PLOT_COLORS[:] = np.roll(PLOT_COLORS, 2, axis=0)
+    return plot_color
+            
     
 class SelectRoi(DimRanges):
 
@@ -87,11 +99,20 @@ def int_none_repr(v):
         
 class ImageStatistics(object):
 
-    def __init__(self, imgdata, plot_color):
+    def __init__(self, imgdata, plot_color=None):
         self.imgdata = imgdata
         self._cache = dict()
         self.slices = None
+        
+        if plot_color is None:
+            plot_color = get_next_color_tuple()
+            
+        if not isinstance(plot_color, QtGui.QColor):
+            # Expect a typle of integers
+            plot_color = QtGui.QColor(*plot_color)
+            
         self.plot_color = plot_color
+        
         self.dim = False
         self.active = True
 
@@ -296,7 +317,7 @@ class ImageData(object):
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
         
         self.masks = dict()
-        self.chanstats = dict()
+        self.chanstats = OrderedDict()
         self.cfa = 'mono'
         
         self.show_array(arr)        
@@ -359,7 +380,7 @@ class ImageData(object):
             else:
                 mode = 'rgb'  
 
-        # TO DO
+        # TO DOG
         # It is not always needed to redefine masks and chanstats
         # masks and chanstats that are still valid should be kept
         
@@ -377,11 +398,7 @@ class ImageData(object):
             self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
-    def addMaskStatistics(self, name, slices, color):
-    
-        if not isinstance(color, QtGui.QColor):
-            color = QtGui.QColor(*color)
-        
+    def addMaskStatistics(self, name, slices, color=None):
         self.chanstats[name] = ImageStatistics(self, color)
         self.chanstats[name].attach_full_array(slices)
         

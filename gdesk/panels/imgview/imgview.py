@@ -108,7 +108,7 @@ from .blueprint import make_thumbnail
 from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
-from .imgdata import ImageData
+from .imgdata import ImageData, get_next_color_tuple
 from .roi import SelRoiWidget
 from .dialogs import RawImportDialog
 from .statspanel import StatisticsPanel
@@ -2025,9 +2025,13 @@ class ImageViewerBase(BasePanel):
 
     def addRoiStaistics(self):
         selroi = self.imviewer.imgdata.selroi
+        
+        color = get_next_color_tuple()
+        
+        color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
 
         form = [('Name',  'custom'),
-                ('Color',  'green'),
+                ('Color',  color_str),
                 ('x start', selroi.xr.start),
                 ('x stop', selroi.xr.stop),
                 ('x step', selroi.xr.step),

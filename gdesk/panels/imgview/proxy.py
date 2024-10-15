@@ -13,6 +13,14 @@ from ... import gui, config
 from ...utils.shared import SharedArray
 
 
+def is_tuple_of_slices(obj):
+    if not isinstance(obj, tuple): return False
+    
+    if True in [not isinstance(item, slice) for item in obj]: return False
+    
+    return True
+
+
 class ViewerRoiAccess():
 
     def __init__(self, parent):
@@ -36,6 +44,10 @@ class ViewerRoiAccess():
         if isinstance(key, str):
             #How to set the color
             self.parent.add_roi_slices(key, value)
+        
+        elif is_tuple_of_slices(key) and isinstance(value, str):
+            self.parent.add_roi_slices(value, key)
+            
         else:            
             slices = self.parent.get_roi_slices(None)
             self.parent.vs[slices][key] = value
@@ -374,13 +386,18 @@ class ImageGuiProxy(GuiProxyBase):
         roi.roiChanged.emit()    
 
     @StaticGuiCall
-    def add_roi_slices(name, slices, color=(0, 255, 0)):
+    def add_roi_slices(name, slices, color=None):
         """
         Add the region of interest on the current viewport.        
         
         :param tuple slices: Tuple of slices accross the dimensions.     
         """    
         panel = gui.qapp.panels.selected('image')
+        
+        if color is None:
+            if name in panel.imviewer.imgdata.chanstats:
+                color = panel.imviewer.imgdata.chanstats[name].plot_color
+            
         panel.imviewer.imgdata.addMaskStatistics(name, slices, color) 
         
         
