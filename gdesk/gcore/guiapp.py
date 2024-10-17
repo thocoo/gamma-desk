@@ -13,7 +13,12 @@ from qtpy import QtGui, QtWidgets, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
 
 if API_NAME in ['PySide6']:
-    from qtpy.QtGui import QGuiApplication    
+    from qtpy.QtGui import QGuiApplication
+
+    # Workaround for https://github.com/thocoo/gamma-desk/issues/34
+    from qtpy.QtGui import QPainterPath
+    if not hasattr(QPainterPath, "Element"):
+        QPainterPath.Element = None
 else:
     from qtpy.QtWidgets import QDesktopWidget
    
