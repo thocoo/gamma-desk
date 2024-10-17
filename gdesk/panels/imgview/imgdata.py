@@ -46,7 +46,7 @@ RESERVED_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
 
 def get_next_color_tuple():
     plot_color = tuple([int(round(ch)) for ch in PLOT_COLORS[0]])
-    PLOT_COLORS[:] = np.roll(PLOT_COLORS, 2, axis=0)
+    PLOT_COLORS[:] = np.roll(PLOT_COLORS, 1, axis=0)
     return plot_color
             
     
@@ -398,9 +398,10 @@ class ImageData(object):
             self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
-    def addMaskStatistics(self, name, slices, color=None):
+    def addMaskStatistics(self, name, slices, color=None, active=True):
         self.chanstats[name] = ImageStatistics(self, color)
         self.chanstats[name].attach_full_array(slices)
+        self.chanstats[name].active = active
         
         
     def customMaskNames(self):

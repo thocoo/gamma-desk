@@ -386,7 +386,7 @@ class ImageGuiProxy(GuiProxyBase):
         roi.roiChanged.emit()    
 
     @StaticGuiCall
-    def add_roi_slices(name, slices, color=None):
+    def add_roi_slices(name, slices, color=None, active=True):
         """
         Add the region of interest on the current viewport.        
         
@@ -398,7 +398,7 @@ class ImageGuiProxy(GuiProxyBase):
             if name in panel.imviewer.imgdata.chanstats:
                 color = panel.imviewer.imgdata.chanstats[name].plot_color
             
-        panel.imviewer.imgdata.addMaskStatistics(name, slices, color) 
+        panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
         
         
     @StaticGuiCall
