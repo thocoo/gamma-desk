@@ -59,7 +59,7 @@ class ImageGuiProxy(GuiProxyBase):
     opens_with = ['.tif', '.png', '.gif']
     
     def __init__(self):
-        self.vrn = ViewerRoiAccess(self)
+        self.roi = ViewerRoiAccess(self)
         
     def attach(self, gui):
         gui.img = self   

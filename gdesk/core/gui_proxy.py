@@ -451,12 +451,25 @@ class GuiProxy(object):
     @property  
     def vr(self):
         """
-        The roi sliced numpy array of the current image viewer
+        The selection interface of the current image viewer
         """
         try:
             return self.img.vr
         except:
             return None
+            
+            
+    @property  
+    def roi(self):
+        """
+        The named roi interface of the current image viewer
+        """
+        try:
+            return self.img.roi
+            
+        except:
+            return None
+            
 
     @StaticGuiCall 
     def menu_trigger(category, pandid, action_names, *args, **kwargs):
