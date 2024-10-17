@@ -2647,6 +2647,7 @@ class ImageProfileWidget(QWidget):
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
+        self.statsPanel.activesChanged.connect(self.refresh)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
@@ -2765,7 +2766,7 @@ class ImageProfileWidget(QWidget):
         else:
             self.showOnlyRuler()
 
-    profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
+    profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)    
 
 
     def refresh_profile_views(self):
@@ -2781,6 +2782,13 @@ class ImageProfileWidget(QWidget):
             self.rowPanel.zoomFit()
             
         self.rowPanel.view.refresh()
+        
+        
+    def refresh(self):
+        parent = self.parent()        
+        parent.contentChanged.emit(parent.panid, False)
+        parent.refresh_profiles_and_stats()
+               
         
     @property
     def ndarray(self):    
@@ -2873,7 +2881,7 @@ class ImageProfilePanel(ImageViewerBase):
             self.imgprof.refresh_profile_views()  
             
 
-    def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
+    def show_array(self, array=None, zoomFitHist=False, log=True, skip_init=False):
         super().show_array(array, zoomFitHist, log=log, skip_init=skip_init)        
         self.refresh_profiles_and_stats()
         

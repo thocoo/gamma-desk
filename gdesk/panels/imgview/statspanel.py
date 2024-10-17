@@ -32,6 +32,7 @@ def sort_masks(masks):
 class StatisticsPanel(QtWidgets.QWidget):    
     
     maskSelected = Signal(str)
+    activesChanged = Signal()
     
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -150,7 +151,12 @@ class StatisticsPanel(QtWidgets.QWidget):
         if column != 0: return
         nameCell = self.table.item(row, 0)
         mask = nameCell.text()
-        self.imviewer.imgdata.chanstats[mask].active = (nameCell.checkState() == Qt.Checked)
+        
+        new_state = nameCell.checkState() == Qt.Checked
+        
+        if new_state != self.imviewer.imgdata.chanstats[mask].active: 
+            self.imviewer.imgdata.chanstats[mask].active = new_state            
+            self.activesChanged.emit()
         
         
     def handleContextMenu(self, pos):
