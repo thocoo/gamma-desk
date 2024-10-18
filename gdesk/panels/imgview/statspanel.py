@@ -66,7 +66,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().currentRowChanged.connect(self.rowSelected)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.modifyMask)
-        self.table.cellChanged.connect(self.cellChanged)
+        self.table.cellClicked.connect(self.cellClicked)
         self.table.customContextMenuRequested.connect(self.handleContextMenu)        
         
         self.vbox = QtWidgets.QVBoxLayout()
@@ -74,6 +74,22 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.vbox.setSpacing(0)
         self.setLayout(self.vbox)                       
         self.vbox.addWidget(self.table)
+        
+        self.contextMenu = QtWidgets.QMenu('Mask')
+        #dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
+        
+        act = QtWidgets.QAction('Activate', self, triggered=self.activateSelectedStatistics)
+        self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Deactivate', self, triggered=self.deactivateSelectedStatistics)
+        self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Show/Hide Inactives', self, triggered=self.toggleShowInactives)
+        self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
+        self.contextMenu.addAction(act)        
+        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
+        self.contextMenu.addAction(act)
+
+        self.showInActives = True
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
@@ -98,7 +114,12 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.maskSelected.emit('')
             
             
-    def modifyMask(self, row, column):
+    def modifyMask(self, row=None, column=None):
+        
+        if row is None and column is None:
+            indices = self.table.selectionModel().selectedRows()
+            row = list(indices)[0].row()
+        
         maskName = self.table.item(row, 0).text()
         
         chanstat = self.imviewer.imgdata.chanstats.get(maskName)
@@ -127,8 +148,13 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def updateStatistics(self):    
     
-        chanstats = self.imviewer.imgdata.chanstats        
-        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]        
+        chanstats = self.imviewer.imgdata.chanstats
+        
+        if self.showInActives:
+            valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]
+        else:
+            valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active]
+            
         self.table.setRowCount(len(valid_stats_names))
         
         for i, name in enumerate(valid_stats_names):
@@ -161,28 +187,43 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.table.setRowHeight(i, 20)
             
             
-    def cellChanged(self, row, column):
+    #def cellChanged(self, row, column):
+    def cellClicked(self, row, column):
         if column != 0: return
+        
+        selection = self.table.selectionModel().selectedRows()
+        
+        states = {}
+        
+        print(f'Selection lenght: {len(selection)}')
+        
         nameCell = self.table.item(row, 0)
-        mask = nameCell.text()
-        
         new_state = nameCell.checkState() == Qt.Checked
+        clickedMask = nameCell.text()
         
-        if new_state != self.imviewer.imgdata.chanstats[mask].active: 
-            chanstats = self.imviewer.imgdata.chanstats[mask]            
-            
-            if new_state:
-                last_active_index = get_last_active(self.imviewer.imgdata.chanstats)
-                chanstats.active = new_state
-                self.imviewer.imgdata.chanstats.move_to_position(mask, last_active_index + 1)                
-            
-            else:
-                #Move non actives to the end
-                #self.imviewer.imgdata.chanstats.pop(mask)
-                #self.imviewer.imgdata.chanstats[mask] = chanstats
-                chanstats.active = new_state
-                self.imviewer.imgdata.chanstats.move_to_end(mask, last=True)
+        if len(selection) == 0:        
+            states[clickedMask] = new_state
+
+        else:            
+            for index in selection:
+                nameCell = self.table.item(index.row(), 0)
+                mask = nameCell.text()
+                states[mask] = new_state
                 
+            if not clickedMask in states:
+                # The clicked row is not part of the selection
+                # Ignore the selection and give the click the priority
+                states = {clickedMask: new_state}
+            
+        do_update = False
+        
+        for mask, new_state in states.items():        
+            if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
+                chanstats = self.imviewer.imgdata.chanstats[mask]
+                chanstats.active = new_state
+                do_update = True
+                
+        if do_update:
             self.activesChanged.emit()
             
             
@@ -199,20 +240,46 @@ class StatisticsPanel(QtWidgets.QWidget):
         actives = [form[i][0] for i in range(len(form)) if r[i]]
         
         self.setActiveColumns(actives)
-        self.updateStatistics()            
+        self.updateStatistics()
         
         
-    def handleContextMenu(self, pos):
-    
-        form = []
-        
-        for stat in FUNCMAP.keys():
-            form.append((stat, stat in self.columns))
-            
-        r = fedit(form, title='Choose Items')
-        if r is None: return
+    def handleContextMenu(self, pos):      
+        self.contextMenu.exec_(QtGui.QCursor().pos())
 
-        actives = [form[i][0] for i in range(len(form)) if r[i]]
+
+    def activateSelectedStatistics(self):
+        selection = self.table.selectionModel().selectedRows()
         
-        self.setActiveColumns(actives)
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats[roi_name].active = True
+            
+        self.updateStatistics()
+        
+        
+    def deactivateSelectedStatistics(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats[roi_name].active = False
+            
+        self.updateStatistics()        
+        
+        
+    def toggleShowInactives(self):
+        self.showInActives = not self.showInActives
+        self.updateStatistics()
+        
+        
+    def removeSelectedStatistics(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats.pop(roi_name)
+            
         self.updateStatistics()

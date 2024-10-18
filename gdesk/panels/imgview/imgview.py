@@ -1320,6 +1320,10 @@ class ImageViewerBase(BasePanel):
         for roi_name, searchForRoiSlot in zip_longest(roi_names, self.searchForRoiSlots):
             if roi_name is None:
                 searchForRoiSlot.setVisible(False)
+                
+            elif searchForRoiSlot is None:
+                pass
+            
             else:
                 searchForRoiSlot.setVisible(True)
                 searchForRoiSlot.setText(roi_name)
