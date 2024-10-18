@@ -27,6 +27,17 @@ def sort_masks(masks):
             return -1
             
     return sorted(masks, key=location)
+
+    
+def get_last_active(chanstats):
+    
+    n = len(chanstats)
+    
+    for i, key in enumerate(chanstats.order[::-1]):    
+        if chanstats[key].active:
+            return (n - i - 1)
+            
+    return 0            
     
 
 class StatisticsPanel(QtWidgets.QWidget):    
@@ -111,14 +122,12 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def updateStatistics(self):    
     
-        chanstats = self.imviewer.imgdata.chanstats
-        
-        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]
+        chanstats = self.imviewer.imgdata.chanstats        
+        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]        
         self.table.setRowCount(len(valid_stats_names))
         
-        for i, name in  enumerate(sort_masks(valid_stats_names)):
-            stats = chanstats[name]
-            
+        for i, name in enumerate(valid_stats_names):
+            stats = chanstats[name]            
             item_name = QtWidgets.QTableWidgetItem(name)            
             R, G, B, A = stats.plot_color.toTuple()
             
@@ -155,7 +164,20 @@ class StatisticsPanel(QtWidgets.QWidget):
         new_state = nameCell.checkState() == Qt.Checked
         
         if new_state != self.imviewer.imgdata.chanstats[mask].active: 
-            self.imviewer.imgdata.chanstats[mask].active = new_state            
+            chanstats = self.imviewer.imgdata.chanstats[mask]            
+            
+            if new_state:
+                last_active_index = get_last_active(self.imviewer.imgdata.chanstats)
+                chanstats.active = new_state
+                self.imviewer.imgdata.chanstats.move_to_position(mask, last_active_index + 1)                
+            
+            else:
+                #Move non actives to the end
+                #self.imviewer.imgdata.chanstats.pop(mask)
+                #self.imviewer.imgdata.chanstats[mask] = chanstats
+                chanstats.active = new_state
+                self.imviewer.imgdata.chanstats.move_to_end(mask, last=True)
+                
             self.activesChanged.emit()
         
         

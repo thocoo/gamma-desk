@@ -3,7 +3,7 @@ import collections
 import queue
 import threading
 import math
-from collections import OrderedDict
+from collections import OrderedDict, UserDict
 
 from qtpy import QtGui, QtCore
 from qtpy.QtGui import QImage
@@ -95,6 +95,50 @@ def int_none_repr(v):
         return ''
     else:
         return v
+        
+        
+class OrderedStats(UserDict):
+
+    def __init__(self, *args, **kwargs):
+        UserDict.__init__(self, *args, **kwargs)        
+        self.order = []
+        
+    def __setitem__(self, key, value):
+        self.data[key] = value
+        
+        if not key in self.order:
+            self.order.append(key)
+            
+    def items(self):
+        for key in self.order:
+            yield key, self.data[key]
+
+
+    def pop(self, key):
+        self.order.remove(key)
+        return self.data.pop(key)
+        
+        
+    def clear(self):
+        self.data.clear()
+        self.order.clear()
+        
+        
+    def move_to_position(self, key, index=0):
+        self.order.remove(key)
+        self.order.insert(index, key)        
+            
+            
+    def move_to_end(self, key, last=True):
+        if last:
+            self.order.remove(key)
+            self.order.append(key)
+            
+        else:        
+            self.order.remove(key)
+            self.order.insert(0, key)
+            
+    
             
         
 class ImageStatistics(object):
@@ -317,7 +361,8 @@ class ImageData(object):
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
         
         self.masks = dict()
-        self.chanstats = OrderedDict()
+        #self.chanstats = OrderedDict()
+        self.chanstats = OrderedStats()
         self.cfa = 'mono'
         
         self.show_array(arr)        
