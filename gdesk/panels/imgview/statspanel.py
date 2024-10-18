@@ -50,10 +50,15 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.initUi()
         
     def initUi(self):        
-        self.table = QtWidgets.QTableWidget()        
-        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table = QtWidgets.QTableWidget()                
+        
+        headers = self.table.horizontalHeader()
+        headers.setContextMenuPolicy(Qt.CustomContextMenu)
+        headers.customContextMenuRequested.connect(self.handleHeaderMenu)        
         
         self.setActiveColumns(["Mean", "Std", "Min", "Max"])
+        
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.table.horizontalHeader().setDefaultSectionSize(20)
         self.table.verticalHeader().hide()
@@ -62,7 +67,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.modifyMask)
         self.table.cellChanged.connect(self.cellChanged)
-        self.table.customContextMenuRequested.connect(self.handleContextMenu)
+        self.table.customContextMenuRequested.connect(self.handleContextMenu)        
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
@@ -179,6 +184,22 @@ class StatisticsPanel(QtWidgets.QWidget):
                 self.imviewer.imgdata.chanstats.move_to_end(mask, last=True)
                 
             self.activesChanged.emit()
+            
+            
+    def handleHeaderMenu(self, pos):
+    
+        form = []
+        
+        for stat in FUNCMAP.keys():
+            form.append((stat, stat in self.columns))
+            
+        r = fedit(form, title='Choose Items')
+        if r is None: return
+
+        actives = [form[i][0] for i in range(len(form)) if r[i]]
+        
+        self.setActiveColumns(actives)
+        self.updateStatistics()            
         
         
     def handleContextMenu(self, pos):
