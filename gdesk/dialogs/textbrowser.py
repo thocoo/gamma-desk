@@ -29,16 +29,16 @@ class TextEditLinks(QtWidgets.QTextBrowser):
         self.append(f'<a href="mailto:{mail_address}">{text}</a>')
 
 
-#class TextBrowser(QtWidgets.QDialog):
-class TextBrowser(QtWidgets.QWidget):
+class TextBrowser(QtWidgets.QDialog):
+#class TextBrowser(QtWidgets.QWidget):
     """
     The About window
     """
     def __init__(self, content: str='No content', title: str='HTML', icon: str=None):
         super().__init__()
         self.initUI(content, title, icon)
-        gui.qapp.unnamed_windows.append(self)
-        self.show()
+        #gui.qapp.unnamed_windows.append(self)
+        #self.show()
         
 
     def initUI(self, content, title, icon):
@@ -49,7 +49,7 @@ class TextBrowser(QtWidgets.QWidget):
         self.setMinimumHeight(400)
 
         self.setWindowTitle(title)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        #self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         # message = f"""<center><h2>{PROGNAME}</h2>
             # <p>Version {__release__}</p>
@@ -79,9 +79,9 @@ class TextBrowser(QtWidgets.QWidget):
         hboxbut = QtWidgets.QHBoxLayout()
         hboxbut.addStretch(1)
         
-        pinButton = QtWidgets.QPushButton("Toggle Stay on Top")
-        pinButton.clicked.connect(self.toggleOnTop)
-        hboxbut.addWidget(pinButton)
+        # pinButton = QtWidgets.QPushButton("Toggle Stay on Top")
+        # pinButton.clicked.connect(self.toggleOnTop)
+        # hboxbut.addWidget(pinButton)
         
         okButton = QtWidgets.QPushButton("OK")
         okButton.clicked.connect(self.close)
@@ -94,21 +94,21 @@ class TextBrowser(QtWidgets.QWidget):
         self.setLayout(vbox)
 
         
-    def toggleOnTop(self):
-        flags = self.windowFlags()
+    # def toggleOnTop(self):
+        # flags = self.windowFlags()
         
-        if (flags & Qt.WindowStaysOnTopHint) == Qt.WindowStaysOnTopHint:
-            flags = flags & (~Qt.WindowStaysOnTopHint)
-        else:
-            flags = flags | Qt.WindowStaysOnTopHint
+        # if (flags & Qt.WindowStaysOnTopHint) == Qt.WindowStaysOnTopHint:
+            # flags = flags & (~Qt.WindowStaysOnTopHint)
+        # else:
+            # flags = flags | Qt.WindowStaysOnTopHint
         
-        self.setWindowFlags(flags)
-        self.show()            
+        # self.setWindowFlags(flags)
+        # self.show()            
         
         
-    def closeEvent(self, event):
-        gui.qapp.unnamed_windows.remove(self)
-        event.accept()
+    # def closeEvent(self, event):
+        # gui.qapp.unnamed_windows.remove(self)
+        # event.accept()
             
    
 

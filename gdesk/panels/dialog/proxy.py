@@ -308,7 +308,5 @@ class DialogGuiProxy(GuiProxyBase):
     @StaticGuiCall       
     def textbrowser(content: str='No content', title: str='HTML', icon: str=None):        
         window = TextBrowser(content, title, icon)
-#        gui.qapp.unnamed_windows.append(window)
-        #return window
-        #dialog.exec_()
+        window.exec_()
         
