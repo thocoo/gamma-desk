@@ -10,6 +10,7 @@ if config.get('qapp', False):
     from ...dialogs.filterlist import FilterList    
     from ...dialogs import base as dialogs
     from ...dicttree.widgets import DictionaryTreeDialog
+    from ...dialogs.textbrowser import TextBrowser
     
 from ...core.gui_proxy import gui, GuiProxyBase, StaticGuiCall
       
@@ -302,4 +303,12 @@ class DialogGuiProxy(GuiProxyBase):
         dt = DictionaryTreeDialog(*args, **kwargs)
         dt.edit()
         return dt.to_dict_list()
+        
+       
+    @StaticGuiCall       
+    def textbrowser(content: str='No content', title: str='HTML', icon: str=None):        
+        window = TextBrowser(content, title, icon)
+#        gui.qapp.unnamed_windows.append(window)
+        #return window
+        #dialog.exec_()
         

@@ -84,6 +84,7 @@ class GuiApplication(QApplication):
         super().__init__(argv)                
         
         self.windows = dict()
+        self.unnamed_windows = []
         self.panels = Panels(self)
         self.panelsDialog = MainDialog(self.panels)
         self.appIcon = QIcon(str(respath / 'logo' / 'logo_32px.png'))
