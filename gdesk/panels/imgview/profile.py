@@ -190,7 +190,7 @@ class ProfilerPanel(QtWidgets.QWidget):
                 
             self.stopX = min(self.imagePanel.vd.height, self.stopX)            
             self.ruler = TickedRuler(90, self.startX, self.stopX, scaleX,
-                                     self.palette().color(QtGui.QPalette.Base), noDecimals=True)
+                                     bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
         self.ruler.setZValue(1)
         self.scene.addItem(self.ruler)
