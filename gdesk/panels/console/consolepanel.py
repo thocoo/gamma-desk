@@ -8,7 +8,7 @@ from pathlib import Path
 from qtpy import QtCore, QtGui, QtWidgets
 
 from qtpy.QtCore import Qt, QTimer, QSize
-from qtpy.QtGui import QFont, QFontMetrics, QTextCursor, QTextOption, QPainter, QTextCharFormat
+from qtpy.QtGui import QFont, QFontMetrics, QTextCursor, QTextOption, QPainter, QTextCharFormat, QPalette
 from qtpy.QtWidgets import (QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QTextEdit, QWidget, QStyle, QStyleFactory, QApplication, QCompleter, QComboBox)
 
@@ -157,7 +157,7 @@ class StdInputPanel(QPlainTextEdit):
         #self.setFocusPolicy(Qt.StrongFocus)
 
         self.styles = dict()
-        self.styles['interprete'] = "background-color:white;"
+        self.styles['interprete'] = f"background-color:{self.palette().color(QPalette.Base).name()};"
         self.styles['wait'] = "background-color:#DDBBBB;"
         self.styles['running'] = "background-color:#FFFFE0;"
         self.styles['input'] = "background-color:#BBBBDD;"
@@ -498,13 +498,7 @@ class StdPlainOutputPanel(QPlainTextEdit):
         self.setReadOnly(True)
         self._ansi_processor = None
         self.auto_scroll = True
-        
-        self.styles = dict()
-        self.styles['interprete'] = "background-color:white;"
-        self.styles['wait'] = "background-color:#DDBBBB;"
-        self.styles['running'] = "background-color:#FFFFE0;"
-        self.styles['input'] = "background-color:#BBBBDD;"
-        self.styles['ended'] = "background-color:#EFEFEF;"        
+
         self.configure(config)
 
     @property
