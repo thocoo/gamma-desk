@@ -88,17 +88,17 @@ class SubDivisionY(QtWidgets.QGraphicsLineItem):
 #class TickedRuler(QtWidgets.QGraphicsItemGroup):
 class TickedRuler(QtWidgets.QGraphicsPolygonItem):
     
-    def __init__(self, orientation, start, stop, scale, noDecimals=True, parent=None, scene=None):
+    def __init__(self, orientation, start, stop, scale, bg_color, noDecimals=True, parent=None, scene=None):
         super().__init__(parent=parent)           
         
         self.orientation = orientation
         self.noDecimals = noDecimals        
         self.logscale = False
         self.create_ticks(start, stop, scale)         
-        self.init_bg()
+        self.init_bg(bg_color=bg_color)
         self.labelItems = dict()
-        self.make_labels(self.ticks.push_values)        
-        
+        self.make_labels(self.ticks.push_values)
+
     def create_ticks(self, start, stop, scale):
         self.start = start
         self.stop = stop
@@ -124,7 +124,7 @@ class TickedRuler(QtWidgets.QGraphicsPolygonItem):
         else:
             self.axline.setLine(0, start, 0, stop)
         
-    def init_bg(self):
+    def init_bg(self, bg_color):
         if self.orientation == 0:
             self.bgrect = QtWidgets.QGraphicsRectItem(-1e6, 0, 2e6, 22, parent=self)
             self.axline = QtWidgets.QGraphicsLineItem(self.start, 0, self.stop, 0, parent=self)
@@ -138,8 +138,8 @@ class TickedRuler(QtWidgets.QGraphicsPolygonItem):
             self.axline = QtWidgets.QGraphicsLineItem(0, self.start, 0, self.stop, parent=self)
             
         self.bgrect.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
-        self.bgrect.setPen(QtGui.QPen(QtGui.QColor(255,255,255), 0))
-        self.bgrect.setBrush(QtGui.QBrush(QtGui.QColor(255,255,255), QtCore.Qt.SolidPattern))    
+        self.bgrect.setPen(QtGui.QPen(bg_color, 0))
+        self.bgrect.setBrush(QtGui.QBrush(bg_color, QtCore.Qt.SolidPattern))
         
         self.axline.setPen(QtGui.QPen(QtGui.QColor(0,0,0), 0))
         

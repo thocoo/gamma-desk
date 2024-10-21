@@ -103,7 +103,8 @@ class LevelPlot(QtWidgets.QWidget):
         
     def create_x_ruler(self):
         x0, y0, x1, y1 = self.view.viewRectCoord()
-        self.x_ruler = TickedRuler(0, x0, x1, abs(self.view.scale[0]), noDecimals=False, parent=None)       
+        self.x_ruler = TickedRuler(0, x0, x1, abs(self.view.scale[0]),
+                                   bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=False, parent=None)
         self.v_grid = Grid(self.x_ruler,  parent=None)
         self.x_ruler.setPos(0, y0 - self.view.pixelSize()[1] * 22)     
         self.v_grid.setPos(0, y0 - self.view.pixelSize()[1] * 22)     
@@ -114,7 +115,8 @@ class LevelPlot(QtWidgets.QWidget):
         
     def create_y_ruler(self):
         x0, y0, x1, y1 = self.view.viewRectCoord()
-        self.y_ruler = TickedRuler(-90, y0, y1, abs(self.view.scale[1]), noDecimals=False)  
+        self.y_ruler = TickedRuler(-90, y0, y1, abs(self.view.scale[1]),
+                                   bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=False)
         self.h_grid = Grid(self.y_ruler)        
         self.y_ruler.setPos(x0 + self.view.pixelSize()[0] * 22, 0)     
         self.h_grid.setPos(x0 + self.view.pixelSize()[0] * 22, 0)     
