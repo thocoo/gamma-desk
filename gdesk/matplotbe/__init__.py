@@ -27,10 +27,11 @@ from matplotlib import rcParams
 
 from .. import gui
 
-if not LooseVersion('3.2') <= LooseVersion(matplotlib.__version__) < LooseVersion('3.8'):
+if not LooseVersion('3.2') <= LooseVersion(matplotlib.__version__) < LooseVersion('3.10'):
     warnings.warn(
         f'Matplotlib version {matplotlib.__version__} not supported.\n'
-        f'Version should be 3.2.x, 3.3.x, 3.4.x, 3.5.x or 3.7.x')
+        f'Version should be 3.2 to 3.10'
+    )
         
 if config.get('qapp'):
     from qtpy import QtCore, QtGui
