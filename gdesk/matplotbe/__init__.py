@@ -6,7 +6,6 @@ Render to qt from agg (anti-grain).
 
 from .. import config
 
-import sys
 import os
 import ctypes
 import threading
@@ -27,8 +26,6 @@ from matplotlib.backends.qt_compat import QT_API
 from matplotlib import rcParams
 
 from .. import gui
-
-ON_WINDOWS = sys.platform == "win32"
 
 
 if not LooseVersion('3.2') <= LooseVersion(matplotlib.__version__) < LooseVersion('3.10'):
@@ -202,8 +199,9 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 
             # Adjust the buf reference count to work around a memory
             # leak bug in QImage under PySide on Python 3.
-            # Don't do this on PySide6 on Linux as this causes a crash of the full process.
-            if (QT_API in ('PySide', 'PySide2', 'PySide6') and ON_WINDOWS) or QT_API == "PySide2":
+            # See https://github.com/thocoo/gamma-desk/issues/36
+            # and https://bugreports.qt.io/browse/PYSIDE-140 .
+            if QT_API in ('PySide', 'PySide2'):
                 ctypes.c_long.from_address(id(buf)).value = 1
 
             self._draw_rect_callback(painter)
