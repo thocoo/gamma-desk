@@ -1,13 +1,14 @@
 """
-Render to qt from agg.
+Matplotlib backend.
+
+Render to qt from agg (anti-grain).
 """
+
 from .. import config
 
 import os
 import ctypes
-import sys
 import threading
-import pickle
 import logging
 import warnings
 from distutils.version import LooseVersion
@@ -19,12 +20,9 @@ from matplotlib import cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import FigureCanvasBase, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.backends.backend_qt5 import (
-    _BackendQT5, FigureCanvasQT, FigureManagerQT,
-    NavigationToolbar2QT, backend_version)
+from matplotlib.backends.backend_qt5 import FigureCanvasQT
   
 from matplotlib.backends.qt_compat import QT_API
-from matplotlib.backends.backend_template import FigureCanvasTemplate, FigureManagerTemplate
 from matplotlib import rcParams
 
 from .. import gui
@@ -65,6 +63,7 @@ logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore", "Starting a Matplotlib GUI outside of the main thread will likely fail.")
 
+
 def draw_if_interactive():
     """
     For image backends - is not required.
@@ -74,6 +73,7 @@ def draw_if_interactive():
     if matplotlib.is_interactive(): 
         show()
 
+
 def show(*, block=None):
     """
     For image backends - is not required.
@@ -81,8 +81,9 @@ def show(*, block=None):
     tells the backend that it is time to draw.  In interactive mode, this
     should do nothing.
     """ 
-    #manager = Gcf.get_active()   
-    if matplotlib.is_interactive(): return
+    # manager = Gcf.get_active()
+    if matplotlib.is_interactive():
+        return
     
     max_open_warning = rcParams['figure.max_open_warning']
     
@@ -93,9 +94,11 @@ def show(*, block=None):
         if many_show_warning and (i == max_open_warning):
             left = len(all_fig_managers) - i
             do_continue = gui.dialog.question(f'Continue for next {left} figures?')
-            if not do_continue: break
+            if not do_continue:
+                break
         manager.show()
-        
+
+
 def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
     """Create a new figure manager instance."""
     # If a main-level app must be created, this (and
@@ -103,18 +106,18 @@ def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
     # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
     # require explicit instantiation of a main-level app (e.g., backend_gtk3)
     # for pylab.
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
+    this_fig = FigureClass(*args, **kwargs)
+    return new_figure_manager_given_figure(num, this_fig)
+
 
 def new_figure_manager_given_figure(num, figure):
     """Create a new figure manager instance for the given figure."""
-    
-    #print(f'timer: {time.perf_counter()}')
+    # print(f'timer: {time.perf_counter()}')
 
     if not gui.valid() or gui._qapp is None:                    
-        #In case of comming from other Process
-        #Don't do a guicall, FigureCanvasGh2 or FigureManagerQT is not pickable!
-        #Is called if figure, line, ... is depickled from the interprocess queue
+        # In case of coming from other Process
+        # Don't do a guicall, FigureCanvasGh2 or FigureManagerQT is not picklable!
+        # Is called when a figure, line, ... is depickled from the interprocess queue
         canvas = FigureCanvasBase(figure)
         manager = FigureManagerGh2Child(canvas, num)
         
@@ -131,7 +134,6 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
         # Must pass 'figure' as kwarg to Qt base class.
         super().__init__(figure=figure)        
             
-        
     @property
     def dev_pixel_ratio(self):
         return getattr(self, DEV_PIXEL_RATIO_ATTR)
@@ -140,7 +142,7 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
         """
         Copy the image from the Agg canvas to the qt.drawable.
 
-        In Qt, all drawing should be done inside of here when a widget is
+        In Qt, all drawing should be done locally here when a widget is
         shown onscreen.
         """
         logger.debug('calling paintEvent')
@@ -182,12 +184,15 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
             # clear the widget canvas
             painter.eraseRect(rect)
 
-            qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
-                                  QtGui.QImage.Format_ARGB32_Premultiplied)
+            qimage = QtGui.QImage(
+                buf, buf.shape[1], buf.shape[0],
+                QtGui.QImage.Format_ARGB32_Premultiplied,
+            )
             setDevicePixelRatio(qimage, self.dev_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
+
             # Adjust the buf reference count to work around a memory
             # leak bug in QImage under PySide on Python 3.
             if QT_API in ('PySide', 'PySide2', 'PySide6'):
@@ -206,8 +211,8 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
 
     def blit(self, bbox=None):
         # docstring inherited
-        # If bbox is None, blit the entire canvas. Otherwise
-        # blit only the area defined by the bbox.
+        # If bbox is None, blit the entire canvas. Otherwise, blit only
+        # the area defined by the bbox.
         if bbox is None and self.figure:
             bbox = self.figure.bbox
 
@@ -219,29 +224,48 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
     def print_figure(self, *args, **kwargs):
         super().print_figure(*args, **kwargs)
         self.draw()
-        
+
+
 def make_and_hide_plot_panel(PanelClass, parentName=None, panid=None, floating=False,
-        position=None, size=None, args=(), kwargs={}):
+        position =None, size=None, args=(), kwargs=None):
+    kwargs = kwargs or {}
         
-    panel = gui._qapp.panels.new_panel(PanelClass, parentName, panid, floating, position=position, size=size, args=args, kwargs=kwargs)
+    panel = gui._qapp.panels.new_panel(
+        PanelClass,
+        parentName,
+        panid,
+        floating,
+        position=position,
+        size=size,
+        args=args,
+        kwargs=kwargs,
+    )
     # if not matplotlib.is_interactive():
-        # panel.window().hide()
+    #    panel.window().hide()
     return panel        
-        
+
+
 class FigureManagerGh2(FigureManagerBase):
 
     """
     Wrap everything up into a window for the pylab interface
 
-    For non interactive backends, the base class does all the work
+    For non-interactive backends, the base class does all the work
     """       
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
         
         if matplotlib.is_interactive():
             width, height = self.canvas.figure.get_dpi() * self.canvas.figure.get_size_inches()
-            self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None,
-                size=[width, height], args=(self.canvas,))
+            self.panel = gui.gui_call(
+                make_and_hide_plot_panel,
+                PlotPanel,
+                'main',
+                self.num,
+                None,
+                size=[width, height],
+                args=(self.canvas,),
+            )
         else:
             self.panel = None    
     
@@ -255,8 +279,15 @@ class FigureManagerGh2(FigureManagerBase):
         if gui.valid():
             if self.panel is None:
                 width, height = self.canvas.figure.get_dpi() * self.canvas.figure.get_size_inches()
-                self.panel = gui.gui_call(make_and_hide_plot_panel, PlotPanel, 'main', self.num, None,
-                    size=[width, height], args=(self.canvas,))
+                self.panel = gui.gui_call(
+                    make_and_hide_plot_panel,
+                    PlotPanel,
+                    'main',
+                    self.num,
+                    None,
+                    size=[width, height],
+                    args=(self.canvas,),
+                )
             gui.gui_call(PlotPanel.show_me, self.panel)
             gui.gui_call(PlotPanel.refresh, self.panel)
         else:        
@@ -264,17 +295,18 @@ class FigureManagerGh2(FigureManagerBase):
         
     def destroy(self, *args):        
         if 'plot' in gui._qapp.panels.keys():
-            if not self.panel is None:
+            if self.panel is not None:
                 gui.gui_call(PlotPanel.close_panel, self.panel)
         else:
             pass
-            
+
+
 class FigureManagerGh2Child(FigureManagerBase):
 
     """
     Wrap everything up into a window for the pylab interface
 
-    For non interactive backends, the base class does all the work
+    For non-interactive backends, the base class does all the work
     """       
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
@@ -291,8 +323,7 @@ class FigureManagerGh2Child(FigureManagerBase):
             gui.plot.show(self.canvas.figure)
         else:        
             raise ValueError(f'gui called from unknown thread {os.getpid()}/{threading.current_thread()}')
-              
-        
+
 
 FigureCanvas = FigureCanvasGh2
 FigureManager = FigureManagerGh2
