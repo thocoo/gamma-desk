@@ -178,9 +178,11 @@ class FigureCanvasGh2(FigureCanvasAgg, FigureCanvasQT):
             right = left + width
             # create a buffer using the image bounding box
             bbox = Bbox([[left, bottom], [right, top]])
-            reg = self.copy_from_bbox(bbox)
-            buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-                memoryview(reg))
+
+            reg: "BufferRegion" = self.copy_from_bbox(bbox)
+            buf: "numpy.ndarray" = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
+                memoryview(reg)
+            )
 
             # clear the widget canvas
             painter.eraseRect(rect)
