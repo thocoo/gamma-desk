@@ -666,8 +666,8 @@ class Interpreter(object):
             result = self.exec_func(func, args, kwargs)
             return 0, result
             
-        except:
-            return 1, result
+        except Exception as ex:
+            return 1, repr(ex)
         
     def exec_func(self, func, args, kwargs={}):
         try:
@@ -688,8 +688,8 @@ class Interpreter(object):
             result = self.exec_code(code)
             return 0, result
              
-        except:
-            return 1, result
+        except Exception as ex:
+            return 1, repr(ex)
             
             
     def exec_code(self, code):
