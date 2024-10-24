@@ -1,8 +1,10 @@
 """The Garbage Collector timer in the Qt Event Loop."""
+
 import gc
 import sys
 
 from qtpy.QtCore import QObject, QTimer
+
 
 class QGarbageCollector(QObject):
     """

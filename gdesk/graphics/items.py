@@ -71,6 +71,8 @@ class LabelItem(QtWidgets.QGraphicsPolygonItem):
         
         self.label = QtWidgets.QGraphicsTextItem('', self)
         self.label.setFont(QtGui.QFont('Arial', 8))
+        # set text color to black to also make it readable in dark mode
+        self.label.setDefaultTextColor(QtGui.QColor(0,0,0))
         self.label.setPos(-1, 0)
         self.updateText(text)            
         
@@ -110,6 +112,8 @@ class YLabelItem(QtWidgets.QGraphicsPolygonItem):
         
         self.label = QtWidgets.QGraphicsTextItem('', self)
         self.label.setFont(QtGui.QFont('Arial', 8))
+        # set text color to black to also make it readable in dark mode
+        self.label.setDefaultTextColor(QtGui.QColor(0,0,0))
                         
         self.offset = 0
         self.updateText(text)

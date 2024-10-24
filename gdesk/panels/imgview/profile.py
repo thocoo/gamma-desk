@@ -175,7 +175,8 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.stopX = math.ceil(self.startX + self.width() / scaleX)
                 
             self.stopX = min(self.imagePanel.vd.width, self.stopX)                                                                      
-            self.ruler = TickedRuler(0, self.startX, self.stopX, scaleX, noDecimals=True)        
+            self.ruler = TickedRuler(0, self.startX, self.stopX, scaleX,
+                                     bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
         elif self.direction == 90:
             scaleX = self.view.scale[1]
@@ -188,7 +189,8 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.stopX = math.ceil(self.startX + self.height() / scaleX)
                 
             self.stopX = min(self.imagePanel.vd.height, self.stopX)            
-            self.ruler = TickedRuler(90, self.startX, self.stopX, scaleX, noDecimals=True)        
+            self.ruler = TickedRuler(90, self.startX, self.stopX, scaleX,
+                                     bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
         self.ruler.setZValue(1)
         self.scene.addItem(self.ruler)
