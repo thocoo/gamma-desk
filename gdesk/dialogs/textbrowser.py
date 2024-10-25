@@ -3,7 +3,7 @@ The About window of this GUI
 """
 import pathlib
 
-from qtpy import QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets, API_NAME
 from qtpy.QtWidgets import QStyle
 from qtpy.QtCore import Qt
 
@@ -13,14 +13,22 @@ from ..core.gui_proxy import gui
 
 respath = pathlib.Path(config['respath'])
 
-# in QStyle.StandardPixmap for PySide6 
+if API_NAME in ['PySide6']:
+    DEFAULT_ICON = {
+        'error': QStyle.StandardPixmap.SP_MessageBoxCritical,
+        'info': QStyle.StandardPixmap.SP_MessageBoxInformation,
+        'help': QStyle.StandardPixmap.SP_MessageBoxQuestion,
+        'warn': QStyle.StandardPixmap.SP_MessageBoxWarning
+        }
 
-DEFAULT_ICON = {
-    'error': QStyle.SP_MessageBoxCritical,
-    'info': QStyle.SP_MessageBoxInformation,
-    'help': QStyle.SP_MessageBoxQuestion,
-    'warn': QStyle.SP_MessageBoxWarning
-    }
+else:
+    DEFAULT_ICON = {
+        'error': QStyle.SP_MessageBoxCritical,
+        'info': QStyle.SP_MessageBoxInformation,
+        'help': QStyle.SP_MessageBoxQuestion,
+        'warn': QStyle.SP_MessageBoxWarning
+        }
+
 
 
 class TextEditLinks(QtWidgets.QTextBrowser):
@@ -87,7 +95,10 @@ class TextBrowser(QtWidgets.QDialog):
             iconWidget = QtGui.QIcon(str(icon))
             
         else:
-            iconWidget = None            
+            iconWidget = None   
+
+        if not iconWidget is None:
+            self.setWindowIcon(iconWidget)            
             
         hboxcontent.addWidget(cont)
         
@@ -99,10 +110,7 @@ class TextBrowser(QtWidgets.QDialog):
         # hboxbut.addWidget(pinButton)
         
         okButton = QtWidgets.QPushButton("OK")
-        okButton.clicked.connect(self.close)
-        
-        if not iconWidget is None:
-            okButton.setIcon(iconWidget)
+        okButton.clicked.connect(self.close)        
             
         hboxbut.addWidget(okButton)
 
