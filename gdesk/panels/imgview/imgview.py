@@ -1206,10 +1206,10 @@ class ImageViewerBase(BasePanel):
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
-        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'))
-        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'))
-        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'))
-        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))
+        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon=str(respath / 'icons' / 'px16' / 'cfa_bg.png'))
+        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon=str(respath / 'icons' / 'px16' / 'cfa_gb.png'))
+        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon=str(respath / 'icons' / 'px16' / 'cfa_rg.png'))
+        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon=str(respath / 'icons' / 'px16' / 'cfa_gr.png'))
                 
         
         self.selectMenu.addMenu(dataSplitMenu)                    
