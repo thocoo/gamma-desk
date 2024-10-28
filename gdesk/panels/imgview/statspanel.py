@@ -314,7 +314,7 @@ class TitleToolBar(QtWidgets.QWidget):
         self.profBtn.clicked.connect(lambda: self.toggleProfile.emit())           
         self.hbox.addWidget(self.profBtn)
         
-        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'find.png')), None, self)
+        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'check_boxes.png')), None, self)
         self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
         # self.showHideInactiveBtn.setFixedHeight(20)
         # self.showHideInactiveBtn.setFixedWidth(20)
