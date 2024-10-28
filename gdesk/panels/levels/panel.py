@@ -466,6 +466,15 @@ class Levels(QtWidgets.QWidget):
     def selectMask(self, mask):
         self.levelplot.selectCurve(mask)
         
+        
+def enclose_func_args(func, *args, **kwargs):
+
+    def enclosed():
+        return func(*args, **kwargs)
+        
+    return enclosed
+        
+        
 
 class LevelsToolBar(QtWidgets.QToolBar):
     def __init__(self, *args, **kwargs):    
@@ -522,32 +531,12 @@ class LevelsToolBar(QtWidgets.QToolBar):
         actGainSigma4 = QtWidgets.QAction('Gain to Sigma 4', self, triggered=lambda: self.panel.autoContrast(4))
         actGainSigma4.setText('4σ 99.99%')
         actGainSigma4.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_low.png')))        
-        self.gainSigmaMenu.addAction(actGainSigma4)        
-        
-        actGain8bit = QtWidgets.QAction('8 bit', self, triggered=lambda: self.panel.autoContrast(None, 8))
-        actGain8bit.setText('8 bit')
-        actGain8bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
-        self.gainSigmaMenu.addAction(actGain8bit)          
-        
-        actGain10bit = QtWidgets.QAction('10 bit', self, triggered=lambda: self.panel.autoContrast(None, 10))
-        actGain10bit.setText('10 bit')
-        actGain10bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
-        self.gainSigmaMenu.addAction(actGain10bit)  
-
-        actGain12bit = QtWidgets.QAction('12 bit', self, triggered=lambda: self.panel.autoContrast(None, 12))
-        actGain12bit.setText('12 bit')
-        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
-        self.gainSigmaMenu.addAction(actGain12bit)     
-
-        actGain12bit = QtWidgets.QAction('14 bit', self, triggered=lambda: self.panel.autoContrast(None, 14))
-        actGain12bit.setText('14 bit')
-        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
-        self.gainSigmaMenu.addAction(actGain12bit)    
-
-        actGain12bit = QtWidgets.QAction('16 bit', self, triggered=lambda: self.panel.autoContrast(None, 16))
-        actGain12bit.setText('16 bit')
-        actGain12bit.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
-        self.gainSigmaMenu.addAction(actGain12bit)          
+        self.gainSigmaMenu.addAction(actGainSigma4)                   
+                
+        for word in [8, 10, 12, 14, 16, 20, 22, 24]:
+            actGain = QtWidgets.QAction(f'{word} bit', self, triggered=enclose_func_args(self.panel.autoContrast, None, word))
+            actGain.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))        
+            self.gainSigmaMenu.addAction(actGain)          
         
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setText(f'{self.panel.sigma}σ')
