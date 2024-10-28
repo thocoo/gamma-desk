@@ -111,7 +111,7 @@ from .spectrogram import spectr_hori, spectr_vert
 from .imgdata import ImageData, get_next_color_tuple
 from .roi import SelRoiWidget
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel
+from .statspanel import StatisticsPanel, TitleToolBar
 
 
 ZOOM_VALUES = [
@@ -2660,25 +2660,32 @@ class ImageProfileWidget(QWidget):
         self.profBtn1.setFixedWidth(20)
         self.profBtn1.clicked.connect(self.toggleProfileVisible)     
 
-        self.profBtn2 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
-        self.profBtn2.setToolTip('Show/Hide row and column profiles')
-        self.profBtn2.setFixedHeight(20)
-        self.profBtn2.setFixedWidth(20)
-        self.profBtn2.clicked.connect(self.toggleProfileVisible)          
+        # self.profBtn2 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        # self.profBtn2.setToolTip('Show/Hide row and column profiles')
+        # self.profBtn2.setFixedHeight(20)
+        # self.profBtn2.setFixedWidth(20)
+        # self.profBtn2.clicked.connect(self.toggleProfileVisible)          
         
         self.corner = QtWidgets.QMainWindow()        
         self.corner.setCentralWidget(self.profBtn1)        
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
-        self.statsPanel.activesChanged.connect(self.refresh)
+        self.statsPanel.activesChanged.connect(self.refresh)        
+        
+        self.statsToolbar = TitleToolBar()
+        self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
+        self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         #self.toolbar = RoiToolBar(self.corner)
-        self.statsDock.setTitleBarWidget(self.profBtn2)
+        self.statsDock.setTitleBarWidget(self.statsToolbar)
         self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
         self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
         self.statsDock.setWidget(self.statsPanel)        
+        
+        self.statsToolbar.toggleDock.connect(lambda: self.statsDock.setFloating(True))
+        
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
         #self.corner.hide()

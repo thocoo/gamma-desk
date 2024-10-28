@@ -1,9 +1,17 @@
+from pathlib import Path
+
 import numpy as np
 
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal
 
 from ...dialogs.formlayout import fedit
+from ... import config
+
+from qtpy.QtCore import Qt, Signal, QUrl
+
+
+RESPATH = Path(config['respath'])
 
 PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
 
@@ -283,3 +291,41 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.imviewer.imgdata.chanstats.pop(roi_name)
             
         self.updateStatistics()
+        
+        
+class TitleToolBar(QtWidgets.QWidget): 
+    
+    toggleProfile = Signal()
+    showHideInactives = Signal()
+    toggleDock = Signal()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)        
+        
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.hbox.setContentsMargins(0,0,0,0)
+        self.hbox.setSpacing(0)
+        self.setLayout(self.hbox)       
+        
+        self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        self.profBtn.setToolTip('Show/Hide row and column profiles')
+        # self.profBtn.setFixedHeight(20)
+        # self.profBtn.setFixedWidth(20)
+        self.profBtn.clicked.connect(lambda: self.toggleProfile.emit())           
+        self.hbox.addWidget(self.profBtn)
+        
+        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'find.png')), None, self)
+        self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
+        # self.showHideInactiveBtn.setFixedHeight(20)
+        # self.showHideInactiveBtn.setFixedWidth(20)
+        self.showHideInactivesBtn.clicked.connect(lambda: self.showHideInactives.emit())           
+        self.hbox.addWidget(self.showHideInactivesBtn)
+        
+        self.hbox.addStretch(1)
+        
+        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), None, self)
+        self.showHideInactivesBtn.setToolTip("Dock/Undock")
+        # self.showHideInactiveBtn.setFixedHeight(20)
+        # self.showHideInactiveBtn.setFixedWidth(20)
+        self.showHideInactivesBtn.clicked.connect(lambda: self.toggleDock.emit())           
+        self.hbox.addWidget(self.showHideInactivesBtn)
