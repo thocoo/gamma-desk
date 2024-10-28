@@ -1206,10 +1206,10 @@ class ImageViewerBase(BasePanel):
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
-        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'))
-        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'))
-        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'))
-        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'))
+        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon=str(respath / 'icons' / 'px16' / 'cfa_bg.png'))
+        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon=str(respath / 'icons' / 'px16' / 'cfa_gb.png'))
+        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon=str(respath / 'icons' / 'px16' / 'cfa_rg.png'))
+        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon=str(respath / 'icons' / 'px16' / 'cfa_gr.png'))
                 
         
         self.selectMenu.addMenu(dataSplitMenu)                    
@@ -2632,6 +2632,20 @@ class ImageViewer(ImageViewerBase):
             self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, self.imviewer.zoomValue)
         else:
             self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
+            
+            
+class RoiToolBar(QtWidgets.QToolBar):
+    def __init__(self, *args, **kwargs):    
+        super().__init__(*args, **kwargs) 
+        self.initUi()     
+        
+    def toggleProfileVisible(self):
+        self.parent().parent().toggleProfileVisible()        
+        
+    def initUi(self):
+        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), 'Refresh', self.toggleProfileVisible)
+        fontHeight = self.fontMetrics().height()
+        self.setIconSize(QtCore.QSize(fontHeight * 3 / 2, fontHeight * 3 / 2))
 
 
 class ImageProfileWidget(QWidget):
@@ -2640,20 +2654,28 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer = ImageViewerWidget(self)
 
-        self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
-        self.profBtn.setToolTip('Show/Hide row and column profiles')
-        self.profBtn.setFixedHeight(20)
-        self.profBtn.setFixedWidth(20)
-        self.profBtn.clicked.connect(self.toggleProfileVisible)        
+        self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        self.profBtn1.setToolTip('Show/Hide row and column profiles')
+        self.profBtn1.setFixedHeight(20)
+        self.profBtn1.setFixedWidth(20)
+        self.profBtn1.clicked.connect(self.toggleProfileVisible)     
+
+        self.profBtn2 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        self.profBtn2.setToolTip('Show/Hide row and column profiles')
+        self.profBtn2.setFixedHeight(20)
+        self.profBtn2.setFixedWidth(20)
+        self.profBtn2.clicked.connect(self.toggleProfileVisible)          
         
         self.corner = QtWidgets.QMainWindow()        
-        self.corner.setCentralWidget(self.profBtn)
+        self.corner.setCentralWidget(self.profBtn1)        
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
         self.statsPanel.activesChanged.connect(self.refresh)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
+        #self.toolbar = RoiToolBar(self.corner)
+        self.statsDock.setTitleBarWidget(self.profBtn2)
         self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
         self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
         self.statsDock.setWidget(self.statsPanel)        
@@ -2667,6 +2689,10 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
         self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
+        
+        # self.corner.toolbar = RoiToolBar(self.corner)
+        # self.corner.toolbar.hide()
+        # self.corner.addToolBar(self.corner.toolbar)        
 
         self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
@@ -2680,7 +2706,7 @@ class ImageProfileWidget(QWidget):
 
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
-
+        
 
     def showOnlyRuler(self):
     
@@ -2764,10 +2790,12 @@ class ImageProfileWidget(QWidget):
 
     def set_profiles_visible(self, visible):
         if visible:
+            self.profBtn1.hide()
             self.showProfiles()
             self.statsPanel.updateStatistics()
             
         else:
+            self.profBtn1.show()
             self.showOnlyRuler()
 
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)    
