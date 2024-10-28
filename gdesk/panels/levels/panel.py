@@ -553,21 +553,33 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.useRoiBtn.setCheckable(True)
         self.useRoiBtn.setToolTip('Use only the region of intereset')
         self.useRoiBtn.clicked.connect(self.toggleRoi)
-        self.addWidget(self.useRoiBtn)     
+        self.addWidget(self.useRoiBtn)      
+
+        self.linBtn = QtWidgets.QToolButton(self)
+        self.linBtn.setText('lin')
+        self.linBtn.setCheckable(True)
+        self.linBtn.setToolTip('Use Linear Y-scale')
+        self.linBtn.clicked.connect(self.toggleLogNorm)
+        self.addWidget(self.linBtn)         
         
         self.logBtn = QtWidgets.QToolButton(self)
         self.logBtn.setText('log')
         self.logBtn.setCheckable(True)
         self.logBtn.setToolTip('Use Logaritmic Y-scale')
-        self.logBtn.clicked.connect(self.toggleLog)
+        self.logBtn.clicked.connect(self.toggleLogNorm)
         self.addWidget(self.logBtn)      
 
         self.normBtn = QtWidgets.QToolButton(self)
         self.normBtn.setText('1')
         self.normBtn.setCheckable(True)
         self.normBtn.setToolTip('Use Normalized scale')
-        self.normBtn.clicked.connect(self.toggleNormalize)
-        self.addWidget(self.normBtn)           
+        self.normBtn.clicked.connect(self.toggleLogNorm)
+        self.addWidget(self.normBtn)     
+
+        self.scaleGroup = QtWidgets.QButtonGroup(self)
+        self.scaleGroup.addButton(self.linBtn)
+        self.scaleGroup.addButton(self.logBtn)
+        self.scaleGroup.addButton(self.normBtn)        
 
         self.applyUnityBtn = QtWidgets.QToolButton(self)
         self.applyUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_decrease.png')))
@@ -602,15 +614,11 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.panel.roi = sender.isChecked()
         self.levels.updateActiveHist()
         
-    def toggleLog(self):
-        sender = self.sender()
-        self.panel.log = sender.isChecked()
+    def toggleLogNorm(self):
+        self.panel.log = self.logBtn.isChecked()
+        self.panel.normalize = self.normBtn.isChecked()
         self.levels.updateActiveHist()
-        
-    def toggleNormalize(self):
-        sender = self.sender()
-        self.panel.normalize = sender.isChecked()
-        self.levels.updateActiveHist()        
+              
         
     def updateButtonStates(self):
         self.histSizePolicyBox.setCurrentText(self.panel.histSizePolicy)
