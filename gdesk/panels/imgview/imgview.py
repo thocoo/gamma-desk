@@ -2684,7 +2684,7 @@ class ImageProfileWidget(QWidget):
         self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
         self.statsDock.setWidget(self.statsPanel)        
         
-        self.statsToolbar.toggleDock.connect(lambda: self.statsDock.setFloating(True))
+        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
@@ -2713,6 +2713,12 @@ class ImageProfileWidget(QWidget):
 
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
+        
+    def toggleStatsDockFloating(self):    
+        if self.statsDock.isFloating():
+            self.statsDock.setFloating(False)            
+        else:
+            self.statsDock.setFloating(True)
         
 
     def showOnlyRuler(self):
