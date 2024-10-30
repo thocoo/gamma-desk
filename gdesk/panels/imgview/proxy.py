@@ -402,6 +402,12 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
+    def is_roi_selected():
+        panel = gui.qapp.panels.selected('image')
+        return panel.imviewer.roi.isVisible()
+        
+        
+    @StaticGuiCall
     def set_cfa(cfa='mono'):
         panel = gui.qapp.panels.selected('image')
         panel.setStatMasks(cfa)
