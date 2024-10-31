@@ -687,8 +687,8 @@ class ImageViewerBase(BasePanel):
             
         dataSplitMenu = QMenu('Default Masks')
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
-        self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'))
-        self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'))            
+        self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(respath / 'icons' / 'px16' / 'color_gradient.png'))
+        self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(respath / 'icons' / 'px16' / 'color.png'))            
         self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon=str(respath / 'icons' / 'px16' / 'cfa_bg.png'))
         self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon=str(respath / 'icons' / 'px16' / 'cfa_gb.png'))
         self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon=str(respath / 'icons' / 'px16' / 'cfa_rg.png'))
