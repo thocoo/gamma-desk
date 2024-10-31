@@ -2168,6 +2168,7 @@ class ImageProfileWidget(QWidget):
         self.statsDock.setWidget(self.statsPanel)        
         
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
+        self.statsToolbar.selectMasks.connect(self.selectMasks)
         
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
@@ -2202,6 +2203,11 @@ class ImageProfileWidget(QWidget):
             self.statsDock.setFloating(False)            
         else:
             self.statsDock.setFloating(True)
+            
+            
+    def selectMasks(self, masks):
+        self.imviewer.imgdata.init_channel_statistics(masks)
+        self.refresh()
         
 
     def showOnlyRuler(self):

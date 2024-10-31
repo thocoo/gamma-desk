@@ -291,6 +291,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.imviewer.imgdata.chanstats.pop(roi_name)
             
         self.updateStatistics()
+                        
         
         
 class TitleToolBar(QtWidgets.QWidget): 
@@ -298,6 +299,7 @@ class TitleToolBar(QtWidgets.QWidget):
     toggleProfile = Signal()
     showHideInactives = Signal()
     toggleDock = Signal()
+    selectMasks = Signal(str)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)        
@@ -313,15 +315,34 @@ class TitleToolBar(QtWidgets.QWidget):
         # self.profBtn.setFixedWidth(20)
         self.profBtn.clicked.connect(lambda: self.toggleProfile.emit())           
         self.hbox.addWidget(self.profBtn)
+                
+        self.hbox.addStretch(1)
+        self.hbox.addWidget(QtWidgets.QLabel('Masks'))
+        self.hbox.addStretch(1)
+        
+        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
+        #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.selectMasks.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.selectMasks.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.selectMasks.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.selectMasks.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.selectMasks.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.selectMasks.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
+        
+        self.masksSelectBtn = QtWidgets.QToolButton()
+        self.masksSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        self.masksSelectBtn.setToolTip('Select one of the default masks options')
+        self.masksSelectBtn.setMenu(self.masksSelectMenu)
+        self.masksSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
+        
+        self.hbox.addWidget(self.masksSelectBtn)        
         
         self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'check_boxes.png')), None, self)
         self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
         # self.showHideInactiveBtn.setFixedHeight(20)
         # self.showHideInactiveBtn.setFixedWidth(20)
         self.showHideInactivesBtn.clicked.connect(lambda: self.showHideInactives.emit())           
-        self.hbox.addWidget(self.showHideInactivesBtn)
-        
-        self.hbox.addStretch(1)
+        self.hbox.addWidget(self.showHideInactivesBtn)                
         
         self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), None, self)
         self.showHideInactivesBtn.setToolTip("Dock/Undock")
