@@ -170,7 +170,7 @@ class LevelPlot(QtWidgets.QWidget):
             self.scene.removeItem(oldcurve)
             self.curves.pop(curveid)
         
-    def plot_curve(self, curveid=None, x=[], y=[], color = None, fill=50, dim=False):
+    def plot_curve(self, curveid=None, x=[], y=[], color = None, fill=50, dim=False, zero_ends=True):
         oldcolor = None
         
         if curveid in self.curves.keys():
@@ -187,7 +187,7 @@ class LevelPlot(QtWidgets.QWidget):
             else:
                 color = oldcolor
             
-        curve = createCurve(x, y, color = color, fill=fill)        
+        curve = createCurve(x, y, color = color, fill=fill, zero_ends=zero_ends)        
         
         if dim:
             curve.setZValue(0)
@@ -397,17 +397,25 @@ class Levels(QtWidgets.QWidget):
                                       
             hist = chanstat.histogram(stepmult)
             
+            if self.panel.cummulative:
+                hist = np.cumsum(hist)
+                fill = 0
+                zero_ends = False
+            else:
+                fill = 50
+                zero_ends = True
+            
             if self.panel.log:           
                 hist = semilog(hist)
                 
-            if self.panel.normalize:
+            elif self.panel.normalize:
                 hist = hist / max(1, hist.max())
                 
             starts = chanstat.starts(stepmult)   
             if len(starts) == 0: continue
             stepsize = chanstat.stepsize(stepmult)
             barstarts, histbar = self.xy_as_steps(starts, hist, stepsize)
-            self.levelplot.plot_curve(clr, barstarts, histbar, color, dim=dim) 
+            self.levelplot.plot_curve(clr, barstarts, histbar, color, dim=dim, fill=fill, zero_ends=zero_ends)
             
             if self.panel.gaussview:
                 import scipy.signal
@@ -547,40 +555,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.autoBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.autoBtn.clicked.connect(lambda: self.panel.autoContrast())        
         self.addWidget(self.autoBtn)
-
-        self.useRoiBtn = QtWidgets.QToolButton(self)
-        self.useRoiBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
-        self.useRoiBtn.setCheckable(True)
-        self.useRoiBtn.setToolTip('Use only the region of intereset')
-        self.useRoiBtn.clicked.connect(self.toggleRoi)
-        self.addWidget(self.useRoiBtn)      
-
-        self.linBtn = QtWidgets.QToolButton(self)
-        self.linBtn.setText('lin')
-        self.linBtn.setCheckable(True)
-        self.linBtn.setToolTip('Use Linear Y-scale')
-        self.linBtn.clicked.connect(self.toggleLogNorm)
-        self.addWidget(self.linBtn)         
         
-        self.logBtn = QtWidgets.QToolButton(self)
-        self.logBtn.setText('log')
-        self.logBtn.setCheckable(True)
-        self.logBtn.setToolTip('Use Logaritmic Y-scale')
-        self.logBtn.clicked.connect(self.toggleLogNorm)
-        self.addWidget(self.logBtn)      
-
-        self.normBtn = QtWidgets.QToolButton(self)
-        self.normBtn.setText('1')
-        self.normBtn.setCheckable(True)
-        self.normBtn.setToolTip('Use Normalized scale')
-        self.normBtn.clicked.connect(self.toggleLogNorm)
-        self.addWidget(self.normBtn)     
-
-        self.scaleGroup = QtWidgets.QButtonGroup(self)
-        self.scaleGroup.addButton(self.linBtn)
-        self.scaleGroup.addButton(self.logBtn)
-        self.scaleGroup.addButton(self.normBtn)        
-
         self.applyUnityBtn = QtWidgets.QToolButton(self)
         self.applyUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_decrease.png')))
         self.applyUnityBtn.setToolTip('Apply default offset, gain and gamma')
@@ -591,7 +566,39 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.asUnityBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'contrast_increase.png')))
         self.asUnityBtn.setToolTip('Set current offset, gain and gamma as default')
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
-        self.addWidget(self.asUnityBtn)        
+        self.addWidget(self.asUnityBtn)           
+
+        self.useRoiBtn = QtWidgets.QToolButton(self)
+        self.useRoiBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'region_of_interest.png')))
+        self.useRoiBtn.setCheckable(True)
+        self.useRoiBtn.setToolTip('Use only the region of intereset')
+        self.useRoiBtn.clicked.connect(self.toggleRoi)
+        self.addWidget(self.useRoiBtn)      
+
+        self.scaleBtn = QtWidgets.QToolButton(self)
+        self.scaleBtn.setText('lin')
+        self.scaleBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+        self.scaleMenu = QtWidgets.QMenu('Scale')
+        linearScale = QtWidgets.QAction(f'Linear', self, triggered=lambda: self.setScale('lin'))
+        linearScale.setToolTip('Use Linear Y-scale')
+        logScale = QtWidgets.QAction(f'Log', self, triggered=lambda: self.setScale('log'))
+        logScale.setToolTip('Use Logaritmic Y-scale')
+        normScale = QtWidgets.QAction(f'Normalized', self, triggered=lambda: self.setScale('norm'))
+        normScale.setToolTip('Use Normalized scale')
+        self.scaleMenu.addAction(linearScale)
+        self.scaleMenu.addAction(logScale)
+        self.scaleMenu.addAction(normScale)
+        self.scaleBtn.setMenu(self.scaleMenu) 
+        self.addWidget(self.scaleBtn)         
+        
+        self.cummBtn = QtWidgets.QToolButton(self)
+        self.cummBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'sum.png')))
+        self.cummBtn.setCheckable(True)
+        self.cummBtn.setToolTip('Cummulative')
+        self.cummBtn.clicked.connect(self.toggleCummulative)
+        self.addWidget(self.cummBtn)          
+
+     
         
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
@@ -618,13 +625,33 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.panel.log = self.logBtn.isChecked()
         self.panel.normalize = self.normBtn.isChecked()
         self.levels.updateActiveHist()
-              
+        
+        
+    def setScale(self, scale):
+        self.scaleBtn.setText(scale)
+        
+        if scale == 'lin':
+            self.panel.log = False
+            self.panel.normalize = False
+            
+        elif scale == 'log':
+            self.panel.log = True
+            self.panel.normalize = False
+            
+        elif scale == 'norm':
+            self.panel.log = False
+            self.panel.normalize = True
+            
+        self.levels.updateActiveHist()  
+        
+          
+    def toggleCummulative(self):
+        self.panel.cummulative = self.cummBtn.isChecked()
+        self.levels.updateActiveHist()     
         
     def updateButtonStates(self):
         self.histSizePolicyBox.setCurrentText(self.panel.histSizePolicy)
         self.useRoiBtn.setChecked(self.panel.roi)
-        self.logBtn.setChecked(self.panel.log)
-        self.normBtn.setChecked(self.panel.normalize)
         
     def colorMap(self):
         panids = self.panel.panIdsOfBounded('image')
@@ -656,6 +683,7 @@ class LevelsPanel(BasePanel):
         self.log = False
         self.roi = False
         self.normalize = False
+        self.cummulative = False
         
         self.sigma = 3
         
@@ -678,6 +706,7 @@ class LevelsPanel(BasePanel):
         self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
         self.addMenuItem(self.modeMenu, 'Normalize', self.toggle_log, checkcall=lambda: self.normalize)
+        self.addMenuItem(self.modeMenu, 'Cummulative', self.toggle_cumm, checkcall=lambda: self.cummulative)
         
         self.addBaseMenu(['image'])
         
@@ -731,6 +760,10 @@ class LevelsPanel(BasePanel):
         self.normalize = not self.normalize
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()          
+        
+    def toggle_cumm(self):
+        self.cummulative = not self.cummulative
+        
 
     def toggle_stats(self):
         self.stats = not self.stats
