@@ -1,5 +1,6 @@
 import pathlib
-import numpy as np 
+import numpy as np
+from scipy import special
 
 from qtpy import QtCore, QtGui, QtWidgets
 
@@ -34,6 +35,12 @@ def semilog(vec):
     with np.errstate(divide='ignore'):
         result = np.nan_to_num(np.log10(vec), neginf=-1) + 1
     return result
+    
+
+def scaleErfInvNorm(norm_values):
+    # Values expected from 0 to 1
+    clipped = np.clip(norm_values * 2 - 1, -0.999_999_999, 0.999_999_999)
+    return special.erfinv(clipped)    
     
 
 class LevelPlot(QtWidgets.QWidget):
@@ -308,7 +315,8 @@ class LevelPlot(QtWidgets.QWidget):
                 curve.setOpacity(0.25)
                 curve.setZValue(0)
         
-        self.view.refresh()   
+        self.view.refresh()              
+
        
 class Levels(QtWidgets.QWidget):    
         
@@ -405,8 +413,12 @@ class Levels(QtWidgets.QWidget):
                 fill = 50
                 zero_ends = True
             
-            if self.panel.log:           
-                hist = semilog(hist)
+            if self.panel.log: 
+                if self.panel.cummulative:
+                    hist = scaleErfInvNorm(hist / hist.max())
+                    
+                else:
+                    hist = semilog(hist)                
                 
             elif self.panel.normalize:
                 hist = hist / max(1, hist.max())
@@ -436,7 +448,7 @@ class Levels(QtWidgets.QWidget):
                 
                 self.levelplot.plot_curve(f'{clr}_gv', xvec, yvec, color, fill=0)
                     
-        self.levelplot.set_logscale(self.panel.log)
+        self.levelplot.set_logscale(self.panel.log and not self.panel.cummulative)
         
 
     def updateIndicators(self, image_panel_id):
