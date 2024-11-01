@@ -41,7 +41,7 @@ def scaleErfInvNorm(norm_values):
     # Values expected from 0 to 1
     clipped = np.clip(norm_values * 2 - 1, -0.999_999_999, 0.999_999_999)
     return special.erfinv(clipped)    
-    
+
 
 class LevelPlot(QtWidgets.QWidget):
     
@@ -58,16 +58,13 @@ class LevelPlot(QtWidgets.QWidget):
         self.view.scale = [100, -100]
         self.view.setScene(self.scene)
         
-        #self.view.fixScaleY = True
-        
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
         self.vbox.addWidget(self.view)
         self.setLayout(self.vbox)
         
         self.create_x_ruler()
-        self.create_y_ruler()
-        # self.create_grid()       
+        self.create_y_ruler()      
         
         self.indicators = []
         
@@ -98,7 +95,6 @@ class LevelPlot(QtWidgets.QWidget):
         indicator.setZValue(2.0)
         indicator.mouse_released.connect(slot)
         self.indicators.append(indicator)
-        #self.scene.addItem(indicator)
         
         
     def set_logscale(self, enable=False):    
