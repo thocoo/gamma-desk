@@ -1295,7 +1295,8 @@ class ImageViewerBase(BasePanel):
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])
 
-        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)        
+        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
+        self.refresh()
 
         
     def removeRoiStatistics(self):
