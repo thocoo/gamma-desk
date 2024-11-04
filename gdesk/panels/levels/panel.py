@@ -412,12 +412,16 @@ class Levels(QtWidgets.QWidget):
             if self.panel.log: 
                 if self.panel.cummulative:
                     hist = scaleErfInvNorm(hist / hist.max())
+                    self.levelplot.view.freeze_y0 = False
                     
                 else:
-                    hist = semilog(hist)                
+                    hist = semilog(hist)
+                    self.levelplot.view.freeze_y0 = True
                 
             elif self.panel.normalize:
                 hist = hist / max(1, hist.max())
+                self.levelplot.view.freeze_y0 = True
+                
                 
             starts = chanstat.starts(stepmult)   
             if len(starts) == 0: continue
@@ -473,10 +477,12 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.zoomBetweenIndicators(skip_if_visible=skip_if_visible)
         
     def fullZoom(self):
-        self.levelplot.zoomFull(enforce_ymin=0)        
+        #self.levelplot.zoomFull(enforce_ymin=0)        
+        self.levelplot.zoomFull()        
 
     def zoomFitYRange(self):
-        self.levelplot.zoomFitYRange(ymin=0)    
+        #self.levelplot.zoomFitYRange(ymin=0)    
+        self.levelplot.zoomFitYRange()    
 
 
     def selectMask(self, mask):
