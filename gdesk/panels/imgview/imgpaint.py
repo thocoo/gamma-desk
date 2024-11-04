@@ -69,6 +69,7 @@ class ImageViewerWidget(QWidget):
     zoomChanged = Signal(float)
     zoomPanChanged = Signal()
     pixelSelected = Signal(int, int)
+    contextMenuRequest = Signal(int, int)
 
     def __init__(self, parent=None):
         super().__init__(parent = parent)
@@ -452,7 +453,7 @@ class ImageViewerWidget(QWidget):
                 
             else:
                 x, y = self.getImageCoordOfMouseEvent(event)
-                self.parent().parent().exec_select_menu(x, y)
+                self.contextMenuRequest.emit(x, y)
                 
                 
         self.setCursor(self.pickCursor)

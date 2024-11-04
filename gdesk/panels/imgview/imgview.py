@@ -1819,9 +1819,11 @@ class ImageViewer(ImageViewerBase):
         self.imviewer.roi.get_context_menu = self.get_select_menu
 
         self.setCentralWidget(self.imviewer)
+        
         self.imviewer.pickerPositionChanged.connect(self.set_info_xy_val)
         self.imviewer.zoomChanged.connect(self.statuspanel.set_zoom)
         self.imviewer.zoomPanChanged.connect(self.emitVisibleRegionChanged)
+        self.imviewer.contextMenuRequest.connect(self.exec_select_menu)
 
 
     def passRoiChanged(self):
@@ -2066,6 +2068,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)
         
         self.imviewer.roi.get_context_menu = self.get_select_menu
+        self.imviewer.contextMenuRequest.connect(self.exec_select_menu)
 
         self.addMenuItem(self.viewMenu, 'Show/Hide Profiles'    , self.showHideProfiles,
             checkcall=lambda: self.imgprof.profilesVisible,
