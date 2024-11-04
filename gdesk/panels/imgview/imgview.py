@@ -1925,7 +1925,11 @@ class ImageProfileWidget(QWidget):
         
     def toggleStatsDockFloating(self):    
         if self.statsDock.isFloating():
-            self.statsDock.setFloating(False)            
+            self.statsDock.setFloating(False)
+            
+            if self.profBtn1.isVisible():
+                # Docking while profiles are not visible
+                self.statsDock.hide()
         else:
             self.statsDock.setFloating(True)
             
