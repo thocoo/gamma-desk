@@ -165,7 +165,7 @@ class SelectNamedRoi():
         
     def __call__(self):
         self.imgpanel.imgprof.selectMask(self.roiName)        
-        self.imgpanel.imgprof.imviewer.roi.show()
+        self.imgpanel.imgprof.showSelection(self.roiName)               
     
 
 class CustomRoiMenu(QMenu):
@@ -515,7 +515,15 @@ class ImageViewerBase(BasePanel):
 
     def exec_select_menu(self, x, y):
         #The select menu should be index 4 from the menuBar children
-        roi_names = self.imviewer.imgdata.find_chanstat_for_pixel(x, y)   
+        roi_names = self.imviewer.imgdata.find_chanstat_for_pixel(x, y)
+        self.refresh_roi_slots(roi_names)
+        selectMenu = self.get_select_menu()
+        selectMenu.exec_(QtGui.QCursor.pos())
+        self.refresh_roi_slots([])
+        
+        
+    def refresh_roi_slots(self, roi_names=None):
+        if roi_names is None: roi_names = []
         
         for roi_name, searchForRoiSlot in zip_longest(roi_names, self.searchForRoiSlots):
             if roi_name is None:
@@ -526,10 +534,7 @@ class ImageViewerBase(BasePanel):
             
             else:
                 searchForRoiSlot.setVisible(True)
-                searchForRoiSlot.setText(roi_name)
-        
-        selectMenu = self.get_select_menu()
-        selectMenu.exec_(QtGui.QCursor.pos())
+                searchForRoiSlot.setText(roi_name)        
         
 
     def createStatusBar(self):
@@ -549,9 +554,8 @@ class ImageViewerBase(BasePanel):
         
     def selectNamedRoi(self, i):
         roiName = self.searchForRoiSlots[i].text()
-        #self.parent().parent().selectMask(roiName)
         self.imgprof.selectMask(roiName)
-        #gui.msgbox(f'Custom Roi {roiName}')        
+        self.imgprof.showSelection(roiName)
     
 
     def addBindingTo(self, category, panid):
