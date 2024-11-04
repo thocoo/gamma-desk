@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets, API_NAME
 from qtpy.QtCore import Qt, Signal
 
 from ...dialogs.formlayout import fedit
@@ -23,6 +23,12 @@ FUNCMAP = {
     'Max':    {'fmt': '{0:.4g}', 'attr': 'max'},
     'N':      {'fmt': '{0:d}', 'attr': 'n'},
     'Sum':    {'fmt': '{0:.4g}', 'attr': 'sum'}}
+    
+if API_NAME in ['PySide6']:
+    NOEDITTRIGGERS = QtGui.QAbstractItemView.NoEditTriggers
+    
+else:
+    NOEDITTRIGGERS = QtWidgets.QTableWidget.NoEditTriggers
 
 
 def sort_masks(masks):
@@ -67,10 +73,8 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         self.setActiveColumns(["Mean", "Std", "Min", "Max"])
         
-        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        
-        #self.table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)               
+        self.table.setEditTriggers(NOEDITTRIGGERS)
         
         self.table.horizontalHeader().setDefaultSectionSize(20)
         self.table.verticalHeader().hide()
@@ -209,7 +213,6 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.table.setRowHeight(i, 20)
             
             
-    #def cellChanged(self, row, column):
     def cellClicked(self, row, column):
         if column != 0: return
         
