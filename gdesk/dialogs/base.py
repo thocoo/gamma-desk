@@ -184,6 +184,13 @@ def getMap(startPath=None, title='select a Directory'):
             directory=startPath)
     LASTMAP = path
     return path
+    
+    
+def getNewMap(startPath='.', title="Create a new directory"):
+    QFileDialog = QtWidgets.QFileDialog
+    filedir, _filter = QFileDialog.getSaveFileName(None, caption=title, dir=startPath, filter="Directory", options=QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)    
+    return filedir
+    
 
 def getString(prompt, default='', title='Input', echo='Normal'):
     """

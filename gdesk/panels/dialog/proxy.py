@@ -32,6 +32,7 @@ class DialogGuiProxy(GuiProxyBase):
         gui.getfilenames = self.getfilenames
         gui.getpath = self.getpath
         gui.getdir = self.getdir
+        gui.putdir = self.putdir
         gui.putfile = self.putfile
         gui.putfilename = self.putfilename
         gui.filterlist = self.filterlist       
@@ -140,7 +141,7 @@ class DialogGuiProxy(GuiProxyBase):
         return selected_files[0]        
     
     @staticmethod    
-    def getpath(startpath=None, title='select a Directory'):
+    def getpath(startpath=None, title='Select a Directory'):
         """
         Show a directory dialog to choose a dir
         :return: The directory
@@ -149,7 +150,7 @@ class DialogGuiProxy(GuiProxyBase):
         return pathlib.Path(DialogGuiProxy.getdir(startpath, title))   
         
     @StaticGuiCall
-    def getdir(startpath=None, title='select a Directory'):
+    def getdir(startpath=None, title='Select a Directory'):
         """
         Show a directory dialog to choose a dir
         
@@ -157,6 +158,17 @@ class DialogGuiProxy(GuiProxyBase):
         :rtype: str
         """
         return dialogs.getMap(startpath, title)    
+
+        
+    @StaticGuiCall
+    def putdir(startpath='.', title='Create a New Directory'):
+        """
+        Show a directory dialog to choose a new dir
+        
+        :returns: The directory
+        :rtype: str
+        """
+        return dialogs.getNewMap(startpath, title)        
 
     @StaticGuiCall
     def putfile(filter='*.*', title='save', file=None, defaultfilter=""):
