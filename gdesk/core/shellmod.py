@@ -208,6 +208,10 @@ class Shell(object):
         fi = None
         lineno = 0
         
+        if hasattr(object, '__wrapped__'):
+            #Maybe wrapped by the functools.wraps decorator
+            object = object.__wrapped__        
+        
         if isinstance(object, LiveScriptModule):
             fi = object.__file__
                             
@@ -223,8 +227,6 @@ class Shell(object):
             lineno = code.co_firstlineno            
             
         else:
-            if hasattr(object, '__wrapped__'):
-                object = object.__wrapped__
             
             try:
                 fi = inspect.getsourcefile(object)
