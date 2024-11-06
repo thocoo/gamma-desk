@@ -2,6 +2,8 @@ import pathlib
 import numpy as np
 from qtpy.QtCore import Qt
 from qtpy import QtWidgets, QtGui, QtCore
+
+from ..imgview import ImageGuiProxy
 from ... import config
 #
 respath = pathlib.Path(config['respath'])
@@ -315,6 +317,9 @@ class NdimWidget(QtWidgets.QWidget):
                 im = np.moveaxis(im, np.argsort(np.array((self.row_dim, self.column_dim, self.color_dim))),
                                  (0, 1, 2))
 
+        # create an image panel if we don't have one yet
+        if self.parent().targetPanels('image') is None:
+            ImageGuiProxy.new()
         # send to any image viewer panel that is connected
         for panel in self.parent().targetPanels('image'):
             panel.show_array(im, zoomFitHist=False, log=False)
