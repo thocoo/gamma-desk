@@ -242,6 +242,11 @@ class MainDialog(QtWidgets.QMainWindow):
         self.initMenu()
         self.callerWindow = None
 
+        if sys.platform == "darwin":
+            # Menu contains customizations; OS can't render those.
+            # Display the menu inside the app.
+            self.menuBar().setNativeMenuBar(False)
+
     @property
     def qapp(self):
         return QtWidgets.QApplication.instance()

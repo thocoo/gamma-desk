@@ -82,6 +82,11 @@ class GuiApplication(QApplication):
         self.shell = shell
         
         super().__init__(argv)                
+
+        if sys.platform == "darwin":
+            # Menu contains customizations; OSX can't draw these in its top-of-screen menu.
+            # Instead, let Qt draw the menu inside the app window.
+            self.setAttribute(QtCore.Qt.AA_DontUseNativeMenuBar)
         
         self.windows = dict()
         self.unnamed_windows = []
