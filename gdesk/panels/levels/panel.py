@@ -587,7 +587,9 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.useRoiBtn.setCheckable(True)
         self.useRoiBtn.setToolTip('Use only the region of intereset')
         self.useRoiBtn.clicked.connect(self.toggleRoi)
-        self.addWidget(self.useRoiBtn)      
+        self.addWidget(self.useRoiBtn)
+        checkable_style = "QToolButton:checked {background-color: lightblue; border: none;}"
+        self.useRoiBtn.setStyleSheet(checkable_style)
 
         self.scaleBtn = QtWidgets.QToolButton(self)
         self.scaleBtn.setText('lin')
@@ -610,10 +612,9 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.cummBtn.setCheckable(True)
         self.cummBtn.setToolTip('Cummulative')
         self.cummBtn.clicked.connect(self.toggleCummulative)
-        self.addWidget(self.cummBtn)          
+        self.addWidget(self.cummBtn)
+        self.cummBtn.setStyleSheet(checkable_style)
 
-     
-        
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
         fontHeight = self.fontMetrics().height()
