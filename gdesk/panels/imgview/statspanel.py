@@ -24,9 +24,8 @@ FUNCMAP = {
     'N':      {'fmt': '{0:d}', 'attr': 'n'},
     'Sum':    {'fmt': '{0:.4g}', 'attr': 'sum'}}
     
-if API_NAME in ['PySide6']:
+if API_NAME == 'PySide6' and hasattr(QtGui, "QAbstractItemView"):
     NOEDITTRIGGERS = QtGui.QAbstractItemView.NoEditTriggers
-    
 else:
     NOEDITTRIGGERS = QtWidgets.QTableWidget.NoEditTriggers
 
