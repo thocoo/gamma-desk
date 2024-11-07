@@ -17,11 +17,7 @@ if sys.platform == 'win32':
     get_last_error = _winapi.GetLastError
     ERROR_ALREADY_EXISTS = _winapi.ERROR_ALREADY_EXISTS
 
-elif sys.platform == 'linux':
-    get_last_error = lambda : 0
-    ERROR_ALREADY_EXISTS = 0
-
-elif sys.platform == 'darwin':
+elif sys.platform in ('linux', 'darwin'):
     get_last_error = lambda : 0
     ERROR_ALREADY_EXISTS = 0
 else:

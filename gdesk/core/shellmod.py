@@ -165,7 +165,7 @@ class Shell(object):
         elif editorExecutable.name.lower() == 'code.exe':
             os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"',  '-g', f'"{filename}:{lineno}"')
         else:
-            if sys.platform == "linux":
+            if sys.platform in ("linux", "darwin"):
                 # Don't use quotes around the file name.
                 os.spawnl(os.P_NOWAIT, editorExecutable, f'"{editorExecutable}"', filename)
             else:

@@ -10,7 +10,6 @@ from gdesk.utils.qt import using_pyside, using_pyqt
 LASTMAP = None
 
 if sys.platform == 'win32':
-    
     class LASTINPUTINFO(ctypes.Structure):
         
         _fields_ = [
@@ -30,13 +29,13 @@ if sys.platform == 'win32':
         GetLastInputInfo(ctypes.byref(liinfo))
         return liinfo.dwTime
 
-elif sys.platform == 'linux':
-
+elif sys.platform in ('linux', 'darwin'):
     def get_last_input_moment():
         return -1
-        
+
 else:
     ImportError(f'Platform {sys.platform} not suported')
+
 
 class ExecTimeout:
     def __init__(self, dialog, timeout=None):  
@@ -184,13 +183,6 @@ def getMap(startPath=None, title='select a Directory'):
             directory=startPath)
     LASTMAP = path
     return path
-    
-    
-def getNewMap(startPath='.', title="Create a new directory"):
-    QFileDialog = QtWidgets.QFileDialog
-    filedir, _filter = QFileDialog.getSaveFileName(None, caption=title, dir=startPath, filter="Directory", options=QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)    
-    return filedir
-    
 
 def getString(prompt, default='', title='Input', echo='Normal'):
     """
