@@ -204,6 +204,12 @@ class LevelPlot(QtWidgets.QWidget):
         
         return curveid
         
+        
+    def toggleYlabels(self):
+        for ind in self.indicators:
+            ind.show_ylabels = not ind.show_ylabels 
+            ind.updates_ylabels()
+        
     def zoomFull(self, enforce_ymin=None):
         self.xmin = self.xmax = None
         self.ymin = self.ymax = None
@@ -468,13 +474,20 @@ class Levels(QtWidgets.QWidget):
         ind = self.levelplot.indicators[1]
         ind.setPos(imagePanel.white, 0)
         ind.label.updateText(ind.text % imagePanel.white)
-        ind.updates_ylabels()        
+        ind.updates_ylabels()
+
+
+    def toggleYlabels(self):
+        self.levelplot.toggleYlabels()
+
             
     def indicZoom(self):
         self.levelplot.zoomBetweenIndicators()
+
         
     def bringIndicVisible(self, skip_if_visible=True):
         self.levelplot.zoomBetweenIndicators(skip_if_visible=skip_if_visible)
+
         
     def fullZoom(self):
         #self.levelplot.zoomFull(enforce_ymin=0)        
@@ -605,7 +618,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.scaleMenu.addAction(logScale)
         self.scaleMenu.addAction(normScale)
         self.scaleBtn.setMenu(self.scaleMenu) 
-        self.addWidget(self.scaleBtn)         
+        self.addWidget(self.scaleBtn)
         
         self.cummBtn = QtWidgets.QToolButton(self)
         self.cummBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'sum.png')))
@@ -614,6 +627,11 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.cummBtn.clicked.connect(self.toggleCummulative)
         self.addWidget(self.cummBtn)
         self.cummBtn.setStyleSheet(checkable_style)
+        
+        self.yLabelBtn = QtWidgets.QToolButton(self)
+        self.yLabelBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'tag_hash.png')))
+        self.yLabelBtn.clicked.connect(self.panel.levels.toggleYlabels)
+        self.addWidget(self.yLabelBtn)
 
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         

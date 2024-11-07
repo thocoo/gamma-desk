@@ -165,6 +165,7 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
         
         self.text = text
         self.logscale = False
+        self.show_ylabels = True
         
         if text is None:            
             self.setBrush(color)
@@ -181,7 +182,6 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
             polygon.append(QtCore.QPointF(0, 0))
             self.setPolygon(polygon)
             self.label = LabelItem(self.text, color, self, scene)
-            #self.addItem(self.label)
             
         self.ylabels = []
         
@@ -201,7 +201,13 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
     def updates_ylabels(self, x=None):        
         x = self.scenePos().x() if x is None else x
         view = self.scene().views()[0]
-        self.set_ylabel_count(len(self.curves))
+        
+        if self.show_ylabels:
+            self.set_ylabel_count(len(self.curves))
+            
+        else:
+            self.set_ylabel_count(0)
+            
         for curve, ylabel in zip(self.curves.values(), self.ylabels):
             yval = np.interp(x, curve.xvector, curve.yvector,0,0)                                
             yscale = view.scale[1]
