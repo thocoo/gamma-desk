@@ -16,12 +16,11 @@ from ..utils.imconvert import qimage_to_ndarray
 
 from .conf import config
 
-try:
-    #Only on Windows    
+if sys.platform == "win32":
     from ..utils.keypress import PressKey, ReleaseKey
-    
-except:
-    pass
+else:
+    PressKey = None
+    ReleaseKey = None
 
 logger = logging.getLogger(__name__)
 
