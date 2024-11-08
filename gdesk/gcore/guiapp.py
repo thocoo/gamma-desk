@@ -311,6 +311,14 @@ class GuiApplication(QApplication):
         
         if sum(visibles) == 0:
             self.panelsDialog.showNormal()                   
+            
+            
+    def setWaitCursor(self):
+        self.setOverrideCursor(QtCore.Qt.WaitCursor)
+    
+    
+    def restoreCursor(self):
+        self.restoreOverrideCursor()
         
 
 def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None):
