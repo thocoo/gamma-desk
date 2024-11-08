@@ -368,7 +368,7 @@ class Levels(QtWidgets.QWidget):
         self.updatedCachedHistogram(panelId)                
             
         if self.panel.fitheight:
-            self.levelplot.zoomFitYRange(ymin=0)
+            self.levelplot.zoomFitYRange()
 
     def updatedCachedHistogram(self, panid):      
         image_panel = self.image_panel(panid)
