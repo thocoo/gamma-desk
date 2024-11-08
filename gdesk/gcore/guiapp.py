@@ -310,11 +310,10 @@ class GuiApplication(QApplication):
         visibles = [win.isVisible() for win in self.windows.values()]
         
         if sum(visibles) == 0:
-            self.panelsDialog.showNormal()                   
+            self.panelsDialog.showNormal()                               
             
-            
-    def setWaitCursor(self):
-        self.setOverrideCursor(QtCore.Qt.WaitCursor)
+    def setBusyCursor(self):
+        self.setOverrideCursor(QtCore.Qt.BusyCursor)
     
     
     def restoreCursor(self):
