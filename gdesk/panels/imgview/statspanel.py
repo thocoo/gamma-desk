@@ -316,6 +316,7 @@ class TitleToolBar(QtWidgets.QWidget):
     showHideInactives = Signal()
     toggleDock = Signal()
     selectMasks = Signal(str)
+    selectRoi = Signal(str)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)        
@@ -335,6 +336,19 @@ class TitleToolBar(QtWidgets.QWidget):
         self.hbox.addStretch(1)
         self.hbox.addWidget(QtWidgets.QLabel('Masks'))
         self.hbox.addStretch(1)
+        
+        self.roiSelectMenu = QtWidgets.QMenu('Show Roi')
+        self.roiSelectMenu.addAction(QtWidgets.QAction("All", self, triggered=lambda: self.selectRoi.emit('all'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))
+        self.roiSelectMenu.addAction(QtWidgets.QAction("Show Roi only",  self, triggered=lambda: self.selectRoi.emit('show roi only'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))
+        self.roiSelectMenu.addAction(QtWidgets.QAction("Hide ROI",   self, triggered=lambda: self.selectRoi.emit('hide roi'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))        
+        
+        self.roiSelectBtn = QtWidgets.QToolButton()
+        self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')))      
+        self.roiSelectBtn.setToolTip('Show/Hide Roi')
+        self.roiSelectBtn.setMenu(self.roiSelectMenu)
+        self.roiSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
+        
+        self.hbox.addWidget(self.roiSelectBtn)
         
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      

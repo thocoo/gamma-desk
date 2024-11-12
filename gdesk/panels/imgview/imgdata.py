@@ -443,6 +443,35 @@ class ImageData(object):
             self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
+    def selectRoiOption(self, option: str):
+    
+        if option == 'show roi only':
+        
+            for mask, mask_props in self.chanstats.items():
+            
+                if mask.startswith('roi.'):
+                    mask_props.active = True
+                    
+                else:
+                    mask_props.active = False   
+
+        elif option == 'hide roi':
+        
+            for mask, mask_props in self.chanstats.items():
+            
+                if mask.startswith('roi.'):
+                    mask_props.active = False
+                    
+                else:
+                    mask_props.active = True               
+                    
+        else:
+        
+            for mask, mask_props in self.chanstats.items():
+            
+                mask_props.active = True                      
+
+
     def addMaskStatistics(self, name, slices, color=None, active=True):
         self.chanstats[name] = ImageStatistics(self, color)
         self.chanstats[name].attach_full_array(slices)

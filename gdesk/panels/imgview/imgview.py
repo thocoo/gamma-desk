@@ -1894,6 +1894,8 @@ class ImageProfileWidget(QWidget):
         
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectMasks.connect(self.selectMasks)
+        self.statsToolbar.selectRoi.connect(self.selectRoi)
+        
         
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
@@ -1937,6 +1939,11 @@ class ImageProfileWidget(QWidget):
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
         self.refresh()
+        
+        
+    def selectRoi(self, option):
+        self.imviewer.imgdata.selectRoiOption(option)
+        self.refresh()        
         
 
     def showOnlyRuler(self):

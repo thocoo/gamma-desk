@@ -758,8 +758,10 @@ class LevelsPanel(BasePanel):
     def addBindingTo(self, category, panid):
         targetPanel = super().addBindingTo(category, panid)
         if targetPanel is None: return None
+        
         self.offsetGainChanged.connect(targetPanel.changeOffsetGain)
         self.blackWhiteChanged.connect(targetPanel.changeBlackWhite)
+        
         return targetPanel
         
     def removeBindingTo(self, category, panid):
