@@ -614,7 +614,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.roiSelectMenu.addAction(QtWidgets.QAction("Hide ROI",   self, triggered=lambda: self.selectRoi.emit('hide roi'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))        
         
         self.roiSelectBtn = QtWidgets.QToolButton()
-        self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')))      
+        self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
         self.roiSelectBtn.setToolTip('Show/Hide Roi')
         self.roiSelectBtn.setMenu(self.roiSelectMenu)
         self.roiSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          

@@ -1942,6 +1942,10 @@ class ImageProfileWidget(QWidget):
         
         
     def selectRoi(self, option):
+    
+        if option in ['show roi only']:
+            self.imviewer.roi.showRoi()
+    
         self.imviewer.imgdata.selectRoiOption(option)
         self.refresh()        
         
