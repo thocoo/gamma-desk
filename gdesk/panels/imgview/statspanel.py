@@ -120,7 +120,9 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def rowSelected(self, index):
         row = index.row()
-        maskName = self.table.item(row, 0).text()
+        selectedRow = self.table.item(row, 0)
+        if selectedRow is None: return
+        maskName = selectedRow.text()
         self.maskSelected.emit(maskName)
         
         
