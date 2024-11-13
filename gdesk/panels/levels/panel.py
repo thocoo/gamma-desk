@@ -374,7 +374,7 @@ class Levels(QtWidgets.QWidget):
         image_panel = self.image_panel(panid)
         
         chanstats = image_panel.imviewer.imgdata.chanstats 
-        masks = image_panel.imviewer.imgdata.masks 
+        #masks = image_panel.imviewer.imgdata.masks 
         
         if self.panel.histSizePolicy == 'bins':
             bins = int(self.panel.histSize)               

@@ -41,7 +41,7 @@ COMPMODE['overlay'] = QtGui.QPainter.CompositionMode_Overlay
 COMPMODE['darken'] = QtGui.QPainter.CompositionMode_Darken  
 COMPMODE['lighten'] = QtGui.QPainter.CompositionMode_Lighten 
 
-RESERVED_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
+PRE_DEF_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
 
 
 def get_next_color_tuple():
@@ -360,7 +360,7 @@ class ImageData(object):
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
         
-        self.masks = dict()
+        self.pre_def_masks = dict()
         #self.chanstats = OrderedDict()
         self.chanstats = OrderedStats()
         self.cfa = 'mono'
@@ -425,22 +425,37 @@ class ImageData(object):
             else:
                 mode = 'rgb'  
 
-        # TO DOG
+        # TO DO
         # It is not always needed to redefine masks and chanstats
         # masks and chanstats that are still valid should be kept
         
         self.defineModeMasks(mode)
         
-        for mask in RESERVED_MASK_NAMES:            
-            if mask in self.chanstats: self.chanstats.pop(mask)
-            if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')            
+        # for mask in PRE_DEF_MASK_NAMES:            
+            # if mask in self.chanstats: self.chanstats.pop(mask)
+            # if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')            
             
-        for mask, chanstat in self.chanstats.items():
-            chanstat.clear()
+        for mask in list(self.chanstats.keys()):            
+            chanstat = self.chanstats[mask]
             
-        for mask, mask_props in self.masks.items():
-            self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
-            self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
+            if mask.startswith('roi.'):
+                prefix, mask = mask.split('.')
+                prefix = prefix + '.'
+                
+            else:
+                prefix = ''                                                           
+        
+            if mask in PRE_DEF_MASK_NAMES and not mask in self.pre_def_masks:
+                self.chanstats.pop(prefix + mask)
+
+            else:
+                chanstat.clear()
+            
+        for mask in list(self.pre_def_masks.keys()):
+            mask_props = self.pre_def_masks[mask]
+            if not mask in self.chanstats:                            
+                self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
+                self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
     def selectRoiOption(self, option: str):
@@ -479,7 +494,7 @@ class ImageData(object):
         
         
     def customMaskNames(self):
-        return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in RESERVED_MASK_NAMES)]
+        return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in PRE_DEF_MASK_NAMES)]
         
         
     def find_chanstat_for_pixel(self, x, y):
@@ -487,14 +502,14 @@ class ImageData(object):
         found = []
     
         for name, chanstat in self.chanstats.items():
-            if name in RESERVED_MASK_NAMES: continue
+            if name in PRE_DEF_MASK_NAMES: continue
             if name.startswith('roi.'): continue
             
             if y in range(*chanstat.slices[0].indices(self.height)) and \
                 x in range(*chanstat.slices[1].indices(self.width)):
                 found.append(name)
                 
-        for name in RESERVED_MASK_NAMES:
+        for name in PRE_DEF_MASK_NAMES:
             if not name in self.chanstats: continue
             chanstat = self.chanstats[name]
             
@@ -508,17 +523,17 @@ class ImageData(object):
             
     def defineModeMasks(self, mode='mono'):
     
-        self.masks.clear()
+        self.pre_def_masks.clear()
         mode = mode.lower()
            
         if mode == 'mono':
             self.cfa = mode
-            self.masks = {
+            self.pre_def_masks = {
                 'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0x40, 0x40, 0x40, 255), 'roi.color': QtGui.QColor(255, 0, 0, 255)}
                 }
         
         elif mode == 'rgb':
-            self.masks = {
+            self.pre_def_masks = {
                 'R':  {'slices': (slice(None), slice(None), slice(0, 1)), 'color': QtGui.QColor(255, 0, 0, 255), 'roi.color': QtGui.QColor(192, 0, 0, 255)},
                 'G':  {'slices': (slice(None), slice(None), slice(1, 2)), 'color': QtGui.QColor(0, 255, 0, 255), 'roi.color': QtGui.QColor(64, 128, 0, 255)},
                 'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255), 'roi.color': QtGui.QColor(64, 0, 128, 255)}
@@ -544,28 +559,28 @@ class ImageData(object):
             
             
             if mode == 'bg':                    
-                self.masks = {
+                self.pre_def_masks = {
                     'B':  {'slices': c00, 'color': blue, 'roi.color': hot_blue}, 
                     'Gb': {'slices': c01, 'color': teal, 'roi.color': hot_teal}, 
                     'Gr': {'slices': c10, 'color': olive, 'roi.color': hot_olive},
                     'R':  {'slices': c11, 'color': red, 'roi.color': hot_red}}
         
             elif mode == 'gb':
-                self.masks = {
+                self.pre_def_masks = {
                     'Gb': {'slices': c00, 'color': teal, 'roi.color': hot_teal}, 
                     'B':  {'slices': c01, 'color': blue, 'roi.color': hot_blue}, 
                     'R':  {'slices': c10, 'color': red, 'roi.color': hot_red},
                     'Gr': {'slices': c11, 'color': olive, 'roi.color': hot_olive}}
             
             elif mode == 'rg':
-                self.masks = {
+                self.pre_def_masks = {
                     'R':  {'slices': c00, 'color': red, 'roi.color': hot_red},
                     'Gr': {'slices': c01, 'color': olive, 'roi.color': hot_olive},
                     'Gb': {'slices': c10, 'color': teal, 'roi.color': hot_teal}, 
                     'B':  {'slices': c11, 'color': blue, 'roi.color': hot_blue}}
             
             elif mode == 'gr':
-                self.masks = {
+                self.pre_def_masks = {
                     'Gr': {'slices': c00, 'color': olive, 'roi.color': hot_olive},
                     'R':  {'slices': c01, 'color': red, 'roi.color': hot_red},       
                     'B':  {'slices': c10, 'color': blue, 'roi.color': hot_blue}, 
@@ -629,7 +644,7 @@ class ImageData(object):
             else:
                 continue
             
-            large_slices = self.masks[mask_name]['slices']            
+            large_slices = self.pre_def_masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
             chanstat.attach_full_array(merged_slices)      
 
