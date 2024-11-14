@@ -394,7 +394,7 @@ class ImageData(object):
             self.array = array                
             
             if not skip_init:
-                self.init_channel_statistics()
+                self.init_channel_statistics(overwrite=False)
                 
             else:
                 for name, stat in self.chanstats.items():
@@ -417,11 +417,12 @@ class ImageData(object):
             gamma=gamma)
             
             
-    def init_channel_statistics(self, mode=None):
+    def init_channel_statistics(self, mode=None, overwrite=True):
     
         if mode is None:
             if len(self.shape) == 2:
                 mode = self.cfa
+                
             else:
                 mode = 'rgb'  
 
@@ -430,10 +431,7 @@ class ImageData(object):
         # masks and chanstats that are still valid should be kept
         
         self.defineModeMasks(mode)
-        
-        # for mask in PRE_DEF_MASK_NAMES:            
-            # if mask in self.chanstats: self.chanstats.pop(mask)
-            # if f'roi.{mask}' in self.chanstats: self.chanstats.pop(f'roi.{mask}')            
+                 
             
         for mask in list(self.chanstats.keys()):            
             chanstat = self.chanstats[mask]
@@ -443,9 +441,12 @@ class ImageData(object):
                 prefix = prefix + '.'
                 
             else:
-                prefix = ''                                                           
-        
-            if mask in PRE_DEF_MASK_NAMES and not mask in self.pre_def_masks:
+                prefix = ''
+
+            if mask in PRE_DEF_MASK_NAMES and overwrite:
+                self.chanstats.pop(prefix + mask)
+                
+            elif mask in PRE_DEF_MASK_NAMES and not mask in self.pre_def_masks:
                 self.chanstats.pop(prefix + mask)
 
             else:
