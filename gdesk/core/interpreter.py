@@ -542,6 +542,7 @@ class Interpreter(object):
         self.compile = CommandCompiler()  
         self.thread_id = thread_id
         
+        
     def compile_source(self, source, filename="<input>", symbol="auto"):
         """
         Compile and run some source in the interpreter.
@@ -586,6 +587,7 @@ class Interpreter(object):
             return 2, None                  
 
         return 0, code              
+        
 
     def eval_expression(self, expression):
         """
@@ -605,6 +607,7 @@ class Interpreter(object):
             raise
         except:           
             self.showtraceback()              
+            
             
     def showsyntaxerror(self, filename=None):
         """
@@ -637,6 +640,7 @@ class Interpreter(object):
         lines = traceback.format_exception_only(type, value)
         self.write_error(''.join(lines))
         
+        
     def showtraceback(self):
         """
         Display the exception that just occurred.
@@ -657,26 +661,21 @@ class Interpreter(object):
         lines.extend(traceback.format_exception_only(type, value))
 
         self.write_error(''.join(lines)) 
+        
 
     def write_error(self, text):
         sys.stderr.write(text)
         
+        
     def use_one_func(self, func, args, kwargs={}):
         try:
-            result = self.exec_func(func, args, kwargs)
+            result = func(*args, **kwargs)
             return 0, result
             
-        except Exception as ex:
-            return 1, repr(ex)
-        
-    def exec_func(self, func, args, kwargs={}):
-        try:
-            return func(*args, **kwargs)
-        except (SystemExit, KeyboardInterrupt, SyncBreaked):            
-            raise
-        except:           
+        except BaseException as ex:
             self.showtraceback()
             raise
+        
             
     def use_one_command(self, cmd):                        
         error_code, code = self.compile_source(cmd, symbol='auto')
@@ -685,38 +684,21 @@ class Interpreter(object):
             return error_code, cmd
             
         try:
-            result = self.exec_code(code)
+            result = exec(code, self.workspace)
             return 0, result
              
-        except Exception as ex:
-            return 1, repr(ex)
-            
-            
-    def exec_code(self, code):
-        """
-        Execute a code object.
-
-        When an exception occurs, self.showtraceback() is called to
-        display a traceback.  All exceptions are caught except
-        SystemExit, which is reraised.
-
-        A note about KeyboardInterrupt: this exception may occur
-        elsewhere in this code, and may not always be caught.  The
-        caller should be prepared to deal with it.
-        """
-        try:
-            return exec(code, self.workspace)
-        except (SystemExit, KeyboardInterrupt, SyncBreaked):            
-            raise
-        except:           
-            self.showtraceback()  
+        except BaseException as ex:
+            self.showtraceback()
             raise
             
+
     def async_break(self):
         async_break(self.thread_id)  
 
+
     def async_system_exit(self):
         async_system_exit(self.thread_id) 
+        
         
     def get_code_frames(self, back):
         frame = sys._current_frames()[self.thread_id]
@@ -726,6 +708,7 @@ class Interpreter(object):
                 return
             frame = frame.f_back
             yield frame         
+
 
 def async_raise(thread_id, exctype):
         """
@@ -752,8 +735,10 @@ def async_raise(thread_id, exctype):
             pass
             #print(f'{exctype} sent to thread id {thread_id}')
 
+
 def async_break(thread_id):
     async_raise(thread_id, KeyboardInterrupt)
-    
+
+
 def async_system_exit(thread_id):
     async_raise(thread_id, SystemExit)    
