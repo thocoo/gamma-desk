@@ -496,7 +496,7 @@ class QueueInterpreter(object):
                 result = 'Thread Interrupted by SyncBreaked'
                 print(result)
                 
-            except Exception as ex:
+            except BaseException as ex:
                 error_code = 4
                 result = repr(ex)                
                 
