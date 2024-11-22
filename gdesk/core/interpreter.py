@@ -413,31 +413,21 @@ class QueueInterpreter(object):
                     
                 self.set_console_mode('running')
                 
-                if mode == 'func':
-                    func = gui_proxy.decode_func(args[0])
-                    func_args = args[1]
-                    
-                    if self.enable_inspect:                    
-                        try:
-                            filename = inspect.getfile(func)
-                            print(filename)
-                        except:
-                            print('filename not found')
-                            
-                        try:
-                            source = inspect.getsource(func)
-                            print(source)
-                        except:
-                            print('source not found')
-
+                if mode == 'interprete':
                     self.breakable = True
-                    error_code, result = interpreter.use_one_func(func, func_args)
-                    self.breakable = False
-                    
-                elif mode == 'func_ext':
+                    error_code, result = interpreter.use_one_command(*args)
+                    self.breakable = False  
+                
+                elif mode in ['func', 'func_ext']:
                     func = gui_proxy.decode_func(args[0])
-                    func_args = args[1][0]
-                    func_kwargs = args[1][1]
+                    
+                    if mode == 'func':
+                        func_args = args[1]
+                        func_kwargs = {}
+                        
+                    elif mode == 'func_ext':
+                        func_args = args[1][0]
+                        func_kwargs = args[1][1]
                     
                     if self.enable_inspect:                    
                         try:
@@ -454,12 +444,7 @@ class QueueInterpreter(object):
 
                     self.breakable = True
                     error_code, result = interpreter.use_one_func(func, func_args, func_kwargs)
-                    self.breakable = False                    
-                    
-                else:
-                    self.breakable = True
-                    error_code, result = interpreter.use_one_command(*args)
-                    self.breakable = False                               
+                    self.breakable = False                                               
                 
                 if self.break_sent:
                     #A async KeyboardInterrupt was sent but still have to occur
