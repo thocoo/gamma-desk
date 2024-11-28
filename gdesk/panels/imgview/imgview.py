@@ -1089,17 +1089,19 @@ class ImageViewerBase(BasePanel):
     def gainToSigma(self, sigma=3, roi=None):
         chanstats = self.imviewer.imgdata.chanstats
 
-        if roi is None:
-            roi = self.imviewer.roi.isVisible()
+        # if roi is None:
+            # roi = self.imviewer.roi.isVisible()
 
-        elif roi and not self.imviewer.roi.isVisible():
-            roi = False
+        # elif roi and not self.imviewer.roi.isVisible():
+            # roi = False
 
         blacks = dict()
         whites = dict()
         
         for clr, stats in  self.imviewer.imgdata.chanstats.items():            
-            if roi != clr.startswith('roi.'): continue
+            #if roi != clr.startswith('roi.'): continue
+            if not (stats.is_valid() and stats.active): continue
+            #if stats.dim: continue
             
             hist = stats.histogram(1)
             starts = stats.starts(1)
