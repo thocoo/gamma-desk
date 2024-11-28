@@ -367,8 +367,8 @@ class Levels(QtWidgets.QWidget):
     def updateHistOfPanel(self, panelId=None):
         self.updatedCachedHistogram(panelId)                
             
-        if self.panel.fitheight:
-            self.levelplot.zoomFitYRange()
+        if self.panel.fitheight:           
+            self.zoomFitYRange()
 
     def updatedCachedHistogram(self, panid):      
         image_panel = self.image_panel(panid)
@@ -426,6 +426,9 @@ class Levels(QtWidgets.QWidget):
                 
             elif self.panel.normalize:
                 hist = hist / max(1, hist.max())
+                self.levelplot.view.freeze_y0 = True
+                
+            else:
                 self.levelplot.view.freeze_y0 = True
                 
                 
@@ -489,13 +492,14 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.zoomBetweenIndicators(skip_if_visible=skip_if_visible)
 
         
-    def fullZoom(self):
-        #self.levelplot.zoomFull(enforce_ymin=0)        
-        self.levelplot.zoomFull()        
+    def fullZoom(self):        
+        ymin = None if (self.panel.cummulative and self.panel.log) else 0
+        self.levelplot.zoomFull(enforce_ymin=ymin)    
+        
 
-    def zoomFitYRange(self):
-        #self.levelplot.zoomFitYRange(ymin=0)    
-        self.levelplot.zoomFitYRange()    
+    def zoomFitYRange(self):  
+        ymin = None if (self.panel.cummulative and self.panel.log) else 0
+        self.levelplot.zoomFitYRange(ymin=ymin)        
 
 
     def selectMask(self, mask):
