@@ -78,7 +78,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.horizontalHeader().setDefaultSectionSize(20)
         self.table.verticalHeader().hide()
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.table.selectionModel().currentRowChanged.connect(self.rowSelected)
+        self.table.selectionModel().currentRowChanged.connect(self.currentRowChanged)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.showCurrentSelection)
         self.table.cellClicked.connect(self.cellClicked)
@@ -118,7 +118,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         return self.parent().parent().parent().imviewer
         
         
-    def rowSelected(self, index):
+    def currentRowChanged(self, index):
         row = index.row()
         selectedRow = self.table.item(row, 0)
         if selectedRow is None: return
@@ -140,6 +140,15 @@ class StatisticsPanel(QtWidgets.QWidget):
         if selected.count() == 0:
             self.maskSelected.emit('')
             
+        else:
+            indices = self.table.selectionModel().selectedRows()
+            maskNames = []
+            for index in indices:
+                row = index.row()
+                maskName = self.table.item(row, 0).text()
+                maskNames.append(maskName)
+            self.maskSelected.emit(','.join(maskNames))
+                            
             
     def modifyMask(self, row=None, column=None):
         

@@ -671,12 +671,11 @@ class ImageData(object):
             thread.join()       
             
             
-    def selectChannelStat(self, statsName):
+    def selectChannelStat(self, statsNames):
     
         for name, chanstat in self.chanstats.items():
-            if (statsName == '')  or (name == statsName):
-                chanstat.dim = False
-                
+            if len(statsNames) == 0 or name in statsNames:
+                chanstat.dim = False  
             else:
                 chanstat.dim = True        
             

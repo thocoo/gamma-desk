@@ -258,9 +258,10 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.profiles[mask_name] = profile
 
                 
-    def selectProfile(self, maskToSelect):
+    def selectProfiles(self, masksToSelect):
+        
         for mask, profile in self.profiles.items():
-            if (maskToSelect == '') or (mask == maskToSelect):
+            if len(masksToSelect) == 0 or (mask in masksToSelect):
                 profile.setZValue(1)
                 profile.setOpacity(1)
             else:

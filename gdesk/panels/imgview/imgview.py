@@ -1087,21 +1087,16 @@ class ImageViewerBase(BasePanel):
             self.gainToSigma(3)
 
     def gainToSigma(self, sigma=3, roi=None):
-        chanstats = self.imviewer.imgdata.chanstats
-
-        # if roi is None:
-            # roi = self.imviewer.roi.isVisible()
-
-        # elif roi and not self.imviewer.roi.isVisible():
-            # roi = False
+        chanstats = self.imviewer.imgdata.chanstats        
 
         blacks = dict()
         whites = dict()
         
+        skip_dim = not all(stats.dim for stats in self.imviewer.imgdata.chanstats.values() if (stats.is_valid() and stats.active))
+        
         for clr, stats in  self.imviewer.imgdata.chanstats.items():            
-            #if roi != clr.startswith('roi.'): continue
             if not (stats.is_valid() and stats.active): continue
-            #if stats.dim: continue
+            if skip_dim and stats.dim: continue
             
             hist = stats.histogram(1)
             starts = stats.starts(1)
@@ -2002,10 +1997,17 @@ class ImageProfileWidget(QWidget):
         self.colPanel.drawMaskProfiles()                           
         
     
-    def selectMask(self, mask):                            
-        self.imviewer.imgdata.selectChannelStat(mask)
-        self.rowPanel.selectProfile(mask)
-        self.colPanel.selectProfile(mask)
+    def selectMask(self, mask):
+        if mask == '':
+            masks = []
+        else:
+            masks = mask.split(',')
+            
+        print(f'{masks=}')
+            
+        self.imviewer.imgdata.selectChannelStat(masks)
+        self.rowPanel.selectProfiles(masks)
+        self.colPanel.selectProfiles(masks)
         
         
     def showSelection(self, mask):
@@ -2103,7 +2105,7 @@ class ImageProfilePanel(ImageViewerBase):
         if targetPanel is None: return None        
         
         if targetPanel.category == 'levels':
-            self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMask)
+            self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMasks)
 
         return targetPanel                
         

@@ -306,10 +306,10 @@ class LevelPlot(QtWidgets.QWidget):
         self.update_rulers(True, True)       
 
 
-    def selectCurve(self, curveName):
+    def selectCurves(self, curveNames):
     
         for name, curve in self.curves.items():
-            if (curveName == '')  or (name == curveName):
+            if len(curveNames) == 0  or (name in curveNames):
                 curve.setZValue(0.5)
                 curve.setOpacity(1)
                 
@@ -502,8 +502,8 @@ class Levels(QtWidgets.QWidget):
         self.levelplot.zoomFitYRange(ymin=ymin)        
 
 
-    def selectMask(self, mask):
-        self.levelplot.selectCurve(mask)
+    def selectMasks(self, masks):
+        self.levelplot.selectCurves(masks)
         
         
 def enclose_func_args(func, *args, **kwargs):
@@ -914,8 +914,14 @@ class LevelsPanel(BasePanel):
         self.levels.updateHistOfPanel(image_panel_id)
             
            
-    def selectMask(self, mask):
-        self.levels.selectMask(mask)
+    def selectMasks(self, masks):
+        if masks == '':
+            masks = []
+            
+        else:
+            masks = masks.split(',')    
+        
+        self.levels.selectMasks(masks)
     
         
         
