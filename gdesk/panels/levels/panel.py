@@ -644,11 +644,13 @@ class LevelsToolBar(QtWidgets.QToolBar):
 
         self.scaleBtn = QtWidgets.QToolButton(self)
         self.scaleBtn.setText('lin')
+        self.scaleBtn.clicked.connect(self.nextScale)
         self.scaleBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+        
         self.scaleMenu = QtWidgets.QMenu('Scale')
         linearScale = QtWidgets.QAction(f'Linear', self, triggered=lambda: self.setScale('lin'))
         linearScale.setToolTip('Use Linear Y-scale')
-        logScale = QtWidgets.QAction(f'Log', self, triggered=lambda: self.setScale('log'))
+        logScale = QtWidgets.QAction(f'Log', self, triggered=lambda: self.setScale('log'))        
         logScale.setToolTip('Use Logaritmic Y-scale')
         normScale = QtWidgets.QAction(f'Normalized', self, triggered=lambda: self.setScale('norm'))
         normScale.setToolTip('Use Normalized scale')
@@ -697,6 +699,13 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.panel.log = self.logBtn.isChecked()
         self.panel.normalize = self.normBtn.isChecked()
         self.levels.updateActiveHist()
+        
+        
+    def nextScale(self):
+        current_scale = self.scaleBtn.text()        
+        scales = ['lin', 'log', 'norm']
+        next_scale = scales[(scales.index(current_scale) + 1) % 3]
+        self.setScale(next_scale)
         
         
     def setScale(self, scale):
