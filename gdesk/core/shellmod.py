@@ -208,14 +208,15 @@ class Shell(object):
         fi = None
         lineno = 0
         
-        if hasattr(object, '__wrapped__'):
-            #Maybe wrapped by the functools.wraps decorator
-            object = object.__wrapped__        
-        
         if isinstance(object, LiveScriptModule):
             fi = object.__file__
+            return (fi, lineno)
+                    
+        if hasattr(object, '__wrapped__'):
+            #Maybe wrapped by the functools.wraps decorator
+            object = object.__wrapped__                
                             
-        elif hasattr(object, 'ls_code'):
+        if hasattr(object, 'ls_code'):
             #it is a script callable
             code = object.func.__code__
             fi = code.co_filename
