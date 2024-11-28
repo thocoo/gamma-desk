@@ -382,9 +382,9 @@ class Levels(QtWidgets.QWidget):
             bins = None
             step = self.panel.histSize
         
-        do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                
+        #do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                              
         
-        clr_to_draw = [m for m, chanstat in chanstats.items() if ((not do_roi) or (m.startswith('roi.') == do_roi))and chanstat.is_valid() and chanstat.active]  
+        clr_to_draw = [m for m, chanstat in chanstats.items() if chanstat.is_valid() and chanstat.active]  
         
         self.levelplot.remove_all_but(clr_to_draw)
         
@@ -602,15 +602,6 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.asUnityBtn.setToolTip('Set current offset, gain and gamma as default')
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
         self.addWidget(self.asUnityBtn)           
-
-        # self.useRoiBtn = QtWidgets.QToolButton(self)
-        # self.useRoiBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')))
-        # self.useRoiBtn.setCheckable(True)
-        # self.useRoiBtn.setToolTip('Use only the region of intereset')
-        # self.useRoiBtn.clicked.connect(self.toggleRoi)
-        # self.addWidget(self.useRoiBtn)
-        # checkable_style = "QToolButton:checked {background-color: lightblue; border: none;}"
-        # self.useRoiBtn.setStyleSheet(checkable_style)
         
         self.roiSelectMenu = QtWidgets.QMenu('Show Roi')
         self.roiSelectMenu.addAction(QtWidgets.QAction("All", self, triggered=lambda: self.selectRoi.emit('all')))
@@ -690,10 +681,10 @@ class LevelsToolBar(QtWidgets.QToolBar):
     def updateStepCount(self):
         self.stepcount.setText(str(self.panel.histSizes[self.histSizePolicyBox.currentText()]))        
         
-    def toggleRoi(self):
-        sender = self.sender()
-        self.panel.roi = sender.isChecked()
-        self.levels.updateActiveHist()
+    # def toggleRoi(self):
+        # sender = self.sender()
+        # self.panel.roi = sender.isChecked()
+        # self.levels.updateActiveHist()
         
     def toggleLogNorm(self):
         self.panel.log = self.logBtn.isChecked()
@@ -762,7 +753,7 @@ class LevelsPanel(BasePanel):
         self.fitheight = True
         self.gaussview = False
         self.log = False
-        self.roi = False
+        #self.roi = False
         self.normalize = False
         self.cummulative = False
         
@@ -784,7 +775,7 @@ class LevelsPanel(BasePanel):
         
         self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
-        self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
+        #self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
         self.addMenuItem(self.modeMenu, 'Normalize', self.toggle_log, checkcall=lambda: self.normalize)
         self.addMenuItem(self.modeMenu, 'Cummulative', self.toggle_cumm, checkcall=lambda: self.cummulative)
@@ -834,10 +825,10 @@ class LevelsPanel(BasePanel):
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()        
         
-    def toggle_roi(self):
-        self.roi = not self.roi
-        self.toolbar.updateButtonStates()
-        self.levels.updateActiveHist()        
+    # def toggle_roi(self):
+        # self.roi = not self.roi
+        # self.toolbar.updateButtonStates()
+        # self.levels.updateActiveHist()        
 
     def toggle_log(self):
         self.log = not self.log
@@ -875,7 +866,8 @@ class LevelsPanel(BasePanel):
             text = self.toolbar.autoBtn.text()
             
             if not sigma is None or 'σ' in text:
-                panel.gainToSigma(self.sigma, self.roi)             
+                #panel.gainToSigma(self.sigma, self.roi)             
+                panel.gainToSigma(self.sigma)             
             
             elif not bits is None or 'bit' in text:
                 panel.changeBlackWhite(0, 2**self.bits)      
