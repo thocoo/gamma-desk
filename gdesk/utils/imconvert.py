@@ -9,6 +9,7 @@ from .shared import SharedArray
 
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb, nb_float_offset_gain_gamma_8bit
+    
     has_numba = True
     
 except:
@@ -250,40 +251,44 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
         if array.dtype == 'uint16' and offset == 0 and gain == 1 and gamma == 1:
             # >> Rounds down !
             if c == 1:
-                processed[:] = array >> 8
+                processed[:] = array // 256
                 
             elif c == 3:
-                processed[:] = array >> 8
+                processed[:] = array // 256
                 
             elif c == 4:
-                processed[:,:,0] = array[:,:,2] >> 8
-                processed[:,:,1] = array[:,:,1] >> 8
-                processed[:,:,2] = array[:,:,0] >> 8
-                processed[:,:,3] = array[:,:,3] >> 8
+                processed[:,:,0] = array[:,:,2] // 256
+                processed[:,:,1] = array[:,:,1] // 256
+                processed[:,:,2] = array[:,:,0] // 256
+                processed[:,:,3] = array[:,:,3] // 256
                 
         elif array.dtype == 'uint16' and offset == 0 and gain in [2, 4, 8, 16, 32, 64, 256] and gamma == 1:
             shift = 11 - len(bin(int(gain)))
+            divide = 2**shift
             
             if c == 1:
-                processed[:] = clip8bitrange(array >> shift)
+                processed[:] = clip8bitrange(array // divide)
                 
             elif c == 3:
-                processed[:] = clip8bitrange(array >> shift)
+                processed[:] = clip8bitrange(array // divide)
                 
             elif c == 4:
-                processed[:,:,0] = clip8bitrange(array[:,:,2] >> shift)
-                processed[:,:,1] = clip8bitrange(array[:,:,1] >> shift)
-                processed[:,:,2] = clip8bitrange(array[:,:,0] >> shift)
-                processed[:,:,3] = clip8bitrange(array[:,:,3] >> shift)                        
+                processed[:,:,0] = clip8bitrange(array[:,:,2] // divide)
+                processed[:,:,1] = clip8bitrange(array[:,:,1] // divide)
+                processed[:,:,2] = clip8bitrange(array[:,:,0] // divide)
+                processed[:,:,3] = clip8bitrange(array[:,:,3] // divide)                        
                 
         else:
+            #if not c == 1:
             map8 = make_map8(array.dtype, offset, gain, gamma)
+            
             if use_numba:
                 if c == 1:
                     map_values_mono(array, processed, map8)
                 
                 elif c == 3:
                     map_values_rgb(array, processed, map8)
+
                 
                 elif c == 4:
                     map_values_rgbswap(array, processed, map8)            
@@ -295,7 +300,7 @@ def process_ndarray_to_qimage_8bit(array, offset=0, gain=1, color_table_name=Non
                     processed[:,:,0] = np.take(map8, array[:,:,2])
                     processed[:,:,1] = np.take(map8, array[:,:,1])
                     processed[:,:,2] = np.take(map8, array[:,:,0])
-                    processed[:,:,3] = array[:,:,3] >> 8
+                    processed[:,:,3] = array[:,:,3] // 256
                 
     elif array.dtype in ['int32', 'uint32', 'int64', 'uint64', 'float16', 'float32', 'float64']:
         if has_numba:
