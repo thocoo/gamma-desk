@@ -447,13 +447,14 @@ class QueueInterpreter(object):
                     self.breakable = False                                               
                 
                 if self.break_sent:
-                    #A async KeyboardInterrupt was sent but still have to occur
-                    #This situation is rare, but can happen
-                    #Keep on stepping in the Python interpreter
-                    print('WARNING: KeyboardInterrupt is on its way')
+                    # A async KeyboardInterrupt was sent but the exception
+                    # didn't reach this level
+                    # Maybe it still have to occur.
+                    # Do a descent amount of Python instruction steps.
+                    
                     try:
-                        for i in range(1000):
-                            time.sleep(0.010)
+                        for i in range(200):
+                            time.sleep(0.01)
                             
                     except KeyboardInterrupt:
                         raise KeyboardInterrupt()
