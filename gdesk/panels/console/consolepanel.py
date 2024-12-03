@@ -225,13 +225,17 @@ class StdInputPanel(QPlainTextEdit):
 
         elif event.key() == Qt.Key_Tab:
             if self.mode == 'input':
-                logger.info('Autocomplete not supported during input mode')
-                self.insertText('    ')
+                #logger.info('Autocomplete not supported during input mode')
+                #self.insertText('    ')
+                wsmode = 'input'
+                
             else:
-                if key_ctrl or key_shift:
-                    self.startAutoCompleter(wild=True)
-                else:
-                    self.startAutoCompleter()
+                wsmode = None
+                
+            if key_ctrl or key_shift:
+                self.startAutoCompleter(wild=True, wsmode=wsmode)
+            else:
+                self.startAutoCompleter(wsmode=wsmode)
 
         elif event.key() == Qt.Key_Up and self.textCursor().block().blockNumber() == 0:
             if self.hist_prefix is None:
@@ -265,7 +269,8 @@ class StdInputPanel(QPlainTextEdit):
 
         return curdocpos == startlinepos
 
-    def startAutoCompleter(self, wild=False):
+
+    def startAutoCompleter(self, wild=False, wsmode=None):
 
         #delims = ' \t\n\\"\'`@$><=;|&{('
         delims = ' \t\n`@$><=;|&{('
@@ -286,18 +291,22 @@ class StdInputPanel(QPlainTextEdit):
 
         self.outputPanel.addText(f'{self.part}*\n')
 
-        max_items = config['console']['max_complete']
-        self.task.call_func(Shell.get_completer_data, (self.part, max_items, wild), self.response_to_autocomplete)
+        max_items = config['console']['max_complete']        
+        
+        self.task.call_func(Shell.get_completer_data, (self.part, max_items, wild, wsmode), self.response_to_autocomplete, queue='flow')
+        
 
     def moveCursorToEndOfBlock(self):
         cursor=self.textCursor()
         cursor.movePosition(QTextCursor.EndOfBlock)
         self.setTextCursor(cursor)
+        
 
     def moveCursorToEndOfDoc(self):
         cursor=self.textCursor()
         cursor.movePosition(QTextCursor.End)
         self.setTextCursor(cursor)
+        
 
     def execute_commands(self, cmd=None):
         if cmd is None:

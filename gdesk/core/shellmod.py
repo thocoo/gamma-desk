@@ -30,8 +30,8 @@ from ..live.manage import LiveScriptModule
 from rlcompleter import Completer
 from ..live.completer import Completer as LiveCompleter
 
-completer = config.get('console', {}).get('completer', 'native')      
-multikey =  config.get('console', {}).get('multikey', False)
+COMPLETER = config.get('console', {}).get('completer', 'native')      
+MULTIKEY =  config.get('console', {}).get('multikey', False)
 
 here = Path(__file__).absolute().parent
 logger = logging.getLogger(__name__) 
@@ -53,10 +53,10 @@ class Shell(object):
             self.redirect_stdout()            
             self.redirect_input()
         
-        if completer == 'native':
+        if COMPLETER == 'native':
             self.comp = Completer(self.wsdict)
         else:
-            self.comp = LiveCompleter(self.wsdict, multikey=multikey)
+            self.comp = LiveCompleter(self.wsdict, multikey=MULTIKEY)
             
         self.interpreters = dict()
         
@@ -366,18 +366,6 @@ class Shell(object):
             except queue.Empty:
                 pass
                 
-    # def ipython(self):
-        # from IPython.terminal.embed import InteractiveShellEmbed
-        # ishell = InteractiveShellEmbed()
-        # stdout_back = sys.stdout
-        # ishell.interact()
-        # sys.stdout = stdout_back
-        
-    # def jupyter(self, rundir=''):
-        # JUPYTER_DATA_DIR = str(here.parent / 'external' / 'jupyter' / 'data')
-        # logger.info(f'JUPYTER_DATA_DIR: {JUPYTER_DATA_DIR}')            
-        # os.environ['JUPYTER_DATA_DIR'] = JUPYTER_DATA_DIR
-        # os.system(f'start {sys.executable} -m jupyterlab --notebook-dir="{rundir}"')
         
     def pprint(self, var):
         """
@@ -385,6 +373,7 @@ class Shell(object):
         The user can also use `var!!` to call this function.               
         """
         pprint.pprint(var)
+        
         
     def magic(self, cmd):
         """
@@ -462,25 +451,44 @@ class Shell(object):
         
         
     @staticmethod
-    def get_completer_data(text, max=1000, wild=False):
-        shell = Shell.instance
+    def get_completer_data(text, max=1000, wild=False, wsmode=None):        
+        
+        shell = Shell.instance        
+            
+        if wsmode == 'input':
+            workspace = shell.input_frame.f_locals
+            
+            if COMPLETER == 'native':
+                comp = Completer(workspace)
+                
+            else:
+                comp = LiveCompleter(workspace, multikey=MULTIKEY)
+                
+        else:
+            comp = shell.comp
         
         items = []
         for state in range(max):
-            if shell.comp.complete.__func__.__code__.co_argcount == 3:
+            if comp.complete.__func__.__code__.co_argcount == 3:
                 # The Python Original rlcompleter.
-                item = shell.comp.complete(text, state)
+                item = comp.complete(text, state)
             else:
                 # Needs an extra argument: 'wild'.
-                item = shell.comp.complete(text, state, wild)
+                item = comp.complete(text, state, wild)
             if item is None:
                 # Reached the end (no more attributes).
                 break
+            #print(item)
             items.append(item)
         return items        
+
         
     def input(self, message='', timeout=None):
-        ident = threading.get_ident()                
+        ident = threading.get_ident()
+
+        frame = sys._getframe(1)
+        self.input_frame = frame
+        
         if ident in self.interpreters.keys():
             if gui.is_main():
                 return gui.inputdlg(message)
@@ -492,6 +500,7 @@ class Shell(object):
                 return args[0]
         else:
             return self.__input__(message)
+
             
     def execfile(self, filepath, globals=None, locals=None):
         """
