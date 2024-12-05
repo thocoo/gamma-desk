@@ -49,6 +49,10 @@ def markUpdateCall(scm, ls_code, attr):
     def wrapped_caller(*args, **kwargs):       
         scm.mark_for_update()       
         error = ls_code.check_for_update()
+        
+        # refresh the function pointer, it has maybe been updated
+        func = getattr(ls_code.workspace, attr)
+        
         return func(*args, **kwargs)     
         
     return wrapped_caller
@@ -310,6 +314,9 @@ class LiveScriptManager(object):
         Reload the scripts in memory.
         If not enforced, load only scripts with more recent timestamps
         """
+        
+        self.pop_missing_paths()
+        
         for ls_code in self.ls_codes.values():
             if enforce:
                 ret = ls_code.load()
@@ -372,4 +379,10 @@ class LiveScriptManager(object):
 
     def write_syntax_err(self, text):
         sys.stderr.write(text)
+        
+        
+    def pop_missing_paths(self):        
+        for k in list(self.ls_codes):
+            if not self.ls_codes[k].path.exists():
+                self.ls_codes.pop(k)
         
