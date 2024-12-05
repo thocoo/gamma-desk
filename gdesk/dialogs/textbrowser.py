@@ -46,6 +46,11 @@ class TextEditLinks(QtWidgets.QTextBrowser):
     def addMail(self, mail_address, text):
         """addMail"""
         self.append(f'<a href="mailto:{mail_address}">{text}</a>')
+        
+    def scrollToTop(self):
+        cursor = self.textCursor()
+        cursor.setPosition(0)
+        self.setTextCursor(cursor)
 
 
 class TextBrowser(QtWidgets.QDialog):
@@ -77,6 +82,7 @@ class TextBrowser(QtWidgets.QDialog):
         cont = TextEditLinks(self)
         cont.setReadOnly(True)
         cont.append(content)
+        cont.scrollToTop()
 
         # cont.addLink("http://www.apache.org/licenses/LICENSE-2.0",
             # "www.apache.org/licenses/LICENSE-2.0")
