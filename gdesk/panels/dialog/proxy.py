@@ -84,7 +84,7 @@ class DialogGuiProxy(GuiProxyBase):
                         
     @StaticGuiCall
     def getstring(prompt='', default='', title='Input', echo='Normal', timeout=None):
-        """\
+        """
         Show a popup-window to ask the user some textual input.
 
         Makes use of QtWidgets.QInputDialog.getText; see
@@ -104,7 +104,7 @@ class DialogGuiProxy(GuiProxyBase):
 
     @StaticGuiCall
     def getfile(filter='*.*', title='open', file=None):
-        """
+        r"""
         Show a file dialog to open a file.
         Return a string tuple of  file path and choosen filter
         
@@ -172,7 +172,7 @@ class DialogGuiProxy(GuiProxyBase):
 
     @StaticGuiCall
     def putfile(filter='*.*', title='save', file=None, defaultfilter=""):
-        """
+        r"""
         Open a save file dialog and return a file name selected by the user.
         The file does not have to exist.
                         
@@ -194,7 +194,7 @@ class DialogGuiProxy(GuiProxyBase):
 
     @staticmethod
     def putfilename(filter='*.*', title='save', file=None, defaultfilter=""):
-        """       
+        r"""       
         Open a save file dialog and return a file name selected by the user.
         The file does not have to exist.
                         
@@ -216,7 +216,7 @@ class DialogGuiProxy(GuiProxyBase):
 
     @StaticGuiCall
     def filterlist(items=None, selection=None, filter=None, title='Items'):
-        """
+        r"""
         Open a items filter dialog.
         The user have to select items from it.
         
