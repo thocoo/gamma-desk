@@ -53,17 +53,7 @@ class TextEditLinks(QtWidgets.QTextBrowser):
         self.setTextCursor(cursor)
 
 
-class TextBrowser(QtWidgets.QDialog):
-#class TextBrowser(QtWidgets.QWidget):
-    """
-    The About window
-    """
-    def __init__(self, content: str='No content', title: str='HTML', icon: str=None):
-        super().__init__()
-        self.initUI(content, title, icon)
-        #gui.qapp.unnamed_windows.append(self)
-        #self.show()
-        
+class TextBrowserContent():        
 
     def initUI(self, content, title, icon):
         """
@@ -71,26 +61,13 @@ class TextBrowser(QtWidgets.QDialog):
         """
         self.setMinimumWidth(500)
         self.setMinimumHeight(400)
-
         self.setWindowTitle(title)
-        #self.setWindowFlags(Qt.WindowStaysOnTopHint)
-
-        # message = f"""<center><h2>{PROGNAME}</h2>
-            # <p>Version {__release__}</p>
-            # """
 
         cont = TextEditLinks(self)
         cont.setReadOnly(True)
         cont.append(content)
         cont.scrollToTop()
-
-        # cont.addLink("http://www.apache.org/licenses/LICENSE-2.0",
-            # "www.apache.org/licenses/LICENSE-2.0")
-        # cont.addLink("http://www.fatcow.com/free-icons",
-            # "www.fatcow.com/free-icons")
-        # cont.addMail("thomas.cools@telenet.be",
-            # "thomas.cools@telenet.be")
-
+        
         hboxcontent= QtWidgets.QHBoxLayout()
         
         if icon in ['warn', 'error', 'info', 'help']:
@@ -111,10 +88,6 @@ class TextBrowser(QtWidgets.QDialog):
         hboxbut = QtWidgets.QHBoxLayout()
         hboxbut.addStretch(1)
         
-        # pinButton = QtWidgets.QPushButton("Toggle Stay on Top")
-        # pinButton.clicked.connect(self.toggleOnTop)
-        # hboxbut.addWidget(pinButton)
-        
         okButton = QtWidgets.QPushButton("OK")
         okButton.clicked.connect(self.close)        
             
@@ -126,22 +99,10 @@ class TextBrowser(QtWidgets.QDialog):
 
         self.setLayout(vbox)
 
-        
-    # def toggleOnTop(self):
-        # flags = self.windowFlags()
-        
-        # if (flags & Qt.WindowStaysOnTopHint) == Qt.WindowStaysOnTopHint:
-            # flags = flags & (~Qt.WindowStaysOnTopHint)
-        # else:
-            # flags = flags | Qt.WindowStaysOnTopHint
-        
-        # self.setWindowFlags(flags)
-        # self.show()            
-        
-        
-    # def closeEvent(self, event):
-        # gui.qapp.unnamed_windows.remove(self)
-        # event.accept()
             
    
+class TextBrowser(QtWidgets.QDialog, TextBrowserContent):
 
+    def __init__(self, content: str='No content', title: str='HTML', icon: str=None):
+        super().__init__()
+        self.initUI(content, title, icon)
