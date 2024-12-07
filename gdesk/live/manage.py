@@ -119,12 +119,14 @@ class LiveScriptModule(object):
         return self.__wrapped__.__doc__
 
         
-class LiveScriptTree(object):        
+class LiveScriptTree(object):
+
     def __init__(self, script_manager, path, top=False, name=None):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
         object.__setattr__(self, '__top__', top)
         object.__setattr__(self, '__name__', name)
+
 
     def __dir__(self):
         lst = []
@@ -134,12 +136,14 @@ class LiveScriptTree(object):
         for file in node.glob('*'):
             lst.append(file.stem)
         return lst
-        
+
+
     def __getattr__(self, attr):
         path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
         return self.__script_manager__.using_path(path, top=self.__top__, name=qualname)        
-            
+
+
     def __repr__(self):
         return f"<LiveScriptTree '{self.__path__}'>"            
 
@@ -192,6 +196,7 @@ class LiveScriptScan(object):
             
             
 class LsCode(object):        
+
     def __init__(self, script_manager, path, name=None):
         self.script_manager = script_manager
         self.path = path
@@ -200,7 +205,8 @@ class LsCode(object):
         self.code = None        
         self.workspace = None
         self.ask_refresh = UpdateFlag.DONE
-        
+
+
     def check_for_update(self):
         ls_code = self
         logger.debug(f'Checking for update, mode={ls_code.ask_refresh}')
@@ -215,7 +221,6 @@ class LsCode(object):
         if loaderror == LoadError.SUCCEED:
             ls_code.ask_refresh = UpdateFlag.DONE
             logger.debug(f'Updated {ls_code.path}')
-            ls_code.ask_refresh = UpdateFlag.DONE
 
         elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
             logger.warning(f'Failed to update {ls_code.path}')
@@ -237,6 +242,7 @@ class LsCode(object):
 
 
     def load(self):
+        """Import Python file (from disk, compile and execute)"""
         self.code = None        
         self.workspace = None
             
@@ -275,6 +281,7 @@ class LsWorkspace(object):
 
         
 class LiveScriptManager(object):
+
     def __init__(self, workspace=None):
         # Add the search paths to self.path
         if workspace is None:
@@ -283,7 +290,8 @@ class LiveScriptManager(object):
         self.ls_codes = dict()
         self.workspace = workspace
         self.verbose = 3
-        
+
+
     def find_script(self, modstr='test'):
         """Search for the script in the path list.
         Return the found path.
@@ -325,7 +333,8 @@ class LiveScriptManager(object):
                 
         if path is not None and str(path) not in self.path:
             self.path.append(str(path))
-        
+
+
     def load(self, path, name=None):
         self.ls_codes[str(path)] = LsCode(self, path, name)
         self.ls_codes[str(path)].load()
@@ -341,7 +350,8 @@ class LiveScriptManager(object):
         for ls_code in self.ls_codes.values():
             if enforce or ls_code.is_modified():
                 load_error = ls_code.load()
-                
+
+
     def mark_for_update(self, enforce=False):
         """Mark all modules to check for update at next first check_for_update() per module"""
         logger.debug('Marking all modules for update')
@@ -375,16 +385,13 @@ class LiveScriptManager(object):
     def using_path(self, path, stype=None, top=False, name=None):        
         if stype is None:
             if path.is_dir():
-                stype = 'dir'                
+                stype = 'dir'
             else:
                 path = path.with_suffix('.py')
                 if not path.exists():
-                    path = None 
+                    raise ImportError(f'LiveScript {path} not found')
                 else:
                     stype = 'file'
-                
-        if path is None:
-            raise ImportError(f'LiveScript {modstr} not found')
             
         if str(path) in self.ls_codes.keys():
             return LiveScriptModule(self, str(path), top)            
