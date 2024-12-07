@@ -55,22 +55,26 @@ def show_traceback(writer_call):
     writer_call(''.join(lines))
     
 
-def markUpdateCall(scm, ls_code, attr, nested=False):
-    func_for_doc = getattr(ls_code.workspace, attr)
+def markUpdateCall(scm, module, attr, nested=False):
+    func_for_doc = getattr(module.workspace, attr)
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):
         if not nested:
             scm.mark_for_update()
-        error = ls_code.check_for_update()
-        func = getattr(ls_code.workspace, attr)
+        error = module.check_for_update()
+        func = getattr(module.workspace, attr)
         
         return func(*args, **kwargs)     
         
     return wrapped_caller
     
 
-class LiveScriptModule(object):
+class LiveScriptModuleReference(object):
+    """"For every reference to a module, a dedicated LiveScriptModuleReference is created
+    This is mainly to store it's top attribute. Which can differ between the references
+    """
+
     def __init__(self, script_manager, path, top=False, modstr=None):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
@@ -83,9 +87,9 @@ class LiveScriptModule(object):
         scm = self.__script_manager__
         if self.__top__:
             scm.mark_for_update()
-        ls_code = scm.ls_codes[self.__modstr__]
-        ls_code.check_for_update()
-        return ls_code.workspace
+        module = scm.modules[self.__modstr__]
+        module.check_for_update()
+        return module.workspace
 
 
     def __getattr__(self, attr):
@@ -93,7 +97,7 @@ class LiveScriptModule(object):
 
         if callable(wrapped_attr):
             nested = not self.__top__
-            return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__modstr__], attr, nested=nested)
+            return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr, nested=nested)
         else:
             return wrapped_attr
 
@@ -118,6 +122,86 @@ class LiveScriptModule(object):
     @property
     def __doc__(self):
         return self.__wrapped__.__doc__
+
+
+class LiveScriptModule(object):
+
+    def __init__(self, script_manager, path, name=None):
+        self.script_manager = script_manager
+        self.path = path
+        self.name = 'unknown' if name is None else name
+        self.load_modify = -1
+        self.code = None
+        self.workspace = None
+        self.ask_refresh = UpdateFlag.DONE
+
+    def check_for_update(self):
+        logger.debug(f'Checking for update, mode={self.ask_refresh}')
+        loaderror = LoadError.NONE
+
+        if self.ask_refresh == UpdateFlag.DONE: return loaderror
+
+        if self.ask_refresh == UpdateFlag.ENFORCE or \
+                ((self.ask_refresh == UpdateFlag.MODIFIED) and (self.is_modified())):
+            loaderror = self.load()
+
+        if loaderror == LoadError.SUCCEED:
+            self.ask_refresh = UpdateFlag.DONE
+            logger.debug(f'Updated {self.path}')
+
+        elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
+            logger.warning(f'Failed to update {self.path}')
+            logger.warning(f'Error code {updated}')
+
+        else:
+            self.ask_refresh = UpdateFlag.DONE
+
+        return loaderror
+
+    def modify_time(self):
+        return os.path.getmtime(str(self.path))
+
+    def is_modified(self):
+        logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
+        return self.load_modify < self.modify_time()
+
+    def load(self):
+        """Import Python file (from disk, compile and execute)"""
+        self.code = None
+        self.workspace = None
+
+        with open(str(self.path), 'r', encoding='utf-8') as fp:
+            current_modify_stamp = self.modify_time()
+            pycode = fp.read()
+
+            try:
+                codeobj = compile(pycode, str(self.path), 'exec')
+                self.code = codeobj
+
+            except SyntaxError:
+                show_syntax_error(self.script_manager.write_syntax_err)
+                return LoadError.SYNTAX
+
+        self.workspace = LsWorkspace(self, str(self.path), self.name)
+
+        try:
+            exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
+
+        except:
+            show_traceback(self.script_manager.write_error)
+            return LoadError.EXECUTE
+
+        self.load_modify = current_modify_stamp
+        logger.debug(f'{self.path} loaded at {time.ctime(self.load_modify)}')
+        return LoadError.NONE
+
+
+class LsWorkspace(object):
+    #Provide a namespace for each script file.
+    def __init__(self, module, file, name='unknown'):
+        self.__file__ = file
+        self.__module__ = module
+        self.__name__ = name
 
         
 class LiveScriptTree(object):
@@ -193,92 +277,7 @@ class LiveScriptScan(object):
         return self.__script_manager__.using_modstr(modstr, top, back=3)
             
     def __repr__(self):
-        return f"<LiveScriptScan '{self.__script_manager__.path}'>"       
-            
-            
-class LsCode(object):        
-
-    def __init__(self, script_manager, path, name=None):
-        self.script_manager = script_manager
-        self.path = path
-        self.name = 'unknown' if name is None else name
-        self.load_modify = -1
-        self.code = None        
-        self.workspace = None
-        self.ask_refresh = UpdateFlag.DONE
-
-
-    def check_for_update(self):
-        ls_code = self
-        logger.debug(f'Checking for update, mode={ls_code.ask_refresh}')
-        loaderror = LoadError.NONE
-
-        if ls_code.ask_refresh == UpdateFlag.DONE: return loaderror
-
-        if ls_code.ask_refresh == UpdateFlag.ENFORCE or \
-            ((ls_code.ask_refresh == UpdateFlag.MODIFIED) and (ls_code.is_modified())):
-            loaderror = ls_code.load()
-
-        if loaderror == LoadError.SUCCEED:
-            ls_code.ask_refresh = UpdateFlag.DONE
-            logger.debug(f'Updated {ls_code.path}')
-
-        elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
-            logger.warning(f'Failed to update {ls_code.path}')
-            logger.warning(f'Error code {updated}')
-
-        else:
-            ls_code.ask_refresh = UpdateFlag.DONE
-                    
-        return loaderror
-
-
-    def modify_time(self):
-        return os.path.getmtime(str(self.path))
-
-
-    def is_modified(self):
-        logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
-        return self.load_modify < self.modify_time()
-
-
-    def load(self):
-        """Import Python file (from disk, compile and execute)"""
-        self.code = None        
-        self.workspace = None
-            
-        with open(str(self.path), 'r', encoding='utf-8') as fp:
-            current_modify_stamp = self.modify_time()
-            pycode = fp.read()            
-            
-            try:
-                codeobj = compile(pycode, str(self.path), 'exec')
-                self.code = codeobj
-
-            except SyntaxError:
-                show_syntax_error(self.script_manager.write_syntax_err)
-                return LoadError.SYNTAX
-                
-        self.workspace = LsWorkspace(self, str(self.path), self.name) 
-                
-        try:
-            exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
-                    
-        except:
-            show_traceback(self.script_manager.write_error)
-            return LoadError.EXECUTE
-            
-        self.load_modify =  current_modify_stamp       
-        logger.debug(f'{self.path} loaded at {time.ctime(self.load_modify)}')
-        return LoadError.NONE
-        
-        
-class LsWorkspace(object):
-    #Provide a namespace for each script file.
-    def __init__(self, ls_code, file, name='unknown'):
-        self.__file__ = file
-        self.__ls_code__ = ls_code
-        self.__name__ = name
+        return f"<LiveScriptScan '{self.__script_manager__.path}'>"
 
         
 class LiveScriptManager(object):
@@ -288,7 +287,7 @@ class LiveScriptManager(object):
         if workspace is None:
             workspace = dict()
         self.path = []        
-        self.ls_codes = dict()
+        self.modules = dict()
         self.workspace = workspace
         self.verbose = 3
 
@@ -337,9 +336,9 @@ class LiveScriptManager(object):
 
 
     def load(self, path, modstr=None):
-        lscode = LsCode(self, path, modstr)
-        self.ls_codes[modstr] = lscode
-        lscode.load()
+        module = LiveScriptModule(self, path, modstr)
+        self.modules[modstr] = module
+        module.load()
 
 
     def update_now(self, enforce=False):
@@ -349,17 +348,17 @@ class LiveScriptManager(object):
         """
         self.pop_missing_paths()
         
-        for ls_code in self.ls_codes.values():
-            if enforce or ls_code.is_modified():
-                load_error = ls_code.load()
+        for module in self.modules.values():
+            if enforce or module.is_modified():
+                load_error = module.load()
 
 
     def mark_for_update(self, enforce=False):
         """Mark all modules to check for update at next first check_for_update() per module"""
         logger.debug('Marking all modules for update')
         mark = UpdateFlag.ENFORCE if enforce else UpdateFlag.MODIFIED
-        for ls_code in self.ls_codes.values():
-            ls_code.ask_refresh = mark
+        for module in self.modules.values():
+            module.ask_refresh = mark
 
         
     def using_modstr(self, modstr, top=False, back=1):
@@ -395,12 +394,12 @@ class LiveScriptManager(object):
                 else:
                     stype = 'file'
             
-        if modstr in self.ls_codes.keys():
-            return LiveScriptModule(self, str(path), top, modstr)
+        if modstr in self.modules.keys():
+            return LiveScriptModuleReference(self, str(path), top, modstr)
             
         if stype == 'file':
             loaderror = self.load(path, modstr)
-            return LiveScriptModule(self, str(path), top, modstr)
+            return LiveScriptModuleReference(self, str(path), top, modstr)
             
         elif stype == 'dir':
             return LiveScriptTree(self, path, top, modstr)
@@ -415,7 +414,7 @@ class LiveScriptManager(object):
         
         
     def pop_missing_paths(self):        
-        for k in list(self.ls_codes):
-            if not self.ls_codes[k].path.exists():
-                self.ls_codes.pop(k)
+        for k in list(self.modules):
+            if not self.modules[k].path.exists():
+                self.modules.pop(k)
         
