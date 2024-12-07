@@ -18,6 +18,12 @@ class UpdateFlag(Enum):
     MODIFIED = 2
     ENFORCE = 3
 
+class LoadError(Enum):
+    NONE = 1
+    SUCCEED = 2
+    SYNTAX = 3
+    EXECUTE = 4
+
 def show_syntax_error(writer_call):
     """Display the syntax error that just occurred."""
     type, value, tb = sys.exc_info()
@@ -211,28 +217,29 @@ class LsCode(object):
     def check_for_update(self):
         ls_code = self
         logger.debug(f'Checking for update, mode={ls_code.ask_refresh}')
-        updated = None
+        loaderror = LoadError.NONE
 
         if not ls_code.ask_refresh == UpdateFlag.DONE:
 
             if ls_code.ask_refresh == UpdateFlag.ENFORCE or \
                 ((ls_code.ask_refresh == UpdateFlag.MODIFIED) and (ls_code.is_modified())):
-                updated = ls_code.load()
-                
-            if not updated is None:
-                if updated == 0:
-                    ls_code.ask_refresh = UpdateFlag.DONE
-                    logger.debug(f'Updated {ls_code.path}')
-                else:
-                    logger.warning(f'Failed to update {ls_code.path}')
-                    logger.warning(f'Error code {updated}')
+                loaderror = ls_code.load()
+
+            if loaderror == LoadError.SUCCEED:
+                ls_code.ask_refresh = UpdateFlag.DONE
+                logger.debug(f'Updated {ls_code.path}')
+                ls_code.ask_refresh = UpdateFlag.DONE
+
+            elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
+                logger.warning(f'Failed to update {ls_code.path}')
+                logger.warning(f'Error code {updated}')
 
             else:
                 ls_code.ask_refresh = UpdateFlag.DONE
 
         logger.debug(f'Checking for update done, mode={ls_code.ask_refresh}')
                     
-        return updated
+        return loaderror
         
     def modify_time(self):
         return os.path.getmtime(str(self.path))
@@ -252,9 +259,10 @@ class LsCode(object):
             try:
                 codeobj = compile(pycode, str(self.path), 'exec')
                 self.code = codeobj
-            except:
+
+            except SyntaxError:
                 show_syntax_error(self.script_manager.write_syntax_err)
-                return 1
+                return LoadError.SYNTAX
                 
         self.workspace = LsWorkspace(self, str(self.path), self.name) 
                 
@@ -263,11 +271,11 @@ class LsCode(object):
                     
         except:
             show_traceback(self.script_manager.write_error)
-            return 2
+            return LoadError.EXECUTE
             
         self.load_modify =  current_modify_stamp       
         logger.debug(f'{self.path} loaded at {time.ctime(self.load_modify)}')
-        return 0 
+        return LoadError.NONE
         
         
 class LsWorkspace(object):
@@ -344,7 +352,7 @@ class LiveScriptManager(object):
         
         for ls_code in self.ls_codes.values():
             if enforce or ls_code.is_modified():
-                ret = ls_code.load()
+                load_error = ls_code.load()
                 
     def mark_for_update(self, enforce=False):
         """Mark all modules to check for update at next first check_for_update() per module"""
@@ -394,7 +402,7 @@ class LiveScriptManager(object):
             return LiveScriptModule(self, str(path), top)            
             
         if stype == 'file':
-            self.load(path, name)            
+            loaderror = self.load(path, name)
             return LiveScriptModule(self, str(path), top)            
             
         elif stype == 'dir':
