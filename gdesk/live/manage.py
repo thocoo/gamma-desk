@@ -24,6 +24,7 @@ class LoadError(Enum):
     SYNTAX = 3
     EXECUTE = 4
 
+
 def show_syntax_error(writer_call):
     """Display the syntax error that just occurred."""
     type, value, tb = sys.exc_info()
@@ -54,30 +55,18 @@ def show_traceback(writer_call):
     writer_call(''.join(lines))
     
 
-def markUpdateCallTop(scm, ls_code, attr):
+def markUpdateCall(scm, ls_code, attr, nested=False):
     func_for_doc = getattr(ls_code.workspace, attr)
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
-    def wrapped_caller(*args, **kwargs):       
-        scm.mark_for_update()
+    def wrapped_caller(*args, **kwargs):
+        if not nested:
+            scm.mark_for_update()
         error = ls_code.check_for_update()
         func = getattr(ls_code.workspace, attr)
         
         return func(*args, **kwargs)     
         
-    return wrapped_caller
-
-
-def markUpdateCallNest(scm, ls_code, attr):
-    func_for_doc = getattr(ls_code.workspace, attr)
-
-    @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
-    def wrapped_caller(*args, **kwargs):
-        error = ls_code.check_for_update()
-        func = getattr(ls_code.workspace, attr)
-
-        return func(*args, **kwargs)
-
     return wrapped_caller
     
 
@@ -102,10 +91,8 @@ class LiveScriptModule(object):
         wrapped_attr = getattr(self.__wrapped__, attr)
 
         if callable(wrapped_attr):
-            if self.__top__:
-                return markUpdateCallTop(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
-            else:
-                return markUpdateCallNest(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
+            nested = not self.__top__
+            return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr, nested=nested)
         else:
             return wrapped_attr
 
@@ -280,7 +267,7 @@ class LsCode(object):
         
 class LsWorkspace(object):
     #Provide a namespace for each script file.
-    def __init__(self, ls_code, file, name='unkown'):
+    def __init__(self, ls_code, file, name='unknown'):
         self.__file__ = file
         self.__ls_code__ = ls_code
         self.__name__ = name
