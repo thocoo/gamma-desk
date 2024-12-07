@@ -71,11 +71,11 @@ def markUpdateCall(scm, ls_code, attr, nested=False):
     
 
 class LiveScriptModule(object):
-
-    def __init__(self, script_manager, lscode=None, top=False):
+    def __init__(self, script_manager, path, top=False, modstr=None):
         object.__setattr__(self, '__script_manager__', script_manager)
+        object.__setattr__(self, '__path__', path)
+        object.__setattr__(self, '__modstr__', modstr)
         object.__setattr__(self, '__top__', top)
-        object.__setattr__(self, '__lscode__', lscode)
 
 
     @property
@@ -83,7 +83,7 @@ class LiveScriptModule(object):
         scm = self.__script_manager__
         if self.__top__:
             scm.mark_for_update()
-        ls_code = self.__lscode__
+        ls_code = scm.ls_codes[self.__modstr__]
         ls_code.check_for_update()
         return ls_code.workspace
 
@@ -93,7 +93,7 @@ class LiveScriptModule(object):
 
         if callable(wrapped_attr):
             nested = not self.__top__
-            return markUpdateCall(self.__script_manager__, self.__lscode__, attr, nested=nested)
+            return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__modstr__], attr, nested=nested)
         else:
             return wrapped_attr
 
@@ -107,7 +107,7 @@ class LiveScriptModule(object):
 
 
     def __repr__(self):
-        return f'<LiveScriptModule \'{self.__lscode__.name}\'>'
+        return f'<LiveScriptModule \'{self.__path__}\'>'
 
 
     def __call__(self, *args, **kwargs):
@@ -288,7 +288,7 @@ class LiveScriptManager(object):
         if workspace is None:
             workspace = dict()
         self.path = []        
-        self.modules = dict()
+        self.ls_codes = dict()
         self.workspace = workspace
         self.verbose = 3
 
@@ -336,12 +336,10 @@ class LiveScriptManager(object):
             self.path.append(str(path))
 
 
-    def load_module(self, path, modstr=None, top=False):
+    def load(self, path, modstr=None):
         lscode = LsCode(self, path, modstr)
+        self.ls_codes[modstr] = lscode
         lscode.load()
-        module = LiveScriptModule(self, lscode, top)
-        self.modules[modstr] = module
-        return module
 
 
     def update_now(self, enforce=False):
@@ -351,8 +349,7 @@ class LiveScriptManager(object):
         """
         self.pop_missing_paths()
         
-        for module in self.modules.values():
-            ls_code = module.__lscode__
+        for ls_code in self.ls_codes.values():
             if enforce or ls_code.is_modified():
                 load_error = ls_code.load()
 
@@ -361,8 +358,7 @@ class LiveScriptManager(object):
         """Mark all modules to check for update at next first check_for_update() per module"""
         logger.debug('Marking all modules for update')
         mark = UpdateFlag.ENFORCE if enforce else UpdateFlag.MODIFIED
-        for module in self.modules.values():
-            ls_code = module.__lscode__
+        for ls_code in self.ls_codes.values():
             ls_code.ask_refresh = mark
 
         
@@ -399,12 +395,12 @@ class LiveScriptManager(object):
                 else:
                     stype = 'file'
             
-        if modstr in self.modules.keys():
-            return self.modules[modstr]
+        if modstr in self.ls_codes.keys():
+            return LiveScriptModule(self, str(path), top, modstr)
             
         if stype == 'file':
-            module = self.load_module(path, modstr, top=top)
-            return module
+            loaderror = self.load(path, modstr)
+            return LiveScriptModule(self, str(path), top, modstr)
             
         elif stype == 'dir':
             return LiveScriptTree(self, path, top, modstr)
@@ -419,8 +415,7 @@ class LiveScriptManager(object):
         
         
     def pop_missing_paths(self):        
-        for k in list(self.modules):
-
-            if not self.modules[k].__lscode__.path.exists():
-                self.modules.pop(k)
+        for k in list(self.ls_codes):
+            if not self.ls_codes[k].path.exists():
+                self.ls_codes.pop(k)
         
