@@ -71,9 +71,10 @@ def markUpdateCall(scm, ls_code, attr, nested=False):
     
 
 class LiveScriptModule(object):
-    def __init__(self, script_manager, path, top=False):
+    def __init__(self, script_manager, path, top=False, modstr=None):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
+        object.__setattr__(self, '__modstr__', modstr)
         object.__setattr__(self, '__top__', top)
 
 
@@ -82,7 +83,7 @@ class LiveScriptModule(object):
         scm = self.__script_manager__
         if self.__top__:
             scm.mark_for_update()
-        ls_code = scm.ls_codes[self.__path__]
+        ls_code = scm.ls_codes[self.__modstr__]
         ls_code.check_for_update()
         return ls_code.workspace
 
@@ -92,7 +93,7 @@ class LiveScriptModule(object):
 
         if callable(wrapped_attr):
             nested = not self.__top__
-            return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr, nested=nested)
+            return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__modstr__], attr, nested=nested)
         else:
             return wrapped_attr
 
@@ -141,7 +142,7 @@ class LiveScriptTree(object):
     def __getattr__(self, attr):
         path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
-        return self.__script_manager__.using_path(path, top=self.__top__, name=qualname)        
+        return self.__script_manager__.using_path(path, top=self.__top__, modstr=qualname)
 
 
     def __repr__(self):
@@ -335,9 +336,10 @@ class LiveScriptManager(object):
             self.path.append(str(path))
 
 
-    def load(self, path, name=None):
-        self.ls_codes[str(path)] = LsCode(self, path, name)
-        self.ls_codes[str(path)].load()
+    def load(self, path, modstr=None):
+        lscode = LsCode(self, path, modstr)
+        self.ls_codes[modstr] = lscode
+        lscode.load()
 
 
     def update_now(self, enforce=False):
@@ -381,8 +383,8 @@ class LiveScriptManager(object):
         path, stype = self.find_script(modstr)
         return self.using_path(path, stype, top, modstr)
 
-        
-    def using_path(self, path, stype=None, top=False, name=None):        
+
+    def using_path(self, path, stype=None, top=False, modstr=None):
         if stype is None:
             if path.is_dir():
                 stype = 'dir'
@@ -393,15 +395,15 @@ class LiveScriptManager(object):
                 else:
                     stype = 'file'
             
-        if str(path) in self.ls_codes.keys():
-            return LiveScriptModule(self, str(path), top)            
+        if modstr in self.ls_codes.keys():
+            return LiveScriptModule(self, str(path), top, modstr)
             
         if stype == 'file':
-            loaderror = self.load(path, name)
-            return LiveScriptModule(self, str(path), top)            
+            loaderror = self.load(path, modstr)
+            return LiveScriptModule(self, str(path), top, modstr)
             
         elif stype == 'dir':
-            return LiveScriptTree(self, path, top, name)
+            return LiveScriptTree(self, path, top, modstr)
 
 
     def write_error(self, text):
