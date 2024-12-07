@@ -43,7 +43,7 @@ def show_traceback(writer_call):
     writer_call(''.join(lines))
     
 
-def markUpdateCall(scm, ls_code, attr): 
+def markUpdateCallTop(scm, ls_code, attr):
     func_for_doc = getattr(ls_code.workspace, attr)
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
@@ -55,6 +55,19 @@ def markUpdateCall(scm, ls_code, attr):
         return func(*args, **kwargs)     
         
     return wrapped_caller
+
+
+def markUpdateCallNest(scm, ls_code, attr):
+    func_for_doc = getattr(ls_code.workspace, attr)
+
+    @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
+    def wrapped_caller(*args, **kwargs):
+        error = ls_code.check_for_update()
+        func = getattr(ls_code.workspace, attr)
+
+        return func(*args, **kwargs)
+
+    return wrapped_caller
     
 
 class LiveScriptModule(object):
@@ -62,35 +75,46 @@ class LiveScriptModule(object):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
         object.__setattr__(self, '__top__', top)
-        
+
+
     @property
     def __wrapped__(self):
-        ls_code = self.__script_manager__.ls_codes[self.__path__]
-        self.__script_manager__.mark_for_update()
-        error = ls_code.check_for_update()
+        scm = self.__script_manager__
+        if self.__top__:
+            scm.mark_for_update()
+        ls_code = scm.ls_codes[self.__path__]
+        ls_code.check_for_update()
         return ls_code.workspace
 
-    def __getattr__(self, attr):            
-        if self.__top__:
-            wrapped_attr = getattr(self.__wrapped__, attr)
-            if callable(wrapped_attr):
-                return markUpdateCall(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
+
+    def __getattr__(self, attr):
+        wrapped_attr = getattr(self.__wrapped__, attr)
+
+        if callable(wrapped_attr):
+            if self.__top__:
+                return markUpdateCallTop(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
+            else:
+                return markUpdateCallNest(self.__script_manager__, self.__script_manager__.ls_codes[self.__path__], attr)
         else:
-            wrapped_attr = getattr(self.__wrapped__, attr)
-        return wrapped_attr
+            return wrapped_attr
+
 
     def __setattr__(self, attr, value):
         setattr(self.__wrapped__, attr, value)
 
+
     def __dir__(self):
         return self.__wrapped__.__dir__()
 
+
     def __repr__(self):
         return f"<LiveScriptModule '{self.__path__}'>"
-                
+
+
     def __call__(self, *args, **kwargs):
         call = getattr(self, 'call')
         return call(*args, **kwargs)
+
 
     @property
     def __doc__(self):
@@ -325,6 +349,7 @@ class LiveScriptManager(object):
                 ret = ls_code.update()               
                 
     def mark_for_update(self, enforce=False):
+        """Mark all modules to check for update at next first check_for_update() per module"""
         logger.debug('Marking all modules for update')
         mark = 2 if enforce else 1
         for ls_code in self.ls_codes.values():
