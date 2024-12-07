@@ -25,7 +25,7 @@ from .history import LogDir
 from ..utils.names import DictStruct 
 from ..rectable import RecordTable
 from ..live import use, manager
-from ..live.manage import LiveScriptModule
+from ..live.manage import LiveScriptModuleReference
 
 from rlcompleter import Completer
 from ..live.completer import Completer as LiveCompleter
@@ -149,21 +149,23 @@ class Shell(object):
         """
         Edit the file with an external editor at a certain lineno.        
         """
-        editorExecutable = Path(config['texteditor'])
+        editorExecutable = Path(config.get('texteditor', '.'))
         
         if not editorExecutable.exists():
-            logger.error(
+            logger.warning(
                 f"Text editor executable does not exist: '{editorExecutable}'."
                 "\nAdd to your gdconf.json file file the key 'texteditor', with as value "
                 " the full path to the executable."
             )
-            return
+            editorExecutable = Path(os.path.expandvars(r'%WINDIR%\system32\notepad.exe'))
         
         if editorExecutable.name.lower() == 'notepad++.exe':
             # supply line number argument
             os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"', '-n%d'%lineno, '"{0}"'.format(filename))
+
         elif editorExecutable.name.lower() == 'code.exe':
             os.spawnl(os.P_NOWAIT, editorExecutable, '"' + str(editorExecutable) + '"',  '-g', f'"{filename}:{lineno}"')
+
         else:
             if sys.platform in ("linux", "darwin"):
                 # Don't use quotes around the file name.
@@ -208,7 +210,7 @@ class Shell(object):
         fi = None
         lineno = 0
         
-        if isinstance(object, LiveScriptModule):
+        if isinstance(object, LiveScriptModuleReference):
             fi = object.__file__
             return (fi, lineno)
                     
