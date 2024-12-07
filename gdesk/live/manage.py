@@ -239,11 +239,10 @@ class LiveScriptScan(object):
     Only scripts which are called by another script or the root are loaded.
     So other script which are not loaded are allowed having syntax or execution errors.
     """
-
-    def __init__(self, script_manager, top=False):
+    def __init__(self, script_manager, *args, **kwargs):
         object.__setattr__(self, '__script_manager__', script_manager)
-        object.__setattr__(self, '__top__', top)
         object.__setattr__(self, '__name__', 'LiveScriptScan')
+
 
     def __dir__(self):
         lst = []
@@ -259,6 +258,7 @@ class LiveScriptScan(object):
                     lst.append(file.stem)
                     
         return lst
+
         
     def __getattr__(self, attr):
         try:
@@ -271,16 +271,14 @@ class LiveScriptScan(object):
 
     def __call__(self, modstr):
         return self.__using__(modstr)
+
     
     def __using__(self, modstr):    
         logger.debug(f'Calling {modstr}')
-        
-        if isinstance(self.__top__, str):
-            top = sys._getframe(2).f_globals['__name__'] == self.__top__
-        else:
-            top = self.__top__
-            
+        caller_globals = sys._getframe(2).f_globals
+        top = not caller_globals.get('__loader__') is self.__script_manager__
         return self.__script_manager__.using_modstr(modstr, top, back=3)
+
             
     def __repr__(self):
         return f"<LiveScriptScan '{self.__script_manager__.path}'>"

@@ -40,6 +40,4 @@ if 'LIVEPATH' in os.environ.keys():
     for path in os.environ['LIVEPATH'].split(PATH_SEPERATOR):
         manager.append_path(path)
 
-using = LiveScriptScan(manager, top='__main__')  #Become top if current workspace name is __main__
-using_sub = LiveScriptScan(manager, top=False)
-use = using_top = LiveScriptScan(manager, top=True)
+use = using = LiveScriptScan(manager)
