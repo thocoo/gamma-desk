@@ -106,7 +106,7 @@ class LiveScriptModule(object):
 
 
     def __repr__(self):
-        return f"<LiveScriptModule '{self.__path__}'>"
+        return f'<LiveScriptModule \'{self.__path__}\'>'
 
 
     def __call__(self, *args, **kwargs):
@@ -206,35 +206,36 @@ class LsCode(object):
         logger.debug(f'Checking for update, mode={ls_code.ask_refresh}')
         loaderror = LoadError.NONE
 
-        if not ls_code.ask_refresh == UpdateFlag.DONE:
+        if ls_code.ask_refresh == UpdateFlag.DONE: return loaderror
 
-            if ls_code.ask_refresh == UpdateFlag.ENFORCE or \
-                ((ls_code.ask_refresh == UpdateFlag.MODIFIED) and (ls_code.is_modified())):
-                loaderror = ls_code.load()
+        if ls_code.ask_refresh == UpdateFlag.ENFORCE or \
+            ((ls_code.ask_refresh == UpdateFlag.MODIFIED) and (ls_code.is_modified())):
+            loaderror = ls_code.load()
 
-            if loaderror == LoadError.SUCCEED:
-                ls_code.ask_refresh = UpdateFlag.DONE
-                logger.debug(f'Updated {ls_code.path}')
-                ls_code.ask_refresh = UpdateFlag.DONE
+        if loaderror == LoadError.SUCCEED:
+            ls_code.ask_refresh = UpdateFlag.DONE
+            logger.debug(f'Updated {ls_code.path}')
+            ls_code.ask_refresh = UpdateFlag.DONE
 
-            elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
-                logger.warning(f'Failed to update {ls_code.path}')
-                logger.warning(f'Error code {updated}')
+        elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
+            logger.warning(f'Failed to update {ls_code.path}')
+            logger.warning(f'Error code {updated}')
 
-            else:
-                ls_code.ask_refresh = UpdateFlag.DONE
-
-        logger.debug(f'Checking for update done, mode={ls_code.ask_refresh}')
+        else:
+            ls_code.ask_refresh = UpdateFlag.DONE
                     
         return loaderror
-        
+
+
     def modify_time(self):
         return os.path.getmtime(str(self.path))
+
 
     def is_modified(self):
         logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
         return self.load_modify < self.modify_time()
-        
+
+
     def load(self):
         self.code = None        
         self.workspace = None
