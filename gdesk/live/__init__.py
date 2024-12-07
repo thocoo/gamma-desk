@@ -32,9 +32,7 @@ import os
 
 from .manage import LiveScriptManager, LiveScriptScan
 
-workspace = dict()
-
-manager = LiveScriptManager(workspace)        
+manager = LiveScriptManager()
 
 PATH_SEPERATOR = ';' if sys.platform == 'win32' else ':'
 
