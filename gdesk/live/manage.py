@@ -7,11 +7,16 @@
 import os, sys, traceback, time
 from pathlib import Path
 import functools
+from enum import Enum
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+class UpdateFlag(Enum):
+    DONE = 1
+    MODIFIED = 2
+    ENFORCE = 3
 
 def show_syntax_error(writer_call):
     """Display the syntax error that just occurred."""
@@ -201,45 +206,40 @@ class LsCode(object):
         self.load_modify = -1
         self.code = None        
         self.workspace = None
-        self.ask_refresh = 0        
+        self.ask_refresh = UpdateFlag.DONE
         
     def check_for_update(self):
         ls_code = self
         logger.debug(f'Checking for update, mode={ls_code.ask_refresh}')
         updated = None
 
-        if not ls_code.ask_refresh == 0:
-            if ls_code.ask_refresh == 1:                
-                updated = ls_code.update()                
-                
-            elif ls_code.ask_refresh == 2:
-                updated = ls_code.load()                
+        if not ls_code.ask_refresh == UpdateFlag.DONE:
+
+            if ls_code.ask_refresh == UpdateFlag.ENFORCE or \
+                ((ls_code.ask_refresh == UpdateFlag.MODIFIED) and (ls_code.is_modified())):
+                updated = ls_code.load()
                 
             if not updated is None:
                 if updated == 0:
-                    ls_code.ask_refresh = 0
+                    ls_code.ask_refresh = UpdateFlag.DONE
                     logger.debug(f'Updated {ls_code.path}')
                 else:
                     logger.warning(f'Failed to update {ls_code.path}')
                     logger.warning(f'Error code {updated}')
 
             else:
-                ls_code.ask_refresh = 0
+                ls_code.ask_refresh = UpdateFlag.DONE
 
         logger.debug(f'Checking for update done, mode={ls_code.ask_refresh}')
                     
         return updated
         
     def modify_time(self):
-        return os.path.getmtime(str(self.path))                
-        
-    def update(self):
-        if self.load_modify < self.modify_time():
-            logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
-            ret = self.load()
-            return ret
-        else:
-            return None            
+        return os.path.getmtime(str(self.path))
+
+    def is_modified(self):
+        logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
+        return self.load_modify < self.modify_time()
         
     def load(self):
         self.code = None        
@@ -343,15 +343,13 @@ class LiveScriptManager(object):
         self.pop_missing_paths()
         
         for ls_code in self.ls_codes.values():
-            if enforce:
+            if enforce or ls_code.is_modified():
                 ret = ls_code.load()
-            else:
-                ret = ls_code.update()               
                 
     def mark_for_update(self, enforce=False):
         """Mark all modules to check for update at next first check_for_update() per module"""
         logger.debug('Marking all modules for update')
-        mark = 2 if enforce else 1
+        mark = UpdateFlag.ENFORCE if enforce else UpdateFlag.MODIFIED
         for ls_code in self.ls_codes.values():
             ls_code.ask_refresh = mark
 
