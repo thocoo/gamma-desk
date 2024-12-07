@@ -182,7 +182,7 @@ class LiveScriptModule(object):
                 show_syntax_error(self.script_manager.write_syntax_err)
                 return LoadError.SYNTAX
 
-        self.workspace = LsWorkspace(self, str(self.path), self.name)
+        self.workspace = LsWorkspace(self, str(self.path), self.name, self.script_manager)
 
         try:
             exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
@@ -198,10 +198,11 @@ class LiveScriptModule(object):
 
 class LsWorkspace(object):
     #Provide a namespace for each script file.
-    def __init__(self, module, file, name='unknown'):
+    def __init__(self, module, file, name, scm):
         self.__file__ = file
         self.__module__ = module
         self.__name__ = name
+        self.__loader__ = scm
 
         
 class LiveScriptTree(object):
