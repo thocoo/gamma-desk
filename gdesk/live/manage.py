@@ -234,6 +234,11 @@ class LiveScriptTree(object):
 
 
 class LiveScriptScan(object):
+    """The root object to scan through the scripts (use or using)
+    Only scripts which are called by another script or the root are loaded.
+    So other script which are not loaded are allowed having syntax or execution errors.
+    """
+
     def __init__(self, script_manager, top=False):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__top__', top)
@@ -284,12 +289,10 @@ class LiveScriptManager(object):
 
     def __init__(self, workspace=None):
         # Add the search paths to self.path
-        if workspace is None:
-            workspace = dict()
-        self.path = []        
+        self.path = []
+
+        #The loaded modules
         self.modules = dict()
-        self.workspace = workspace
-        self.verbose = 3
 
 
     def find_script(self, modstr='test'):
