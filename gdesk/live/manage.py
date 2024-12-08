@@ -53,15 +53,21 @@ def show_traceback(writer_call):
         tblist = tb = None
 
     writer_call(''.join(lines))
-    
 
-def markUpdateCall(scm, module, attr, nested=False):
+
+def is_nested(script_manager, back=0):
+    caller_globals = sys._getframe(back+3).f_globals
+    nested = caller_globals.get('__loader__') is script_manager
+    return nested
+
+
+def markUpdateCall(script_manager, module, attr, nested=False):
     func_for_doc = getattr(module.workspace, attr)
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):
         if not nested:
-            scm.mark_for_update()
+            script_manager.mark_for_update()
         error = module.check_for_update()
         func = getattr(module.workspace, attr)
         
@@ -110,7 +116,7 @@ class LiveScriptModuleReference(object):
 
 
     def __repr__(self):
-        return f'<LiveScriptModule \'{self.__path__}\'>'
+        return f'<LiveScriptModule \'{self.__modstr__}\'>'
 
 
     def __call__(self, *args, **kwargs):
@@ -133,6 +139,7 @@ class LiveScriptModule(object):
         self.code = None
         self.workspace = None
         self.ask_refresh = UpdateFlag.DONE
+
 
     def check_for_update(self):
         logger.debug(f'Checking for update, mode={self.ask_refresh}')
@@ -157,12 +164,17 @@ class LiveScriptModule(object):
 
         return loaderror
 
+
     def modify_time(self):
         return os.path.getmtime(str(self.path))
 
+
     def is_modified(self):
-        logger.debug(f'{self.load_modify} < {self.modify_time()}, loading')
-        return self.load_modify < self.modify_time()
+        modified = self.load_modify < self.modify_time()
+        if modified:
+            logger.debug(f'{time.ctime(self.load_modify)} < {time.ctime(self.modify_time())}')
+        return modified
+
 
     def load(self):
         """Import Python file (from disk, compile and execute)"""
@@ -171,9 +183,12 @@ class LiveScriptModule(object):
 
         with open(str(self.path), 'r', encoding='utf-8') as fp:
             current_modify_stamp = self.modify_time()
+
+            logger.debug(f'{self.path} reading with time stamp {time.ctime(current_modify_stamp)}')
             pycode = fp.read()
 
             try:
+                logger.debug(f'Compiling')
                 codeobj = compile(pycode, str(self.path), 'exec')
                 self.code = codeobj
 
@@ -184,6 +199,7 @@ class LiveScriptModule(object):
         self.workspace = LsWorkspace(self, str(self.path), self.name, self.script_manager)
 
         try:
+            logger.debug(f'Importing')
             exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
 
         except:
@@ -191,7 +207,6 @@ class LiveScriptModule(object):
             return LoadError.EXECUTE
 
         self.load_modify = current_modify_stamp
-        logger.debug(f'{self.path} loaded at {time.ctime(self.load_modify)}')
         return LoadError.NONE
 
 
@@ -272,10 +287,8 @@ class LiveScriptScan(object):
         return self.__using__(modstr)
 
     
-    def __using__(self, modstr):    
-        logger.debug(f'Calling {modstr}')
-        caller_globals = sys._getframe(2).f_globals
-        top = not caller_globals.get('__loader__') is self.__script_manager__
+    def __using__(self, modstr):
+        top = not is_nested(self.__script_manager__)
         return self.__script_manager__.using_modstr(modstr, top, back=3)
 
             
@@ -398,7 +411,7 @@ class LiveScriptManager(object):
         if modstr in self.modules.keys():
             return LiveScriptModuleReference(self, modstr, top)
             
-        if stype == 'file':
+        elif stype == 'file':
             loaderror = self.load(path, modstr)
             return LiveScriptModuleReference(self, modstr, top)
             
