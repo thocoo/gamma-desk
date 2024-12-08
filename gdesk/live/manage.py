@@ -55,9 +55,9 @@ def show_traceback(writer_call):
     writer_call(''.join(lines))
 
 
-def is_nested(script_manager, back=0):
+def is_nested(back=0):
     caller_globals = sys._getframe(back+3).f_globals
-    nested = caller_globals.get('__loader__') is script_manager
+    nested = isinstance(caller_globals.get('__loader__'), LiveScriptManager)
     return nested
 
 
@@ -288,7 +288,7 @@ class LiveScriptScan(object):
 
     
     def __using__(self, modstr):
-        top = not is_nested(self.__script_manager__)
+        top = not is_nested()
         return self.__script_manager__.using_modstr(modstr, top, back=3)
 
             
