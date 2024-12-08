@@ -66,8 +66,7 @@ def markUpdateCall(script_manager, module, attr, nested=False):
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):
-        if not nested:
-            script_manager.mark_for_update()
+        if not is_nested(back=-1): script_manager.mark_for_update()
         error = module.check_for_update()
         func = getattr(module.workspace, attr)
         
@@ -90,8 +89,7 @@ class LiveScriptModuleReference(object):
     @property
     def __wrapped__(self):
         scm = self.__script_manager__
-        if self.__top__:
-            scm.mark_for_update()
+        if not is_nested(): scm.mark_for_update()
         module = scm.modules[self.__modstr__]
         module.check_for_update()
         return module.workspace
