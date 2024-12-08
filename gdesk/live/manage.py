@@ -75,9 +75,8 @@ class LiveScriptModuleReference(object):
     This is mainly to store it's top attribute. Which can differ between the references
     """
 
-    def __init__(self, script_manager, path, top=False, modstr=None):
+    def __init__(self, script_manager, modstr, top=False):
         object.__setattr__(self, '__script_manager__', script_manager)
-        object.__setattr__(self, '__path__', path)
         object.__setattr__(self, '__modstr__', modstr)
         object.__setattr__(self, '__top__', top)
 
@@ -397,11 +396,11 @@ class LiveScriptManager(object):
                     stype = 'file'
             
         if modstr in self.modules.keys():
-            return LiveScriptModuleReference(self, str(path), top, modstr)
+            return LiveScriptModuleReference(self, modstr, top)
             
         if stype == 'file':
             loaderror = self.load(path, modstr)
-            return LiveScriptModuleReference(self, str(path), top, modstr)
+            return LiveScriptModuleReference(self, modstr, top)
             
         elif stype == 'dir':
             return LiveScriptTree(self, path, top, modstr)
