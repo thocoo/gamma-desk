@@ -56,17 +56,23 @@ def show_traceback(writer_call):
 
 
 def is_nested(back=0):
-    caller_globals = sys._getframe(back+3).f_globals
+    caller_globals = sys._getframe(back+2).f_globals
     nested = isinstance(caller_globals.get('__loader__'), LiveScriptManager)
     return nested
 
 
-def markUpdateCall(script_manager, module, attr, nested=False):
+def is_main(back=0):
+    caller_globals = sys._getframe(back+2).f_globals
+    main = caller_globals.get('__name__') == '__main__'
+    return main
+
+
+def markUpdateCall(script_manager, module, attr):
     func_for_doc = getattr(module.workspace, attr)
     
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):
-        if not is_nested(back=-1): script_manager.mark_for_update()
+        if is_main(): script_manager.mark_for_update()
         error = module.check_for_update()
         func = getattr(module.workspace, attr)
         
@@ -80,27 +86,26 @@ class LiveScriptModuleReference(object):
     This is mainly to store it's top attribute. Which can differ between the references
     """
 
-    def __init__(self, script_manager, modstr, top=False):
+    def __init__(self, script_manager, modstr):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__modstr__', modstr)
-        object.__setattr__(self, '__top__', top)
 
 
     @property
     def __wrapped__(self):
         scm = self.__script_manager__
-        if not is_nested(): scm.mark_for_update()
+        if is_main(1): scm.mark_for_update()
         module = scm.modules[self.__modstr__]
         module.check_for_update()
         return module.workspace
 
 
     def __getattr__(self, attr):
+        logger.debug(f'Checking attr {attr}')
         wrapped_attr = getattr(self.__wrapped__, attr)
 
         if callable(wrapped_attr):
-            nested = not self.__top__
-            return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr, nested=nested)
+            return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr)
         else:
             return wrapped_attr
 
@@ -140,7 +145,7 @@ class LiveScriptModule(object):
 
 
     def check_for_update(self):
-        logger.debug(f'Checking for update, mode={self.ask_refresh}')
+        logger.debug(f'Checking {self.name}, mode={self.ask_refresh}')
         loaderror = LoadError.NONE
 
         if self.ask_refresh == UpdateFlag.DONE: return loaderror
@@ -219,10 +224,9 @@ class LsWorkspace(object):
         
 class LiveScriptTree(object):
 
-    def __init__(self, script_manager, path, top=False, name=None):
+    def __init__(self, script_manager, path, name=None):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
-        object.__setattr__(self, '__top__', top)
         object.__setattr__(self, '__name__', name)
 
 
@@ -239,7 +243,7 @@ class LiveScriptTree(object):
     def __getattr__(self, attr):
         path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
-        return self.__script_manager__.using_path(path, top=self.__top__, modstr=qualname)
+        return self.__script_manager__.using_path(path, modstr=qualname)
 
 
     def __repr__(self):
@@ -286,8 +290,7 @@ class LiveScriptScan(object):
 
     
     def __using__(self, modstr):
-        top = not is_nested()
-        return self.__script_manager__.using_modstr(modstr, top, back=3)
+        return self.__script_manager__.using_modstr(modstr, back=3)
 
             
     def __repr__(self):
@@ -373,7 +376,7 @@ class LiveScriptManager(object):
             module.ask_refresh = mark
 
         
-    def using_modstr(self, modstr, top=False, back=1):
+    def using_modstr(self, modstr, back=1):
         """Load a script or make a ScriptTree.
         A ScripTree is used to link to a dir.
         The loading of a script is done at moment of attribute access.
@@ -392,10 +395,10 @@ class LiveScriptManager(object):
             modstr = '.'.join(parts0 + parts1)  
         
         path, stype = self.find_script(modstr)
-        return self.using_path(path, stype, top, modstr)
+        return self.using_path(path, stype, modstr)
 
 
-    def using_path(self, path, stype=None, top=False, modstr=None):
+    def using_path(self, path, stype=None, modstr=None):
         if stype is None:
             if path.is_dir():
                 stype = 'dir'
@@ -407,14 +410,14 @@ class LiveScriptManager(object):
                     stype = 'file'
             
         if modstr in self.modules.keys():
-            return LiveScriptModuleReference(self, modstr, top)
+            return LiveScriptModuleReference(self, modstr)
             
         elif stype == 'file':
             loaderror = self.load(path, modstr)
-            return LiveScriptModuleReference(self, modstr, top)
+            return LiveScriptModuleReference(self, modstr)
             
         elif stype == 'dir':
-            return LiveScriptTree(self, path, top, modstr)
+            return LiveScriptTree(self, path, modstr)
 
 
     def write_error(self, text):
