@@ -119,7 +119,7 @@ class LiveScriptModuleReference(object):
 
 
     def __repr__(self):
-        return f'<LiveScriptModule \'{self.__modstr__}\'>'
+        return f'<{type(self).__name__} \'{self.__modstr__}\'>'
 
 
     def __call__(self, *args, **kwargs):
