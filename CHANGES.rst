@@ -12,7 +12,7 @@ date: 2024-12-09
 - Remove roi switch, draw histrograms based on active statistics
 - Add multi mask selection on profiles and histogram
 - Reduce keyboard capture to 2 sec
-- SURPRISE, floor division is faster then bitshift ! (a x86 thing)
+- SURPRISE, floor division is faster then bitshift! (a x86 thing)
 - Enforcing parallel execution seems to only stress the PC to 100% CPU, but very little gain in performance
 - Tryout auto completion on input (on the 1 level higher workspace)
 - Show the top of the html page on show
@@ -20,7 +20,7 @@ date: 2024-12-09
 - Prepare for window variant of the textbrowser dialog
 - The ask_refresh flow (request and acknowledge) was lagging
 - ask_refresh was not set to 0 if no update was needed.
-- But beacause of did, there was also no mark_for_update needed for next time.
+- But beacause of this, there was also no mark_for_update needed for next time.
 - Which was also not done.
 - Split markUpdateCall into markUpdateCallTop and markUpdateCallNest
 - Use an Enum for the Update Flags
@@ -29,16 +29,12 @@ date: 2024-12-09
 - Return at begin in check_for_update if UpdateFlag.DONE
 - Fixing ImportError message in mark_for_update
 - Use module qualifier as key instead of the path
-- Store modules instead of ls_code, attach ls_code to module
-- Rollback: store back ls_code (the 'top' attribute have to be set per reference to the script  (in console, or in some other script), so the LiveScriptModule need to be recreated every time)
-- Refactoring
-- remove unused workspace attribute from manager
-- remove unused workspace argument from manager
+- remove unused workspace attribute and argument from manager
 - Refer script manager in workspace
 - Auto set top attribute based on __loader__ value in caller workspace
 - Use notepad.exe as backup text editor
 - Remove the unused path argument and attribute from LiveScriptModuleReference
-- Add is_nested function
+- Add is_nested and is_main function
 - Test for LiveScriptManager type in is_nested
 - use the is_nested() instead of the top or nested attribute
 - Removing all top and nested attributes and arguments
