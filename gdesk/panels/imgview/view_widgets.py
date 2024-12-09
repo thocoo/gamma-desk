@@ -84,7 +84,7 @@ class ValuePanel(MyStatusBar):
         super().__init__(parent=parent)    
         self.panel = parent.panel        
         
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])                      
+        console_font = QFont(config['console']['font'], pointSize=config['console']['fontsize'])                      
         
         self.xy = QLabel('0,0')
         self.vallab = QLabel('val')
@@ -134,7 +134,7 @@ class ContrastPanel(MyStatusBar):
 
         self.panel = parent.panel
         
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
+        console_font = QFont(config['console']['font'], pointSize=config['console']['fontsize'])
 
         self.offsetlab = QLabel('B')
         self.offset = QLineEdit('0')
