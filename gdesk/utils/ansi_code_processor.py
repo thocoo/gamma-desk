@@ -46,8 +46,8 @@ SetTitleAction = namedtuple('SetTitleAction', ['action', 'title'])
 # Regular expressions.
 CSI_COMMANDS = 'ABCDEFGHJKSTfmnsu'
 CSI_DOS = 'X'
-CSI_SUBPATTERN = '\[(.*?)([%s])' % (CSI_COMMANDS + CSI_DOS)
-OSC_SUBPATTERN = '\](.*?)[\x07\x1b]'
+CSI_SUBPATTERN = r'\[(.*?)([%s])' % (CSI_COMMANDS + CSI_DOS)
+OSC_SUBPATTERN = r'\](.*?)[\x07\x1b]'
 ANSI_PATTERN = ('\x01?\x1b(%s|%s)\x02?' % \
                 (CSI_SUBPATTERN, OSC_SUBPATTERN))
 ANSI_OR_SPECIAL_PATTERN = re.compile('(\a|\b|\r(?!\n)|\r?\n)|(?:%s)' % ANSI_PATTERN)
