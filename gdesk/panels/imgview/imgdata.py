@@ -187,7 +187,12 @@ class ImageStatistics(object):
         
                 
     def is_valid(self):
-        return not ((self.imgdata.statarr is None) or (self.slices is None))
+        if not (self.imgdata.statarr is None) and \
+            not (self.slices is None) and \
+            not (self.roi.size == 0):
+                return True
+        else:        
+            return False
         
         
     def clear(self):
