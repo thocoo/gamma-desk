@@ -98,7 +98,8 @@ class GuiApplication(QApplication):
                 
         self.history = History(self.shell.logdir.logpath)
 
-        self.setFont(QtGui.QFont(config['console']['font'], pointSize=config['console']['fontsize']))
+        #self.setFont(QtGui.QFont(config['console']['font'], pointSize=config['console']['fontsize']))
+        self.setFont(QtGui.QFont('MS Shell Dlg 2', pointSize=config['console']['fontsize']))
 
         if os.name == 'nt':
             # This is needed to display the app icon on the taskbar on Windows 7
