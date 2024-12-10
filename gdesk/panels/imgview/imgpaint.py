@@ -510,7 +510,7 @@ class ImageViewerWidget(QWidget):
         if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
             qp.setPen(QColor(128,128,128))
             
-            font = QFont("Consolas")
+            font = QFont(config["console"]["font"])
             fontSize = round(self.zoomDisplay / 10)
             font.setPixelSize(fontSize)
             font.setStyleStrategy(QFont.NoAntialias)            

@@ -25,6 +25,7 @@
     "list_packages": false
   },
   "console": {
+    "font": "Consolas",
     "fontsize": 8,
     "wrap": false,
     "maxblockcount": 20000,

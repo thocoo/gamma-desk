@@ -169,7 +169,7 @@ class StdInputPanel(QPlainTextEdit):
         self.heightHint = 100
 
     def configure(self, config):
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
+        console_font = QFont(config['console']['font'], pointSize=config['console']['fontsize'])
         self.setFont(console_font)
 
         if config['console']['wrap']:
@@ -515,7 +515,7 @@ class StdPlainOutputPanel(QPlainTextEdit):
         return self.parent().parent().parent()
 
     def configure(self, config):
-        console_font = QFont('Consolas', pointSize=config['console']['fontsize'])
+        console_font = QFont(config['console']['font'], pointSize=config['console']['fontsize'])
         self.setFont(console_font)
 
         if config['console']['wrap']:

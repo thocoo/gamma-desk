@@ -35,6 +35,7 @@ REQUIRED = [
     'numba',
     'pyzmq',
     'pywinpty; sys_platform=="win32"',
+    'legacy-cgi; python_version > "3.12"',
 ]
 
 EXTRAS_REQUIRED = {

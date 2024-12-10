@@ -526,7 +526,7 @@ class PanelsLayout(QtWidgets.QWidget):
         self.panels = panels
         self.layout_list = LayoutList(self)
         self.preview = QtWidgets.QPlainTextEdit(self)
-        console_font = QtGui.QFont('Consolas', pointSize=config['console']['fontsize'])
+        console_font = QtGui.QFont(config['console']['font'], pointSize=config['console']['fontsize'])
         self.preview.setFont(console_font)
         self.preview.setWordWrapMode(QtGui.QTextOption.NoWrap)
 
