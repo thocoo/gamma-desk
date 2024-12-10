@@ -25,7 +25,7 @@ class LoadError(Enum):
     EXECUTE = 4
 
 
-def show_syntax_error(writer_call):
+def show_syntax_error():
     """Display the syntax error that just occurred."""
     type, value, tb = sys.exc_info()
     sys.last_type = type
@@ -33,10 +33,10 @@ def show_syntax_error(writer_call):
     sys.last_traceback = tb
 
     lines = traceback.format_exception_only(type, value)
-    writer_call(''.join(lines))
+    logger.error(''.join(lines))
 
 
-def show_traceback(writer_call):
+def show_traceback():
     """Display the exception that just occurred."""
     try:
         type, value, tb = sys.exc_info()
@@ -51,8 +51,8 @@ def show_traceback(writer_call):
         lines.extend(traceback.format_exception_only(type, value))
     finally:
         tblist = tb = None
-
-    writer_call(''.join(lines))
+        
+    logger.error(''.join(lines))
 
 
 def is_nested(back=0):
@@ -96,8 +96,8 @@ class LiveScriptModuleReference(object):
         scm = self.__script_manager__
         if is_main(1): scm.mark_for_update()
         module = scm.modules[self.__modstr__]
-        module.check_for_update()
-        return module.workspace
+        module.check_for_update()        
+        return module.workspace            
 
 
     def __getattr__(self, attr):
@@ -160,7 +160,7 @@ class LiveScriptModule(object):
 
         elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
             logger.warning(f'Failed to update {self.path}')
-            logger.warning(f'Error code {updated}')
+            logger.warning(f'Error code {loaderror}')
 
         else:
             self.ask_refresh = UpdateFlag.DONE
@@ -174,7 +174,9 @@ class LiveScriptModule(object):
 
     def is_modified(self):
         modified = self.load_modify < self.modify_time()
-        if modified:
+        if self.load_modify == -1:
+            logger.debug(f'First time loading {time.ctime(self.modify_time())}')
+        elif modified:
             logger.debug(f'{time.ctime(self.load_modify)} < {time.ctime(self.modify_time())}')
         return modified
 
@@ -182,7 +184,7 @@ class LiveScriptModule(object):
     def load(self):
         """Import Python file (from disk, compile and execute)"""
         self.code = None
-        self.workspace = None
+        self.workspace = LsWorkspace(self, str(self.path), self.name, self.script_manager)
 
         with open(str(self.path), 'r', encoding='utf-8') as fp:
             current_modify_stamp = self.modify_time()
@@ -190,23 +192,21 @@ class LiveScriptModule(object):
             logger.debug(f'{self.path} reading with time stamp {time.ctime(current_modify_stamp)}')
             pycode = fp.read()
 
-            try:
-                logger.debug(f'Compiling')
-                codeobj = compile(pycode, str(self.path), 'exec')
-                self.code = codeobj
+        try:
+            logger.debug(f'Compiling')
+            codeobj = compile(pycode, str(self.path), 'exec')
+            self.code = codeobj
 
-            except SyntaxError:
-                show_syntax_error(self.script_manager.write_syntax_err)
-                return LoadError.SYNTAX
-
-        self.workspace = LsWorkspace(self, str(self.path), self.name, self.script_manager)
+        except SyntaxError:
+            show_syntax_error()
+            return LoadError.SYNTAX
 
         try:
             logger.debug(f'Importing')
             exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
 
         except:
-            show_traceback(self.script_manager.write_error)
+            show_traceback()
             return LoadError.EXECUTE
 
         self.load_modify = current_modify_stamp
@@ -350,7 +350,7 @@ class LiveScriptManager(object):
             self.path.append(str(path))
 
 
-    def load(self, path, modstr=None):
+    def load_module(self, path, modstr=None):
         module = LiveScriptModule(self, path, modstr)
         self.modules[modstr] = module
         module.load()
@@ -363,7 +363,7 @@ class LiveScriptManager(object):
         """
         self.pop_missing_paths()
         
-        for module in self.modules.values():
+        for module in list(self.modules.values()):
             if enforce or module.is_modified():
                 load_error = module.load()
 
@@ -413,7 +413,7 @@ class LiveScriptManager(object):
             return LiveScriptModuleReference(self, modstr)
             
         elif stype == 'file':
-            loaderror = self.load(path, modstr)
+            loaderror = self.load_module(path, modstr)
             return LiveScriptModuleReference(self, modstr)
             
         elif stype == 'dir':
