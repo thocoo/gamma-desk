@@ -73,10 +73,11 @@ def markUpdateCall(script_manager, module, attr):
     @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
     def wrapped_caller(*args, **kwargs):
         if is_main(): script_manager.mark_for_update()
-        error = module.check_for_update()
-        func = getattr(module.workspace, attr)
+        load_result = module.check_for_update()
         
-        return func(*args, **kwargs)     
+        if load_result in [LoadError.NONE, LoadError.SUCCEED]: 
+            func = getattr(module.workspace, attr)        
+            return func(*args, **kwargs)
         
     return wrapped_caller
     
@@ -96,15 +97,15 @@ class LiveScriptModuleReference(object):
         scm = self.__script_manager__
         if is_main(1): scm.mark_for_update()
         module = scm.modules[self.__modstr__]
-        module.check_for_update()        
+        load_result = module.check_for_update()        
         return module.workspace            
 
 
     def __getattr__(self, attr):
-        logger.debug(f'Checking attr {attr}')
+        logger.debug(f'Getting attr {attr}')
         wrapped_attr = getattr(self.__wrapped__, attr)
 
-        if callable(wrapped_attr):
+        if not isinstance(wrapped_attr, LiveScriptModuleReference) and callable(wrapped_attr):
             return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr)
         else:
             return wrapped_attr
@@ -159,6 +160,7 @@ class LiveScriptModule(object):
             logger.debug(f'Updated {self.path}')
 
         elif loaderror in [LoadError.SYNTAX, LoadError.EXECUTE]:
+            self.ask_refresh = UpdateFlag.DONE
             logger.warning(f'Failed to update {self.path}')
             logger.warning(f'Error code {loaderror}')
 
