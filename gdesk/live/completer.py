@@ -32,7 +32,7 @@ Notes:
 import atexit
 import builtins
 import __main__
-from .manage import LiveScriptScan, LiveScriptTree
+from .manage import LiveScriptScan, LiveScriptTree, LiveScriptModuleReference
 
 __all__ = ["Completer"]
 
@@ -213,6 +213,11 @@ class Completer:
             thisobject = eval(expr, self.namespace)
         except Exception:
             return []
+            
+            
+        if isinstance(thisobject, LiveScriptModuleReference):
+            thisobject.__script_manager__.mark_for_update()
+        
 
         # get the content of the object, except __builtins__
         words = set(dir(thisobject))

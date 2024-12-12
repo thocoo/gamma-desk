@@ -95,7 +95,6 @@ class LiveScriptModuleReference(object):
     @property
     def __wrapped__(self):
         scm = self.__script_manager__
-        if is_main(1): scm.mark_for_update()
         module = scm.modules[self.__modstr__]
         load_result = module.check_for_update()        
         return module.workspace            
@@ -103,6 +102,7 @@ class LiveScriptModuleReference(object):
 
     def __getattr__(self, attr):
         logger.debug(f'Getting attr {attr}')
+        if is_main(): self.__script_manager__.mark_for_update()
         wrapped_attr = getattr(self.__wrapped__, attr)
 
         if not isinstance(wrapped_attr, LiveScriptModuleReference) and callable(wrapped_attr):
@@ -124,6 +124,7 @@ class LiveScriptModuleReference(object):
 
 
     def __call__(self, *args, **kwargs):
+        if is_main(): self.__script_manager__.mark_for_update()
         call = getattr(self, 'call')
         return call(*args, **kwargs)
 
