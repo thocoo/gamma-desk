@@ -398,7 +398,11 @@ class ImageGuiProxy(GuiProxyBase):
             if name in panel.imviewer.imgdata.chanstats:
                 color = panel.imviewer.imgdata.chanstats[name].plot_color
             
-        panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
+        if name in panel.imviewer.imgdata.pre_def_masks:
+            raise KeyError(f'ROI name {name} is reserved')
+            
+        else:
+            panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
         
         
     @StaticGuiCall
