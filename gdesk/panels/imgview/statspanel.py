@@ -230,7 +230,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         states = {}
         
-        print(f'Selection lenght: {len(selection)}')
+        #print(f'Selection lenght: {len(selection)}')
         
         nameCell = self.table.item(row, 0)
         new_state = nameCell.checkState() == Qt.Checked
