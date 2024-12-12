@@ -2003,7 +2003,7 @@ class ImageProfileWidget(QWidget):
         else:
             masks = mask.split(',')
             
-        print(f'{masks=}')
+        #print(f'{masks=}')
             
         self.imviewer.imgdata.selectChannelStat(masks)
         self.rowPanel.selectProfiles(masks)
@@ -2013,7 +2013,7 @@ class ImageProfileWidget(QWidget):
     def showSelection(self, mask):
         roi = self.imviewer.roi
         
-        if not (mask == '' or mask in ['K', 'B', 'G', 'Gb', 'Gr', 'R']):
+        if not (mask == ''):
             chanstats = self.imviewer.imgdata.chanstats[mask]
         
             selroi = self.imviewer.imgdata.selroi  
