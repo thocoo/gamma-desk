@@ -158,7 +158,7 @@ def wrap(func, *args, **kwargs):
     return wrapper
     
 
-class SelectNamedRoi():
+class selectNamedMask():
     def __init__(self, imgpanel, roiName):
         self.imgpanel = imgpanel
         self.roiName = roiName
@@ -168,9 +168,9 @@ class SelectNamedRoi():
         self.imgpanel.imgprof.showSelection(self.roiName)               
     
 
-class CustomRoiMenu(QMenu):
+class CustomMaskMenu(QMenu):
     def __init__(self, parent=None):
-        super().__init__('Custom Roi', parent)
+        super().__init__('Custom Mask', parent)
         self.imgpanel = self.parent()
         self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
 
@@ -188,7 +188,7 @@ class CustomRoiMenu(QMenu):
                 
         for roiName in roiNames:
             action = QAction(roiName, self)
-            action.triggered.connect(SelectNamedRoi(self.imgpanel, roiName))
+            action.triggered.connect(selectNamedMask(self.imgpanel, roiName))
             self.addAction(action)
             self.actions.append(action)
 
@@ -378,7 +378,9 @@ class ImageViewerBase(BasePanel):
         self.chooseValFormat.addAction(QAction("Pixel Labels", self, triggered=self.togglePixelLabels))
         self.viewMenu.addMenu(self.chooseValFormat)
 
+        ####################
         ### Select
+        
         self.addMenuItem(self.selectMenu, 'Reselect', self.reselect,
             statusTip="Select or reselect a region of interest",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_restangular.png')))
@@ -386,21 +388,19 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, 'Deselect', self.selectNone,
             statusTip="Deselect, select nothing")
             
-        self.addMenuItem(self.selectMenu, 'Select Roi...', self.setRoi,
+        self.addMenuItem(self.selectMenu, 'Select Dialog...', self.setRoi,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layer_select.png')),
             statusTip="Select with input numbers dialog")
             
-        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addRoiStaistics,
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
-            
-        self.addMenuItem(self.selectMenu, 'Remove Roi Statistics...', self.removeRoiStatistics)            
-        
-        # self.addMenuItem(self.selectMenu, 'Copy slices to clipboard...', self.copySliceToClipboard,
-            # statusTip="Copy the slice definition to the clipboard")            
-            
         self.addMenuItem(self.selectMenu, 'Select 1 Pixel...'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))                    
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
+            
+        self.addMenuItem(self.selectMenu, 'Add Mask Statistics...', self.addMaskStatistics,
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
+            
+        self.addMenuItem(self.selectMenu, 'Remove Mask Statistics...', self.removeMaskStatistics)            
+                    
             
         dataSplitMenu = QMenu('Default Masks')
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
@@ -414,14 +414,14 @@ class ImageViewerBase(BasePanel):
         
         self.selectMenu.addMenu(dataSplitMenu)                    
         
-        self.selectMenu.addMenu(CustomRoiMenu(self))
+        self.selectMenu.addMenu(CustomMaskMenu(self))
             
         self.selectMenu.addSeparator()
         
         self.searchForRoiSlots = []
         
         for i in range(4):
-            action = QAction(f"Custom Roi {i}", self, triggered=wrap(self.selectNamedRoi, i))
+            action = QAction(f"Custom Mask {i}", self, triggered=wrap(self.selectNamedMask, i))
             action.setVisible(False)
             self.searchForRoiSlots.append(action)
             self.selectMenu.addAction(action)
@@ -552,10 +552,10 @@ class ImageViewerBase(BasePanel):
         self.statuspanel.set_xy_val(x, y, val)
         
         
-    def selectNamedRoi(self, i):
-        roiName = self.searchForRoiSlots[i].text()
-        self.imgprof.selectMask(roiName)
-        self.imgprof.showSelection(roiName)
+    def selectNamedMask(self, i):
+        maskName = self.searchForRoiSlots[i].text()
+        self.imgprof.selectMask(maskName)
+        self.imgprof.showSelection(maskName)
     
 
     def addBindingTo(self, category, panid):
@@ -1258,7 +1258,7 @@ class ImageViewerBase(BasePanel):
                 ('y stop', selroi.yr.stop),
                 ('y step', selroi.yr.step)]
 
-        r = fedit(form, title='ROI')
+        r = fedit(form, title='Select')
         if r is None: return
 
         selroi.xr.start = r[0]
@@ -1272,7 +1272,7 @@ class ImageViewerBase(BasePanel):
         self.imviewer.roi.show()
         
 
-    def addRoiStaistics(self):
+    def addMaskStatistics(self):
         selroi = self.imviewer.imgdata.selroi
         
         color = get_next_color_tuple()
@@ -1288,7 +1288,7 @@ class ImageViewerBase(BasePanel):
                 ('y stop', selroi.yr.stop),
                 ('y step', selroi.yr.step)]
 
-        r = fedit(form, title='Add Roi Statistics')
+        r = fedit(form, title='Add Mask Statistics')
         if r is None: return
 
         name = r[0]                
@@ -1300,7 +1300,7 @@ class ImageViewerBase(BasePanel):
         self.refresh()
 
         
-    def removeRoiStatistics(self):
+    def removeMaskStatistics(self):
         masks = self.imviewer.imgdata.customMaskNames()                
         
         if len(masks) < 1: return
