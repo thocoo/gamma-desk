@@ -12,6 +12,7 @@ from enum import Enum
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel('INFO')
 
 class UpdateFlag(Enum):
     DONE = 1
@@ -213,6 +214,7 @@ class LiveScriptModule(object):
             return LoadError.EXECUTE
 
         self.load_modify = current_modify_stamp
+        logger.info(f'{self.name}@{time.ctime(self.load_modify)}')
         return LoadError.NONE
 
 
