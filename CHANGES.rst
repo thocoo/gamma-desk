@@ -1,7 +1,7 @@
 v1.6.0
 ------
 
-date: 2024-12-09
+date: 2024-12-13
 
 - Fix to except Exception to BaseException in the command loop
 - Fix the missing raise of error to the command loop (cause 10 sec check on KeyBoard break)
@@ -39,6 +39,15 @@ date: 2024-12-09
 - use the is_nested() instead of the top or nested attribute
 - Removing all top and nested attributes and arguments
 - Fix correct class name in __repr__
+- Make 'console' font configurable
+- Scripts: Fix proper loading of prior failed loads
+- Add a required roi size > 0 to be valid statistics
+- Prevent markUpdateCall on LiveScriptModuleReference
+- Let the autocompleter execute the __script_manager__.mark_for_update()
+- Raise KeyError on trying to overwrite a predefined mask
+- Allow to select roi on full sized masks
+- Log info of succeed loading a script
+- Use the name 'roi' for the widget selection and 'mask' for all the other roi's.
 
 
 v1.5.0
