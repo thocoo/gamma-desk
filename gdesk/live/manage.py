@@ -188,7 +188,7 @@ class LiveScriptModule(object):
     def load(self):
         """Import Python file (from disk, compile and execute)"""
         self.code = None
-        self.workspace = LsWorkspace(self, str(self.path), self.name, self.script_manager)
+        self.workspace = LsWorkspace(str(self), str(self.path), self.name, self.script_manager)
 
         with open(str(self.path), 'r', encoding='utf-8') as fp:
             current_modify_stamp = self.modify_time()
