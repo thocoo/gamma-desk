@@ -1,3 +1,11 @@
+v1.6.1
+------
+
+date: 2024-12-13
+
+- The workspace __module__ is now a string instead of the module itself
+
+
 v1.6.0
 ------
 
