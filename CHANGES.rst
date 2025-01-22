@@ -1,3 +1,11 @@
+v1.6.2
+------
+
+date: 2025-01-22
+
+- import of Path object was missing in formlayout
+
+
 v1.6.1
 ------
 
