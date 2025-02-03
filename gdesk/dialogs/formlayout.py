@@ -325,13 +325,15 @@ class FileLayout(QHBoxLayout):
             defaultDir = None
             defaultFilter = None
             
-            if '*' in self.text():
+            text = self.text()
+            
+            if '*' in text:
                 p = Path(text)
                 if not p.parent is None:
                     defaultDir = str(p.parent)
                 defaultFilter = p.name
 
-            elif len(self.text()) > 0:
+            elif len(text) > 0:
                 p = Path(text)
                 if not p.parent is None:
                     defaultDir = str(p.parent)
@@ -342,7 +344,7 @@ class FileLayout(QHBoxLayout):
                 name, _filter = name
                 
         elif self.value.startswith('dir'):
-            name = QFileDialog.getExistingDirectory(None, 'Select directory', dir=self.lineedit.text())
+            name = QFileDialog.getExistingDirectory(None, 'Select directory', dir=self.text())
             
         else:
             name = QFileDialog.getOpenFileName(None, 'Select file')
