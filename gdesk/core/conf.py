@@ -38,7 +38,7 @@ REQUIRED = [
     ('gdesk', 'gdesk'),
 ]
 
-PATHPATTERN = re.compile('path_\w*')
+PATHPATTERN = re.compile(r'path_\w*')
 
 
 def deep_update(source, overrides):
