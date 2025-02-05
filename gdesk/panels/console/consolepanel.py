@@ -57,6 +57,7 @@ class LineNumberArea(QWidget):
 
         self._firstlinecode = [' >>> ']
         self.blinks = [':',' ']
+        self.elapsed = 0
 
         self.painter = QPainter()
 
@@ -72,6 +73,7 @@ class LineNumberArea(QWidget):
         self.profile_enabled = True
 
     def stop_profiling(self):
+        self.get_firstlinecode() #Update the elapsed 
         self.profile_enabled = False
 
     def update_font(self):
@@ -92,12 +94,12 @@ class LineNumberArea(QWidget):
 
     def get_firstlinecode(self):
         if self.profile_enabled:
-            elapsed = time.monotonic() - self.profile_start
-            if elapsed > self.profile_threshold:
-                if elapsed >= 3600:
-                    profile = time.strftime("%H:%M", time.gmtime(elapsed))
+            self.elapsed = time.monotonic() - self.profile_start
+            if self.elapsed > self.profile_threshold:
+                if self.elapsed >= 3600:
+                    profile = time.strftime("%H:%M", time.gmtime(self.elapsed))
                 else:
-                    profile = time.strftime("%M:%S", time.gmtime(elapsed))
+                    profile = time.strftime("%M:%S", time.gmtime(self.elapsed))
                 return profile[:-3] + self.blinks[0] + profile[-2:]
         return self._firstlinecode[0]
 
