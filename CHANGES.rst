@@ -1,3 +1,12 @@
+v1.6.3
+------
+
+date: 2025-02-05
+
+- Fixing getfile in formlayout
+- Add elapsed attribute in console
+
+
 v1.6.2
 ------
 
