@@ -1,3 +1,18 @@
+
+vNext
+-----
+date: TBD
+
+- Do project management with ``uv``.
+- Expose detailed (parsed) version information (``packaging.version.Version``)
+
+Do note the version semantics have changed:
+
+* ``VERSION_INFO`` does no longer exist.
+* ``__version__`` is now a string.
+* Access ``__version_info__`` for detailed version attributes.
+
+
 v1.6.3
 ------
 
