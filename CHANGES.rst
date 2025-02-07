@@ -49,10 +49,10 @@ date: 2024-12-13
 - Fix getcodefile for script files
 - fix enforce ymin to 0 for all scaling modes except for log+cum
 - Cycle through y-scales on button press
-- Remove roi switch, draw histrograms based on active statistics
+- Remove roi switch, draw histograms based on active statistics
 - Add multi mask selection on profiles and histogram
 - Reduce keyboard capture to 2 sec
-- SURPRISE, floor division is faster then bitshift! (a x86 thing)
+- SURPRISE, floor division is faster than bitshift! (a x86 thing)
 - Enforcing parallel execution seems to only stress the PC to 100% CPU, but very little gain in performance
 - Tryout auto completion on input (on the 1 level higher workspace)
 - Show the top of the html page on show
@@ -60,7 +60,7 @@ date: 2024-12-13
 - Prepare for window variant of the textbrowser dialog
 - The ask_refresh flow (request and acknowledge) was lagging
 - ask_refresh was not set to 0 if no update was needed.
-- But beacause of this, there was also no mark_for_update needed for next time.
+- But because of this, there was also no mark_for_update needed for next time.
 - Which was also not done.
 - Split markUpdateCall into markUpdateCallTop and markUpdateCallNest
 - Use an Enum for the Update Flags
@@ -98,7 +98,7 @@ date: 2024-11-14
 - Fix error on loading new panel layout
 - Add context menu to statistics panel to choose columns
 - Add call_func_ext as extension on call_func to call a function on another thread of process with kwargs
-- Extend the funcitonality on default dir and file for formlayout get and set file/dir dialog
+- Extend the functionality on default dir and file for formlayout get and set file/dir dialog
 - Fix cancel of Choose statistic dialog and add stat dependent formatting
 - Fix some ndim = 3 behavior combined with bayer pattern
 - Add callbackexcept to wrap around a callback to capture errors from other thread or process
@@ -131,7 +131,7 @@ date: 2024-11-14
 - This is needed to make it readable in the dark mode and should not affect the light mode
 - dev: Force black text on light background labels
 - Otherwise, in dark mode the white text won't be readable
-- dev: Expand range of allowed matplotlibs
+- dev: Expand range of allowed matplotlib versions
 - doc(minor): Add some type hints
 - fix(36): Avoid crash with matplotlib/PySide6/Linux
 - Don't interfere with buffer ref count.
@@ -144,17 +144,17 @@ date: 2024-11-14
 - Add 20, 22 and 24 bit scales in levels
 - Make a group of 3 button for y scale: lin, log, and 1
 - Extend the statistcs/roi toolbar
-- Add checbox icons
+- Add checkbox icons
 - Use check_boxes icon
 - Fix docking button for StatsDock
-- Move the ImageViewerWidget object to seperate file
+- Move the ImageViewerWidget object to separate file
 - Add gui.img.is_roi_selected()
-- Add icons for rgb and monochroom masks selection
+- Add icons for rgb and monochrome masks selection
 - Add mask selection button to statspanel
-- Add option for cummulative histogram
+- Add option for cumulative histogram
 - Use inverse error function scaling for log+norm levels scaling
 - Remove commented out code
-- Move imgview status bar to seperate file
+- Move imgview status bar to separate file
 - Don't freeze y or enforce fixed y 0 when moving the plot if log and cumulative
 - Remove auto show of roi selection, use double click or menu item
 - Add refresh after adding new roi
@@ -179,11 +179,12 @@ date: 2024-11-14
 - rename setWaitCursor to setBusyCursor and use BusyCursor
 - Add button in statpanel to cycle through show onyl roi/hide roi or show  all
 - Add button in level panel to cycle through show onyl roi/hide roi or show  all
-- Tollerate a selected rows on the now empty table
+- Tolerate a selected rows on the now empty table
 - Use an eye icon for the show/hide/all roi menu
 - Don't redefine the chanstat everything, but only update the needed items
 - Remove some roi icons
 - Still overwrite all predefined mask def by default
+- Support Python 3.13
 
 
 v1.4.0
@@ -202,7 +203,7 @@ date: 2024-09-27
 - Add the different bayer configs for profiles
 - add cfa parameter
 - Add Data split menu
-- Use same mask definitions for historgram and profiles
+- Use same mask definitions for histogram and profiles
 - Add set_cfa to viewer proxy
 - Fix mask definition error
 - Add and use roi.color item to masks
@@ -243,7 +244,7 @@ date: 2024-09-27
 - Remove fullImageVisible on profiles
 - Fix z values for histograms
 - Add isCleared on chanstat
-- Use prefered order of the masks
+- Use preferred order of the masks
 - Show the roi with the selection widget
 
 
@@ -379,7 +380,7 @@ date: 2022-01-04
  
 - Add operation menu
 - Add opencv menu
-- Split image viewier status panel into multiple panels
+- Split image viewer status panel into multiple panels
 - Customizable panel size at init
 - Improved panel resize behavior of histograms and profiles
 - Add test image
@@ -470,5 +471,3 @@ v0.0.1
 date: 2021-03-22
 
 - First release
-
- 
