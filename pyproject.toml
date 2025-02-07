@@ -43,13 +43,10 @@ dependencies = [
     "pyzmq",
     "pywinpty; sys_platform=='win32'",
     "legacy-cgi; python_version > '3.12'",
+    # Note: pyside2 should also work; to use it install with `--no-deps` and install
+    # dependencies manually.
+    "pyside6",
 ]
-
-
-[project.optional-dependencies]
-pyside2 = ["pyside2"]
-pyside6 = ["pyside2"]
-all = ["pyside6"]
 
 
 [project.scripts]
