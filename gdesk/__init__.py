@@ -17,7 +17,7 @@
 """Gamma Desk"""
 
 import sys
-from .version import VERSION_INFO
+from .version import __version__, __version_info__
 from .core.conf import config, configure
 
 #from .core.gui_proxy import gui
@@ -29,8 +29,7 @@ PROGNAME = 'Gamma Desk'
 DOC_HTML = 'https://thocoo.github.io/gdesk-data/docs'
 DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 
-__release__ = "-".join(map(str, VERSION_INFO)).replace("-", ".", 2)
-__version__ = ".".join(map(str, VERSION_INFO[:3]))
+__release__ = __version__
 
 shell = None
 
