@@ -57,6 +57,13 @@ gdesk = "gdesk.console:argexec"
 [project.urls]
 Source = "https://github.com/thocoo/gamma-desk"
 
+[dependency-groups]
+dev = [
+    # Required by scipy for downloading datasets (used in test).
+	# Older scipy versions had the dataset built-in.
+    "pooch; python_version>='3.9'",
+]
+
 
 [tool.pytest.ini_options]
 testpaths = [

@@ -98,8 +98,13 @@ class GammaDeskSuite(unittest.TestCase):
     def test_menu_canvas(self):
         from gdesk import gui
         import scipy.misc
-
-        arr = scipy.misc.face()
+        
+        if hasattr(scipy.misc, "face"):
+            arr = scipy.misc.face()
+        else:
+            import scipy.datasets
+            arr = scipy.datasets.face()
+        
         height, width = arr.shape[:2]
 
         gui.load_layout('image, levels & console')
