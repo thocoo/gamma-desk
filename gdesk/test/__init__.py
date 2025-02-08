@@ -51,7 +51,7 @@ class GammaDeskSuite(unittest.TestCase):
 
         sys.stdout.flush()
         text = gui.console.text()
-        assert expectedOutput == text
+        assert expectedOutput == text, f"'{text}' != '{expectedOutput}'"
 
 
     def test_menu_file(self):
