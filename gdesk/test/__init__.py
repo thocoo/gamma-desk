@@ -54,7 +54,9 @@ class GammaDeskSuite(unittest.TestCase):
             line = f'i = {i}'
             print(line)
             expectedOutput += f'{line}\n'
-            time.sleep(0.01)
+            time.sleep(0.05)
+
+        time.sleep(0.1)
 
         sys.stdout.flush()
         text = gui.console.text()
