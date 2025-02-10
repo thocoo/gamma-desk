@@ -1,13 +1,6 @@
-import threading
 import sys, os
-import ctypes
-from collections import OrderedDict
 import logging
-import importlib
-import pprint
 from pathlib import Path
-
-import numpy as np
 
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt
@@ -24,11 +17,16 @@ from ..dicttree.widgets import DictionaryTreeDialog
 logger = logging.getLogger(__name__)
 respath = Path(config['respath'])
 
+
 class NewPanelMenu(QtWidgets.QMenu):
+
     def __init__(self, parent=None, showIcon=False):
         super().__init__('New', parent)
+        self.showpos = None
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_add.png')))
+
+        self.initactions()
 
     @property
     def panels(self):
@@ -40,6 +38,10 @@ class NewPanelMenu(QtWidgets.QMenu):
 
     def initactions(self):
         self.clear()
+
+        if not self.showpos:
+            self.showpos = QtGui.QCursor().pos()
+
         panelClasses = BasePanel.userPanelClasses()
 
         self.liveActions = []
@@ -71,14 +73,16 @@ class NewPanelMenu(QtWidgets.QMenu):
             self.panels.new_panel(panelClass, windowName)
 
 
-class ShowMenu(QtWidgets.QMenu):
+class PanelMenu(QtWidgets.QMenu):
+
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Panel', parent)
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_get.png')))
+        self.initactions()
 
     def showEvent(self, event):
-        if not hasattr(gui, 'qapp'): return 
+        if not hasattr(gui, 'qapp'): return
         self.initactions()
 
     @property
@@ -97,13 +101,17 @@ class ShowMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-        
-        keyseq = gui.qapp.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
-        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
-        self.addAction(action)
-        self.liveActions.append(action)
-        
-        self.addSeparator()
+
+        app = getattr(gui, "qapp", None)
+        if app:
+            keyseq = app.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
+            action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)
+            self.addAction(action)
+            self.liveActions.append(action)
+            self.addSeparator()
+        else:
+            # Not sure why, but this helps to bring the menu into existence.
+            self.addMenu("(in progress)")
 
         for category in self.panels.keys():
             panels = self.panels[category]
@@ -127,11 +135,14 @@ class ShowMenu(QtWidgets.QMenu):
         panel.show_me()
         panel.select()
 
+
 class WindowMenu(QtWidgets.QMenu):
+
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Window', parent)
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_double.png')))
+        self.initactions()
 
     @property
     def windows(self):
@@ -150,13 +161,17 @@ class WindowMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-        
-        keyseq = gui.qapp.menuCallShortCuts['main'].get(('window', 'previews...'), 'n/a')          
-        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
-        self.addAction(action)
-        self.liveActions.append(action)
-        
-        self.addSeparator()
+
+        app = getattr(gui, "qapp", None)
+        if app:
+            keyseq = gui.qapp.menuCallShortCuts['main'].get(('window', 'previews...'), 'n/a')
+            action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)
+            self.addAction(action)
+            self.liveActions.append(action)
+            self.addSeparator()
+        else:
+            # Not sure why, but this helps to bring the menu into existence.
+            self.addMenu("(in progress)")
 
         for window_name in self.windows.keys():
             window = self.windows[window_name]
@@ -181,6 +196,7 @@ class CachedArgCall(object):
 
 
 class LayoutMenu(QtWidgets.QMenu):
+
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Layout', parent)
         if showIcon:
@@ -227,11 +243,11 @@ class LayoutMenu(QtWidgets.QMenu):
             config['layout'][layout_name] = gui.qapp.panels.ezm.get_perspective()
 
 
-
 class MainDialog(QtWidgets.QMainWindow):
+
     def __init__(self, panels):
         super().__init__()
-        self.setWindowTitle(f'{PROGNAME} {__release__}')
+        self.setWindowTitle(f'{PROGNAME} v{__release__}')
         self.panels = panels
         self.tabs = QtWidgets.QTabWidget(self)
         self.setCentralWidget(self.tabs)
@@ -242,11 +258,6 @@ class MainDialog(QtWidgets.QMainWindow):
         self.initMenu()
         self.callerWindow = None
 
-        if sys.platform == "darwin":
-            # Menu contains customizations; OS can't render those.
-            # Display the menu inside the app.
-            self.menuBar().setNativeMenuBar(False)
-
     @property
     def qapp(self):
         return QtWidgets.QApplication.instance()
@@ -256,6 +267,11 @@ class MainDialog(QtWidgets.QMainWindow):
         return None
 
     def initMenu(self):
+        if sys.platform == "darwin":
+            # Menu contains customizations; OS can't render those.
+            # Display the menu inside the app.
+            self.menuBar().setNativeMenuBar(False)
+
         self.appMenu = self.menuBar().addMenu("&Application")
 
         act = QtWidgets.QAction("Restart", self,
@@ -274,8 +290,8 @@ class MainDialog(QtWidgets.QMainWindow):
         self.newMenu = NewPanelMenu(self)
         self.menuBar().addMenu(self.newMenu)
 
-        self.showMenu = ShowMenu(self)
-        self.menuBar().addMenu(self.showMenu)
+        self.panelMenu = PanelMenu(self)
+        self.menuBar().addMenu(self.panelMenu)
 
         self.windowMenu = WindowMenu(self)
         self.menuBar().addMenu(self.windowMenu)
@@ -379,6 +395,7 @@ class MainDialog(QtWidgets.QMainWindow):
 
 
 class PanelsFloatingPreviews(QtWidgets.QDialog):
+
     def __init__(self):
         super().__init__()
         self.thumbs = []
@@ -441,7 +458,9 @@ class PanelsFloatingPreviews(QtWidgets.QDialog):
 
         self.selectedPanel = panel
 
+
 class WindowsFloatingPreviews(QtWidgets.QDialog):
+
     def __init__(self):
         super().__init__()
         self.thumbs = []
@@ -503,6 +522,7 @@ class WindowsFloatingPreviews(QtWidgets.QDialog):
 
 
 class LayoutList(QtWidgets.QListWidget):
+
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.currentItemChanged.connect(self.changeItem)
@@ -520,6 +540,7 @@ class LayoutList(QtWidgets.QListWidget):
 
 
 class PanelsLayout(QtWidgets.QWidget):
+
     def __init__(self, dialog, panels):
         super().__init__(parent=dialog)
         self.dialog = dialog
@@ -562,4 +583,3 @@ class PanelsLayout(QtWidgets.QWidget):
         item = self.layout_list.selectedItems()[0]
         self.panels.restore_state_from_config(item.name)
         self.dialog.accept()
-

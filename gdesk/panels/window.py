@@ -24,7 +24,7 @@ from .. import config, gui
 from .base import CheckMenu
 from ..ezdock import overlay
 from ..gcore.utils import getMenuAction, relax_menu_trace, relax_menu_text
-from ..dialogs.main import NewPanelMenu, ShowMenu, WindowMenu
+from ..dialogs.main import NewPanelMenu, PanelMenu, WindowMenu
 from ..dialogs.formlayout import fedit
 from ..dialogs.about import AboutScreen
 
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         self.newPanelMenu = NewPanelMenu(self, showIcon=True)
         self.layoutMenu.addMenu(self.newPanelMenu)  
         
-        self.panelMenu = ShowMenu(self, showIcon=True)
+        self.panelMenu = PanelMenu(self, showIcon=True)
         self.layoutMenu.addMenu(self.panelMenu)       
         self.layoutMenu.addMenu(WindowMenu(self, showIcon=True))
         
