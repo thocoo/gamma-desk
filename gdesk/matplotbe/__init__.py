@@ -35,23 +35,25 @@ if not version.parse('3.2') <= version.parse(matplotlib.__version__) < version.p
         
 if config.get('qapp'):
     from qtpy import QtCore, QtGui
-    from ..panels.matplot import PlotPanel        
+    from ..panels.matplot import PlotPanel
 
-    if version.parse(matplotlib.__version__) == version.parse('3.2'):
+    matplot_version = version.parse(matplotlib.__version__)
+
+    if matplot_version == version.parse('3.2'):
         setDevicePixelRatio = QtGui.QImage.setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"    
         
-    elif version.parse(matplotlib.__version__) == version.parse('3.3'):
+    elif matplot_version == version.parse('3.3'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatioF
         setDevicePixelRatio = _setDevicePixelRatioF
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
         
-    elif version.parse(matplotlib.__version__) < version.parse('3.5'):
+    elif matplot_version < version.parse('3.5'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatio
         setDevicePixelRatio = _setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
         
-    elif version.parse(matplotlib.__version__) == version.parse('3.5'):
+    elif matplot_version == version.parse('3.5'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatio
         setDevicePixelRatio = _setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_device_pixel_ratio"       
