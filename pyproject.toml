@@ -30,25 +30,28 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "numpy",
     "pillow",
     "imageio",
-    "imageio-ffmpeg",
-    # Exclude MatPlotLib 3.5.2 because it crashes plotting on PySide6.
-    "matplotlib != 3.5.2",
+    "imageio-ffmpeg",	
     "scipy",
     "qtpy",
     "psutil",
     "numba",
-    "pyzmq",
-    "pywinpty; sys_platform=='win32'",
-    "legacy-cgi; python_version > '3.12'",
+    "pyzmq",	
     "packaging",
-    # Note: pyside2 should also work; to use it install with `--no-deps` and install
-    # dependencies manually.
-    "pyside6",
-]
+	
+	# Some more 'fun' dependencies, see COMPATIBILITY.md.
 
+    "matplotlib != 3.5.2",
+    "legacy-cgi; python_version > '3.12'",
+    "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
+    "pywinpty; sys_platform=='win32' and python_version>'3.8'",
+    "pyside6; python_version<'3.12'",
+    "pyside6>=6.8.1; python_version>='3.12'",
+    "numpy<2; python_version<'3.12'",
+    "numpy>=2; python_version>='3.12'",
+]
+ 
 
 [project.scripts]
 gdesk = "gdesk.console:argexec"
