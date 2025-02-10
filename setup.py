@@ -34,6 +34,7 @@ REQUIRED = [
     'psutil',
     'numba',
     'pyzmq',
+    'packaging',
     'pywinpty; sys_platform=="win32"',
     'legacy-cgi; python_version > "3.12"',
 ]
