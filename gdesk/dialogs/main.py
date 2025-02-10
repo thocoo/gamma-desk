@@ -242,11 +242,6 @@ class MainDialog(QtWidgets.QMainWindow):
         self.initMenu()
         self.callerWindow = None
 
-        if sys.platform == "darwin":
-            # Menu contains customizations; OS can't render those.
-            # Display the menu inside the app.
-            self.menuBar().setNativeMenuBar(False)
-
     @property
     def qapp(self):
         return QtWidgets.QApplication.instance()
@@ -256,6 +251,11 @@ class MainDialog(QtWidgets.QMainWindow):
         return None
 
     def initMenu(self):
+        if sys.platform == "darwin":
+            # Menu contains customizations; OS can't render those.
+            # Display the menu inside the app.
+            self.menuBar().setNativeMenuBar(False)
+
         self.appMenu = self.menuBar().addMenu("&Application")
 
         act = QtWidgets.QAction("Restart", self,
