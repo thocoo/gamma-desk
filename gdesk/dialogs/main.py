@@ -22,8 +22,11 @@ class NewPanelMenu(QtWidgets.QMenu):
 
     def __init__(self, parent=None, showIcon=False):
         super().__init__('New', parent)
+        self.showpos = None
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_add.png')))
+
+        self.initactions()
 
     @property
     def panels(self):
@@ -35,6 +38,10 @@ class NewPanelMenu(QtWidgets.QMenu):
 
     def initactions(self):
         self.clear()
+
+        if not self.showpos:
+            self.showpos = QtGui.QCursor().pos()
+
         panelClasses = BasePanel.userPanelClasses()
 
         self.liveActions = []
@@ -72,6 +79,7 @@ class PanelMenu(QtWidgets.QMenu):
         super().__init__('Panel', parent)
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_get.png')))
+        self.initactions()
 
     def showEvent(self, event):
         if not hasattr(gui, 'qapp'): return
@@ -93,13 +101,17 @@ class PanelMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-        
-        keyseq = gui.qapp.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
-        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
-        self.addAction(action)
-        self.liveActions.append(action)
-        
-        self.addSeparator()
+
+        app = getattr(gui, "qapp", None)
+        if app:
+            keyseq = app.menuCallShortCuts['main'].get(('panel', 'previews...'), 'n/a')
+            action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)
+            self.addAction(action)
+            self.liveActions.append(action)
+            self.addSeparator()
+        else:
+            # Not sure why, but this helps to bring the menu into existence.
+            self.addMenu("(in progress)")
 
         for category in self.panels.keys():
             panels = self.panels[category]
@@ -130,6 +142,7 @@ class WindowMenu(QtWidgets.QMenu):
         super().__init__('Window', parent)
         if showIcon:
             self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_double.png')))
+        self.initactions()
 
     @property
     def windows(self):
@@ -148,13 +161,17 @@ class WindowMenu(QtWidgets.QMenu):
         self.clear()
 
         self.liveActions = []
-        
-        keyseq = gui.qapp.menuCallShortCuts['main'].get(('window', 'previews...'), 'n/a')          
-        action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)        
-        self.addAction(action)
-        self.liveActions.append(action)
-        
-        self.addSeparator()
+
+        app = getattr(gui, "qapp", None)
+        if app:
+            keyseq = gui.qapp.menuCallShortCuts['main'].get(('window', 'previews...'), 'n/a')
+            action = QtWidgets.QAction(f'Previews...\t{keyseq}', triggered=self.preview)
+            self.addAction(action)
+            self.liveActions.append(action)
+            self.addSeparator()
+        else:
+            # Not sure why, but this helps to bring the menu into existence.
+            self.addMenu("(in progress)")
 
         for window_name in self.windows.keys():
             window = self.windows[window_name]
