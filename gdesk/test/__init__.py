@@ -1,5 +1,12 @@
 import unittest
 
+from packaging import version
+import numpy
+
+
+NUMPY_V1 = version.parse(numpy.__version__) < version.parse("2")
+
+
 class GammaDeskSuite(unittest.TestCase):
     panid = 1
 
@@ -87,7 +94,7 @@ class GammaDeskSuite(unittest.TestCase):
         self.assertEqual(gui.vs.min(), 0.5)
         self.assertEqual(gui.vs.max(), 0.5)
 
-        #https://imageio.readthedocs.io/en/stable/standardimages.html
+        # https://imageio.readthedocs.io/en/stable/standardimages.html
         gui.img.menu(['File', 'Open Image...'], 'imageio:astronaut.png')
         gui.img.menu(['File', 'Open Image...'], 'imageio:wood.jpg')
         gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')
@@ -173,7 +180,7 @@ class GammaDeskSuite(unittest.TestCase):
         from gdesk import gui
         import imageio
 
-        arr = imageio.imread('imageio:astronaut.png')
+        arr = imageio.v2.imread('imageio:astronaut.png')
 
         gui.load_layout('image, levels & console')
         gui.img.select(1)
@@ -181,11 +188,17 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.zoom_full()
         gui.menu_trigger('image', imgpanid, ['Image', 'Invert'])
         gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
-        gui.menu_trigger('image', imgpanid, ['Image', 'Adjust Lighting...'], 255, -1)
+
+        if NUMPY_V1:
+            gui.menu_trigger('image', imgpanid, ['Image', 'Adjust Lighting...'], 255, -1)
+        else:
+            # Numpy v2 chokes on the * 255 -1 because it clips.
+            # (OverflowError: Python integer -1 out of bounds for uint8)
+            # Instead, invert back
+            gui.menu_trigger('image', imgpanid, ['Image', 'Invert'])
+
         gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
-
         assert (arr == gui.vs).all()
-
 
     def test_menu_image_2(self):
         from gdesk import gui
