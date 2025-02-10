@@ -254,6 +254,8 @@ class GammaDeskSuite(unittest.TestCase):
                  r"| |_\ \| (_| || | | | | || | | | | || (_| | | |/ / |  __/\__ \|   < " + "\n" \
                  r" \____/ \__,_||_| |_| |_||_| |_| |_| \__,_| |___/   \___||___/|_|\_" + "\\"
 
+        print("")
+
         fgs = [227, 227, 222, 217, 212, 207]
         for fg, line in zip(fgs, banner.splitlines()):
             bg = 236
