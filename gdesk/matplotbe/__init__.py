@@ -11,9 +11,8 @@ import ctypes
 import threading
 import logging
 import warnings
-from distutils.version import LooseVersion
-
 import matplotlib
+
 from matplotlib.transforms import Bbox
 from matplotlib.figure import Figure
 from matplotlib import cbook
@@ -21,38 +20,40 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import FigureCanvasBase, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_qt5 import FigureCanvasQT
-  
 from matplotlib.backends.qt_compat import QT_API
 from matplotlib import rcParams
+from packaging import version
 
 from .. import gui
 
 
-if not LooseVersion('3.2') <= LooseVersion(matplotlib.__version__) < LooseVersion('3.10'):
+if not version.parse('3.2') <= version.parse(matplotlib.__version__) < version.parse('3.10'):
     warnings.warn(
         f'Matplotlib version {matplotlib.__version__} not supported.\n'
-        f'Version should be 3.2 to 3.10'
+        f'Version should be 3.2 to 3.11'
     )
         
 if config.get('qapp'):
     from qtpy import QtCore, QtGui
-    from ..panels.matplot import PlotPanel        
+    from ..panels.matplot import PlotPanel
 
-    if LooseVersion(matplotlib.__version__) == LooseVersion('3.2'):
+    matplot_version = version.parse(matplotlib.__version__)
+
+    if matplot_version == version.parse('3.2'):
         setDevicePixelRatio = QtGui.QImage.setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"    
         
-    elif LooseVersion(matplotlib.__version__) == LooseVersion('3.3'):
+    elif matplot_version == version.parse('3.3'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatioF
         setDevicePixelRatio = _setDevicePixelRatioF
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
         
-    elif LooseVersion(matplotlib.__version__) < LooseVersion('3.5'):
+    elif matplot_version < version.parse('3.5'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatio
         setDevicePixelRatio = _setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_dpi_ratio"
         
-    elif LooseVersion(matplotlib.__version__) == LooseVersion('3.5'):
+    elif matplot_version == version.parse('3.5'):
         from matplotlib.backends.qt_compat import _setDevicePixelRatio
         setDevicePixelRatio = _setDevicePixelRatio
         DEV_PIXEL_RATIO_ATTR = "_device_pixel_ratio"       

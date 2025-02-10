@@ -1,3 +1,3 @@
 cd ..
-py -3.8 -m build
+uv build
 pause

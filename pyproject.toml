@@ -1,9 +1,71 @@
+
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+
+[tool.flit.module]
+name = "gdesk"
+
+
+[project]
+name = "gamma-desk"
+version = "1.6.4.dev0"
+description = "A Python work environment with image viewers & plots"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Thomas Cools", email = "thomas.cools@telenet.be"},
 ]
-build-backend = "setuptools.build_meta"
+classifiers = [
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "pillow",
+    "imageio",
+    "imageio-ffmpeg",	
+    "scipy",
+    "qtpy",
+    "psutil",
+    "numba",
+    "pyzmq",	
+    "packaging",
+	
+	# Some more 'fun' dependencies, see COMPATIBILITY.md.
+
+    "matplotlib != 3.5.2",
+    "legacy-cgi; python_version > '3.12'",
+    "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
+    "pywinpty; sys_platform=='win32' and python_version>'3.8'",
+    "pyside6; python_version<'3.12'",
+    "pyside6>=6.8.1; python_version>='3.12'",
+    "numpy<2; python_version<'3.12'",
+    "numpy>=2; python_version>='3.12'",
+]
+ 
+
+[project.scripts]
+gdesk = "gdesk.console:argexec"
+
+
+[project.urls]
+Source = "https://github.com/thocoo/gamma-desk"
+
+[dependency-groups]
+dev = [
+    # Required by scipy for downloading datasets (used in test).
+	# Older scipy versions had the dataset built-in.
+    "pooch; python_version>='3.9'",
+]
 
 
 [tool.pytest.ini_options]
