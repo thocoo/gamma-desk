@@ -8,7 +8,7 @@ from ... import gui
 
 class NdimGuiProxy(GuiProxyBase):
     category = 'ndim'
-    # opens_with = ['.tif', '.png', '.gif']
+    opens_with = ['.h5', '.hdf5', '.he5', '.gif', '.npz', '.mov', '.mp4']
 
     def __init__(self):
         pass
