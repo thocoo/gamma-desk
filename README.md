@@ -25,12 +25,13 @@ A Python work environment with image viewers & Plots
 
 # Installation
 
-It is prefered to use gdesk with pyside2
+Gamma Desk requires PySide6 on Python 3.11 and higher.
+
+    pip install gamma-desk
+
+On 3.8 to 3.11, you can choose between PySide2 or PySide6.
 
     pip install gamma-desk[pyside2] 
-
-but it should also work with pyside6
-
     pip install gamma-desk[pyside6] 
   
 
