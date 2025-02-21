@@ -1,3 +1,3 @@
 cd ..
-uv build
+uvx flit build
 pause
