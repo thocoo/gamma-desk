@@ -14,24 +14,26 @@ Since `PyWinPty` dropped Python 3.8 support in `v2.0.15`, we stay below that ver
 Avoid MatPlotLib 3.5.2: because it crashes plotting on PySide6.
 
 
-## PySide6 / PySide2
+## Qt wrapper
 
-On Python 3.11 and higher, PySide6 is a hard dependency as this is the only Qt wrapper available.
+Gamma Desk is best tested with PySide2 and PySide6.  In the past, PyQt5 was also used.
+
+On Python 3.11 and higher, PySide6 is a hard dependency as PySide2 is not available there.
 
 Up until Python 3.10, you must choose the 'extra' `pyside6` or `pyside2`.
 
 PySide 6.8.0 (requiring Python >= 3.12) has a bug which breaks qtpy; avoid that specific release.
 
-If you want to use PyQt (pyqt6 or pyqt5), you have to install it manually.
+If you want to use PyQt5, you have to install it manually and set environment variable `QT_API=PyQt5`.
 
-| Python | PySide6  | PySide2  | PyQt6    | PyQt5    |
+| Python | PySide6  | PySide2  | PtQt5    | PyQt6    |
 |--------|----------|----------|----------|----------|
-| 3.13   | required |          |          |          |
-| 3.12   | required |          |          |          |
-| 3.11   | required |          |          |          |
-| 3.10   | optional | optional |          |          |
-| 3.9    | optional | optional | possible |          |
-| 3.8    | optional | optional |          | possible |
+| 3.13   | required | n/a      | possible | untested |
+| 3.12   | required | n/a      | possible | untested |
+| 3.11   | required | n/a      | possible | untested |
+| 3.10   | optional | optional | possible | untested |
+| 3.9    | optional | optional | possible | untested |
+| 3.8    | optional | optional | possible | n/a      |
 |--------|----------|----------|----------| -------- |
 
 
