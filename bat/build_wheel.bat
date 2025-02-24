@@ -1,4 +1,4 @@
 cd ..
-uv build --sdist
-uv build --wheel
+uvx flit build --sdist
+uvx flit build --wheel
 pause

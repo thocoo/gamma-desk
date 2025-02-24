@@ -32,21 +32,19 @@ classifiers = [
 dependencies = [
     "pillow",
     "imageio",
-    "imageio-ffmpeg",	
+    "imageio-ffmpeg",
     "scipy",
     "qtpy",
     "psutil",
     "numba",
-    "pyzmq",	
+    "pyzmq",
     "packaging",
-	
-	# Some more 'fun' dependencies, see COMPATIBILITY.md.
-
+    # Some more 'fun' dependencies, see COMPATIBILITY.md.
     "matplotlib != 3.5.2",
     "legacy-cgi; python_version > '3.12'",
     "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
     "pywinpty; sys_platform=='win32' and python_version>'3.8'",
-    "pyside6; python_version<'3.12'",
+    "pyside6<=6.7; python_version=='3.11'",
     "pyside6>=6.8.1; python_version>='3.12'",
     "numpy<2; python_version<'3.12'",
     "numpy>=2; python_version>='3.12'",
@@ -61,10 +59,15 @@ gdesk = "gdesk.console:argexec"
 Source = "https://github.com/thocoo/gamma-desk"
 
 [dependency-groups]
+# See COMPATIBILITY.md.
 dev = [
-    # Required by scipy for downloading datasets (used in test).
-	# Older scipy versions had the dataset built-in.
     "pooch; python_version>='3.9'",
+]
+pyside2 = [
+    "pyside2; python_version<='3.10'",
+]
+pyside6 = [
+    "pyside6; python_version<='3.10'",
 ]
 
 
