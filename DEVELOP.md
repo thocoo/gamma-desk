@@ -13,7 +13,7 @@ Edit `version` in the `[project]` section of `pyproject.toml`.
 
 ## Package
 
-    uv build
+    uvx flit build
 
 
 ## Run
