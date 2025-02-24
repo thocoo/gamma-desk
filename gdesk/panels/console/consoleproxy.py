@@ -91,6 +91,12 @@ class ConsoleGuiProxy(GuiProxyBase):
         task.release_control()
 
 
+    @staticmethod
+    def execute(code_str):
+        shell = Shell.instance
+        exec(code_str, shell.wsdict)
+
+
     def execute_code(self, code_string, panid=None):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
@@ -153,3 +159,21 @@ class ConsoleGuiProxy(GuiProxyBase):
                     
         panel.task.call_func(init_caller, args=args, callback=None)           
         return panel.panid
+        
+    
+    @StaticGuiCall    
+    def child_live_exec(live_func, *args, **kwargs):
+        shell = Shell.instance
+        this_panid = shell.this_interpreter().console_id        
+        new_panel = gui.qapp.panels.select_or_new('console', None, 'child')
+        new_panel.task.wait_process_ready()        
+        ConsoleGuiProxy.sync_paths(this_panid, new_panel.panid)      
+        new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs, callback=None) 
+        return new_panel.panid
+        
+        
+    @staticmethod    
+    def use_exec(live_module, func_name, *args, **kwargs):
+        from gdesk import use
+        #use.__script_manager__.update_now(enforce=True)
+        getattr(use(live_module), func_name)(*args, **kwargs)
