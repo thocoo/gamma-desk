@@ -1,3 +1,3 @@
 cd ..
-python -m gdesk -i ./test/setup/test_gdesk.py
+uv run python -m gdesk -i .\test\setup\test_gdesk.py
 pause

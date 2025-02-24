@@ -1,5 +1,12 @@
 import unittest
 
+from packaging import version
+import numpy
+
+
+NUMPY_V1 = version.parse(numpy.__version__) < version.parse("2")
+
+
 class GammaDeskSuite(unittest.TestCase):
     panid = 1
 
@@ -47,11 +54,13 @@ class GammaDeskSuite(unittest.TestCase):
             line = f'i = {i}'
             print(line)
             expectedOutput += f'{line}\n'
-            time.sleep(0.01)
+            time.sleep(0.05)
+
+        time.sleep(0.1)
 
         sys.stdout.flush()
         text = gui.console.text()
-        assert expectedOutput == text
+        assert expectedOutput == text, f"'{text}' != '{expectedOutput}'"
 
 
     def test_menu_file(self):
@@ -87,7 +96,7 @@ class GammaDeskSuite(unittest.TestCase):
         self.assertEqual(gui.vs.min(), 0.5)
         self.assertEqual(gui.vs.max(), 0.5)
 
-        #https://imageio.readthedocs.io/en/stable/standardimages.html
+        # https://imageio.readthedocs.io/en/stable/standardimages.html
         gui.img.menu(['File', 'Open Image...'], 'imageio:astronaut.png')
         gui.img.menu(['File', 'Open Image...'], 'imageio:wood.jpg')
         gui.img.menu(['File', 'Open Image...'], 'imageio:camera.png')
@@ -98,8 +107,13 @@ class GammaDeskSuite(unittest.TestCase):
     def test_menu_canvas(self):
         from gdesk import gui
         import scipy.misc
-
-        arr = scipy.misc.face()
+        
+        if hasattr(scipy.misc, "face"):
+            arr = scipy.misc.face()
+        else:
+            import scipy.datasets
+            arr = scipy.datasets.face()
+        
         height, width = arr.shape[:2]
 
         gui.load_layout('image, levels & console')
@@ -168,7 +182,7 @@ class GammaDeskSuite(unittest.TestCase):
         from gdesk import gui
         import imageio
 
-        arr = imageio.imread('imageio:astronaut.png')
+        arr = imageio.v2.imread('imageio:astronaut.png')
 
         gui.load_layout('image, levels & console')
         gui.img.select(1)
@@ -176,11 +190,17 @@ class GammaDeskSuite(unittest.TestCase):
         gui.img.zoom_full()
         gui.menu_trigger('image', imgpanid, ['Image', 'Invert'])
         gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
-        gui.menu_trigger('image', imgpanid, ['Image', 'Adjust Lighting...'], 255, -1)
+
+        if NUMPY_V1:
+            gui.menu_trigger('image', imgpanid, ['Image', 'Adjust Lighting...'], 255, -1)
+        else:
+            # Numpy v2 chokes on the * 255 -1 because it clips.
+            # (OverflowError: Python integer -1 out of bounds for uint8)
+            # Instead, invert back
+            gui.menu_trigger('image', imgpanid, ['Image', 'Invert'])
+
         gui.menu_trigger('image', imgpanid, ['Image', 'Swap RGB | BGR'])
-
         assert (arr == gui.vs).all()
-
 
     def test_menu_image_2(self):
         from gdesk import gui
@@ -235,6 +255,8 @@ class GammaDeskSuite(unittest.TestCase):
                  r"| | __  / _` || '_ ` _ \ | '_ ` _ \  / _` | | | | | / _ \/ __|| |/ /" + "\n" \
                  r"| |_\ \| (_| || | | | | || | | | | || (_| | | |/ / |  __/\__ \|   < " + "\n" \
                  r" \____/ \__,_||_| |_| |_||_| |_| |_| \__,_| |___/   \___||___/|_|\_" + "\\"
+
+        print("")
 
         fgs = [227, 227, 222, 217, 212, 207]
         for fg, line in zip(fgs, banner.splitlines()):
