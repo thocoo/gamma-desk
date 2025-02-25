@@ -27,7 +27,7 @@ from packaging import version
 from .. import gui
 
 
-if not version.parse('3.2') <= version.parse(matplotlib.__version__) < version.parse('3.10'):
+if not version.parse('3.2') <= version.parse(matplotlib.__version__) < version.parse('3.12'):
     warnings.warn(
         f'Matplotlib version {matplotlib.__version__} not supported.\n'
         f'Version should be 3.2 to 3.11'
