@@ -3,11 +3,11 @@ import sys, os
 import ctypes
 import logging
 import textwrap
-import pathlib
 import mmap
 import struct
 import threading
 import psutil
+from pathlib import Path
 
 from qtpy import QtGui, QtWidgets, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
@@ -42,8 +42,8 @@ from ..panels.base import thisPanel
 
 from ..dialogs.main import MainDialog
 
-here = pathlib.Path(__file__).parent
-respath = pathlib.Path(config['respath'])
+here = Path(__file__).parent
+respath = Path(config['respath'])
 logger = logging.getLogger(__name__)
 
         
@@ -142,7 +142,7 @@ class GuiApplication(QApplication):
             
             if scale != 1.0:
                 logger.warning('Screen scale in application is not 1 !!!')
-                logger.warning('Scaling on PySide6 can be disabled by environmental variable')
+                logger.warning('Scaling on PySide6 can be disabled by environment variable')
                 logger.warning('QT_ENABLE_HIGHDPI_SCALING= 0')                            
             
 
@@ -368,6 +368,12 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
         cmd = {'cmd': 'execute_code', 'args': (init_code, console_id)}
         qapp.cmdserver.cmd_queue.put(cmd)        
         
+    python_startup = os.environ.get("PYTHONSTARTUP")
+    if python_startup and Path(python_startup).exists():
+        print(f"Executing PYTHONSTARTUP: '{python_startup}'")
+        cmd = {'cmd': 'execute_file', 'args': (python_startup, console_id)}
+        qapp.cmdserver.cmd_queue.put(cmd)        
+
     if not pictures is None:
         cmd = {'cmd': 'open_images', 'args': pictures}
         qapp.cmdserver.cmd_queue.put(cmd)            
