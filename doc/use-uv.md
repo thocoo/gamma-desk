@@ -20,6 +20,14 @@ uv run gdesk
 ```
 
 
+## Try the latest Gamma Desk from GitHub
+
+```shell
+uv tool install --python 3.13 git+https://github.com/thocoo/gamma-desk
+uvx --from gamma-desk gdesk path/to/image.tif
+```
+
+
 ## Build Gamma Desk wheel
 
 ```shell
