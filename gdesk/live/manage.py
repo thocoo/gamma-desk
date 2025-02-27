@@ -239,11 +239,14 @@ class LiveScriptTree(object):
         lst = []
         lst = list(self.__dict__.keys())
         lst.extend(list(type(self).__dict__.keys()))        
-        node = self.__path__
-        for file in node.glob('*.py'):
-            lst.append(file.stem)
+        branch = self.__path__
+        for node in branch.glob('*'):
+            if node.is_dir():
+                lst.append(node.stem)
+            elif node.suffix.lower() == '.py':
+                lst.append(node.stem)
         return lst
-
+        
 
     def __getattr__(self, attr):
         path = self.__path__ / attr        
