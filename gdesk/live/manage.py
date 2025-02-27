@@ -240,7 +240,7 @@ class LiveScriptTree(object):
         lst = list(self.__dict__.keys())
         lst.extend(list(type(self).__dict__.keys()))        
         node = self.__path__
-        for file in node.glob('*'):
+        for file in node.glob('*.py'):
             lst.append(file.stem)
         return lst
 
