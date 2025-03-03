@@ -418,13 +418,28 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
-    def get_roi_names():
+    def get_roi_names(actives=None, valid=True):
         """
         Get the current region of interest as a tupple of slice objects
         """
         panel = gui.qapp.panels.selected('image')
-        if panel is None: return []        
-        return list(panel.imviewer.imgdata.chanstats.keys())
+        if panel is None: return []
+        
+        chstats = panel.imviewer.imgdata.chanstats
+        
+        if valid is None:
+            roi_names = [k for k, v in chstats.items()]
+        elif valid:
+            roi_names = [k for k, v in chstats.items() if v.is_valid()]
+        else:
+            roi_names = [k for k, v in chstats.items() if not v.is_valid()]
+
+        if actives is None:
+            return roi_names
+        elif actives:
+            return [k for k in roi_names if chstats[k].active]
+        else:
+            return  [k for k in roi_names if not chstats[k].active]
     
 
     @StaticGuiCall
