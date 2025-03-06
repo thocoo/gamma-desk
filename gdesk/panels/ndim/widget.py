@@ -100,17 +100,36 @@ class NdimWidget(QtWidgets.QWidget):
         self._collaps_label.mousePressEvent = lambda _: self.hide_row_column_color_selection()
 
     def load(self, data, name=None, dim_names=None, dim_scales=None):
-        """Load a new ndim array
+        """
+        Load a new ndim array or xarray DataArray.
 
-        This data can come from code or from the gui that loads a new file
-        :param data: numpy nd array with the multi dim data
-        :param name: optional name of this data, is used when saving to hdf5
-        :param dim_names: optional list of length ndim with names per dimensions
-        :param dim_scales: optional list with (name, scale) tuples with scale values for each entry in a dim
+        The DataArray can contain additional annotation such as the names of the dimensions,
+        and coordinate values (setting the `dim_scales` here).
+
+        This data can come from code or from the gui that loads a new file.
+
+        Three special sliders exist:
+          * Row: treat a dimension as row index.
+          * Col: treat a dimension as column index.
+          * Color: treat a dimension as having RGB or RGBA layers.
+
+        All other dimensions become generic sliders.
+
+        :param data: numpy nd array (or xarray DataArray) with the multi dim data.
+        :param name: optional name of this data, is used when saving to hdf5.
+        :param dim_names: optional list of length ndim with names per dimensions.
+        :param dim_scales: optional list with (name, scale) tuples with scale values for each entry in a dim.
         :return: None
         """
+        data_array = None
+        if type(data).__name__ == "DataArray":
+            # Extract the bare numpy array, but also retain the xarray with extra metadata.
+            data_array = data
+            data = data.values
+
         self.data = data
         self.data_name = name
+
         if self.data is None:
             self.dim_names = None
             self.dim_scales = None
@@ -118,9 +137,39 @@ class NdimWidget(QtWidgets.QWidget):
             self.color.clear()
             self.cols.clear()
             self._color_dim_options = {'None': None}
+            self.update_sliders()
+
+        if data_array is not None:
+            # Look in the xarray.DataArray for dimension info.
+            name = data_array.name
+            dim_names = data_array.dims
+            self.dim_names = dim_names
+            dim_scales = [(None, None)] * data_array.ndim
+            for i_dim, dim in enumerate(data_array.dims):
+                if not data_array[dim].coords:
+                    # No coordinates / scales known for this dimension.
+                    continue
+                dim_name = dim
+                if data_array.coords[dim].units:
+                    dim_name += f" ({data_array.coords[dim].units})"
+                dim_scales[i_dim] = (dim_name, data_array.coords[dim].to_numpy())
+            self.dim_scales = dim_scales
+
+            def_color = None
+            ndim = data_array.ndim
+            if "row" in dim_names and "col" in dim_names:
+                def_row = dim_names.index("row") - ndim
+                def_column = dim_names.index("col") - ndim
+            elif "y" in dim_names and "x" in dim_names:
+                def_row = dim_names.index("y") - ndim
+                def_column = dim_names.index("x") - ndim
+
         else:
-            # guess some defaults
+            # Ndarray.  Guess some defaults.
             if self.data.ndim > 3 and self.data.shape[-1] in (3, 4):
+                # Multiple layers of 2D data, and last dim has three or four 'layers'
+                # -> treat the last layer as R/G/B or R/G/B/Alpha.
+                #    and the two layers before that as rows, cols.
                 def_row = -3
                 def_column = -2
                 def_color = -1
@@ -135,40 +184,45 @@ class NdimWidget(QtWidgets.QWidget):
                 dim_scales = [(None, None)] * data.ndim
             self.dim_names = dim_names
             self.dim_scales = dim_scales
-            items = list()
-            for i, d in enumerate(self.data.shape):
-                if dim_names[i] is None or dim_names[i] == '':
-                    dim_names[i] = f"dim-{i}"
-                item = f"{dim_names[i]}: [{d}]"
-                name, scale = dim_scales[i]
-                if name is not None or scale is not None:
-                    item += f" - "
-                    if name is not None:
-                        item += name
-                    if scale is not None:
-                        item += f" [{scale[0]} - {scale[-1]}]"
-                items.append(item)
 
-            self.rows.clear()
-            self.rows.addItems(items)
-            self.rows.setCurrentIndex(self.data.ndim + def_row)
+        items = list()
+        for i, d in enumerate(self.data.shape):
+            if dim_names[i] is None or dim_names[i] == '':
+                dim_names[i] = f"dim-{i}"
+            item = f"{dim_names[i]}: [{d}]"
+            name, scale = dim_scales[i]
+            if name is not None or scale is not None:
+                item += f" - "
+                if name is not None:
+                    item += name
+                if scale is not None:
+                    item += f" [{scale[0]} - {scale[-1]}]"
+            items.append(item)
 
-            self.cols.clear()
-            self.cols.addItems(items)
-            self.cols.setCurrentIndex(self.data.ndim + def_column)
+        self.rows.clear()
+        self.rows.addItems(items)
+        self.rows.setCurrentIndex(self.data.ndim + def_row)
 
-            self.color.clear()
-            self.color.addItem("None")
-            self._color_dim_options = {'None': None}
-            for i, d in enumerate(self.data.shape):
-                if 3 <= d <= 4:
-                    text = items[i]
-                    self.color.addItem(text)
-                    self._color_dim_options[text] = i
-            if def_color is None:
-                self.color.setCurrentIndex(0)
-            else:
-                self.color.setCurrentIndex(self.color.count() + def_color)
+        self.cols.clear()
+        self.cols.addItems(items)
+        self.cols.setCurrentIndex(self.data.ndim + def_column)
+
+        # Assemble color dimension options.
+        self.color.clear()
+        self.color.addItem("None")
+        self._color_dim_options = {'None': None}
+        for i, d in enumerate(self.data.shape):
+            if 3 <= d <= 4:
+                # Treat a dim with 3 or 4 layers as possible 'color' dimension (RGB / RGBA).
+                text = items[i]
+                self.color.addItem(text)
+                self._color_dim_options[text] = i
+        if def_color is None:
+            # No color pre-selected; select color 'None'.
+            self.color.setCurrentIndex(0)
+        else:
+            # Select the given color.
+            self.color.setCurrentIndex(self.color.count() + def_color)
 
         self.update_sliders()
 
@@ -208,7 +262,7 @@ class NdimWidget(QtWidgets.QWidget):
                 continue
             h = QtWidgets.QHBoxLayout()
             dim_name = QtWidgets.QLineEdit(self.dim_names[dim])
-            dim_name.setMaximumWidth(80)
+            dim_name.setMaximumWidth(140)
             dim_name.setMinimumHeight(15)
             self._dim_line_edits[dim] = dim_name
             h.addWidget(dim_name)
