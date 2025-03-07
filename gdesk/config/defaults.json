@@ -128,7 +128,9 @@
       "prefix": "Ctrl+F",
       "1": "console",
       "2": "image, levels & console",
-      "3": "4 images, 1 levels & 1 console"}},
+      "3": "4 images, 1 levels & 1 console",
+      "4": "image, levels, console & ndim"
+    }},
   "panel_class_modules": [
     "gdesk.panels.dialog",
     "gdesk.panels.console",
@@ -458,6 +460,134 @@
               761,
               761
             ],
+            "type": "layout"
+          },
+          "name": "main",
+          "visible": true
+        },
+        {
+          "docks": {
+            "category": "console",
+            "id": 0,
+            "type": "panel"
+          },
+          "name": "window 1",
+          "visible": false
+        }
+      ]
+    },
+    "image, levels, console & ndim": {
+      "description": "image thread and sub thread with ndim panel",
+      "panels": [
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 0,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "MainThreadConsole",
+          "title": "console#0"
+        },
+        {
+          "bindings": [],
+          "category": "console",
+          "id": 1,
+          "module": "gdesk.panels.console.consolepanel",
+          "qualname": "SubThreadConsole",
+          "title": "console#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "image",
+              "id": 1
+            }
+          ],
+          "category": "levels",
+          "id": 1,
+          "module": "gdesk.panels.levels.panel",
+          "qualname": "LevelsPanel",
+          "title": "levels#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "image",
+              "id": 1
+            }
+          ],
+          "category": "ndim",
+          "id": 1,
+          "module": "gdesk.panels.ndim.panel",
+          "qualname": "NdimPanel",
+          "title": "ndim#1"
+        },
+        {
+          "bindings": [
+            {
+              "category": "levels",
+              "id": 1
+            }
+          ],
+          "category": "image",
+          "id": 1,
+          "module": "gdesk.panels.imgview.imgview",
+          "qualname": "ImageProfilePanel",
+          "title": "image#1"
+        }
+      ],
+      "windows": [
+        {
+          "docks": {
+            "category": "hbox",
+            "id": "hbox#1",
+            "items": [
+              {
+                "category": "image",
+                "id": 1,
+                "type": "panel"
+              },
+              {
+                "category": "vbox",
+                "id": "vbox#1",
+                "items": [
+                  {
+                    "category": "levels",
+                    "id": 1,
+                    "type": "panel"
+                  },
+                  {
+                    "type": "panel",
+                    "category": "ndim",
+                    "id": 1
+                  },
+                  {
+                    "category": "console",
+                    "id": 1,
+                    "type": "panel"
+                  }
+                ],
+                "sizes": [
+                  250,
+                  200,
+                  550
+                ],
+                "pinscroll": [
+                  1000,
+                  0
+                ],
+                "scroll": [],
+                "type": "layout"
+              }
+            ],
+            "sizes": [
+              800,
+              800
+            ],
+            "pinscroll": [
+              1600,
+              0
+            ],
+            "scroll": [],
             "type": "layout"
           },
           "name": "main",
