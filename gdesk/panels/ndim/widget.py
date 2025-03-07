@@ -118,10 +118,17 @@ class NdimWidget(QtWidgets.QWidget):
         :param data: numpy nd array (or xarray DataArray) with the multi dim data.
         :param name: optional name of this data, is used when saving to hdf5.
         :param dim_names: optional list of length ndim with names per dimensions.
-        :param dim_scales: optional list with (name, scale) tuples with scale values for each entry in a dim.
+        :param dim_scales: optional list of length ndim with (name, scale) tuples
+        with scale values for each entry in a dim.
         :return: None
         """
+        self.dim_names = None
+        self.dim_scales = None
         data_array = None
+        def_row = None
+        def_column = None
+        def_color = None
+
         if type(data).__name__ == "DataArray":
             # Extract the bare numpy array, but also retain the xarray with extra metadata.
             data_array = data
@@ -131,20 +138,19 @@ class NdimWidget(QtWidgets.QWidget):
         self.data_name = name
 
         if self.data is None:
-            self.dim_names = None
-            self.dim_scales = None
             self.rows.clear()
             self.color.clear()
             self.cols.clear()
             self._color_dim_options = {'None': None}
             self.update_sliders()
+            return
 
         if data_array is not None:
             # Look in the xarray.DataArray for dimension info.
-            name = data_array.name
-            dim_names = data_array.dims
-            self.dim_names = dim_names
-            dim_scales = [(None, None)] * data_array.ndim
+            if data_array.name is not None:
+                self.data_name = data_array.name
+            self.dim_names = list(data_array.dims)
+            self.dim_scales = [(None, None)] * data_array.ndim
             for i_dim, dim in enumerate(data_array.dims):
                 if not data_array[dim].coords:
                     # No coordinates / scales known for this dimension.
@@ -152,21 +158,34 @@ class NdimWidget(QtWidgets.QWidget):
                 dim_name = dim
                 if data_array.coords[dim].units:
                     dim_name += f" ({data_array.coords[dim].units})"
-                dim_scales[i_dim] = (dim_name, data_array.coords[dim].to_numpy())
-            self.dim_scales = dim_scales
+                self.dim_scales[i_dim] = (dim_name, data_array.coords[dim].to_numpy())
 
-            def_color = None
-            ndim = data_array.ndim
-            if "row" in dim_names and "col" in dim_names:
-                def_row = dim_names.index("row") - ndim
-                def_column = dim_names.index("col") - ndim
-            elif "y" in dim_names and "x" in dim_names:
-                def_row = dim_names.index("y") - ndim
-                def_column = dim_names.index("x") - ndim
-
-        else:
-            # Ndarray.  Guess some defaults.
-            if self.data.ndim > 3 and self.data.shape[-1] in (3, 4):
+        if dim_names is not None:  # use the argument dim names if given
+            self.dim_names = dim_names
+        if self.dim_names is None:  # if still None, create empty names
+            self.dim_names = [None] * data.ndim
+        # try to find default row, column and color dims based on names
+        for color_dim_name in ['color', 'colors', 'rgb', 'rgba', 'colour', 'colours']:
+            try:
+                def_color = case_insensitive_index(self.dim_names, color_dim_name) - data.ndim
+                break
+            except ValueError:
+                pass
+        for row_dim_name in ['row', 'rows', 'y']:
+            try:
+                def_row = case_insensitive_index(self.dim_names, row_dim_name) - data.ndim
+                break
+            except ValueError:
+                pass
+        for col_dim_name in ['col', 'cols', 'column', 'columns', 'x']:
+            try:
+                def_column = case_insensitive_index(self.dim_names, col_dim_name) - data.ndim
+                break
+            except ValueError:
+                pass
+        # if the names are of no use then try to guess based on the shape
+        if def_row is None or def_column is None:
+            if self.data.ndim > 3 and self.data.shape[-1] in (3, 4) and def_color in (None, -1):
                 # Multiple layers of 2D data, and last dim has three or four 'layers'
                 # -> treat the last layer as R/G/B or R/G/B/Alpha.
                 #    and the two layers before that as rows, cols.
@@ -176,21 +195,18 @@ class NdimWidget(QtWidgets.QWidget):
             else:
                 def_row = -2
                 def_column = -1
-                def_color = None
 
-            if dim_names is None:
-                dim_names = [None] * data.ndim
-            if dim_scales is None:
-                dim_scales = [(None, None)] * data.ndim
-            self.dim_names = dim_names
+        if dim_scales is not None:  # use the argument dim scales if given
             self.dim_scales = dim_scales
+        if self.dim_scales is None:  # if still None, create empty scales
+            self.dim_scales = [(None, None)] * data.ndim
 
         items = list()
         for i, d in enumerate(self.data.shape):
-            if dim_names[i] is None or dim_names[i] == '':
-                dim_names[i] = f"dim-{i}"
-            item = f"{dim_names[i]}: [{d}]"
-            name, scale = dim_scales[i]
+            if self.dim_names[i] is None or self.dim_names[i] == '':
+                self.dim_names[i] = f"dim-{i}"
+            item = f"{self.dim_names[i]}: [{d}]"
+            name, scale = self.dim_scales[i]
             if name is not None or scale is not None:
                 item += f" - "
                 if name is not None:
@@ -445,3 +461,7 @@ class NdimWidget(QtWidgets.QWidget):
         """Clear current data and put back in startup state"""
         self.data = None
         self.load(data=None)
+
+def case_insensitive_index(tup, value):
+    lower_tup = [str(item).lower() for item in tup]
+    return lower_tup.index(value.lower())
