@@ -1,4 +1,5 @@
 import logging
+from typing import List, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
@@ -96,13 +97,13 @@ class NdimGuiProxy(GuiProxyBase):
         return panel.main_widget.data_name
 
     @StaticGuiCall
-    def get_dim_names() -> list[str]:
+    def get_dim_names() -> List[str]:
         """Get the names of the dimensions from the current panel"""
         panel = gui.qapp.panels.selected('ndim')
         return panel.main_widget.dim_names
 
     @StaticGuiCall
-    def get_dim_scales() -> list[tuple[str | None, list | None]]:
+    def get_dim_scales(): # -> List[Tuple[str | None, List | None]]
         """Get the scales of the dimensions from the current panel"""
         panel = gui.qapp.panels.selected('ndim')
         return panel.main_widget.dim_scales
