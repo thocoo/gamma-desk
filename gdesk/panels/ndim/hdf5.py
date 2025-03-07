@@ -11,7 +11,7 @@ def load_ndim_from_hdf5(filepath):
     """Load one multi dim (>2) file from a hdf5 file
 
     If multiple ndim arrays are found then it asks the user which one to load.
-    It throws an ImportError when no dataset when more than 2 dims is found.
+    It throws an ImportError when no dataset with more than 2 dims is found.
 
     :param filepath: pathlib.Path uri to file to load
     :return: ndarray, key_name, list with dim names, list with dim scales (name, scale)
