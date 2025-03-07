@@ -34,7 +34,6 @@ If you want to use PyQt5, you have to install it manually and set environment va
 | 3.10   | optional | optional | possible | untested |
 | 3.9    | optional | optional | possible | untested |
 | 3.8    | optional | optional | possible | n/a      |
-|--------|----------|----------|----------| -------- |
 
 
 ## Numpy
