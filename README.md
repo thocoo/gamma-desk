@@ -29,7 +29,7 @@ Gamma Desk requires PySide6 on Python 3.11 and higher.
 
     pip install gamma-desk
 
-On 3.8 to 3.11, you can choose between PySide2 or PySide6.
+On 3.8 to 3.10, you can choose between PySide2 or PySide6.
 
     pip install gamma-desk[pyside2] 
     pip install gamma-desk[pyside6] 
