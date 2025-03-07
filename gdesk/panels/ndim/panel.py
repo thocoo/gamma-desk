@@ -51,10 +51,14 @@ class NdimPanel(BasePanel):
 
         self.addBaseMenu(['image'])
         self.statusBar().hide()
+        self._previous_folder = None
 
     def open_dialog(self):
         """Open file selection dialog and open the selected file"""
-        filepath = here.parent.parent / 'resources' / 'ndim' / 'space_cat.npz'
+        if self._previous_folder is not None:
+            filepath = self._previous_folder
+        else:
+            filepath = here.parent.parent / 'resources' / 'ndim' / 'space_cat.npz'
 
         filepath, filter = gui.getfile(title='Open n-dim data or multiple images', file=str(filepath.absolute()),
                                        filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4);;"
@@ -62,6 +66,8 @@ class NdimPanel(BasePanel):
                                               "MP4 (*.mp4);; All (*.*)")
         if filepath == '':
             return
+
+        self._previous_folder = pathlib.Path(filepath).parent
 
         self.open(filepath)
 
