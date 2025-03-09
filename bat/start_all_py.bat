@@ -19,10 +19,10 @@ FOR %%G IN ("3.8"
 :SUPPORTED
 cd ..
 if /I "%TEST%" == "test" (
-    uv run --python %PYTHON_VERSION% --group pyside2 python -m gdesk -i .\test\setup\test_gdesk.py
-    uv run --python %PYTHON_VERSION% --group pyside6 python -m gdesk -i .\test\setup\test_gdesk.py
+    uv run --python %PYTHON_VERSION% --extra pyside2 python -m gdesk -i .\test\setup\test_gdesk.py
+    uv run --python %PYTHON_VERSION% --extra pyside6 python -m gdesk -i .\test\setup\test_gdesk.py
 ) else (
-    uv run --python %PYTHON_VERSION% --group pyside2 python -m gdesk
-    uv run --python %PYTHON_VERSION% --group pyside6 python -m gdesk
+    uv run --python %PYTHON_VERSION% --extra pyside2 python -m gdesk
+    uv run --python %PYTHON_VERSION% --extra pyside6 python -m gdesk
 )
 GOTO :EOF
