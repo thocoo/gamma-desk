@@ -160,7 +160,13 @@ def configure(**overwrites):
 
     if config['debug'].get('list_packages', False):
         list_packages(REQUIRED)
-        
+
+    # Error log folder: use current work dir *or* override through
+    # configuration value 'path_errorlog'.
+    error_log_dir = config.get('path_errorlog') or Path.cwd()
+    error_log_dir = Path(error_log_dir).expanduser()
+    config["path_errorlog"] = error_log_dir
+
     from gdesk import refer_gui_instance
     from .gui_proxy import gui
     refer_gui_instance(gui)                     
