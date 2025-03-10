@@ -38,8 +38,10 @@ CRITICAL_PREFIX = ESC + '38;5;5m'
 CRITICAL_SUFFIX = ESC + '0m'
 
 
-if config.get('qapp', False):        
-    filehandler = RotatingFileHandler(f'stderr.log', maxBytes=1024*1024, encoding='UTF-8',backupCount=5)
+if config.get('qapp', False):
+    path_errorlog = config["path_errorlog"]
+    stderr_path = path_errorlog / "stderr.log"
+    filehandler = RotatingFileHandler(stderr_path, maxBytes=1024*1024, encoding='UTF-8',backupCount=5)
     filehandler.setLevel(config.get('logging_level_logfile', 'DEBUG'))    
     logging.root.addHandler(filehandler)
     
