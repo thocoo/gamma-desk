@@ -41,3 +41,6 @@ if 'LIVEPATH' in os.environ.keys():
         manager.append_path(path)
 
 use = using = LiveScriptScan(manager)
+
+#For execution in a child console
+usp = LiveScriptScan(manager, mp=True)

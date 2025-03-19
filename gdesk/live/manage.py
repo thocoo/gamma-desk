@@ -82,15 +82,33 @@ def markUpdateCall(script_manager, module, attr):
         
     return wrapped_caller
     
+    
+def markUpdateCallMp(script_manager, module, attr):
+    func_for_doc = getattr(module.workspace, attr)
+    
+    @functools.wraps(func_for_doc, ('__module__', '__name__', '__doc__'))
+    def wrapped_caller(*args, **kwargs):
+        if is_main(): script_manager.mark_for_update()
+        load_result = module.check_for_update()
+        
+        from gdesk import gui
+        
+        if load_result in [LoadError.NONE, LoadError.SUCCEED]: 
+            func = getattr(module.workspace, attr)              
+            return gui.console.child_live_exec(func, *args, **kwargs)            
+        
+    return wrapped_caller    
+    
 
 class LiveScriptModuleReference(object):
     """"For every reference to a module, a dedicated LiveScriptModuleReference is created
     This is mainly to store it's top attribute. Which can differ between the references
     """
 
-    def __init__(self, script_manager, modstr):
+    def __init__(self, script_manager, modstr, mp=False):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__modstr__', modstr)
+        object.__setattr__(self, '_mp', mp)
 
 
     @property
@@ -104,10 +122,13 @@ class LiveScriptModuleReference(object):
     def __getattr__(self, attr):
         logger.debug(f'Getting attr {attr}')
         if is_main(): self.__script_manager__.mark_for_update()
-        wrapped_attr = getattr(self.__wrapped__, attr)
+        wrapped_attr = getattr(self.__wrapped__, attr)                
 
         if not isinstance(wrapped_attr, LiveScriptModuleReference) and callable(wrapped_attr):
-            return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr)
+            if self._mp:
+                return markUpdateCallMp(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr)
+            else:
+                return markUpdateCall(self.__script_manager__, self.__script_manager__.modules[self.__modstr__], attr)
         else:
             return wrapped_attr
 
@@ -127,7 +148,7 @@ class LiveScriptModuleReference(object):
     def __call__(self, *args, **kwargs):
         if is_main(): self.__script_manager__.mark_for_update()
         call = getattr(self, 'call')
-        return call(*args, **kwargs)
+        return call(*args, **kwargs)       
 
 
     @property
@@ -229,10 +250,11 @@ class LsWorkspace(object):
         
 class LiveScriptTree(object):
 
-    def __init__(self, script_manager, path, name=None):
+    def __init__(self, script_manager, path, name=None, mp=False):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__path__', path)
         object.__setattr__(self, '__name__', name)
+        object.__setattr__(self, '_mp', mp)
 
 
     def __dir__(self):
@@ -251,7 +273,7 @@ class LiveScriptTree(object):
     def __getattr__(self, attr):
         path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
-        return self.__script_manager__.using_path(path, modstr=qualname)
+        return self.__script_manager__.using_path(path, modstr=qualname, mp=self._mp)
 
 
     def __repr__(self):
@@ -263,9 +285,10 @@ class LiveScriptScan(object):
     Only scripts which are called by another script or the root are loaded.
     So other script which are not loaded are allowed having syntax or execution errors.
     """
-    def __init__(self, script_manager, *args, **kwargs):
+    def __init__(self, script_manager, mp=False):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__name__', 'LiveScriptScan')
+        object.__setattr__(self, '_mp', mp)
 
 
     def __dir__(self):
@@ -298,7 +321,7 @@ class LiveScriptScan(object):
 
     
     def __using__(self, modstr):
-        return self.__script_manager__.using_modstr(modstr, back=3)
+        return self.__script_manager__.using_modstr(modstr, back=3, mp=self._mp)
 
             
     def __repr__(self):
@@ -384,7 +407,7 @@ class LiveScriptManager(object):
             module.ask_refresh = mark
 
         
-    def using_modstr(self, modstr, back=1):
+    def using_modstr(self, modstr, back=1, mp=False):
         """Load a script or make a ScriptTree.
         A ScripTree is used to link to a dir.
         The loading of a script is done at moment of attribute access.
@@ -403,10 +426,10 @@ class LiveScriptManager(object):
             modstr = '.'.join(parts0 + parts1)  
         
         path, stype = self.find_script(modstr)
-        return self.using_path(path, stype, modstr)
+        return self.using_path(path, stype, modstr, mp=mp)
 
 
-    def using_path(self, path, stype=None, modstr=None):
+    def using_path(self, path, stype=None, modstr=None, mp=False):
         if stype is None:
             if path.is_dir():
                 stype = 'dir'
@@ -418,14 +441,14 @@ class LiveScriptManager(object):
                     stype = 'file'
             
         if modstr in self.modules.keys():
-            return LiveScriptModuleReference(self, modstr)
+            return LiveScriptModuleReference(self, modstr, mp=mp)
             
         elif stype == 'file':
             loaderror = self.load_module(path, modstr)
-            return LiveScriptModuleReference(self, modstr)
+            return LiveScriptModuleReference(self, modstr, mp=mp)
             
         elif stype == 'dir':
-            return LiveScriptTree(self, path, modstr)
+            return LiveScriptTree(self, path, modstr, mp=mp)
 
 
     def write_error(self, text):

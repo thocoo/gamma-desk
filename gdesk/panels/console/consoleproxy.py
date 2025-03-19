@@ -1,5 +1,6 @@
 import sys
 import threading
+import multiprocessing
 
 from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
 from ...core.shellmod import Shell
@@ -167,13 +168,19 @@ class ConsoleGuiProxy(GuiProxyBase):
         this_panid = shell.this_interpreter().console_id        
         new_panel = gui.qapp.panels.select_or_new('console', None, 'child')
         new_panel.task.wait_process_ready()        
-        ConsoleGuiProxy.sync_paths(this_panid, new_panel.panid)      
-        new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs, callback=None) 
-        return new_panel.panid
+        ConsoleGuiProxy.sync_paths(this_panid, new_panel.panid)   
+        lock = multiprocessing.Lock()  
+        lock.acquire()
+        
+        def release_lock(result):
+            lock.release()
+            
+        new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs, callback=release_lock) 
+        return new_panel.panid, lock
         
         
     @staticmethod    
     def use_exec(live_module, func_name, *args, **kwargs):
         from gdesk import use
-        #use.__script_manager__.update_now(enforce=True)
         getattr(use(live_module), func_name)(*args, **kwargs)
+        

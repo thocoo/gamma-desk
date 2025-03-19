@@ -162,8 +162,12 @@ class GuiProxyBase(object):
         
         
     @StaticGuiCall
-    def _close_panel_of_category(panid, category):        
-        panel = gui.qapp.panels.selected(category, panid)
+    def _close_panel_of_category(panid, category):
+        if panid < 0:
+            panel = gui.qapp.panels.selected(category, panid)
+        else:
+            panel = gui.qapp.panels[category][panid]
+        
         if not panel is None:
             panel.close_panel()
             return True

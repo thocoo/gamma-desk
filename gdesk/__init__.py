@@ -23,7 +23,7 @@ from .core.conf import config, configure
 #from .core.gui_proxy import gui
 gui = None
 
-from .live import use, using
+from .live import use, using, usp
 
 PROGNAME = 'Gamma Desk'
 DOC_HTML = 'https://thocoo.github.io/gdesk-data/docs'
