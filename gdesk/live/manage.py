@@ -289,6 +289,10 @@ class LiveScriptScan(object):
         object.__setattr__(self, '__script_manager__', script_manager)
         object.__setattr__(self, '__name__', 'LiveScriptScan')
         object.__setattr__(self, '_mp', mp)
+        
+        
+    def _find(self, part):
+        return self.__script_manager__.search_script(part)
 
 
     def __dir__(self):
@@ -338,7 +342,7 @@ class LiveScriptManager(object):
         self.modules = dict()
 
 
-    def find_script(self, modstr='test'):
+    def locate_script(self, modstr='test'):
         """Search for the script in the path list.
         Return the found path.
         """
@@ -366,6 +370,13 @@ class LiveScriptManager(object):
             for path in result:
                 logger.warning(str(path[0]))
             return result[0]
+            
+            
+    def search_script(self, part):        
+        for path in self.path:
+            for p in Path(path).rglob('*.py'):
+                if part in str(p):
+                    print(p)
 
                 
     def append_path(self, path, resolve=True):
@@ -425,7 +436,7 @@ class LiveScriptManager(object):
             parts1 = mod_parts[relative_level:]        
             modstr = '.'.join(parts0 + parts1)  
         
-        path, stype = self.find_script(modstr)
+        path, stype = self.locate_script(modstr)
         return self.using_path(path, stype, modstr, mp=mp)
 
 
