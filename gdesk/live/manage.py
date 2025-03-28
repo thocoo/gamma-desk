@@ -441,6 +441,10 @@ class LiveScriptManager(object):
 
 
     def using_path(self, path, stype=None, modstr=None, mp=False):
+
+        if modstr in self.modules.keys():
+            return LiveScriptModuleReference(self, modstr, mp=mp)
+            
         if stype is None:
             if path.is_dir():
                 stype = 'dir'
@@ -450,9 +454,6 @@ class LiveScriptManager(object):
                     raise ImportError(f'LiveScript {path} not found')
                 else:
                     stype = 'file'
-            
-        if modstr in self.modules.keys():
-            return LiveScriptModuleReference(self, modstr, mp=mp)
             
         elif stype == 'file':
             loaderror = self.load_module(path, modstr)
