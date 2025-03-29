@@ -380,8 +380,8 @@ class LiveScriptManager(object):
 
         else:
             #logger.warning(f'Multiple matches found for {modstr}')
-            for path in result:
-                logger.warning(str(path[0]))
+            # for path in result:
+                # logger.warning(str(path[0]))
             return result
             
             
