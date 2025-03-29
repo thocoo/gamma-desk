@@ -456,27 +456,23 @@ class LiveScriptManager(object):
 
     def using_path(self, path_and_stypes, modstr=None, mp=False):
 
-        if modstr in self.modules.keys():
-            return LiveScriptModuleReference(self, modstr, mp=mp)
             
         paths = []
         for path, stype in path_and_stypes:
-            if stype is None:
-                if path.is_dir():
-                    stype = 'dir'
-                else:
-                    path = path.with_suffix('.py')
-                    if not path.exists():
-                        raise ImportError(f'LiveScript {path} not found')
-                    else:
-                        stype = 'file'
                 
             if stype == 'file':
-                loaderror = self.load_module(path, modstr)
-                return LiveScriptModuleReference(self, modstr, mp=mp)
+                if modstr in self.modules.keys() and self.modules[modstr].path == path:
+                    return LiveScriptModuleReference(self, modstr, mp=mp)
+                    
+                else:
+                    loaderror = self.load_module(path, modstr)
+                    return LiveScriptModuleReference(self, modstr, mp=mp)
                 
             elif stype == 'dir':
                 paths.append(path)
+                
+            else:
+                raise ValueError(f'{path} {stype=}')
                 
         return LiveScriptTree(self, paths, modstr, mp=mp)
 
