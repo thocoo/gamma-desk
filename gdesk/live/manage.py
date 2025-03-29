@@ -272,6 +272,10 @@ class LiveScriptTree(object):
                     lst.append(node.stem)
         return lst
         
+        
+    def _find(self, part):
+        return self.__script_manager__.search_script(part, self.__paths__)        
+        
 
     def __getattr__(self, attr):
         qualname = f'{self.__name__}.{attr}'        
@@ -381,8 +385,9 @@ class LiveScriptManager(object):
             return result
             
             
-    def search_script(self, part):        
-        for path in self.path:
+    def search_script(self, part, paths=None):        
+        if paths is None: paths = self.path
+        for path in paths:
             for p in Path(path).rglob('*.py'):
                 if part in str(p):
                     print(p)
