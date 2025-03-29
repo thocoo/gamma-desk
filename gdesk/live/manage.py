@@ -250,9 +250,9 @@ class LsWorkspace(object):
         
 class LiveScriptTree(object):
 
-    def __init__(self, script_manager, path, name=None, mp=False):
+    def __init__(self, script_manager, paths, name=None, mp=False):
         object.__setattr__(self, '__script_manager__', script_manager)
-        object.__setattr__(self, '__path__', path)
+        object.__setattr__(self, '__paths__', paths)
         object.__setattr__(self, '__name__', name)
         object.__setattr__(self, '_mp', mp)
 
@@ -261,23 +261,26 @@ class LiveScriptTree(object):
         lst = []
         lst = list(self.__dict__.keys())
         lst.extend(list(type(self).__dict__.keys()))        
-        branch = self.__path__
-        for node in branch.glob('*'):
-            if node.is_dir():
-                lst.append(node.stem)
-            elif node.suffix.lower() == '.py':
-                lst.append(node.stem)
+        for branch in self.__paths__:
+            for node in branch.glob('*'):
+                if node.is_dir():
+                    lst.append(node.stem)
+                elif node.suffix.lower() == '.py':
+                    lst.append(node.stem)
         return lst
         
 
     def __getattr__(self, attr):
-        path = self.__path__ / attr        
-        qualname = f'{self.__name__}.{attr}'
-        return self.__script_manager__.using_path([(path, None)], modstr=qualname, mp=self._mp)
+        qualname = f'{self.__name__}.{attr}'        
+        path_and_stypes = self.__script_manager__.locate_script(attr, self.__paths__)            
+        return self.__script_manager__.using_path(path_and_stypes, modstr=qualname, mp=self._mp)
 
 
     def __repr__(self):
-        return f"<LiveScriptTree '{self.__path__}'>"            
+        s = ['<LiveScriptTree>']
+        for branch in self.__paths__:
+            s.append(str(branch))
+        return '\n'.join(s)
 
 
 class LiveScriptScan(object):
@@ -342,7 +345,7 @@ class LiveScriptManager(object):
         self.modules = dict()
 
 
-    def locate_script(self, modstr='test'):
+    def locate_script(self, modstr='test', paths=None):
         """Search for the script in the path list.
         Return the found path.
         """
@@ -350,7 +353,10 @@ class LiveScriptManager(object):
         
         result = []
         
-        for path in self.path:
+        if paths is None:
+            paths = self.path
+        
+        for path in paths:
             #It is not sure every path exists
             path = Path(path).absolute()
             if (path / modpath).with_suffix('.py').exists():
@@ -440,12 +446,13 @@ class LiveScriptManager(object):
         return self.using_path(paths, modstr, mp=mp)
 
 
-    def using_path(self, paths, modstr=None, mp=False):
+    def using_path(self, path_and_stypes, modstr=None, mp=False):
 
         if modstr in self.modules.keys():
             return LiveScriptModuleReference(self, modstr, mp=mp)
             
-        for path, stype in paths:
+        paths = []
+        for path, stype in path_and_stypes:
             if stype is None:
                 if path.is_dir():
                     stype = 'dir'
@@ -461,7 +468,9 @@ class LiveScriptManager(object):
                 return LiveScriptModuleReference(self, modstr, mp=mp)
                 
             elif stype == 'dir':
-                return LiveScriptTree(self, path, modstr, mp=mp)
+                paths.append(path)
+                
+        return LiveScriptTree(self, paths, modstr, mp=mp)
 
 
     def write_error(self, text):
