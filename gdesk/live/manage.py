@@ -142,7 +142,7 @@ class LiveScriptModuleReference(object):
 
 
     def __repr__(self):
-        return f'<{type(self).__name__} \'{self.__modstr__}\'>'
+        return f'{self.__modstr__} from {self.__file__}'
 
 
     def __call__(self, *args, **kwargs):
@@ -273,7 +273,7 @@ class LiveScriptTree(object):
     def __getattr__(self, attr):
         path = self.__path__ / attr        
         qualname = f'{self.__name__}.{attr}'
-        return self.__script_manager__.using_path(path, modstr=qualname, mp=self._mp)
+        return self.__script_manager__.using_path([(path, None)], modstr=qualname, mp=self._mp)
 
 
     def __repr__(self):
@@ -363,13 +363,13 @@ class LiveScriptManager(object):
             raise KeyError(f'{modstr} not found')
 
         elif len(result) == 1:           
-            return result[0]
+            return result
 
         else:
             logger.warning(f'Multiple matches found for {modstr}')
             for path in result:
                 logger.warning(str(path[0]))
-            return result[0]
+            return result
             
             
     def search_script(self, part):        
@@ -436,31 +436,32 @@ class LiveScriptManager(object):
             parts1 = mod_parts[relative_level:]        
             modstr = '.'.join(parts0 + parts1)  
         
-        path, stype = self.locate_script(modstr)
-        return self.using_path(path, stype, modstr, mp=mp)
+        paths = self.locate_script(modstr)
+        return self.using_path(paths, modstr, mp=mp)
 
 
-    def using_path(self, path, stype=None, modstr=None, mp=False):
+    def using_path(self, paths, modstr=None, mp=False):
 
         if modstr in self.modules.keys():
             return LiveScriptModuleReference(self, modstr, mp=mp)
             
-        if stype is None:
-            if path.is_dir():
-                stype = 'dir'
-            else:
-                path = path.with_suffix('.py')
-                if not path.exists():
-                    raise ImportError(f'LiveScript {path} not found')
+        for path, stype in paths:
+            if stype is None:
+                if path.is_dir():
+                    stype = 'dir'
                 else:
-                    stype = 'file'
-            
-        elif stype == 'file':
-            loaderror = self.load_module(path, modstr)
-            return LiveScriptModuleReference(self, modstr, mp=mp)
-            
-        elif stype == 'dir':
-            return LiveScriptTree(self, path, modstr, mp=mp)
+                    path = path.with_suffix('.py')
+                    if not path.exists():
+                        raise ImportError(f'LiveScript {path} not found')
+                    else:
+                        stype = 'file'
+                
+            if stype == 'file':
+                loaderror = self.load_module(path, modstr)
+                return LiveScriptModuleReference(self, modstr, mp=mp)
+                
+            elif stype == 'dir':
+                return LiveScriptTree(self, path, modstr, mp=mp)
 
 
     def write_error(self, text):
