@@ -237,6 +237,9 @@ class LiveScriptModule(object):
         self.load_modify = current_modify_stamp
         logger.info(f'{self.name}@{time.ctime(self.load_modify)}')
         return LoadError.NONE
+        
+    def __repr__(self):
+        return f'<LiveScriptModule> {self.name} from {self.path}'        
 
 
 class LsWorkspace(object):
