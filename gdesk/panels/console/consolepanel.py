@@ -12,7 +12,7 @@ from qtpy.QtGui import QFont, QFontMetrics, QTextCursor, QTextOption, QPainter, 
 from qtpy.QtWidgets import (QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QTextEdit, QWidget, QStyle, QStyleFactory, QApplication, QCompleter, QComboBox)
 
-from ... import config, gui
+from ... import config, gui, use
 from ...core import tasks
 from ...core.shellmod import Shell
 from ...panels.base import BasePanel, selectThisPanel, CheckMenu
@@ -794,14 +794,15 @@ class Console(BasePanel):
         scripMenu = self.menuBar().addMenu("&Script")
         self.addMenuItem(scripMenu, 'Edit sys.path...', self.editSysPaths,
             statusTip="Edit the search path used to import Python packages",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_view_list.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_view_list.png')))        
         self.addMenuItem(scripMenu, 'Edit Live paths...', self.editLivePaths,
             statusTip="Edit the search path used to import user live scripts",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'script_gear.png')))
-
         self.addMenuItem(scripMenu, 'Reload Scripts', self.reloadScripts,
             statusTip="Reload all the scripts",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')))            
+        self.addMenuItem(scripMenu, 'Search...', self.search,
+            statusTip="Search for a script")            
             
 
         self.addBaseMenu()
@@ -927,6 +928,16 @@ class Console(BasePanel):
         
     def reloadScripts(self):
         self.stdio.task.call_func(Shell.reload_scripts)
+        
+    def search(self):
+        task = self.stdio.task
+        
+        def search_part(part):
+            use._find(part)
+            
+        part = gui.getstring('Give Part', title='Search Script')
+        
+        task.call_func(search_part, args=(part,))
         
     def setLogLevel(self, level):
         task = self.stdio.task
