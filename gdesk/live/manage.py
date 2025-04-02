@@ -14,6 +14,13 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
 
+try:
+    from gdesk import config
+    
+except ImportError:
+    config = {}
+    
+
 class UpdateFlag(Enum):
     DONE = 1
     MODIFIED = 2
@@ -350,6 +357,8 @@ class LiveScriptManager(object):
 
         #The loaded modules
         self.modules = dict()
+        
+        self.tree_merge = None
 
 
     def locate_script(self, modstr='test', paths=None):
@@ -357,6 +366,9 @@ class LiveScriptManager(object):
         Return the found path.
         """
         modpath = modstr.replace('.', '/')
+        
+        if self.tree_merge is None:
+            self.tree_merge = config.get('console', {}).get('live_tree_merge', False)
         
         result = []
         
@@ -374,6 +386,9 @@ class LiveScriptManager(object):
         if len(result) == 0:
             logger.error(f'Can not find the scripts path or file: {modstr}')
             raise KeyError(f'{modstr} not found')
+            
+        if not self.tree_merge:
+            return [result[0]]
 
         return result
             
@@ -397,6 +412,8 @@ class LiveScriptManager(object):
                 
         if path is not None and str(path) not in self.path:
             self.path.append(str(path))
+            
+        
 
 
     def load_module(self, path, modstr=None):

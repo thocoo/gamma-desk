@@ -802,7 +802,8 @@ class Console(BasePanel):
             statusTip="Reload all the scripts",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')))            
         self.addMenuItem(scripMenu, 'Search...', self.search,
-            statusTip="Search for a script")            
+            statusTip="Search for a script",
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))            
             
 
         self.addBaseMenu()
