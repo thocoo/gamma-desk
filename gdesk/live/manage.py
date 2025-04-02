@@ -375,14 +375,7 @@ class LiveScriptManager(object):
             logger.error(f'Can not find the scripts path or file: {modstr}')
             raise KeyError(f'{modstr} not found')
 
-        elif len(result) == 1:           
-            return result
-
-        else:
-            #logger.warning(f'Multiple matches found for {modstr}')
-            # for path in result:
-                # logger.warning(str(path[0]))
-            return result
+        return result
             
             
     def search_script(self, part, paths=None):        
