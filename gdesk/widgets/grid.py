@@ -5,7 +5,8 @@ class GridSplitter(QtWidgets.QGridLayout):
     layoutChanged = QtCore.Signal()
     
     def __init__(self, parent):
-        super().__init__(parent=parent)
+        super().__init__()
+        self.setParent(parent)
         self.setSpacing(0)
         self.setContentsMargins(0,0,0,0)
         self.splitters = []
