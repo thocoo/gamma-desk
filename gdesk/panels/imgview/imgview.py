@@ -1180,7 +1180,10 @@ class ImageViewerBase(BasePanel):
     def setBackground(self):
 
         old_color = self.imviewer.palette().window().color()
-        rgb = old_color.toTuple()[:3]
+        try:
+            rgb = old_color.toTuple()[:3]
+        except AttributeError:
+            rgb = old_color.getRgb()[:3]
 
         with ActionArguments(self) as args:
             args['r'] = rgb[0]
@@ -1192,6 +1195,8 @@ class ImageViewerBase(BasePanel):
 
             try:
                 rgb = color.toTuple()[:3]
+            except AttributeError:
+                rgb = color.getRgb()[:3]
             except:
                 rgb = (0,0,0)
 
@@ -1205,7 +1210,10 @@ class ImageViewerBase(BasePanel):
     def setRoiColor(self):
         
         old_color = QtGui.QColor(*config['roi color'])
-        rgb = old_color.toTuple()[:3]
+        try:
+            rgb = old_color.toTuple()[:3]
+        except AttributeError:
+            rgb = old_color.getRgb()[:3]
         
         with ActionArguments(self) as args:
             args['r'] = rgb[0]
@@ -1217,6 +1225,8 @@ class ImageViewerBase(BasePanel):
 
             try:
                 rgb = color.toTuple()[:3]
+            except AttributeError:
+                rgb = color.getRgb()[:3]
             except:
                 rgb = (0,0,0)
                 

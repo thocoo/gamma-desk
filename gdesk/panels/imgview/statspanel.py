@@ -195,8 +195,11 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         for i, name in enumerate(valid_stats_names):
             stats = chanstats[name]            
-            item_name = QtWidgets.QTableWidgetItem(name)            
-            R, G, B, A = stats.plot_color.toTuple()
+            item_name = QtWidgets.QTableWidgetItem(name)
+            try:
+                R, G, B, A = stats.plot_color.toTuple()
+            except AttributeError:
+                R, G, B, A = stats.plot_color.getRgb()
             
             item_name.setBackground(QtGui.QColor(R, G, B, 128))
             item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)

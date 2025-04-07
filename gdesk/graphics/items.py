@@ -25,14 +25,16 @@ class VectorCurve(QtWidgets.QGraphicsPathItem):
 
 
 def createCurve(x, y, color=None, z=0, fill=50, zero_ends=True):
-    if color == None:
+    if color is None:
         pen = QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine)
         if not fill is None:
             brush = QtGui.QBrush(QtGui.QColor(0,0,0,100))
-        
     else:
         pen = QtGui.QPen(color, 0, QtCore.Qt.SolidLine)
-        R,G,B,A = QtGui.QColor(color).toTuple()
+        try:
+            R,G,B,A = QtGui.QColor(color).toTuple()
+        except AttributeError:
+            R, G, B, A = QtGui.QColor(color).getRgb()
         if not fill is None:
             brush = QtGui.QBrush(QtGui.QColor(R,G,B,fill))        
 
