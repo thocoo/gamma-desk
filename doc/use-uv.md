@@ -31,9 +31,9 @@ uvx --from gamma-desk gdesk path/to/image.tif
 ## Build Gamma Desk wheel
 
 ```shell
-uvx filt build
-uvx filt build --format wheel
-uvx filt build --format sdist
+uvx flit build
+uvx flit build --format wheel
+uvx flit build --format sdist
 ```
 
 
