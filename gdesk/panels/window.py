@@ -322,7 +322,7 @@ class MainWindow(QMainWindow):
     def event(self, event):                       
         if self.dragState == DragState.placed:
             if event.type() == QtCore.QEvent.NonClientAreaMouseButtonPress:
-                if event.modifiers() & QtCore.Qt.ControlModifier:
+                if hasattr(event, 'modifiers') and (event.modifiers() & QtCore.Qt.ControlModifier):
                     if not self.isToolWindow() or (event.modifiers() & QtCore.Qt.ShiftModifier):                  
                         self.startMoving(True)
                     else:
