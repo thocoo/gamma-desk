@@ -26,7 +26,7 @@ PySide 6.8.0 (requiring Python >= 3.12) has a bug which breaks qtpy; avoid that 
 
 If you want to use PyQt5, you have to install it manually and set environment variable `QT_API=PyQt5`.
 
-| Python | PySide6  | PySide2  | PtQt5    | PyQt6    |
+| Python | PySide6  | PySide2  | PyQt5    | PyQt6    |
 |--------|----------|----------|----------|----------|
 | 3.13   | required | n/a      | possible | untested |
 | 3.12   | required | n/a      | possible | untested |
