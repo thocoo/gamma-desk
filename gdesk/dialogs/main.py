@@ -47,7 +47,7 @@ class NewPanelMenu(QtWidgets.QMenu):
         self.liveActions = []
 
         for category, catPanelClasses in panelClasses.items():
-            catMenu = QtWidgets.QMenu(category)
+            catMenu = QtWidgets.QMenu(category, self)
             self.addMenu(catMenu)
             for panelClass in catPanelClasses:
                 if not panelClass.userVisible: continue
