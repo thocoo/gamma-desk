@@ -668,10 +668,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
         fontHeight = self.fontMetrics().height()
-        try:
-            self.setIconSize(QtCore.QSize(fontHeight * 3 / 2, fontHeight * 3 / 2))
-        except TypeError:
-            self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
+        self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
         
     def histSizePolicyChanged(self, text):
         self.stepcount.setText(str(self.panel.histSizes[text]))

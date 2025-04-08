@@ -1845,10 +1845,7 @@ class RoiToolBar(QtWidgets.QToolBar):
     def initUi(self):
         self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), 'Refresh', self.toggleProfileVisible)
         fontHeight = self.fontMetrics().height()
-        try:
-            self.setIconSize(QtCore.QSize(fontHeight * 3 / 2, fontHeight * 3 / 2))
-        except TypeError:
-            self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
+        self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
 
 
 class ImageProfileWidget(QWidget):
