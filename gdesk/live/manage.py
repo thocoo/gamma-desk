@@ -245,8 +245,13 @@ class LiveScriptModule(object):
         logger.info(f'{self.name}@{time.ctime(self.load_modify)}')
         return LoadError.NONE
         
+        
     def __repr__(self):
-        return f'<LiveScriptModule> {self.name} from {self.path}'        
+        return f'<LiveScriptModule> {self.name} from {self.path}'
+        
+        
+    def __str__(self):
+        return 'gdesk.live.manage'
 
 
 class LsWorkspace(object):
