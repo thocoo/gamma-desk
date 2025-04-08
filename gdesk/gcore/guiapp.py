@@ -12,6 +12,8 @@ import psutil
 from qtpy import QtGui, QtWidgets, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
 
+from ..utils.qt import using_pyqt
+
 if API_NAME in ['PySide6']:
     from qtpy.QtGui import QGuiApplication
 
@@ -46,7 +48,16 @@ here = pathlib.Path(__file__).parent
 respath = pathlib.Path(config['respath'])
 logger = logging.getLogger(__name__)
 
-        
+
+if using_pyqt():
+    # get trace iso hard crash on PyQt5 exception
+    # https://stackoverflow.com/questions/35596250/pyqt5-gui-crashes-when-qtreewidget-is-cleared/35610971#35610971
+    def except_hook(cls, exception, traceback):
+        sys.__excepthook__(cls, exception, traceback)
+
+    sys.excepthook = except_hook
+
+
 class WaitCursorContext(object):
     def __init__(self, qapp, message=None):
         self.qapp = qapp
