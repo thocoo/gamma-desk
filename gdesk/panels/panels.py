@@ -176,7 +176,7 @@ class Panels(object):
             panel.long_title = title
         
         if not size is None:
-            panel.setGeometry(0, 0, size[0], size[1])
+            panel.setGeometry(0, 0, int(size[0]), int(size[1]))
             
         #panel.show()
 
