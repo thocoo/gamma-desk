@@ -49,11 +49,13 @@ STDERR = sys.stderr
 
 # ---+- PyQt-PySide compatibility -+----
 _modname = os.environ.setdefault('QT_API', 'pyqt')
-assert _modname in ('pyqt', 'pyqt5', 'pyside', 'pyside2', 'pyside6')
+assert _modname in ('pyqt', 'pyqt5', 'pyqt6', 'pyside', 'pyside2', 'pyside6')
 
 if os.environ['QT_API'].startswith('pyqt'):
     try:
-        if os.environ['QT_API'] == 'pyqt5':
+        if os.environ['QT_API'] == 'pyqt6':
+            import PyQt6  # analysis:ignore
+        elif os.environ['QT_API'] == 'pyqt5':
             import PyQt5  # analysis:ignore
         else:
             import PyQt4  # analysis:ignore
@@ -90,6 +92,17 @@ if os.environ['QT_API'] == 'pyqt5':
     from PyQt5.QtCore import pyqtProperty as Property  # analysis:ignore
     SIGNAL = None  # analysis:ignore
     QT_LIB = 'PyQt5'
+
+if os.environ['QT_API'] == 'pyqt6':
+    from PyQt6.QtWidgets import *  # analysis:ignore
+    from PyQt6.QtGui import *  # analysis:ignore
+    from PyQt6.QtCore import *  # analysis:ignore
+    from PyQt6.QtCore import pyqtSignal as Signal  # analysis:ignore
+    from PyQt6.QtCore import pyqtSlot as Slot  # analysis:ignore
+    from PyQt6.QtCore import pyqtProperty as Property  # analysis:ignore
+    SIGNAL = None  # analysis:ignore
+    QT_LIB = 'PyQt6'
+
 
 if os.environ['QT_API'] == 'pyside':
     from PySide.QtGui import *  # analysis:ignore
