@@ -195,12 +195,13 @@ class Panels(object):
         return panel
 
     def place_window(self, window, category):        
-        # screen = QtWidgets.QDesktopWidget().screenNumber(self.qapp.windows['main'])
-        # desktop_rect = QtWidgets.QDesktopWidget().availableGeometry(screen)
-        
-        main_screen = self.qapp.windows['main'].screen()
-        desktop_rect = main_screen.availableGeometry()        
-        
+        try:
+            main_screen = self.qapp.windows['main'].screen()
+            desktop_rect = main_screen.availableGeometry()
+        except AttributeError:  # support old PyQt5
+            screen = QtWidgets.QDesktopWidget().screenNumber(self.qapp.windows['main'])
+            desktop_rect = QtWidgets.QDesktopWidget().availableGeometry(screen)
+
         window_rect = window.frameGeometry()
         prior_panel = self.selected(category, -2)
 
