@@ -223,7 +223,7 @@ def arrayToQPath(x, y, connect='all'):
     path.strn = byteview.data[12:lastInd+4] # make sure data doesn't run away
     try:
         buf = QtCore.QByteArray.fromRawData(path.strn)
-    except TypeError:
+    except (TypeError, AttributeError):
         buf = QtCore.QByteArray(bytes(path.strn))
     #profiler('create buffer')
     ds = QtCore.QDataStream(buf)

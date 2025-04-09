@@ -13,7 +13,7 @@ from ..core.gui_proxy import gui
 
 respath = pathlib.Path(config['respath'])
 
-if API_NAME in ['PySide6']:
+if API_NAME in ['PySide6', 'PyQt6']:
     DEFAULT_ICON = {
         'error': QStyle.StandardPixmap.SP_MessageBoxCritical,
         'info': QStyle.StandardPixmap.SP_MessageBoxInformation,

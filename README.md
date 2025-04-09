@@ -33,7 +33,9 @@ On 3.8 to 3.10, you can choose between PySide2 or PySide6.
 
     pip install gamma-desk[pyside2] 
     pip install gamma-desk[pyside6] 
-  
+
+Using of PyQt5 or PyQt6 is possible, but not supported.
+
 
 # Usage
 

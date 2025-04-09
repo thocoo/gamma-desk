@@ -27,7 +27,7 @@ def getMenuTrace(menu):
     scan_action = menu.menuAction()
     
     while not scan_action is None:
-        if API_NAME in ['PySide6']:
+        if API_NAME in ['PySide6', 'PyQt6']:
             aw = scan_action.associatedObjects()
         else:
             aw = scan_action.associatedWidgets()

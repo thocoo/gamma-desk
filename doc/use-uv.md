@@ -42,6 +42,7 @@ uvx flit build --format sdist
 ```shell
 uv run --python 3.13 python -m gdesk -i ./test/setup/test_gdesk.py
 QT_API=pyqt5 && uv run --python 3.13 --with pyqt5 python -m gdesk -i ./test/setup/test_gdesk.py
+QT_API=pyqt6 && uv run --python 3.13 --with pyqt6 python -m gdesk -i ./test/setup/test_gdesk.py
 uv run --python 3.10 --extra pyside2 python -m gdesk -i ./test/setup/test_gdesk.py
 uv run --python 3.10 --extra pyside6 python -m gdesk -i ./test/setup/test_gdesk.py
 ```

@@ -14,7 +14,7 @@ from qtpy.QtWidgets import QApplication, QShortcut
 
 from ..utils.qt import using_pyqt
 
-if API_NAME in ['PySide6']:
+if API_NAME in ['PySide6', 'PyQt6']:
     from qtpy.QtGui import QGuiApplication
 
     # Workaround for https://github.com/thocoo/gamma-desk/issues/34
@@ -346,7 +346,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     #panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
-    if API_NAME in ['PySide6']:
+    if API_NAME in ['PySide6', 'PyQt6']:
         desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
     else:
         desktopGeometry = QDesktopWidget().availableGeometry()
