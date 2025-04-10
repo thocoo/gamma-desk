@@ -58,6 +58,7 @@ class StatisticsPanel(QtWidgets.QWidget):
     maskSelected = Signal(str)
     activesChanged = Signal()
     showSelection = Signal(str)
+    hideSelection = Signal(str)
     
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -80,7 +81,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.selectionModel().currentRowChanged.connect(self.currentRowChanged)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
-        self.table.cellDoubleClicked.connect(self.showCurrentSelection)
+        #self.table.cellDoubleClicked.connect(self.showCurrentSelection)
         self.table.cellClicked.connect(self.cellClicked)
         self.table.customContextMenuRequested.connect(self.handleContextMenu)        
         
@@ -99,6 +100,8 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Show Selection', self, triggered=self.showCurrentSelection)
         self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Hide Selection', self, triggered=self.hideCurrentSelection)
+        self.contextMenu.addAction(act)        
         act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
         self.contextMenu.addAction(act)        
         act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
@@ -133,7 +136,15 @@ class StatisticsPanel(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.showSelection.emit(roi_name)
-            break
+            
+            
+    def hideCurrentSelection(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.hideSelection.emit(roi_name)           
         
         
     def selectionChanged(self, selected, deselected):

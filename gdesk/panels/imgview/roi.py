@@ -15,6 +15,8 @@ from qtpy.QtCore import Qt, Signal
 
 from ... import config
 
+from .imgdata import SelectRoi
+
 class SelRoiWidget(QtWidgets.QWidget):
     
     """
@@ -24,22 +26,28 @@ class SelRoiWidget(QtWidgets.QWidget):
     roiChanged = Signal()
     roiRemoved = Signal()
     
-    def __init__(self, parent=None, color=None):
+    def __init__(self, parent=None, color=None, custom=False, name=None):
         #width and height are the dimensions of the image (not the roi)
         super().__init__(parent=parent)
+        
+        self.custom = custom
+        self.name = name       
+        self.editable = not custom
                              
         #  is this timer also active when roi isn't visible ???
         self.initProps()
         self.initUI(color)
         self.hide()
         
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.newPhase)
-        self.timer.setSingleShot(True)
-        self.setMouseTracking(True)
+        if self.editable:
+            self.timer = QtCore.QTimer(self)
+            self.timer.timeout.connect(self.newPhase)
+            self.timer.setSingleShot(True)
+            self.timer.start(100)
         
+        self.setMouseTracking(True)        
         self.get_context_menu = lambda: None  
-        self.timer.start(100)
+        
 
 
     def initUI(self, color=None):
@@ -63,7 +71,17 @@ class SelRoiWidget(QtWidgets.QWidget):
         
     @property
     def selroi(self):
-        return self.vd.selroi
+        if self.custom:
+            return self.vd.custom_selroi[self.name]
+        else:
+            return self.vd.selroi
+            
+            
+    def bring_to_front(self):        
+        parent = self.parent()        
+        self.setParent(None)
+        self.setParent(parent)
+        self.show()
 
 
     def initProps(self):
@@ -226,7 +244,10 @@ class SelRoiWidget(QtWidgets.QWidget):
 
 
     def mouseMoveEvent(self, event):
-        if event.buttons() == QtCore.Qt.RightButton:            
+        if not self.editable:
+            event.ignore()
+            
+        elif event.buttons() == QtCore.Qt.RightButton:            
             if event.modifiers() & QtCore.Qt.ShiftModifier:
                 shiftX, shiftY = self.getMouseShifts(event, manhattan=True)
             else:
@@ -293,11 +314,6 @@ class SelRoiWidget(QtWidgets.QWidget):
                 self.repaint()
                 event.accept()                
                 return
-
-        # elif event.button() == Qt.MidButton:
-            # shiftX, shiftY = self.getMouseShifts(event)
-            # if (shiftX == 0) and (shiftY == 0):
-                # self.parent().zoomAuto()
         
         self.unsetCursor()
         self.repaint()
@@ -362,7 +378,6 @@ class SelRoiWidget(QtWidgets.QWidget):
         polygonSw << QtCore.QPoint(x0, y0)  << QtCore.QPoint(x0, y1)\
             << QtCore.QPoint(x1, y1)
 
-
         if self.createState:
             qp.setOpacity(0.25)
             qp.fillRect(x0, y0, x1-x0+1, y1-y0+1, self.fillColor)
@@ -370,14 +385,18 @@ class SelRoiWidget(QtWidgets.QWidget):
         else:
             qp.setOpacity(1.0)
 
-        self.pendash.setDashOffset(8-self.phase)
+        self.pendash.setDashOffset(8-self.phase)               
 
         # The background of the line
         qp.setPen(self.pensolid)
         qp.drawPolygon(polygonRect)                        
         
+        if not self.name is None:
+            qp.drawText((x0 + x1) // 2, (y0+y1) // 2, self.name, color=self.fillColor)         
+        
         # The Dashes
         qp.setPen(self.pendash)        
         qp.drawPolyline(polygonNe)
-        qp.drawPolyline(polygonSw)  
+        qp.drawPolyline(polygonSw)
+        
         
