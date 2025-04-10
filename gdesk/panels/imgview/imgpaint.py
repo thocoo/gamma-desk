@@ -92,18 +92,20 @@ class ImageViewerWidget(QWidget):
 
         self.setBackgroundColor(*config['image background'])
         
-        self.set_val_item_format('dec')
-
-        self.roi = SelRoiWidget(self)                
+        self.set_val_item_format('dec')        
 
         self.pickCursor = QCursor(QPixmap(str(respath / "icons" / "pixPick256.png")), 15, 15)
         self.dragCursor = QCursor(Qt.OpenHandCursor)
-
         self.setCursor(self.pickCursor)
-
         self.setMouseTracking(True)
 
+        self.roi = SelRoiWidget(self)
         self.zoomPanChanged.connect(self.roi.recalcGeometry)
+        
+        #Tryout of extra roi's
+        self.custom_rois = dict()
+        # self.set_custom_selection('custom1', color=QColor(0, 0, 255))               
+        # self.set_custom_selection('custom2', color=QColor(0, 128, 0))               
 
         self.refresh_title()
 
@@ -114,6 +116,24 @@ class ImageViewerWidget(QWidget):
         self.push_selected_pixel = False
 
         self.setAcceptDrops(True)
+        
+        
+    def set_custom_selection(self, name, color=None):
+        
+        if name in self.custom_rois:
+            widget = self.custom_rois[name]
+            
+            if not color is None:
+                widget.initUI(color)
+                
+            widget.show()
+            
+        else:
+            self.vd.add_custom_selection(name)
+            self.custom_rois[name] = SelRoiWidget(self, color=color, custom=True, name=name)
+            self.custom_rois[name].show()
+            self.zoomPanChanged.connect(self.custom_rois[name].recalcGeometry)                    
+        
 
     def setBackgroundColor(self, r, g, b):
         palette = self.palette()

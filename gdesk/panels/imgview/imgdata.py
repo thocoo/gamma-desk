@@ -363,15 +363,20 @@ class ImageData(object):
         self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
         arr = np.array([[0, 128], [128, 255]], 'uint8')
+        
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
+        self.custom_selroi = {}
         
         self.pre_def_masks = dict()
-        #self.chanstats = OrderedDict()
         self.chanstats = OrderedStats()
         self.cfa = 'mono'
         
         self.show_array(arr)        
         self.layers = collections.OrderedDict()
+        
+        
+    def add_custom_selection(self, name):
+        self.custom_selroi[name] = SelectRoi(self.height, self.width)
         
     
     def load_by_qt(self, path):
@@ -405,15 +410,15 @@ class ImageData(object):
                 for name, stat in self.chanstats.items():
                     stat.clear()
             
-            
-        if self.selroi.isfullrange():
-            self.selroi.xr.maxstop = self.width
-            self.selroi.yr.maxstop = self.height
-            self.selroi.reset()
-        else:
-            self.selroi.xr.maxstop = self.width
-            self.selroi.yr.maxstop = self.height
-            self.selroi.clip()
+        for selection in [self.selroi] + list(self.custom_selroi.values()):
+            if selection.isfullrange():
+                selection.xr.maxstop = self.width
+                selection.yr.maxstop = self.height
+                selection.reset()
+            else:
+                selection.xr.maxstop = self.width
+                selection.yr.maxstop = self.height
+                selection.clip()
                
         natrange = imconvert.natural_range(self.statarr.dtype)                   
         gain = natrange / (white - black)
@@ -652,7 +657,8 @@ class ImageData(object):
             
             large_slices = self.pre_def_masks[mask_name]['slices']            
             merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_full_array(merged_slices)      
+            chanstat.attach_full_array(merged_slices)  
+            
 
     def disable_roi_statistics(self):
     
