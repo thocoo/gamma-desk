@@ -43,11 +43,10 @@ class SelRoiWidget(QtWidgets.QWidget):
             self.timer = QtCore.QTimer(self)
             self.timer.timeout.connect(self.newPhase)
             self.timer.setSingleShot(True)
-            self.timer.start(100)
-        
-        self.setMouseTracking(True)        
-        self.get_context_menu = lambda: None  
-        
+            self.timer.start(100)            
+            self.setMouseTracking(True)   
+            
+        self.get_context_menu = lambda: None      
 
 
     def initUI(self, color=None):
@@ -162,6 +161,10 @@ class SelRoiWidget(QtWidgets.QWidget):
 
 
     def mousePressEvent(self, event):
+        if not self.editable:
+            event.ignore()
+            return
+            
         if (event.buttons() == QtCore.Qt.RightButton) and \
             not self.createState:
             #check if we are not doing setStartEndPoints
@@ -185,7 +188,7 @@ class SelRoiWidget(QtWidgets.QWidget):
             event.ignore()
         else:
             #propagated up the parent widget
-             event.ignore()             
+            event.ignore()             
         
 
     def checkNearEdge(self, event):
@@ -246,8 +249,9 @@ class SelRoiWidget(QtWidgets.QWidget):
     def mouseMoveEvent(self, event):
         if not self.editable:
             event.ignore()
+            return
             
-        elif event.buttons() == QtCore.Qt.RightButton:            
+        if event.buttons() == QtCore.Qt.RightButton:            
             if event.modifiers() & QtCore.Qt.ShiftModifier:
                 shiftX, shiftY = self.getMouseShifts(event, manhattan=True)
             else:

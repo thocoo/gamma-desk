@@ -132,6 +132,7 @@ class ImageViewerWidget(QWidget):
             self.vd.add_custom_selection(name)
             self.custom_rois[name] = SelRoiWidget(self, color=color, custom=True, name=name)
             self.custom_rois[name].show()
+            self.roi.bring_to_front()
             self.zoomPanChanged.connect(self.custom_rois[name].recalcGeometry)                    
         
 
