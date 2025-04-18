@@ -14,7 +14,7 @@ from qtpy.QtCore import Qt, Signal, QUrl
 RESPATH = Path(config['respath'])
 
 RESERVED_MASK_FULL = ['K', 'B', 'G', 'Gb', 'Gr', 'R']
-PREFERED_MASK_ORDER = RESERVED_MASK_FULL + ['roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
+RESERVED_MASK_ROI = ['roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
 
 FUNCMAP = {
     'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},
@@ -34,11 +34,14 @@ else:
 def sort_masks(masks):
     
     def location(mask):
-        try:
-            return PREFERED_MASK_ORDER.index(mask)        
+        if mask in RESERVED_MASK_FULL:
+            return RESERVED_MASK_FULL.index(mask) - 1000
+                
+        elif mask in RESERVED_MASK_ROI:
+            return RESERVED_MASK_ROI.index(mask) + 1000
             
-        except ValueError:
-            return -1
+        else:
+            return masks.index(mask)
             
     return sorted(masks, key=location)
 
@@ -242,7 +245,9 @@ class StatisticsPanel(QtWidgets.QWidget):
             
         self.table.setRowCount(len(valid_stats_names))
         
-        for i, name in enumerate(valid_stats_names):
+        
+        
+        for i, name in enumerate(sort_masks(valid_stats_names)):
             stats = chanstats[name]       
             
             item_name = QtWidgets.QTableWidgetItem(name)
