@@ -165,7 +165,7 @@ class selectNamedMask():
         
     def __call__(self):
         self.imgpanel.imgprof.selectMask(self.roiName)        
-        self.imgpanel.imgprof.showSelection(self.roiName)               
+        self.imgpanel.imgprof.showMask(self.roiName)               
     
 
 class CustomMaskMenu(QMenu):
@@ -555,7 +555,7 @@ class ImageViewerBase(BasePanel):
     def selectNamedMask(self, i):
         maskName = self.searchForRoiSlots[i].text()
         self.imgprof.selectMask(maskName)
-        self.imgprof.showSelection(maskName)
+        self.imgprof.showMask(maskName)
     
 
     def addBindingTo(self, category, panid):
@@ -1293,6 +1293,7 @@ class ImageViewerBase(BasePanel):
         v_slice = slice(r[5], r[6], r[7])
 
         self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
+        self.imviewer.set_custom_selection(name, color)
         self.refresh()
 
         
@@ -1874,8 +1875,8 @@ class ImageProfileWidget(QWidget):
         self.statsPanel.activesChanged.connect(self.refresh)        
         
         self.statsPanel.setSelection.connect(self.setSelection)        
-        self.statsPanel.showSelection.connect(self.showSelection)        
-        self.statsPanel.hideSelection.connect(self.hideSelection)        
+        self.statsPanel.showMask.connect(self.showMask)        
+        self.statsPanel.hideMask.connect(self.hideMask)        
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
@@ -2021,7 +2022,7 @@ class ImageProfileWidget(QWidget):
             roi.roiChanged.emit()  
             
         
-    def showSelection(self, mask): 
+    def showMask(self, mask): 
         if mask == '': return
         
         chanstats = self.imviewer.imgdata.chanstats[mask]
@@ -2043,21 +2044,17 @@ class ImageProfileWidget(QWidget):
         roi.roiChanged.emit()    
         
 
-    def hideSelection(self, mask): 
-        if mask == '': return
-        
+    def hideMask(self, mask): 
+        if not mask in  self.imviewer.imgdata.chanstats: return
         chanstats = self.imviewer.imgdata.chanstats[mask]
         
         if mask.startswith('roi.'):
             roi = self.imviewer.roi
+            roi.hide()
             
         elif mask in self.imviewer.custom_rois:                        
             roi = self.imviewer.custom_rois[mask]
-            
-        else:
-            pass
-                        
-        roi.hide()          
+            roi.hide()                              
         
         
     def drawRoiProfile(self):                     

@@ -100,8 +100,8 @@ class StatisticsPanel(QtWidgets.QWidget):
     activesChanged = Signal()
     
     setSelection = Signal(str)
-    showSelection = Signal(str)
-    hideSelection = Signal(str)
+    showMask = Signal(str)
+    hideMask = Signal(str)
     
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -332,10 +332,10 @@ class StatisticsPanel(QtWidgets.QWidget):
         stat.mask_visible = checked          
         
         if checked:
-            self.showSelection.emit(maskName)        
+            self.showMask.emit(maskName)        
             
         else:
-            self.hideSelection.emit(maskName)
+            self.hideMask.emit(maskName)
             
             
     def setMaskPlot(self, row, checked):
