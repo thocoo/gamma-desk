@@ -380,18 +380,14 @@ class Levels(QtWidgets.QWidget):
             bins = int(self.panel.histSize)               
         else:
             bins = None
-            step = self.panel.histSize
+            step = self.panel.histSize        
         
-        #do_roi = self.panel.roi and image_panel.imviewer.roi.isVisible()                              
-        
-        clr_to_draw = [m for m, chanstat in chanstats.items() if chanstat.is_valid() and chanstat.active]  
+        clr_to_draw = [m for m, chanstat in chanstats.items() if chanstat.is_valid() and chanstat.hist_visible]  
         
         self.levelplot.remove_all_but(clr_to_draw)
         
         for clr in clr_to_draw: 
-            chanstat = chanstats[clr]
-            
-            #if not (chanstat.is_valid() and chanstat.active): continue           
+            chanstat = chanstats[clr]        
             
             color = chanstat.plot_color
             dim = chanstat.dim

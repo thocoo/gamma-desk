@@ -1872,6 +1872,8 @@ class ImageProfileWidget(QWidget):
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
         self.statsPanel.activesChanged.connect(self.refresh)        
+        
+        self.statsPanel.setSelection.connect(self.setSelection)        
         self.statsPanel.showSelection.connect(self.showSelection)        
         self.statsPanel.hideSelection.connect(self.hideSelection)        
         
@@ -2004,6 +2006,20 @@ class ImageProfileWidget(QWidget):
         self.rowPanel.selectProfiles(masks)
         self.colPanel.selectProfiles(masks)
         
+        
+    def setSelection(self, mask):
+        roi = self.imviewer.roi
+        
+        if not (mask == ''):
+            chanstats = self.imviewer.imgdata.chanstats[mask]
+        
+            selroi = self.imviewer.imgdata.selroi  
+            selroi.xr.setfromslice(chanstats.slices[1])
+            selroi.yr.setfromslice(chanstats.slices[0])                                    
+            roi.clip()
+            roi.show()
+            roi.roiChanged.emit()  
+            
         
     def showSelection(self, mask): 
         if mask == '': return
