@@ -111,7 +111,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
-        self.columns = ["Name"] + columns
+        self.columns = ["Name", "Show"] + columns
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)
         
@@ -213,8 +213,13 @@ class StatisticsPanel(QtWidgets.QWidget):
             item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
             
             self.table.setItem(i, 0, item_name)
+            
+            item_show = QtWidgets.QTableWidgetItem()
+            item_show.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item_show.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)   
+            self.table.setItem(i, 1, item_show)            
                         
-            for j, column in enumerate(self.columns[1:]):
+            for j, column in enumerate(self.columns[2:]):
             
                 if stats.active:
                     attr = FUNCMAP[column]['attr']
@@ -228,48 +233,55 @@ class StatisticsPanel(QtWidgets.QWidget):
                     text = ''
                     
                 item = QtWidgets.QTableWidgetItem(text)                                        
-                self.table.setItem(i, 1 + j, item)
+                self.table.setItem(i, 2 + j, item)
             
             self.table.setRowHeight(i, 20)
             
             
     def cellClicked(self, row, column):
-        if column != 0: return
+        if column == 0:
         
-        selection = self.table.selectionModel().selectedRows()
-        
-        states = {}
-        
-        #print(f'Selection lenght: {len(selection)}')
-        
-        nameCell = self.table.item(row, 0)
-        new_state = nameCell.checkState() == Qt.Checked
-        clickedMask = nameCell.text()
-        
-        if len(selection) == 0:        
-            states[clickedMask] = new_state
-
-        else:            
-            for index in selection:
-                nameCell = self.table.item(index.row(), 0)
-                mask = nameCell.text()
-                states[mask] = new_state
-                
-            if not clickedMask in states:
-                # The clicked row is not part of the selection
-                # Ignore the selection and give the click the priority
-                states = {clickedMask: new_state}
+            selection = self.table.selectionModel().selectedRows()            
+            states = {}            
             
-        do_update = False
-        
-        for mask, new_state in states.items():        
-            if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
-                chanstats = self.imviewer.imgdata.chanstats[mask]
-                chanstats.active = new_state
-                do_update = True
+            nameCell = self.table.item(row, 0)
+            new_state = nameCell.checkState() == Qt.Checked
+            clickedMask = nameCell.text()
+            
+            if len(selection) == 0:        
+                states[clickedMask] = new_state
+
+            else:            
+                for index in selection:
+                    nameCell = self.table.item(index.row(), 0)
+                    mask = nameCell.text()
+                    states[mask] = new_state
+                    
+                if not clickedMask in states:
+                    # The clicked row is not part of the selection
+                    # Ignore the selection and give the click the priority
+                    states = {clickedMask: new_state}
                 
-        if do_update:
-            self.activesChanged.emit()
+            do_update = False
+            
+            for mask, new_state in states.items():        
+                if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
+                    chanstats = self.imviewer.imgdata.chanstats[mask]
+                    chanstats.active = new_state
+                    do_update = True
+                    
+            if do_update:
+                self.activesChanged.emit()
+                
+        elif column == 1:            
+            maskName = self.table.item(row, 0).text()
+            checked = self.table.item(row, 1).checkState() == Qt.Checked
+            
+            if checked:
+                self.showSelection.emit(maskName)
+                
+            else:
+                self.hideSelection.emit(maskName)
             
             
     def handleHeaderMenu(self, pos):

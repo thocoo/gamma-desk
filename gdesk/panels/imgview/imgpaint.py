@@ -103,9 +103,7 @@ class ImageViewerWidget(QWidget):
         self.zoomPanChanged.connect(self.roi.recalcGeometry)
         
         #Tryout of extra roi's
-        self.custom_rois = dict()
-        # self.set_custom_selection('custom1', color=QColor(0, 0, 255))               
-        # self.set_custom_selection('custom2', color=QColor(0, 128, 0))               
+        self.custom_rois = dict()               
 
         self.refresh_title()
 
