@@ -394,12 +394,13 @@ class SelRoiWidget(QtWidgets.QWidget):
         # The background of the line
         qp.setPen(self.pensolid)
         qp.drawPolygon(polygonRect)                        
+        qp.setPen(self.pendash)
         
         if not self.name is None:
-            qp.drawText((x0 + x1) // 2, (y0+y1) // 2, self.name, color=self.fillColor)         
+            qp.drawText(x0, y1, self.name, color=self.fillColor)         
         
         # The Dashes
-        qp.setPen(self.pendash)        
+        
         qp.drawPolyline(polygonNe)
         qp.drawPolyline(polygonSw)
         
