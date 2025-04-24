@@ -146,7 +146,7 @@ class DockOverlay(QWidget):
             tags, rect = tags_rect
             caption, panqualid, pos = tags
             button = HoverButton(caption, self)                                    
-            button.setGeometry(pos[0]- w//2, pos[1]- h//2, w, h)                               
+            button.setGeometry(int(pos[0]- w//2), int(pos[1]- h//2), int(w), int(h))                               
             button.clicked.connect(self.endOverlay)
             button.rect_id = index
             
@@ -160,10 +160,10 @@ class DockOverlay(QWidget):
         
         geo = self.geometry() 
         w, h = geo.width(), geo.height()
-        rects.append((('U', ('top', None),    (w/2, spaceb  )), (0, 0    , w,   h/3)))
-        rects.append((('B', ('bottom', None), (w/2, h-spaceb)), (0, 2*h/3, w,   h/3)))
+        rects.append((('U', ('top', None),    (w/2, spaceb  )), (0, 0    , w,   int(h/3))))
+        rects.append((('B', ('bottom', None), (w/2, h-spaceb)), (0, int(2*h/3), w,   int(h/3))))
         rects.append((('L', ('left', None),   (spaceb,  h/2 )), (0, 0,     w/3, h  )))
-        rects.append((('R', ('right', None),  (w-spaceb,h/2 )), (2*w/3, 0, w/3, h  )))   
+        rects.append((('R', ('right', None),  (w-spaceb,h/2 )), (int(2*w/3), 0, int(w/3), h  )))   
         
         panelrects = self.get_panel_positions(container)    
 
@@ -175,10 +175,10 @@ class DockOverlay(QWidget):
             w, h = rect[2], rect[3]
             xc, yc = posx + w/2, posy + h/2
             rects.append((('T', ('tab', panqualid),    (xc, yc   )), (posx, posy, w, h)))
-            rects.append((('U', ('top', panqualid),    (xc, yc-spacec)), (posx, posy, w, h/2)))
-            rects.append((('B', ('bottom', panqualid), (xc, yc+spacec)), (posx, posy + h/2, w, h/2)))
-            rects.append((('L', ('left', panqualid),   (xc-spacec, yc)), (posx, posy, w/2, h)))
-            rects.append((('R', ('right', panqualid),  (xc+spacec, yc)), (posx  + w/2, posy, w/2, h)))     
+            rects.append((('U', ('top', panqualid),    (xc, yc-spacec)), (posx, posy, w, int(h/2))))
+            rects.append((('B', ('bottom', panqualid), (xc, yc+spacec)), (posx, int(posy + h/2), w, int(h/2))))
+            rects.append((('L', ('left', panqualid),   (xc-spacec, yc)), (posx, posy, int(w/2), h)))
+            rects.append((('R', ('right', panqualid),  (xc+spacec, yc)), (int(posx  + w/2), posy, int(w/2), h)))     
 
         return rects          
 
