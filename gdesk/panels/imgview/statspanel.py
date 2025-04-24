@@ -59,7 +59,7 @@ def get_last_active(chanstats):
 
 #https://github.com/yjg30737/pyqt-checkbox-table-widget/blob/main/pyqt_checkbox_table_widget/checkBox.py
 class CheckBox(QtWidgets.QWidget):
-    checkedSignal = Signal(int, Qt.CheckState)
+    checkedSignal = Signal(int, bool)
 
     def __init__(self, r_idx, flag):
         super().__init__()
@@ -80,7 +80,7 @@ class CheckBox(QtWidgets.QWidget):
         self.setFixedWidth(15)
 
     def __sendCheckedSignal(self, flag):
-        flag = Qt.CheckState(flag)
+        #flag = Qt.CheckState(flag)
         self.checkedSignal.emit(self.__r_idx, flag)
 
     def isChecked(self):
@@ -202,7 +202,10 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.maskSelected.emit(','.join(maskNames))
                             
             
-    def modifyMask(self, row=None, column=None):
+    #def modifyMask(self, row=None, column=None):
+    def modifyMask(self):
+        row=None
+        column=None
         
         if row is None and column is None:
             indices = self.table.selectionModel().selectedRows()
