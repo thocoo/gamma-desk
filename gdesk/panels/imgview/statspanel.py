@@ -335,13 +335,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         stat = self.imviewer.imgdata.chanstats[maskName]
         stat.mask_visible = checked          
-        self.activesChanged.emit()   
-        
-        # if checked:
-            # self.showMask.emit(maskName)        
-            
-        # else:
-            # self.hideMask.emit(maskName)
+        self.activesChanged.emit()           
             
             
     def setMaskPlot(self, row, checked):

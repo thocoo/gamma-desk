@@ -1873,11 +1873,8 @@ class ImageProfileWidget(QWidget):
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
-        self.statsPanel.activesChanged.connect(self.refresh)        
-        
+        self.statsPanel.activesChanged.connect(self.refresh)                
         self.statsPanel.setSelection.connect(self.setSelection)        
-        #self.statsPanel.showMask.connect(self.showMask)        
-        #self.statsPanel.hideMask.connect(self.hideMask)        
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
@@ -1904,11 +1901,7 @@ class ImageProfileWidget(QWidget):
         self.gridsplit = GridSplitter(None)
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
-        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
-        
-        # self.corner.toolbar = RoiToolBar(self.corner)
-        # self.corner.toolbar.hide()
-        # self.corner.addToolBar(self.corner.toolbar)        
+        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)          
 
         self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
@@ -2020,42 +2013,7 @@ class ImageProfileWidget(QWidget):
             selroi.yr.setfromslice(chanstats.slices[0])                                    
             roi.clip()
             roi.show()
-            roi.roiChanged.emit()  
-            
-        
-    # def showMask(self, mask): 
-        # if mask == '': return
-        
-        # chanstats = self.imviewer.imgdata.chanstats[mask]
-        
-        # if mask.startswith('roi.'):
-            # roi = self.imviewer.roi
-            
-        # elif mask in self.imviewer.custom_rois:                        
-            # roi = self.imviewer.custom_rois[mask]
-            
-        # else:
-            # self.imviewer.set_custom_selection(mask, color=chanstats.plot_color)
-            # roi = self.imviewer.custom_rois[mask]
-                        
-        # roi.selroi.xr.setfromslice(chanstats.slices[1])
-        # roi.selroi.yr.setfromslice(chanstats.slices[0])        
-        # roi.clip()
-        # roi.show()
-        # roi.roiChanged.emit()    
-        
-
-    # def hideMask(self, mask): 
-        # if not mask in  self.imviewer.imgdata.chanstats: return
-        # chanstats = self.imviewer.imgdata.chanstats[mask]
-        
-        # if mask.startswith('roi.'):
-            # roi = self.imviewer.roi
-            # roi.hide()
-            
-        # elif mask in self.imviewer.custom_rois:                        
-            # roi = self.imviewer.custom_rois[mask]
-            # roi.hide()                              
+            roi.roiChanged.emit()                                     
         
         
     def drawRoiProfile(self):                     
@@ -2096,6 +2054,8 @@ class ImageProfileWidget(QWidget):
         parent = self.parent()        
         parent.contentChanged.emit(parent.panid, False)
         parent.refresh_profiles_and_stats()
+        
+        self.imviewer.refresh()
                
         
     @property
