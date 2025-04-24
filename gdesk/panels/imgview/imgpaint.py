@@ -592,9 +592,9 @@ class ImageViewerWidget(QWidget):
             
             if (x0 is None) or (x1 is None) or (y0 is None) or (y1 is None): continue
             x0 = round((x0 - self.dispOffsetX) * self.zoomDisplay)
-            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay)
+            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay) - 1
             y0 = round((y0 - self.dispOffsetY) * self.zoomDisplay)            
-            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay)
+            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay) - 1
             
             pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
             qp.setPen(pensolid)
