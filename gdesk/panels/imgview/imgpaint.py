@@ -115,6 +115,7 @@ class ImageViewerWidget(QWidget):
 
         self.setAcceptDrops(True)
         self.fontmetric = QFontMetrics(self.font())
+        self.pentext = QtGui.QPen(Qt.black, 1, QtCore.Qt.SolidLine)
         
         
     def set_custom_selection(self, name, color=None):
@@ -169,13 +170,17 @@ class ImageViewerWidget(QWidget):
     def vd(self):
         return self.imgdata
 
-    def getImageCoordOfMouseEvent(self, event):
+    def getImageCoordOfMouseEvent(self, event, floor=True):
         pos = getEventPos(event)
             
         x_float = pos.x() / self.zoomDisplay + self.dispOffsetX
         y_float = pos.y() / self.zoomDisplay + self.dispOffsetY
-        #Round down
-        return (int(x_float), int(y_float))
+        
+        if floor:
+            #Round down
+            return (int(x_float), int(y_float))
+        else:
+            return (int(round(x_float)), int(round(y_float)))
 
     def getImageCoordOfDisplayCenter(self):
         #get the current pixel position as seen on center of screen
@@ -443,7 +448,7 @@ class ImageViewerWidget(QWidget):
 
         elif event.buttons() == Qt.RightButton:        
             #menu = self.parent().parent().get_select_menu()
-            self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event)
+            self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event, floor=False)
 
     def mouseMoveEvent(self, event):
         if (event.buttons() == Qt.LeftButton) or \
@@ -455,10 +460,10 @@ class ImageViewerWidget(QWidget):
             self.panned(event.modifiers() & QtCore.Qt.ShiftModifier)
 
         elif (event.buttons() == Qt.RightButton):
-            self.roiDragEndX, self.roiDragEndY = self.getImageCoordOfMouseEvent(event)
+            self.roiDragEndX, self.roiDragEndY = self.getImageCoordOfMouseEvent(event, floor=False)
             self.roi.createState = True
             self.roi.setStartEndPoints(self.roiDragStartX, self.roiDragStartY, \
-                self.roiDragEndX, self.roiDragEndY)
+                self.roiDragEndX - 1, self.roiDragEndY - 1)
             self.roi.show()
 
         self.pickerPositionChanged.emit(*self.getImageCoordOfMouseEvent(event))
@@ -576,9 +581,7 @@ class ImageViewerWidget(QWidget):
                         except:
                             label = 'invalid'
                         qp.drawText(xpos, ypos, label)
-                     
-         
-        self.pentext = QtGui.QPen(Qt.black, 1, QtCore.Qt.SolidLine)
+                                      
         
         for mask_name, chanstat in self.vd.chanstats.items():
             if not chanstat.is_valid(): continue
@@ -605,6 +608,7 @@ class ImageViewerWidget(QWidget):
             
             labelWidth = self.fontmetric.width(mask_name)
             labelHeight = self.fontmetric.height()
+            
             qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
             qp.setPen(self.pentext)
             qp.drawText(x0, y0, mask_name)               
