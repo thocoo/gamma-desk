@@ -605,9 +605,9 @@ class ImageViewerWidget(QWidget):
             
             labelWidth = self.fontmetric.width(mask_name)
             labelHeight = self.fontmetric.height()
-            qp.fillRect(x0, y1-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
+            qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
             qp.setPen(self.pentext)
-            qp.drawText(x0, y1, mask_name)               
+            qp.drawText(x0, y0, mask_name)               
             
             
 
