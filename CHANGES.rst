@@ -3,6 +3,7 @@ vNext
 -----
 date: TBD
 
+- Support GDESKSTARTUP environment variable; execute that file when configured.
 - Do project management with ``uv``.
 - Expose detailed (parsed) version information (``packaging.version.Version``)
 
