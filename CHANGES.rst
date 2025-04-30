@@ -3,7 +3,16 @@ vNext
 -----
 date: TBD
 
-- Support GDESKSTARTUP environment variable; execute that file when configured.
+- Support `GDESKSTARTUP` environment variable; execute that file when configured.
+- Improve support for PyQt5, PyQt6.
+- Support multiple ROI widgets.
+
+
+v1.7.0
+------
+
+date: 2025-04-30
+
 - Do project management with ``uv``.
 - Expose detailed (parsed) version information (``packaging.version.Version``)
 
