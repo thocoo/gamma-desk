@@ -3,6 +3,7 @@ import importlib
 import pprint
 import logging
 import pathlib
+from functools import partial
 
 from qtpy.QtWidgets import *
 from qtpy.QtCore import *
@@ -22,7 +23,9 @@ logger = logging.getLogger(__name__)
 
 DEBUG = {'Use_ScrollBox': True}
 
+
 class DockTabBar(QTabBar):
+
     def __init__(self, *args, **kwargs):        
         super().__init__(*args, **kwargs)                
         self.setMovable(True) 
@@ -32,6 +35,7 @@ class DockTabBar(QTabBar):
 
         self.movingWindow = None
         self.movingWindowOffset = None
+        self.drag_start_pos = None
 
     def add_tab_menu(self, index, leftWidget, rightWidget=None):                
         if index >= 0:
@@ -41,7 +45,6 @@ class DockTabBar(QTabBar):
                 self.setTabButton(index, QTabBar.RightSide, rightWidget)
 
     def mouseDoubleClickEvent(self, event):
-        ezm = gui.qapp.panels.ezm
         widget = self.parent().currentWidget()
         container = widget.get_container()        
         globalpos = widget.mapToGlobal(self.pos())
@@ -62,7 +65,7 @@ class DockTabBar(QTabBar):
                 widget.select()  
 
     def mouseReleaseEvent(self, event):        
-        widget = self.parent().currentWidget()        
+        widget = self.parent().currentWidget()
         
         if event.button() == Qt.RightButton:
             if not self.movingWindow is None:
@@ -81,6 +84,10 @@ class DockTabBar(QTabBar):
             super().mouseReleaseEvent(event)    
 
     def mouseMoveEvent(self, event):
+        if self.drag_start_pos is None:
+            self.drag_start_pos = event.pos()
+            return
+
         movePoint = self.drag_start_pos - event.pos()
         moveDistance = movePoint.x() ** 2 + movePoint.y() ** 2
         if event.buttons() == Qt.RightButton and moveDistance > 32:
@@ -92,7 +99,6 @@ class DockTabBar(QTabBar):
                 self.movingWindow = window
             else:
                 self.movingWindow.move(QtGui.QCursor.pos() - self.movingWindowOffset)
-
         else:
             super().mouseMoveEvent(event)
 
@@ -114,7 +120,8 @@ class DockTabBar(QTabBar):
             window, node = widget.detach()
         
         return window, node        
-        
+
+
 class DockTabBase(DockBase, QTabWidget):
 
     def __init__(self, parent=None, collapse=None):
@@ -218,7 +225,17 @@ class DockTabBase(DockBase, QTabWidget):
             self.collapsed = True
             self.topleftbtn.setChecked(True)                     
 
+    def refresh_bind_menu(self, bindButton, *args, **kwargs):
+        # Trick: first enforce a refresh of the bind menu.
+        # Then show it.
+        # Previously, code was relying on showEvent() being called to do the refresh,
+        # but recent PySide versions seem to have more agressive caching.
+        bindButton.menu().refresh()
+        bindButton.showMenu()
+
     def set_tab_header(self, widget, title):
+        # Bind button is the 'chain links' button.
+        # It comes with a pop-up menu which is the 'bind' menu.
         index = self.indexOf(widget)
         
         bindButton = QToolButton(widget)
@@ -228,8 +245,13 @@ class DockTabBase(DockBase, QTabWidget):
         
         if widget.isSelected():            
             bindButton.setChecked(True)
-        
+       
         bindButton.clicked.connect(widget.select)
+
+        # Extra auto-refresh.
+        refresh_bind_button_menu = partial(self.refresh_bind_menu, bindButton)
+        bindButton.clicked.connect(refresh_bind_button_menu)
+
         bindButton.setPopupMode(QToolButton.MenuButtonPopup)
         bindButton.setMenu(widget.bindMenu)           
         bindButton.setFixedHeight(self.tabBar().fontheight + 4)
@@ -304,7 +326,7 @@ class DockTag(DockTabBase):
 
         if isinstance(widget, BasePanel):    
             self.addTab(widget, title)       
-            self.set_tab_header(widget, title)     
+            self.set_tab_header(widget, title)
         else:
             self.addTab(widget, title)    
 

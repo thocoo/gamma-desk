@@ -61,6 +61,7 @@ class CheckMenu(QtWidgets.QMenu):
 
         return action        
 
+
 class PanelsMenu(QMenu):
 
     def __init__(self, parent, name, categories, func):
@@ -70,9 +71,16 @@ class PanelsMenu(QMenu):
         self.categories = categories
         self.panel = func.__self__
         self.func = func
-        
+
+    def refresh(self):
+        """Refresh the 'bind' actions."""
+        self.initactions()
+
     def showEvent(self, event):
-        self.initactions()        
+        """On show, refresh the 'bind' actions."""
+        # Note: this is not being called automatically in recent PySide versions.
+        # In that case, ensure refresh() is called manually.
+        self.refresh()
 
     def initactions(self):
         self.clear()
@@ -83,7 +91,7 @@ class PanelsMenu(QMenu):
             if not category in self.panels.keys(): continue
             panels = self.panels[category]
             keys = sorted(panels.keys())
-            for panid in keys:                                            
+            for panid in keys:
                 if category == self.parent().category and panid == self.parent().panid: continue
                 panel = panels[panid]
                 action = QAction(panel.windowTitle())
@@ -238,8 +246,8 @@ class BasePanel(QMainWindow):
             
         return action
     
-    def addBaseMenu(self, bindCategories=[]):        
-        self.bindMenu = PanelsMenu(self, 'bind to', bindCategories, self.toggleBindingTo)        
+    def addBaseMenu(self, bindCategories=[]):
+        self.bindMenu = PanelsMenu(self, 'bind to', bindCategories, self.toggleBindingTo)
         self.menuBar().hide()        
 
     def toggleBindingTo(self, category, panid):

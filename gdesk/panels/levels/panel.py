@@ -343,7 +343,6 @@ class Levels(QtWidgets.QWidget):
         self.vbox.addLayout(self.hbox)                
         self.vbox.addWidget(self.levelplot)                                                 
 
-    #@staticmethod
     def image_panel(self, panel_id=None):
         if (panel_id is None) or (panel_id==False):        
             imagePanel = self.panel.bindedPanel('image')
