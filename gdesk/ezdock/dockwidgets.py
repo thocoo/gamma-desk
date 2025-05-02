@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 
 DEBUG = {'Use_ScrollBox': True}
 
+
 class DockTabBar(QTabBar):
+
     def __init__(self, *args, **kwargs):        
         super().__init__(*args, **kwargs)                
         self.setMovable(True) 
@@ -42,7 +44,6 @@ class DockTabBar(QTabBar):
                 self.setTabButton(index, QTabBar.RightSide, rightWidget)
 
     def mouseDoubleClickEvent(self, event):
-        ezm = gui.qapp.panels.ezm
         widget = self.parent().currentWidget()
         container = widget.get_container()        
         globalpos = widget.mapToGlobal(self.pos())
@@ -63,7 +64,7 @@ class DockTabBar(QTabBar):
                 widget.select()  
 
     def mouseReleaseEvent(self, event):        
-        widget = self.parent().currentWidget()        
+        widget = self.parent().currentWidget()
         
         if event.button() == Qt.RightButton:
             if not self.movingWindow is None:
@@ -93,7 +94,6 @@ class DockTabBar(QTabBar):
                 self.movingWindow = window
             else:
                 self.movingWindow.move(QtGui.QCursor.pos() - self.movingWindowOffset)
-
         else:
             super().mouseMoveEvent(event)
 
@@ -115,7 +115,8 @@ class DockTabBar(QTabBar):
             window, node = widget.detach()
         
         return window, node        
-        
+
+
 class DockTabBase(DockBase, QTabWidget):
 
     def __init__(self, parent=None, collapse=None):
@@ -237,7 +238,7 @@ class DockTabBase(DockBase, QTabWidget):
         
         if widget.isSelected():            
             bindButton.setChecked(True)
-        
+       
         bindButton.clicked.connect(widget.select)
 
         # Extra auto-refresh.
@@ -318,7 +319,7 @@ class DockTag(DockTabBase):
 
         if isinstance(widget, BasePanel):    
             self.addTab(widget, title)       
-            self.set_tab_header(widget, title)     
+            self.set_tab_header(widget, title)
         else:
             self.addTab(widget, title)    
 
