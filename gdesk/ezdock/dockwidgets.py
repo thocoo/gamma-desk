@@ -3,6 +3,7 @@ import importlib
 import pprint
 import logging
 import pathlib
+from functools import partial
 
 from qtpy.QtWidgets import *
 from qtpy.QtCore import *
@@ -218,6 +219,14 @@ class DockTabBase(DockBase, QTabWidget):
             self.collapsed = True
             self.topleftbtn.setChecked(True)                     
 
+    def refresh_bind_menu(self, bindButton, *args, **kwargs):
+        # Trick: first enforce a refresh of the bind menu.
+        # Then show it.
+        # Previously, code was relying on showEvent() being called to do the refresh,
+        # but recent PySide versions seem to have more agressive caching.
+        bindButton.menu().refresh()
+        bindButton.showMenu()
+
     def set_tab_header(self, widget, title):
         index = self.indexOf(widget)
         
@@ -230,6 +239,11 @@ class DockTabBase(DockBase, QTabWidget):
             bindButton.setChecked(True)
         
         bindButton.clicked.connect(widget.select)
+
+        # Extra auto-refresh.
+        refresh_bind_button_menu = partial(self.refresh_bind_menu, bindButton)
+        bindButton.clicked.connect(refresh_bind_button_menu)
+
         bindButton.setPopupMode(QToolButton.MenuButtonPopup)
         bindButton.setMenu(widget.bindMenu)           
         bindButton.setFixedHeight(self.tabBar().fontheight + 4)

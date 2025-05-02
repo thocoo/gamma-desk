@@ -70,9 +70,16 @@ class PanelsMenu(QMenu):
         self.categories = categories
         self.panel = func.__self__
         self.func = func
-        
+
+    def refresh(self):
+        """Refresh the 'bind' actions."""
+        self.initactions()
+
     def showEvent(self, event):
-        self.initactions()        
+        """On show, refresh the 'bind' actions."""
+        # Note: this is not being called automatically in recent PySide versions.
+        # In that case, ensure refresh() is called manually.
+        self.refresh()
 
     def initactions(self):
         self.clear()
