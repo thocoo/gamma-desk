@@ -35,6 +35,7 @@ class DockTabBar(QTabBar):
 
         self.movingWindow = None
         self.movingWindowOffset = None
+        self.drag_start_pos = None
 
     def add_tab_menu(self, index, leftWidget, rightWidget=None):                
         if index >= 0:
@@ -83,6 +84,10 @@ class DockTabBar(QTabBar):
             super().mouseReleaseEvent(event)    
 
     def mouseMoveEvent(self, event):
+        if self.drag_start_pos is None:
+            self.drag_start_pos = event.pos()
+            return
+
         movePoint = self.drag_start_pos - event.pos()
         moveDistance = movePoint.x() ** 2 + movePoint.y() ** 2
         if event.buttons() == Qt.RightButton and moveDistance > 32:
