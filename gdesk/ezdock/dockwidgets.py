@@ -234,6 +234,8 @@ class DockTabBase(DockBase, QTabWidget):
         bindButton.showMenu()
 
     def set_tab_header(self, widget, title):
+        # Bind button is the 'chain links' button.
+        # It comes with a pop-up menu which is the 'bind' menu.
         index = self.indexOf(widget)
         
         bindButton = QToolButton(widget)
