@@ -156,7 +156,7 @@ class NdimWidget(QtWidgets.QWidget):
                     # No coordinates / scales known for this dimension.
                     continue
                 dim_name = dim
-                if data_array.coords[dim].units:
+                if hasattr(data_array.coords[dim], "units"):
                     dim_name += f" ({data_array.coords[dim].units})"
                 self.dim_scales[i_dim] = (dim_name, data_array.coords[dim].to_numpy())
 
