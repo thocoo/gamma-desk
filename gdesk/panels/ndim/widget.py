@@ -288,7 +288,14 @@ class NdimWidget(QtWidgets.QWidget):
                     scale_name_label = QtWidgets.QLabel(scale_name)
                     scale_name_label.setMinimumHeight(15)
                     h.addWidget(scale_name_label)
-                scale_label = QtWidgets.QLabel(f"{scale[0]:.4g}")
+
+                # Label can be int, float, string.
+                if isinstance(scale[0], str):
+                    scale_label = QtWidgets.QLabel(f'"{scale[0]:s}"')
+                else:
+                    # In case of number, use 'general' format.
+                    scale_label = QtWidgets.QLabel(f"{scale[0]:.4g}")
+
                 self._dim_scale_labels[dim] = scale_label
                 h.addWidget(scale_label)
             h.addSpacerItem(QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
@@ -396,7 +403,12 @@ class NdimWidget(QtWidgets.QWidget):
 
         # update the scales
         for dim, scale_label in self._dim_scale_labels.items():
-            scale_label.setText(f"{self.dim_scales[dim][1][self._sliders[dim].value()]:.4g}")
+            value = self.dim_scales[dim][1][self._sliders[dim].value()]
+            if isinstance(value, str):
+                scale_label.setText(f'"{value:s}"')
+            else:
+                # General number.
+                scale_label.setText(f"{value:.4g}")
 
     def _combo_changed(self, dim):
         """Update the sliders behavior based on the combo selection
