@@ -12,10 +12,12 @@
 
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal
+from qtpy.QtGui import QFont, QFontMetrics
 
 from ... import config
 
 from .imgdata import SelectRoi
+
 
 class SelRoiWidget(QtWidgets.QWidget):
     
@@ -26,42 +28,40 @@ class SelRoiWidget(QtWidgets.QWidget):
     roiChanged = Signal()
     roiRemoved = Signal()
     
-    def __init__(self, parent=None, color=None, custom=False, name=None):
+    def __init__(self, parent=None, color=None):
         #width and height are the dimensions of the image (not the roi)
-        super().__init__(parent=parent)
-        
-        self.custom = custom
-        self.name = name       
-        self.editable = not custom
+        super().__init__(parent=parent)        
                              
         #  is this timer also active when roi isn't visible ???
         self.initProps()
         self.initUI(color)
         self.hide()
         
-        if self.editable:
-            self.timer = QtCore.QTimer(self)
-            self.timer.timeout.connect(self.newPhase)
-            self.timer.setSingleShot(True)
-            self.timer.start(100)
-        
-        self.setMouseTracking(True)        
-        self.get_context_menu = lambda: None  
-        
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.newPhase)
+        self.timer.setSingleShot(True)
+        self.timer.start(100)                        
+        self.setMouseTracking(True)   
+           
+        #self.get_context_menu = lambda: None      
 
 
     def initUI(self, color=None):
         self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
-        self.solidColor = Qt.white
         
         if color is None: color = QtGui.QColor(*config['roi color'])
+        self.solidColor = color        
         self.fillColor = color
-        self.dashColor = color
+        self.dashColor = Qt.white
+        self.textColor = Qt.black
         
         self.pensolid = QtGui.QPen(self.solidColor, 1, QtCore.Qt.SolidLine)        
         self.pendash = QtGui.QPen(self.dashColor, 1, QtCore.Qt.CustomDashLine)        
+        self.pentext = QtGui.QPen(self.textColor, 1, QtCore.Qt.SolidLine)        
         self.pendash.setDashPattern([7, 5, 3, 5])   
         self.phase = 0
+        
+        self.fontmetric = QFontMetrics(self.font())       
 
         
     @property
@@ -71,10 +71,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         
     @property
     def selroi(self):
-        if self.custom:
-            return self.vd.custom_selroi[self.name]
-        else:
-            return self.vd.selroi
+        return self.vd.selroi
             
             
     def bring_to_front(self):        
@@ -162,6 +159,7 @@ class SelRoiWidget(QtWidgets.QWidget):
 
 
     def mousePressEvent(self, event):
+            
         if (event.buttons() == QtCore.Qt.RightButton) and \
             not self.createState:
             #check if we are not doing setStartEndPoints
@@ -185,7 +183,7 @@ class SelRoiWidget(QtWidgets.QWidget):
             event.ignore()
         else:
             #propagated up the parent widget
-             event.ignore()             
+            event.ignore()             
         
 
     def checkNearEdge(self, event):
@@ -244,10 +242,8 @@ class SelRoiWidget(QtWidgets.QWidget):
 
 
     def mouseMoveEvent(self, event):
-        if not self.editable:
-            event.ignore()
             
-        elif event.buttons() == QtCore.Qt.RightButton:            
+        if event.buttons() == QtCore.Qt.RightButton:            
             if event.modifiers() & QtCore.Qt.ShiftModifier:
                 shiftX, shiftY = self.getMouseShifts(event, manhattan=True)
             else:
@@ -301,7 +297,7 @@ class SelRoiWidget(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event):
         self.createState = False
         
-        contextMenu = self.get_context_menu()
+        #contextMenu = self.get_context_menu()
 
         if event.button() == Qt.RightButton:
             shiftX, shiftY = self.getMouseShifts(event)
@@ -383,19 +379,15 @@ class SelRoiWidget(QtWidgets.QWidget):
             qp.fillRect(x0, y0, x1-x0+1, y1-y0+1, self.fillColor)
             
         else:
-            qp.setOpacity(1.0)
-
+            qp.setOpacity(1.0)                   
+        
+        # The Dashes
         self.pendash.setDashOffset(8-self.phase)               
 
         # The background of the line
         qp.setPen(self.pensolid)
-        qp.drawPolygon(polygonRect)                        
-        
-        if not self.name is None:
-            qp.drawText((x0 + x1) // 2, (y0+y1) // 2, self.name, color=self.fillColor)         
-        
-        # The Dashes
-        qp.setPen(self.pendash)        
+        qp.drawPolygon(polygonRect)               
+        qp.setPen(self.pendash)
         qp.drawPolyline(polygonNe)
         qp.drawPolyline(polygonSw)
         

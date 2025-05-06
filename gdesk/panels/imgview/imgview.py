@@ -165,7 +165,8 @@ class selectNamedMask():
         
     def __call__(self):
         self.imgpanel.imgprof.selectMask(self.roiName)        
-        self.imgpanel.imgprof.showSelection(self.roiName)               
+        #self.imgpanel.imgprof.showMask(self.roiName)               
+        self.imgpanel.imgprof.setSelection(self.roiName)               
     
 
 class CustomMaskMenu(QMenu):
@@ -555,7 +556,7 @@ class ImageViewerBase(BasePanel):
     def selectNamedMask(self, i):
         maskName = self.searchForRoiSlots[i].text()
         self.imgprof.selectMask(maskName)
-        self.imgprof.showSelection(maskName)
+        self.imgprof.setSelection(maskName)
     
 
     def addBindingTo(self, category, panid):
@@ -1293,6 +1294,7 @@ class ImageViewerBase(BasePanel):
         v_slice = slice(r[5], r[6], r[7])
 
         self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
+        self.imviewer.set_custom_selection(name, color)
         self.refresh()
 
         
@@ -1871,9 +1873,8 @@ class ImageProfileWidget(QWidget):
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
-        self.statsPanel.activesChanged.connect(self.refresh)        
-        self.statsPanel.showSelection.connect(self.showSelection)        
-        self.statsPanel.hideSelection.connect(self.hideSelection)        
+        self.statsPanel.activesChanged.connect(self.refresh)                
+        self.statsPanel.setSelection.connect(self.setSelection)        
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
@@ -1900,11 +1901,7 @@ class ImageProfileWidget(QWidget):
         self.gridsplit = GridSplitter(None)
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
-        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
-        
-        # self.corner.toolbar = RoiToolBar(self.corner)
-        # self.corner.toolbar.hide()
-        # self.corner.addToolBar(self.corner.toolbar)        
+        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)          
 
         self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
@@ -2005,43 +2002,18 @@ class ImageProfileWidget(QWidget):
         self.colPanel.selectProfiles(masks)
         
         
-    def showSelection(self, mask): 
-        if mask == '': return
+    def setSelection(self, mask):
+        roi = self.imviewer.roi
         
-        chanstats = self.imviewer.imgdata.chanstats[mask]
+        if not (mask == ''):
+            chanstats = self.imviewer.imgdata.chanstats[mask]
         
-        if mask.startswith('roi.'):
-            roi = self.imviewer.roi
-            
-        elif mask in self.imviewer.custom_rois:                        
-            roi = self.imviewer.custom_rois[mask]
-            
-        else:
-            self.imviewer.set_custom_selection(mask, color=chanstats.plot_color)
-            roi = self.imviewer.custom_rois[mask]
-                        
-        roi.selroi.xr.setfromslice(chanstats.slices[1])
-        roi.selroi.yr.setfromslice(chanstats.slices[0])        
-        roi.clip()
-        roi.show()
-        roi.roiChanged.emit()    
-        
-
-    def hideSelection(self, mask): 
-        if mask == '': return
-        
-        chanstats = self.imviewer.imgdata.chanstats[mask]
-        
-        if mask.startswith('roi.'):
-            roi = self.imviewer.roi
-            
-        elif mask in self.imviewer.custom_rois:                        
-            roi = self.imviewer.custom_rois[mask]
-            
-        else:
-            pass
-                        
-        roi.hide()          
+            selroi = self.imviewer.imgdata.selroi  
+            selroi.xr.setfromslice(chanstats.slices[1])
+            selroi.yr.setfromslice(chanstats.slices[0])                                    
+            roi.clip()
+            roi.show()
+            roi.roiChanged.emit()                                     
         
         
     def drawRoiProfile(self):                     
@@ -2082,6 +2054,8 @@ class ImageProfileWidget(QWidget):
         parent = self.parent()        
         parent.contentChanged.emit(parent.panid, False)
         parent.refresh_profiles_and_stats()
+        
+        self.imviewer.refresh()
                
         
     @property

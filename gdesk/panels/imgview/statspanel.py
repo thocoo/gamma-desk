@@ -13,7 +13,8 @@ from qtpy.QtCore import Qt, Signal, QUrl
 
 RESPATH = Path(config['respath'])
 
-PREFERED_MASK_ORDER = ['K', 'B', 'G', 'Gb', 'Gr', 'R', 'roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
+RESERVED_MASK_FULL = ['K', 'B', 'G', 'Gb', 'Gr', 'R']
+RESERVED_MASK_ROI = ['roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
 
 FUNCMAP = {
     'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},
@@ -33,11 +34,14 @@ else:
 def sort_masks(masks):
     
     def location(mask):
-        try:
-            return PREFERED_MASK_ORDER.index(mask)        
+        if mask in RESERVED_MASK_FULL:
+            return RESERVED_MASK_FULL.index(mask) - 1000
+                
+        elif mask in RESERVED_MASK_ROI:
+            return RESERVED_MASK_ROI.index(mask) + 1000
             
-        except ValueError:
-            return -1
+        else:
+            return masks.index(mask)
             
     return sorted(masks, key=location)
 
@@ -50,15 +54,57 @@ def get_last_active(chanstats):
         if chanstats[key].active:
             return (n - i - 1)
             
-    return 0            
+    return 0
+
+
+#https://github.com/yjg30737/pyqt-checkbox-table-widget/blob/main/pyqt_checkbox_table_widget/checkBox.py
+class CheckBox(QtWidgets.QWidget):
+    checkedSignal = Signal(int, bool)
+
+    def __init__(self, r_idx, flag):
+        super().__init__()
+        self.__r_idx = r_idx
+        self.__initUi(flag)
+
+    def __initUi(self, flag):
+        chkBox = QtWidgets.QCheckBox()
+        chkBox.setChecked(flag)
+        chkBox.stateChanged.connect(self.__sendCheckedSignal)
+
+        lay = QtWidgets.QGridLayout()
+        lay.addWidget(chkBox)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setAlignment(chkBox, Qt.AlignmentFlag.AlignCenter)
+
+        self.setLayout(lay)        
+        self.setFixedWidth(15)
+
+    def __sendCheckedSignal(self, flag):
+        #flag = Qt.CheckState(flag)
+        self.checkedSignal.emit(self.__r_idx, flag)
+
+    def isChecked(self):
+        f = self.layout().itemAt(0).widget().isChecked()
+        return Qt.Checked if f else Qt.Unchecked
+
+    def setChecked(self, f):
+        if isinstance(f, Qt.CheckState):
+            self.getCheckBox().setCheckState(f)
+        elif isinstance(f, bool):
+            self.getCheckBox().setChecked(f)
+
+    def getCheckBox(self):
+        return self.layout().itemAt(0).widget()    
     
 
 class StatisticsPanel(QtWidgets.QWidget):    
     
     maskSelected = Signal(str)
     activesChanged = Signal()
-    showSelection = Signal(str)
-    hideSelection = Signal(str)
+    
+    setSelection = Signal(str)
+    showMask = Signal(str)
+    hideMask = Signal(str)
     
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -70,6 +116,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         headers = self.table.horizontalHeader()
         headers.setContextMenuPolicy(Qt.CustomContextMenu)
         headers.customContextMenuRequested.connect(self.handleHeaderMenu)        
+        headers.setMinimumSectionSize(20)
         
         self.setActiveColumns(["Mean", "Std", "Min", "Max"])
         
@@ -81,7 +128,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.selectionModel().currentRowChanged.connect(self.currentRowChanged)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
-        #self.table.cellDoubleClicked.connect(self.showCurrentSelection)
+        self.table.cellDoubleClicked.connect(self.setImviewSelection)
         self.table.cellClicked.connect(self.cellClicked)
         self.table.customContextMenuRequested.connect(self.handleContextMenu)        
         
@@ -98,10 +145,8 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Deactivate', self, triggered=self.deactivateSelectedStatistics)
         self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Show Selection', self, triggered=self.showCurrentSelection)
+        act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
         self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Hide Selection', self, triggered=self.hideCurrentSelection)
-        self.contextMenu.addAction(act)        
         act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
         self.contextMenu.addAction(act)        
         act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
@@ -111,9 +156,13 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
-        self.columns = ["Name"] + columns
+        self.columns = ["Name", "V", "P", "H"] + columns
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)
+        
+        self.table.setColumnWidth(1, 20)
+        self.table.setColumnWidth(2, 20)
+        self.table.setColumnWidth(3, 20)
         
     
     @property
@@ -129,22 +178,14 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.maskSelected.emit(maskName)
         
         
-    def showCurrentSelection(self):
+    def setImviewSelection(self):
         selection = self.table.selectionModel().selectedRows()
         
         for index in selection:
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
-            self.showSelection.emit(roi_name)
-            
-            
-    def hideCurrentSelection(self):
-        selection = self.table.selectionModel().selectedRows()
-        
-        for index in selection:
-            nameCell = self.table.item(index.row(), 0)
-            roi_name = nameCell.text()
-            self.hideSelection.emit(roi_name)           
+            self.setSelection.emit(roi_name)        
+                        
         
         
     def selectionChanged(self, selected, deselected):
@@ -161,7 +202,10 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.maskSelected.emit(','.join(maskNames))
                             
             
-    def modifyMask(self, row=None, column=None):
+    #def modifyMask(self, row=None, column=None):
+    def modifyMask(self):
+        row=None
+        column=None
         
         if row is None and column is None:
             indices = self.table.selectionModel().selectedRows()
@@ -204,8 +248,11 @@ class StatisticsPanel(QtWidgets.QWidget):
             
         self.table.setRowCount(len(valid_stats_names))
         
-        for i, name in enumerate(valid_stats_names):
-            stats = chanstats[name]            
+        
+        
+        for i, name in enumerate(sort_masks(valid_stats_names)):
+            stats = chanstats[name]       
+            
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
             item_name.setBackground(QtGui.QColor(R, G, B, 128))
@@ -213,8 +260,22 @@ class StatisticsPanel(QtWidgets.QWidget):
             item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
             
             self.table.setItem(i, 0, item_name)
+            
+            visCheck = CheckBox(i, stats.mask_visible)
+            visCheck.checkedSignal.connect(self.setMaskView)
+            self.table.setCellWidget(i, 1, visCheck)   
+            
+            if name in RESERVED_MASK_FULL: visCheck.setEnabled(False)
+
+            pltCheck = CheckBox(i, stats.plot_visible)
+            pltCheck.checkedSignal.connect(self.setMaskPlot)
+            self.table.setCellWidget(i, 2, pltCheck) 
+            
+            histCheck = CheckBox(i, stats.hist_visible)
+            histCheck.checkedSignal.connect(self.setMaskHist)
+            self.table.setCellWidget(i, 3, histCheck)             
                         
-            for j, column in enumerate(self.columns[1:]):
+            for j, column in enumerate(self.columns[4:]):
             
                 if stats.active:
                     attr = FUNCMAP[column]['attr']
@@ -228,48 +289,72 @@ class StatisticsPanel(QtWidgets.QWidget):
                     text = ''
                     
                 item = QtWidgets.QTableWidgetItem(text)                                        
-                self.table.setItem(i, 1 + j, item)
+                self.table.setItem(i, 4 + j, item)
             
             self.table.setRowHeight(i, 20)
             
             
     def cellClicked(self, row, column):
-        if column != 0: return
+        if column == 0:
         
-        selection = self.table.selectionModel().selectedRows()
-        
-        states = {}
-        
-        #print(f'Selection lenght: {len(selection)}')
+            selection = self.table.selectionModel().selectedRows()            
+            states = {}            
+            
+            nameCell = self.table.item(row, 0)
+            new_state = nameCell.checkState() == Qt.Checked
+            clickedMask = nameCell.text()
+            
+            if len(selection) == 0:        
+                states[clickedMask] = new_state
+
+            else:            
+                for index in selection:
+                    nameCell = self.table.item(index.row(), 0)
+                    mask = nameCell.text()
+                    states[mask] = new_state
+                    
+                if not clickedMask in states:
+                    # The clicked row is not part of the selection
+                    # Ignore the selection and give the click the priority
+                    states = {clickedMask: new_state}
+                
+            do_update = False
+            
+            for mask, new_state in states.items():        
+                if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
+                    chanstats = self.imviewer.imgdata.chanstats[mask]
+                    chanstats.active = new_state
+                    do_update = True
+                    
+            if do_update:
+                self.activesChanged.emit()                
+                
+    def setMaskView(self, row, checked):
         
         nameCell = self.table.item(row, 0)
-        new_state = nameCell.checkState() == Qt.Checked
-        clickedMask = nameCell.text()
-        
-        if len(selection) == 0:        
-            states[clickedMask] = new_state
+        maskName = nameCell.text()   
 
-        else:            
-            for index in selection:
-                nameCell = self.table.item(index.row(), 0)
-                mask = nameCell.text()
-                states[mask] = new_state
-                
-            if not clickedMask in states:
-                # The clicked row is not part of the selection
-                # Ignore the selection and give the click the priority
-                states = {clickedMask: new_state}
-            
-        do_update = False
+        if maskName in RESERVED_MASK_FULL: return
         
-        for mask, new_state in states.items():        
-            if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
-                chanstats = self.imviewer.imgdata.chanstats[mask]
-                chanstats.active = new_state
-                do_update = True
+        stat = self.imviewer.imgdata.chanstats[maskName]
+        stat.mask_visible = checked          
+        self.activesChanged.emit()           
+            
+            
+    def setMaskPlot(self, row, checked):
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()          
+        stat = self.imviewer.imgdata.chanstats[maskName]
+        stat.plot_visible = checked        
+        self.activesChanged.emit()
                 
-        if do_update:
-            self.activesChanged.emit()
+        
+    def setMaskHist(self, row, checked):
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()          
+        stat = self.imviewer.imgdata.chanstats[maskName]
+        stat.hist_visible = checked        
+        self.activesChanged.emit()        
             
             
     def handleHeaderMenu(self, pos):

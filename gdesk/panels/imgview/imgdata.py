@@ -159,6 +159,9 @@ class ImageStatistics(object):
         
         self.dim = False
         self.active = True
+        self.mask_visible = True
+        self.plot_visible = True
+        self.hist_visible = True
 
         
     def attach_full_array(self, slices):

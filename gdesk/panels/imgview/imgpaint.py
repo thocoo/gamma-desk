@@ -17,12 +17,12 @@ from ... import config, gui
 
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
 from qtpy.QtCore import Qt, Signal, QUrl
-from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
+from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence, QFontMetrics
 from qtpy.QtWidgets import QAction, QVBoxLayout, QWidget
 
 from ...panels import thisPanel
 
-from .imgdata import ImageData
+from .imgdata import ImageData, PRE_DEF_MASK_NAMES
 from .roi import SelRoiWidget
 
 
@@ -103,9 +103,7 @@ class ImageViewerWidget(QWidget):
         self.zoomPanChanged.connect(self.roi.recalcGeometry)
         
         #Tryout of extra roi's
-        self.custom_rois = dict()
-        # self.set_custom_selection('custom1', color=QColor(0, 0, 255))               
-        # self.set_custom_selection('custom2', color=QColor(0, 128, 0))               
+        self.custom_rois = dict()               
 
         self.refresh_title()
 
@@ -116,6 +114,8 @@ class ImageViewerWidget(QWidget):
         self.push_selected_pixel = False
 
         self.setAcceptDrops(True)
+        self.fontmetric = QFontMetrics(self.font())
+        self.pentext = QtGui.QPen(Qt.black, 1, QtCore.Qt.SolidLine)
         
         
     def set_custom_selection(self, name, color=None):
@@ -130,9 +130,16 @@ class ImageViewerWidget(QWidget):
             
         else:
             self.vd.add_custom_selection(name)
-            self.custom_rois[name] = SelRoiWidget(self, color=color, custom=True, name=name)
-            self.custom_rois[name].show()
-            self.zoomPanChanged.connect(self.custom_rois[name].recalcGeometry)                    
+            chanstats = self.vd.chanstats[name]
+            
+            # custom_roi = SelRoiWidget(self, color=color, custom=True, name=name)
+            # self.custom_rois[name] = custom_roi
+            # custom_roi.selroi.xr.setfromslice(chanstats.slices[1])
+            # custom_roi.selroi.yr.setfromslice(chanstats.slices[0])        
+            # custom_roi.clip()            
+            # custom_roi.show()
+            # self.roi.bring_to_front()
+            # self.zoomPanChanged.connect(self.custom_rois[name].recalcGeometry)                    
         
 
     def setBackgroundColor(self, r, g, b):
@@ -163,13 +170,17 @@ class ImageViewerWidget(QWidget):
     def vd(self):
         return self.imgdata
 
-    def getImageCoordOfMouseEvent(self, event):
+    def getImageCoordOfMouseEvent(self, event, floor=True):
         pos = getEventPos(event)
             
         x_float = pos.x() / self.zoomDisplay + self.dispOffsetX
         y_float = pos.y() / self.zoomDisplay + self.dispOffsetY
-        #Round down
-        return (int(x_float), int(y_float))
+        
+        if floor:
+            #Round down
+            return (int(x_float), int(y_float))
+        else:
+            return (int(round(x_float)), int(round(y_float)))
 
     def getImageCoordOfDisplayCenter(self):
         #get the current pixel position as seen on center of screen
@@ -437,7 +448,7 @@ class ImageViewerWidget(QWidget):
 
         elif event.buttons() == Qt.RightButton:        
             #menu = self.parent().parent().get_select_menu()
-            self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event)
+            self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event, floor=False)
 
     def mouseMoveEvent(self, event):
         if (event.buttons() == Qt.LeftButton) or \
@@ -449,10 +460,10 @@ class ImageViewerWidget(QWidget):
             self.panned(event.modifiers() & QtCore.Qt.ShiftModifier)
 
         elif (event.buttons() == Qt.RightButton):
-            self.roiDragEndX, self.roiDragEndY = self.getImageCoordOfMouseEvent(event)
+            self.roiDragEndX, self.roiDragEndY = self.getImageCoordOfMouseEvent(event, floor=False)
             self.roi.createState = True
             self.roi.setStartEndPoints(self.roiDragStartX, self.roiDragStartY, \
-                self.roiDragEndX, self.roiDragEndY)
+                self.roiDragEndX - 1, self.roiDragEndY - 1)
             self.roi.show()
 
         self.pickerPositionChanged.emit(*self.getImageCoordOfMouseEvent(event))
@@ -570,6 +581,39 @@ class ImageViewerWidget(QWidget):
                         except:
                             label = 'invalid'
                         qp.drawText(xpos, ypos, label)
+                                      
+        
+        for mask_name, chanstat in self.vd.chanstats.items():
+            if not chanstat.is_valid(): continue
+            if mask_name in PRE_DEF_MASK_NAMES: continue
+            if mask_name.startswith('roi.'): continue
+            if not chanstat.mask_visible: continue
+            
+            y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]
+            y0, y1 = y_slice.start, y_slice.stop
+            x0, x1 = x_slice.start, x_slice.stop
+            
+            if (x0 is None) or (x1 is None) or (y0 is None) or (y1 is None): continue
+            x0 = round((x0 - self.dispOffsetX) * self.zoomDisplay)
+            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay) - 1
+            y0 = round((y0 - self.dispOffsetY) * self.zoomDisplay)            
+            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay) - 1
+            
+            pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
+            qp.setPen(pensolid)
+            polygon = QtGui.QPolygon()
+            polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
+                << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
+            qp.drawPolyline(polygon)
+            
+            labelWidth = self.fontmetric.width(mask_name)
+            labelHeight = self.fontmetric.height()
+            
+            qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
+            qp.setPen(self.pentext)
+            qp.drawText(x0, y0, mask_name)               
+            
+            
 
     def dragEnterEvent(self, event):
         event.accept()
