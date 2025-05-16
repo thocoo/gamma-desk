@@ -202,7 +202,6 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.maskSelected.emit(','.join(maskNames))
                             
             
-    #def modifyMask(self, row=None, column=None):
     def modifyMask(self):
         row=None
         column=None
@@ -233,11 +232,12 @@ class StatisticsPanel(QtWidgets.QWidget):
         v_slice = slice(r[5], r[6], r[7])    
 
         self.imviewer.imgdata.chanstats.pop(maskName)
-        self.imviewer.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)        
-        self.updateStatistics()        
+        self.imviewer.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color) 
+        self.formatTable()
+        self.updateStatistics()   
 
-        
-    def updateStatistics(self):    
+
+    def formatTable(self):    
     
         chanstats = self.imviewer.imgdata.chanstats
         
@@ -247,8 +247,6 @@ class StatisticsPanel(QtWidgets.QWidget):
             valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active]
             
         self.table.setRowCount(len(valid_stats_names))
-        
-        
         
         for i, name in enumerate(sort_masks(valid_stats_names)):
             stats = chanstats[name]       
@@ -291,7 +289,47 @@ class StatisticsPanel(QtWidgets.QWidget):
                 item = QtWidgets.QTableWidgetItem(text)                                        
                 self.table.setItem(i, 4 + j, item)
             
-            self.table.setRowHeight(i, 20)
+            self.table.setRowHeight(i, 20)        
+
+        
+    def updateStatistics(self):    
+    
+        chanstats = self.imviewer.imgdata.chanstats
+        
+        
+        for i in range(self.table.rowCount()):
+            item = self.table.item(i, 0)
+            name = item.text()
+            if not name in chanstats: continue
+            
+            stats = chanstats[name]
+            
+            item.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)            
+            
+            visCheck = self.table.cellWidget(i, 1)
+            visCheck.setChecked(stats.mask_visible)
+
+            pltCheck =  self.table.cellWidget(i, 2)
+            pltCheck.setChecked(stats.plot_visible)
+            
+            histCheck = self.table.cellWidget(i, 3)
+            histCheck.setChecked(stats.hist_visible)     
+                        
+            for j, column in enumerate(self.columns[4:]):
+            
+                if stats.active:
+                    attr = FUNCMAP[column]['attr']
+                    fmt = FUNCMAP[column]['fmt']
+                    value = getattr(stats, attr)()                    
+                    if isinstance(value, str):
+                        text = value
+                    else:
+                        text = fmt.format(value)
+                else:
+                    text = ''
+                    
+                item = self.table.item(i, j+4)
+                item.setText(text)            
             
             
     def cellClicked(self, row, column):
@@ -370,6 +408,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         actives = [form[i][0] for i in range(len(form)) if r[i]]
         
         self.setActiveColumns(actives)
+        self.formatTable()
         self.updateStatistics()
         
         
@@ -385,6 +424,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats[roi_name].active = True
             
+        self.formatTable()
         self.updateStatistics()
         
         
@@ -396,11 +436,13 @@ class StatisticsPanel(QtWidgets.QWidget):
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats[roi_name].active = False
             
+        self.formatTable()
         self.updateStatistics()        
         
         
     def toggleShowInactives(self):
         self.showInActives = not self.showInActives
+        self.formatTable()
         self.updateStatistics()
         
         
@@ -412,6 +454,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats.pop(roi_name)
             
+        self.formatTable()
         self.updateStatistics()
                         
         
