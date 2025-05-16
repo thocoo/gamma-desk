@@ -587,7 +587,7 @@ class ImageViewerWidget(QWidget):
             if not chanstat.is_valid(): continue
             if mask_name in PRE_DEF_MASK_NAMES: continue
             if mask_name.startswith('roi.'): continue
-            if not chanstat.mask_visible: continue
+            if not (chanstat.active and chanstat.mask_visible): continue
             
             y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]
             y0, y1 = y_slice.start, y_slice.stop

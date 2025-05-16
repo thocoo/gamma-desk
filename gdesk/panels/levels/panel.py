@@ -381,7 +381,7 @@ class Levels(QtWidgets.QWidget):
             bins = None
             step = self.panel.histSize        
         
-        clr_to_draw = [m for m, chanstat in chanstats.items() if chanstat.is_valid() and chanstat.hist_visible]  
+        clr_to_draw = [m for m, chanstat in chanstats.items() if chanstat.is_valid() and chanstat.active and chanstat.hist_visible]  
         
         self.levelplot.remove_all_but(clr_to_draw)
         
