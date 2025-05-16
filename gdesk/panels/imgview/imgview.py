@@ -1295,6 +1295,7 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
         self.imviewer.set_custom_selection(name, color)
+        self.imgprof.statsPanel.formatTable()
         self.refresh()
 
         
@@ -1392,6 +1393,7 @@ class ImageViewerBase(BasePanel):
         
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
+        self.imgprof.statsPanel.formatTable()
         self.refresh()
         
 
@@ -1929,6 +1931,7 @@ class ImageProfileWidget(QWidget):
             
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
+        self.statsPanel.formatTable()
         self.refresh()
         
         

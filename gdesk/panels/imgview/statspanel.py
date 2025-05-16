@@ -301,6 +301,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             item = self.table.item(i, 0)
             name = item.text()
             if not name in chanstats: continue
+            if not chanstats[name].is_valid(): continue
             
             stats = chanstats[name]
             
