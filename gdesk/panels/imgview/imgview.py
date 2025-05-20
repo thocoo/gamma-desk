@@ -1239,6 +1239,7 @@ class ImageViewerBase(BasePanel):
 
     def reselect(self):
         self.imviewer.roi.showRoi()
+        self.imgprof.statsPanel.formatTable()
         
 
     def selectNone(self):
@@ -1268,6 +1269,7 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
+        self.imgprof.statsPanel.formatTable()
         
 
     def addMaskStatistics(self):
@@ -2017,6 +2019,7 @@ class ImageProfileWidget(QWidget):
             selroi.yr.setfromslice(chanstats.slices[0])                                    
             roi.clip()
             roi.show()
+            self.imgprof.statsPanel.formatTable()
             roi.roiChanged.emit()                                     
         
         
