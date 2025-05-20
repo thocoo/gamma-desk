@@ -465,6 +465,7 @@ class ImageViewerWidget(QWidget):
             self.roi.setStartEndPoints(self.roiDragStartX, self.roiDragStartY, \
                 self.roiDragEndX - 1, self.roiDragEndY - 1)
             self.roi.show()
+            self.parent().statsPanel.formatTable()
 
         self.pickerPositionChanged.emit(*self.getImageCoordOfMouseEvent(event))
 
@@ -480,7 +481,6 @@ class ImageViewerWidget(QWidget):
         if (event.button() == Qt.RightButton):
             if self.roi.createState:
                 self.roi.release_creation()
-                #self.setCursor(self.pickCursor)
                 
             else:
                 x, y = self.getImageCoordOfMouseEvent(event)

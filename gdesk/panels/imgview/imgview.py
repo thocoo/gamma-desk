@@ -1243,6 +1243,7 @@ class ImageViewerBase(BasePanel):
 
     def selectNone(self):
         self.imviewer.roi.hideRoi()
+        self.imgprof.statsPanel.formatTable()
         
 
     def setRoi(self):
