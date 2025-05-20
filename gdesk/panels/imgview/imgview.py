@@ -1221,7 +1221,7 @@ class ImageViewerBase(BasePanel):
             rgb = (args['r'], args['g'], args['b'])                
             
         config['roi color'] = list(rgb)
-        self.imviewer.roi.initUI()
+        self.imviewer.roi.initUI()            
         
         
     def copySliceToClipboard(self):
@@ -2019,8 +2019,8 @@ class ImageProfileWidget(QWidget):
             selroi.yr.setfromslice(chanstats.slices[0])                                    
             roi.clip()
             roi.show()
-            self.imgprof.statsPanel.formatTable()
-            roi.roiChanged.emit()                                     
+            roi.roiChanged.emit()
+            self.imgprof.statsPanel.formatTable()           
         
         
     def drawRoiProfile(self):                     
