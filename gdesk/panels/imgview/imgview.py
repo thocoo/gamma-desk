@@ -1942,12 +1942,12 @@ class ImageProfileWidget(QWidget):
     
         if option in ['show roi only']:
             self.imviewer.roi.showRoi()
+            self.imviewer.imgdata.selectRoiOption(option)
             
         elif option == 'custom visibility':
             dialog = VisibilityDialog(self.imviewer.imgdata.chanstats)
             dialog.exec_()
-    
-        self.imviewer.imgdata.selectRoiOption(option)
+            
         self.refresh()        
         
 

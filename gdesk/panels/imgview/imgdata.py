@@ -472,8 +472,7 @@ class ImageData(object):
                 self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
-    def selectRoiOption(self, option: str):
-    
+    def selectRoiOption(self, option: str):        
         if option == 'show roi only':
         
             for mask, mask_props in self.chanstats.items():

@@ -309,39 +309,37 @@ class StatisticsPanel(QtWidgets.QWidget):
     def cellClicked(self, row, column):
         return
         
-        if column == 0:
+        # if column == 0:
         
-            selection = self.table.selectionModel().selectedRows()            
-            states = {}            
+            # selection = self.table.selectionModel().selectedRows()            
+            # states = {}            
             
-            nameCell = self.table.item(row, 0)
-            new_state = nameCell.checkState() == Qt.Checked
-            clickedMask = nameCell.text()
+            # nameCell = self.table.item(row, 0)
+            # new_state = nameCell.checkState() == Qt.Checked
+            # clickedMask = nameCell.text()
             
-            if len(selection) == 0:        
-                states[clickedMask] = new_state
+            # if len(selection) == 0:        
+                # states[clickedMask] = new_state
 
-            else:            
-                for index in selection:
-                    nameCell = self.table.item(index.row(), 0)
-                    mask = nameCell.text()
-                    states[mask] = new_state
+            # else:            
+                # for index in selection:
+                    # nameCell = self.table.item(index.row(), 0)
+                    # mask = nameCell.text()
+                    # states[mask] = new_state
                     
-                if not clickedMask in states:
-                    # The clicked row is not part of the selection
-                    # Ignore the selection and give the click the priority
-                    states = {clickedMask: new_state}
+                # if not clickedMask in states:
+                    # states = {clickedMask: new_state}
                 
-            do_update = False
+            # do_update = False
             
-            for mask, new_state in states.items():        
-                if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
-                    chanstats = self.imviewer.imgdata.chanstats[mask]
-                    chanstats.active = new_state
-                    do_update = True
+            # for mask, new_state in states.items():        
+                # if new_state != self.imviewer.imgdata.chanstats[mask].active:                 
+                    # chanstats = self.imviewer.imgdata.chanstats[mask]
+                    # chanstats.active = new_state
+                    # do_update = True
                     
-            if do_update:
-                self.activesChanged.emit()                
+            # if do_update:
+                # self.activesChanged.emit()                
                 
     def setMaskView(self, row, checked):
         
@@ -461,20 +459,12 @@ class TitleToolBar(QtWidgets.QWidget):
         self.hbox.addStretch(1)
         self.hbox.addWidget(QtWidgets.QLabel('Masks'))
         self.hbox.addStretch(1)
-        
-        self.roiSelectMenu = QtWidgets.QMenu('Show Roi')
-        self.roiSelectMenu.addAction(QtWidgets.QAction("All", self, triggered=lambda: self.selectRoi.emit('all')))
-        self.roiSelectMenu.addAction(QtWidgets.QAction("Show Roi only",  self, triggered=lambda: self.selectRoi.emit('show roi only'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))
-        self.roiSelectMenu.addAction(QtWidgets.QAction("Hide ROI",   self, triggered=lambda: self.selectRoi.emit('hide roi')))        
-        self.roiSelectMenu.addAction(QtWidgets.QAction("Customize...",   self, triggered=lambda: self.selectRoi.emit('custom visibility')))        
-        
-        self.roiSelectBtn = QtWidgets.QToolButton()
-        self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
-        self.roiSelectBtn.setToolTip('Show/Hide Roi')
-        self.roiSelectBtn.setMenu(self.roiSelectMenu)
-        self.roiSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
-        
-        self.hbox.addWidget(self.roiSelectBtn)
+          
+        self.eyeBtn = QtWidgets.QToolButton()
+        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
+        self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
+        self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))          
+        self.hbox.addWidget(self.eyeBtn)
         
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
@@ -508,26 +498,48 @@ class TitleToolBar(QtWidgets.QWidget):
         self.hbox.addWidget(self.showHideInactivesBtn)
 
 
+class VisibilityToolBar(QtWidgets.QToolBar):
+
+    selectRoi = QtCore.Signal(str)    
+
+    def __init__(self, *args, **kwargs):    
+        super().__init__(*args, **kwargs) 
+        self.initUi()
+        
+    def initUi(self):
+        
+        self.addAction('All', lambda: self.selectRoi.emit('all'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
+        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
+
 
 class VisibilityDialog(QtWidgets.QDialog): 
     
     def __init__(self, chanstats):    
         super().__init__() 
         self.chanstats = chanstats
-        self.initUi()
+        self.initUi()        
         
         
-    def initUi(self):        
-        self.table = QtWidgets.QTableWidget()       
+    def initUi(self):
+        self.setWindowTitle('Masks Visible')                        
+                
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
         self.vbox.setSpacing(0)
-        self.setLayout(self.vbox)                       
+        self.setLayout(self.vbox)     
+        
+        self.toolbar = VisibilityToolBar(self)
+        self.toolbar.selectRoi.connect(self.selectRoi)
+        
+        self.vbox.addWidget(self.toolbar)
+        self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
         headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
+        self.table.verticalHeader().hide()
         
         chanstats = self.chanstats
         
@@ -599,3 +611,43 @@ class VisibilityDialog(QtWidgets.QDialog):
         stat = self.chanstats[maskName]
         stat.hist_visible = checked        
         #self.activesChanged.emit()             
+        
+        
+    def selectRoi(self, preset):
+        
+        def setMaskStats(name, row, checked):
+            item = self.table.cellWidget(row, 1)
+            item.setChecked(checked)
+            stat = self.chanstats[name]
+            stat.active = checked
+        
+        if preset == 'show roi only':
+            
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 0)
+                name = item.text()
+                
+                if name.startswith('roi.'):
+                    setMaskStats(name, row, True)
+                    
+                else:
+                    setMaskStats(name, row, False)
+            
+        elif preset == 'hide roi':
+            
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 0)
+                name = item.text()            
+                
+                if name.startswith('roi.'):
+                    setMaskStats(name, row, False)
+                    
+                else:
+                    setMaskStats(name, row, True)
+                    
+        else:        
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 0)
+                name = item.text()
+                setMaskStats(name, row, True)
+                            
