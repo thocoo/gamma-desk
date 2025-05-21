@@ -544,16 +544,38 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table.setContextMenuPolicy(Qt.CustomContextMenu) 
         self.table.customContextMenuRequested.connect(self.handleContextMenu)
         
-        self.contextMenu = QtWidgets.QMenu('Mask')     
-        # act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
-        # self.contextMenu.addAction(act)
+        self.contextMenu = QtWidgets.QMenu('Mask') 
+        act = QtWidgets.QAction('Statistics', self, triggered=lambda: self.setCheckedOnSelection(1))
+        self.contextMenu.addAction(act)        
+        act = QtWidgets.QAction('Viewer', self, triggered=lambda: self.setCheckedOnSelection(2))
+        self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Profile', self, triggered=lambda: self.setCheckedOnSelection(3))
+        self.contextMenu.addAction(act)        
+        act = QtWidgets.QAction('Levels', self, triggered=lambda: self.setCheckedOnSelection(4))
+        self.contextMenu.addAction(act)        
+        
         act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
         self.contextMenu.addAction(act)      
         act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
-        self.contextMenu.addAction(act)        
+        self.contextMenu.addAction(act)  
+        self.populateTable()
         
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(10,10,10,10)
+        self.vbox.addLayout(hbox)
+        
+        hbox.addStretch(1)
+        self.okBtn = QtWidgets.QPushButton('Ok')
+        self.okBtn.clicked.connect(self.okPressed)
+        hbox.addWidget(self.okBtn)
+        
+        
+    def okPressed(self):
+        self.accept()        
+        
+        
+    def populateTable(self):
         chanstats = self.chanstats
-        
         valid_stats_names = sort_masks([name for name, stats in chanstats.items() if stats.is_valid()])
         self.table.setRowCount(len(valid_stats_names))        
         self.table.setVerticalHeaderLabels(valid_stats_names)
@@ -701,7 +723,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.chanstats.pop(maskName)
         self.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)
         
-        self.initUi()
+        self.populateTable()
 
 
     def removeSelectedStatistics(self):
@@ -711,5 +733,36 @@ class VisibilityDialog(QtWidgets.QDialog):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.chanstats.pop(roi_name)
+
+        self.populateTable() 
+        
+        
+    def setCheckedOnSelection(self, column=2):
+        selection = self.table.selectionModel().selectedRows()
+        
+        checked = 0
+        
+        for index in selection:
+            selected_row = index.row()
+            item = self.table.cellWidget(selected_row, column)
             
-        self.initUi()     
+            if item.isChecked():
+                checked += 1
+                
+            else:
+                checked -= 1
+                
+        check = not (checked >= 0)
+        
+        print(column, check)
+
+        for index in selection:
+            selected_row = index.row()
+            item = self.table.cellWidget(selected_row, column)    
+            #item.setChecked(check)
+            item.setChecked(check)
+
+
+        
+        
+        
