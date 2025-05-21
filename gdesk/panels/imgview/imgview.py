@@ -1945,7 +1945,7 @@ class ImageProfileWidget(QWidget):
             self.imviewer.imgdata.selectRoiOption(option)
             
         elif option == 'custom visibility':
-            dialog = VisibilityDialog(self.imviewer.imgdata.chanstats)
+            dialog = VisibilityDialog(self.imviewer.imgdata)
             dialog.exec_()
             
         self.refresh()        
@@ -2024,7 +2024,7 @@ class ImageProfileWidget(QWidget):
             roi.clip()
             roi.show()
             roi.roiChanged.emit()
-            self.imgprof.statsPanel.formatTable()           
+            self.statsPanel.formatTable()           
         
         
     def drawRoiProfile(self):                     

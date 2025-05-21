@@ -130,7 +130,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.setImviewSelection)
         #self.table.cellClicked.connect(self.cellClicked)
-        self.table.customContextMenuRequested.connect(self.handleContextMenu)        
+        self.table.customContextMenuRequested.connect(self.handleContextMenu)
         
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setContentsMargins(0,0,0,0)
@@ -180,8 +180,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         for index in selection:
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
-            self.setSelection.emit(roi_name)        
-                        
+            self.setSelection.emit(roi_name)
         
         
     def selectionChanged(self, selected, deselected):
@@ -467,7 +466,7 @@ class TitleToolBar(QtWidgets.QWidget):
         self.hbox.addWidget(self.eyeBtn)
         
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
-        #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))
         self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.selectMasks.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
         self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.selectMasks.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
         self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.selectMasks.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
@@ -515,9 +514,10 @@ class VisibilityToolBar(QtWidgets.QToolBar):
 
 class VisibilityDialog(QtWidgets.QDialog): 
     
-    def __init__(self, chanstats):    
-        super().__init__() 
-        self.chanstats = chanstats
+    def __init__(self, imgdata):    
+        super().__init__()
+        self.imgdata = imgdata
+        self.chanstats = imgdata.chanstats
         self.initUi()        
         
         
@@ -536,10 +536,21 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
-        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels']
+        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Slices']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.verticalHeader().hide()
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu) 
+        self.table.customContextMenuRequested.connect(self.handleContextMenu)
+        
+        self.contextMenu = QtWidgets.QMenu('Mask')     
+        # act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
+        # self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
+        self.contextMenu.addAction(act)      
+        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
+        self.contextMenu.addAction(act)        
         
         chanstats = self.chanstats
         
@@ -548,15 +559,14 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table.setVerticalHeaderLabels(valid_stats_names)
         
         for i, name in enumerate(valid_stats_names):
+            self.table.setRowHeight(i, 20)
             stats = chanstats[name]       
             
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
             item_name.setBackground(QtGui.QColor(R, G, B, 128))            
-            
             self.table.setItem(i, 0, item_name)                        
-            self.table.setRowHeight(i, 20)             
-            
+      
             statsheck = CheckBox(i, stats.active)
             statsheck.checkedSignal.connect(self.setMaskStats)
             self.table.setCellWidget(i, 1, statsheck)               
@@ -574,9 +584,16 @@ class VisibilityDialog(QtWidgets.QDialog):
             
             histCheck = CheckBox(i, stats.hist_visible)
             histCheck.checkedSignal.connect(self.setMaskHist)
-            self.table.setCellWidget(i, 4, histCheck)    
+            self.table.setCellWidget(i, 4, histCheck) 
+      
+            slices = QtWidgets.QTableWidgetItem(stats.slices_repr())          
+            self.table.setItem(i, 5, slices)              
             
-            
+
+    def handleContextMenu(self, pos):      
+        self.contextMenu.exec_(QtGui.QCursor().pos())
+
+        
     def setMaskStats(self, row, checked):        
         nameCell = self.table.item(row, 0)
         maskName = nameCell.text()           
@@ -650,4 +667,49 @@ class VisibilityDialog(QtWidgets.QDialog):
                 item = self.table.item(row, 0)
                 name = item.text()
                 setMaskStats(name, row, True)
-                            
+            
+            
+    def modifyMask(self):
+        row=None
+        column=None
+        
+        if row is None and column is None:
+            indices = self.table.selectionModel().selectedRows()
+            row = list(indices)[0].row()
+        
+        maskName = self.table.item(row, 0).text()
+        
+        chanstat = self.chanstats.get(maskName)
+        
+        form = [('Name',  maskName),
+                ('Color',  chanstat.plot_color.name()),
+                ('x start', chanstat.slices[1].start),
+                ('x stop', chanstat.slices[1].stop),
+                ('x step', chanstat.slices[1].step),
+                ('y start', chanstat.slices[0].start),
+                ('y stop',chanstat.slices[0].stop),
+                ('y step', chanstat.slices[0].step)]
+
+        r = fedit(form, title='Change Roi Statistics') 
+        if r is None: return        
+
+        newMaskName = r[0]
+        color = QtGui.QColor(r[1])
+        h_slice = slice(r[2], r[3], r[4])
+        v_slice = slice(r[5], r[6], r[7])    
+
+        self.chanstats.pop(maskName)
+        self.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)
+        
+        self.initUi()
+
+
+    def removeSelectedStatistics(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.chanstats.pop(roi_name)
+            
+        self.initUi()     
