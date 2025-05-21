@@ -110,7 +110,7 @@ from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .imgdata import get_next_color_tuple
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel, TitleToolBar
+from .statspanel import StatisticsPanel, TitleToolBar, VisibilityDialog
 
 
 here = Path(__file__).parent.absolute()
@@ -1942,6 +1942,10 @@ class ImageProfileWidget(QWidget):
     
         if option in ['show roi only']:
             self.imviewer.roi.showRoi()
+            
+        elif option == 'custom visibility':
+            dialog = VisibilityDialog(self.imviewer.imgdata.chanstats)
+            dialog.exec_()
     
         self.imviewer.imgdata.selectRoiOption(option)
         self.refresh()        

@@ -330,7 +330,14 @@ class StatisticsPanel(QtWidgets.QWidget):
                     text = ''
                     
                 item = self.table.item(i, j+4)
-                item.setText(text)            
+                item.setText(text)
+                
+                
+    def set_visibility(self):
+        chanstats = self.imviewer.imgdata.chanstats
+        
+        
+        
             
             
     def cellClicked(self, row, column):
@@ -491,6 +498,7 @@ class TitleToolBar(QtWidgets.QWidget):
         self.roiSelectMenu.addAction(QtWidgets.QAction("All", self, triggered=lambda: self.selectRoi.emit('all')))
         self.roiSelectMenu.addAction(QtWidgets.QAction("Show Roi only",  self, triggered=lambda: self.selectRoi.emit('show roi only'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))
         self.roiSelectMenu.addAction(QtWidgets.QAction("Hide ROI",   self, triggered=lambda: self.selectRoi.emit('hide roi')))        
+        self.roiSelectMenu.addAction(QtWidgets.QAction("Customize...",   self, triggered=lambda: self.selectRoi.emit('custom visibility')))        
         
         self.roiSelectBtn = QtWidgets.QToolButton()
         self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
@@ -530,3 +538,84 @@ class TitleToolBar(QtWidgets.QWidget):
         # self.showHideInactiveBtn.setFixedWidth(20)
         self.showHideInactivesBtn.clicked.connect(lambda: self.toggleDock.emit())           
         self.hbox.addWidget(self.showHideInactivesBtn)
+
+
+
+class VisibilityDialog(QtWidgets.QDialog): 
+    
+    def __init__(self, chanstats):    
+        super().__init__() 
+        self.chanstats = chanstats
+        self.initUi()
+        
+        
+    def initUi(self):        
+        self.table = QtWidgets.QTableWidget()       
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.vbox.setContentsMargins(0,0,0,0)
+        self.vbox.setSpacing(0)
+        self.setLayout(self.vbox)                       
+        self.vbox.addWidget(self.table)
+        
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(['Name', 'Viewer', 'Profile', 'Levels'])
+        
+        chanstats = self.chanstats
+        
+        valid_stats_names = sort_masks([name for name, stats in chanstats.items() if stats.is_valid()])
+        self.table.setRowCount(len(valid_stats_names))        
+        self.table.setVerticalHeaderLabels(valid_stats_names)
+        
+        for i, name in enumerate(valid_stats_names):
+            stats = chanstats[name]       
+            
+            item_name = QtWidgets.QTableWidgetItem(name)
+            R, G, B, A = stats.plot_color.getRgb()
+            item_name.setBackground(QtGui.QColor(R, G, B, 128))
+            item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
+            
+            self.table.setItem(i, 0, item_name)                        
+            self.table.setRowHeight(i, 20)             
+            
+            visCheck = CheckBox(i, stats.mask_visible)
+            visCheck.checkedSignal.connect(self.setMaskView)
+            self.table.setCellWidget(i, 1, visCheck)   
+            
+            if name in RESERVED_MASK_FULL: visCheck.setEnabled(False)
+
+            pltCheck = CheckBox(i, stats.plot_visible)
+            pltCheck.checkedSignal.connect(self.setMaskPlot)
+            self.table.setCellWidget(i, 2, pltCheck) 
+            
+            histCheck = CheckBox(i, stats.hist_visible)
+            histCheck.checkedSignal.connect(self.setMaskHist)
+            self.table.setCellWidget(i, 3, histCheck)    
+            
+            
+    def setMaskView(self, row, checked):
+        
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()   
+
+        if maskName in RESERVED_MASK_FULL: return
+        
+        stat = self.chanstats[maskName]
+        stat.mask_visible = checked          
+        #self.activesChanged.emit()           
+            
+            
+    def setMaskPlot(self, row, checked):
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()          
+        stat = self.chanstats[maskName]
+        stat.plot_visible = checked        
+        #self.activesChanged.emit()
+                
+        
+    def setMaskHist(self, row, checked):
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()          
+        stat = self.chanstats[maskName]
+        stat.hist_visible = checked        
+        #self.activesChanged.emit()             
