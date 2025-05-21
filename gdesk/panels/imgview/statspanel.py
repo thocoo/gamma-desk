@@ -129,7 +129,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.table.selectionModel().currentRowChanged.connect(self.currentRowChanged)
         self.table.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.table.cellDoubleClicked.connect(self.setImviewSelection)
-        self.table.cellClicked.connect(self.cellClicked)
+        #self.table.cellClicked.connect(self.cellClicked)
         self.table.customContextMenuRequested.connect(self.handleContextMenu)        
         
         self.vbox = QtWidgets.QVBoxLayout()
@@ -156,13 +156,9 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
-        self.columns = ["Name", "V", "P", "H"] + columns
+        self.columns = ["Name"] + columns
         self.table.setColumnCount(len(self.columns))
-        self.table.setHorizontalHeaderLabels(self.columns)
-        
-        self.table.setColumnWidth(1, 20)
-        self.table.setColumnWidth(2, 20)
-        self.table.setColumnWidth(3, 20)
+        self.table.setHorizontalHeaderLabels(self.columns)        
         
     
     @property
@@ -253,27 +249,10 @@ class StatisticsPanel(QtWidgets.QWidget):
             
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
-            item_name.setBackground(QtGui.QColor(R, G, B, 128))
-            item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-            item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
-            
-            self.table.setItem(i, 0, item_name)
-            
-            visCheck = CheckBox(i, stats.mask_visible)
-            visCheck.checkedSignal.connect(self.setMaskView)
-            self.table.setCellWidget(i, 1, visCheck)   
-            
-            if name in RESERVED_MASK_FULL: visCheck.setEnabled(False)
-
-            pltCheck = CheckBox(i, stats.plot_visible)
-            pltCheck.checkedSignal.connect(self.setMaskPlot)
-            self.table.setCellWidget(i, 2, pltCheck) 
-            
-            histCheck = CheckBox(i, stats.hist_visible)
-            histCheck.checkedSignal.connect(self.setMaskHist)
-            self.table.setCellWidget(i, 3, histCheck)             
+            item_name.setBackground(QtGui.QColor(R, G, B, 128))            
+            self.table.setItem(i, 0, item_name)            
                         
-            for j, column in enumerate(self.columns[4:]):
+            for j, column in enumerate(self.columns[1:]):
             
                 if stats.active:
                     attr = FUNCMAP[column]['attr']
@@ -287,7 +266,7 @@ class StatisticsPanel(QtWidgets.QWidget):
                     text = ''
                     
                 item = QtWidgets.QTableWidgetItem(text)                                        
-                self.table.setItem(i, 4 + j, item)
+                self.table.setItem(i, 1 + j, item)
             
             self.table.setRowHeight(i, 20)        
 
@@ -303,20 +282,9 @@ class StatisticsPanel(QtWidgets.QWidget):
             if not name in chanstats: continue
             if not chanstats[name].is_valid(): continue
             
-            stats = chanstats[name]
-            
-            item.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)            
-            
-            visCheck = self.table.cellWidget(i, 1)
-            visCheck.setChecked(stats.mask_visible)
-
-            pltCheck =  self.table.cellWidget(i, 2)
-            pltCheck.setChecked(stats.plot_visible)
-            
-            histCheck = self.table.cellWidget(i, 3)
-            histCheck.setChecked(stats.hist_visible)     
+            stats = chanstats[name] 
                         
-            for j, column in enumerate(self.columns[4:]):
+            for j, column in enumerate(self.columns[1:]):
             
                 if stats.active:
                     attr = FUNCMAP[column]['attr']
@@ -329,18 +297,18 @@ class StatisticsPanel(QtWidgets.QWidget):
                 else:
                     text = ''
                     
-                item = self.table.item(i, j+4)
+                item = self.table.item(i, j+1)
                 item.setText(text)
                 
                 
     def set_visibility(self):
         chanstats = self.imviewer.imgdata.chanstats
         
-        
-        
-            
+
             
     def cellClicked(self, row, column):
+        return
+        
         if column == 0:
         
             selection = self.table.selectionModel().selectedRows()            
@@ -557,8 +525,9 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.setLayout(self.vbox)                       
         self.vbox.addWidget(self.table)
         
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(['Name', 'Viewer', 'Profile', 'Levels'])
+        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels']
+        self.table.setColumnCount(len(headers))
+        self.table.setHorizontalHeaderLabels(headers)
         
         chanstats = self.chanstats
         
@@ -571,26 +540,36 @@ class VisibilityDialog(QtWidgets.QDialog):
             
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
-            item_name.setBackground(QtGui.QColor(R, G, B, 128))
-            item_name.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-            item_name.setCheckState(QtCore.Qt.Checked if stats.active else QtCore.Qt.Unchecked)
+            item_name.setBackground(QtGui.QColor(R, G, B, 128))            
             
             self.table.setItem(i, 0, item_name)                        
             self.table.setRowHeight(i, 20)             
             
+            statsheck = CheckBox(i, stats.active)
+            statsheck.checkedSignal.connect(self.setMaskStats)
+            self.table.setCellWidget(i, 1, statsheck)               
+            
             visCheck = CheckBox(i, stats.mask_visible)
             visCheck.checkedSignal.connect(self.setMaskView)
-            self.table.setCellWidget(i, 1, visCheck)   
+            self.table.setCellWidget(i, 2, visCheck)   
             
             if name in RESERVED_MASK_FULL: visCheck.setEnabled(False)
+            if name in RESERVED_MASK_ROI: visCheck.setEnabled(False)
 
             pltCheck = CheckBox(i, stats.plot_visible)
             pltCheck.checkedSignal.connect(self.setMaskPlot)
-            self.table.setCellWidget(i, 2, pltCheck) 
+            self.table.setCellWidget(i, 3, pltCheck) 
             
             histCheck = CheckBox(i, stats.hist_visible)
             histCheck.checkedSignal.connect(self.setMaskHist)
-            self.table.setCellWidget(i, 3, histCheck)    
+            self.table.setCellWidget(i, 4, histCheck)    
+            
+            
+    def setMaskStats(self, row, checked):        
+        nameCell = self.table.item(row, 0)
+        maskName = nameCell.text()           
+        stat = self.chanstats[maskName]
+        stat.active = checked              
             
             
     def setMaskView(self, row, checked):
@@ -599,6 +578,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         maskName = nameCell.text()   
 
         if maskName in RESERVED_MASK_FULL: return
+        if maskName in RESERVED_MASK_ROI: return
         
         stat = self.chanstats[maskName]
         stat.mask_visible = checked          
