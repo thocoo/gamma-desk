@@ -152,7 +152,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
         self.contextMenu.addAction(act)
 
-        self.showInActives = True
+        #self.showInActives = True
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
@@ -234,12 +234,8 @@ class StatisticsPanel(QtWidgets.QWidget):
 
     def formatTable(self):    
     
-        chanstats = self.imviewer.imgdata.chanstats
-        
-        if self.showInActives:
-            valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid()]
-        else:
-            valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active]
+        chanstats = self.imviewer.imgdata.chanstats        
+        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active]
             
         self.table.setRowCount(len(valid_stats_names))
         
@@ -267,13 +263,14 @@ class StatisticsPanel(QtWidgets.QWidget):
                 item = QtWidgets.QTableWidgetItem(text)                                        
                 self.table.setItem(i, 1 + j, item)
             
-            self.table.setRowHeight(i, 20)        
+            self.table.setRowHeight(i, 20)      
+
+        self.table.resizeColumnsToContents()
 
         
     def updateStatistics(self):    
     
-        chanstats = self.imviewer.imgdata.chanstats
-        
+        chanstats = self.imviewer.imgdata.chanstats        
         
         for i in range(self.table.rowCount()):
             item = self.table.item(i, 0)
@@ -436,6 +433,7 @@ class TitleToolBar(QtWidgets.QWidget):
     
     toggleProfile = Signal()
     showHideInactives = Signal()
+    refresh = Signal()
     toggleDock = Signal()
     selectMasks = Signal(str)
     selectRoi = Signal(str)
@@ -482,17 +480,18 @@ class TitleToolBar(QtWidgets.QWidget):
         
         self.hbox.addWidget(self.masksSelectBtn)        
         
-        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'check_boxes.png')), None, self)
-        self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
-        # self.showHideInactiveBtn.setFixedHeight(20)
-        # self.showHideInactiveBtn.setFixedWidth(20)
-        self.showHideInactivesBtn.clicked.connect(lambda: self.showHideInactives.emit())           
-        self.hbox.addWidget(self.showHideInactivesBtn)                
+        # self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'check_boxes.png')), None, self)
+        # self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
+        # self.showHideInactivesBtn.clicked.connect(lambda: self.showHideInactives.emit())           
+        # self.hbox.addWidget(self.showHideInactivesBtn)      
+
+        self.refreshBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')), None, self)
+        self.refreshBtn.setToolTip("Show/Hide Inactive Roi's")
+        self.refreshBtn.clicked.connect(lambda: self.refresh.emit())           
+        self.hbox.addWidget(self.refreshBtn)         
         
         self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), None, self)
         self.showHideInactivesBtn.setToolTip("Dock/Undock")
-        # self.showHideInactiveBtn.setFixedHeight(20)
-        # self.showHideInactiveBtn.setFixedWidth(20)
         self.showHideInactivesBtn.clicked.connect(lambda: self.toggleDock.emit())           
         self.hbox.addWidget(self.showHideInactivesBtn)
 
@@ -500,6 +499,7 @@ class TitleToolBar(QtWidgets.QWidget):
 class VisibilityToolBar(QtWidgets.QToolBar):
 
     selectRoi = QtCore.Signal(str)    
+    moveItem = QtCore.Signal(str)
 
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -510,6 +510,8 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addAction('All', lambda: self.selectRoi.emit('all'))
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
         self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))        
 
 
 class VisibilityDialog(QtWidgets.QDialog): 
@@ -531,6 +533,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         
         self.toolbar = VisibilityToolBar(self)
         self.toolbar.selectRoi.connect(self.selectRoi)
+        self.toolbar.moveItem.connect(self.moveItem)
         
         self.vbox.addWidget(self.toolbar)
         self.table = QtWidgets.QTableWidget()       
@@ -544,22 +547,6 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table.setContextMenuPolicy(Qt.CustomContextMenu) 
         self.table.customContextMenuRequested.connect(self.handleContextMenu)
         
-        self.contextMenu = QtWidgets.QMenu('Mask') 
-        act = QtWidgets.QAction('Statistics', self, triggered=lambda: self.setCheckedOnSelection(1))
-        self.contextMenu.addAction(act)        
-        act = QtWidgets.QAction('Viewer', self, triggered=lambda: self.setCheckedOnSelection(2))
-        self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Profile', self, triggered=lambda: self.setCheckedOnSelection(3))
-        self.contextMenu.addAction(act)        
-        act = QtWidgets.QAction('Levels', self, triggered=lambda: self.setCheckedOnSelection(4))
-        self.contextMenu.addAction(act)        
-        
-        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
-        self.contextMenu.addAction(act)      
-        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
-        self.contextMenu.addAction(act)  
-        self.populateTable()
-        
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(10,10,10,10)
         self.vbox.addLayout(hbox)
@@ -568,6 +555,9 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.okBtn = QtWidgets.QPushButton('Ok')
         self.okBtn.clicked.connect(self.okPressed)
         hbox.addWidget(self.okBtn)
+        
+        self.populateTable()
+        self.table.resizeColumnsToContents() 
         
         
     def okPressed(self):
@@ -609,10 +599,40 @@ class VisibilityDialog(QtWidgets.QDialog):
             self.table.setCellWidget(i, 4, histCheck) 
       
             slices = QtWidgets.QTableWidgetItem(stats.slices_repr())          
-            self.table.setItem(i, 5, slices)              
-            
+            self.table.setItem(i, 5, slices)      
+ 
 
     def handleContextMenu(self, pos):      
+        
+        self.contextMenu = QtWidgets.QMenu('Mask') 
+        
+        averageCheckStates = self.getAverageCheckStates()
+        
+        act = QtWidgets.QAction('Statistics', self, triggered=lambda: self.setCheckedOnSelection(1))
+        act.setCheckable(True)
+        act.setChecked(averageCheckStates[1] >= 0)
+        self.contextMenu.addAction(act)        
+        act = QtWidgets.QAction('Viewer', self, triggered=lambda: self.setCheckedOnSelection(2))
+        act.setCheckable(True)
+        act.setChecked(averageCheckStates[2] >= 0)
+        self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Profile', self, triggered=lambda: self.setCheckedOnSelection(3))
+        act.setCheckable(True)
+        act.setChecked(averageCheckStates[3] >= 0)
+        self.contextMenu.addAction(act)        
+        act = QtWidgets.QAction('Levels', self, triggered=lambda: self.setCheckedOnSelection(4))
+        act.setCheckable(True)
+        act.setChecked(averageCheckStates[4] >= 0)
+        self.contextMenu.addAction(act)        
+        
+        self.contextMenu.addSeparator()
+        
+        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
+        self.contextMenu.addAction(act)      
+        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
+        self.contextMenu.addAction(act)  
+        
+        
         self.contextMenu.exec_(QtGui.QCursor().pos())
 
         
@@ -689,7 +709,40 @@ class VisibilityDialog(QtWidgets.QDialog):
                 item = self.table.item(row, 0)
                 name = item.text()
                 setMaskStats(name, row, True)
+                
+    def moveItem(self, direction):
+        selectionModel = self.table.selectionModel()
+        selection = selectionModel.selectedRows()
+        
+        new_positions = []
+        
+        if direction == 'up':
+            for index in selection:
+                row = index.row()
+                cell = self.table.item(row, 0)
+                name = cell.text()
+                pos = self.chanstats.get_position(name)
+                self.chanstats.move_to_position(name, pos-1)
+                new_positions.append(row-1)
             
+        elif direction == 'down':
+            for index in reversed(selection):
+                row = index.row()
+                cell = self.table.item(row, 0)
+                name = cell.text()
+                pos = self.chanstats.get_position(name)
+                self.chanstats.move_to_position(name, pos+1)      
+                new_positions.append(row+1)
+
+        selectionModel.clearSelection()                
+        
+        topLeft = selectionModel.model().createIndex(min(new_positions), 0)
+        bottomRight = selectionModel.model().createIndex(max(new_positions), 5)
+        selection = QtCore.QItemSelection(topLeft, bottomRight)        
+        selectionModel.select(selection, QtCore.QItemSelectionModel.Select)
+          
+        self.populateTable()
+        
             
     def modifyMask(self):
         row=None
@@ -759,8 +812,29 @@ class VisibilityDialog(QtWidgets.QDialog):
         for index in selection:
             selected_row = index.row()
             item = self.table.cellWidget(selected_row, column)    
-            #item.setChecked(check)
             item.setChecked(check)
+            
+    
+    def getAverageCheckStates(self):
+  
+        selection = self.table.selectionModel().selectedRows()
+        
+        checked = 0
+        
+        results = {1:0, 2:0, 3:0, 4:0}
+        
+        for index in selection:
+            selected_row = index.row()
+            for column in [1, 2, 3, 4]:
+                item = self.table.cellWidget(selected_row, column)
+                
+                if item.isChecked():
+                    results[column] += 1
+                    
+                else:
+                    results[column] -= 1
+                
+        return results
 
 
         

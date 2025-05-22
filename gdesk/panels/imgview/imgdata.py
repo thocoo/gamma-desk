@@ -123,10 +123,13 @@ class OrderedStats(UserDict):
         self.data.clear()
         self.order.clear()
         
+    def get_position(self, key):
+        return  self.order.index(key)
+        
         
     def move_to_position(self, key, index=0):
         self.order.remove(key)
-        self.order.insert(index, key)        
+        self.order.insert(index, key)
             
             
     def move_to_end(self, key, last=True):

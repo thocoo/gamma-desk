@@ -1883,7 +1883,8 @@ class ImageProfileWidget(QWidget):
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
+        #self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
+        self.statsToolbar.refresh.connect(self.statsPanel.formatTable)        
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         #self.toolbar = RoiToolBar(self.corner)
