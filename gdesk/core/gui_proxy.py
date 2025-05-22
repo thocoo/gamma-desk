@@ -418,27 +418,35 @@ class GuiProxy(object):
         gui.qapp.panels.restore_state_from_config(name)        
 
 
-    def show(self, *args, **argv):
+    def show(self, *args, **kwargs):
         """
-        Shows a object in an suitable panel
+        Shows the given arrays in an suitable panel.
 
-        You can give more then one object to display, multiple viewers will be created.
+        You can give more than one object to display; multiple viewers will be created.
 
-        :param int select: selects which viewer shows the object (start with 1! 0 in GH1)
-            negative numbers stands for last selected, or the selected before that, or before that                 
-        """        
-        objcount = len(args)
-        panids = argv.get('select', range(-objcount, 0))
-        panid = None
+        Usage:
         
+            gui.show(frame)
+            gui.show(frame_a, frame_b)
+            gui.show(frame_a, frame_b, select=[1, 3])
+
+        :param args: Frames to display.  Array dimension count must be two (mono) or three (R/G/B).
+            Data type may be float or uint. 
+        :param select: List of viewer indices to show the respective image .selects which viewer shows the object (start with 1! 0 in GH1)
+            negative numbers stands for last selected, or the selected before that, or before that
+        """
+        objcount = len(args)
+        panids = kwargs.get('select', range(-objcount, 0))
+        panid = None
+
         for obj, panid in zip(args, panids):
-            if isinstance(obj, np.ndarray):   
-                self.img.select(panid)              
-                panid = self.img.show(obj)                                                                                 
-                
+            if isinstance(obj, np.ndarray):
+                self.img.select(panid)
+                panid = self.img.show(obj)
+
         return panid
 
-    
+
     @property
     def vs(self):
         """
