@@ -1865,13 +1865,7 @@ class ImageProfileWidget(QWidget):
         self.profBtn1.setToolTip('Show/Hide row and column profiles')
         self.profBtn1.setFixedHeight(20)
         self.profBtn1.setFixedWidth(20)
-        self.profBtn1.clicked.connect(self.toggleProfileVisible)     
-
-        # self.profBtn2 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
-        # self.profBtn2.setToolTip('Show/Hide row and column profiles')
-        # self.profBtn2.setFixedHeight(20)
-        # self.profBtn2.setFixedWidth(20)
-        # self.profBtn2.clicked.connect(self.toggleProfileVisible)          
+        self.profBtn1.clicked.connect(self.toggleProfileVisible)       
         
         self.corner = QtWidgets.QMainWindow()        
         self.corner.setCentralWidget(self.profBtn1)        
@@ -1948,6 +1942,7 @@ class ImageProfileWidget(QWidget):
         elif option == 'custom visibility':
             dialog = VisibilityDialog(self.imviewer.imgdata)
             dialog.exec_()
+            self.statsPanel.formatTable()
             
         self.refresh()        
         
