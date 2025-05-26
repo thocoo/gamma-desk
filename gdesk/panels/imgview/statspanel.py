@@ -458,7 +458,7 @@ class TitleToolBar(QtWidgets.QWidget):
         self.hbox.addStretch(1)
           
         self.eyeBtn = QtWidgets.QToolButton()
-        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
+        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))      
         self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
         self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))          
         self.hbox.addWidget(self.eyeBtn)
@@ -478,12 +478,7 @@ class TitleToolBar(QtWidgets.QWidget):
         self.masksSelectBtn.setMenu(self.masksSelectMenu)
         self.masksSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
         
-        self.hbox.addWidget(self.masksSelectBtn)        
-        
-        # self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'check_boxes.png')), None, self)
-        # self.showHideInactivesBtn.setToolTip("Show/Hide Inactive Roi's")
-        # self.showHideInactivesBtn.clicked.connect(lambda: self.showHideInactives.emit())           
-        # self.hbox.addWidget(self.showHideInactivesBtn)      
+        self.hbox.addWidget(self.masksSelectBtn)                
 
         self.refreshBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')), None, self)
         self.refreshBtn.setToolTip("Show/Hide Inactive Roi's")
@@ -500,6 +495,7 @@ class VisibilityToolBar(QtWidgets.QToolBar):
 
     selectRoi = QtCore.Signal(str)    
     moveItem = QtCore.Signal(str)
+    maskPreset = QtCore.Signal(str)
 
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs) 
@@ -511,7 +507,23 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
         self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))    
+
+        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
+        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.maskPreset.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.maskPreset.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
+        
+        self.masksPresetBtn = QtWidgets.QToolButton()
+        self.masksPresetBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        self.masksPresetBtn.setToolTip('Select one of the default masks options')
+        self.masksPresetBtn.setMenu(self.masksSelectMenu)
+        self.masksPresetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+
+        self.addWidget(self.masksPresetBtn)         
 
 
 class VisibilityDialog(QtWidgets.QDialog): 
@@ -534,6 +546,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.toolbar = VisibilityToolBar(self)
         self.toolbar.selectRoi.connect(self.selectRoi)
         self.toolbar.moveItem.connect(self.moveItem)
+        self.toolbar.maskPreset.connect(self.maskPreset)
         
         self.vbox.addWidget(self.toolbar)
         self.table = QtWidgets.QTableWidget()       
@@ -634,6 +647,11 @@ class VisibilityDialog(QtWidgets.QDialog):
         
         
         self.contextMenu.exec_(QtGui.QCursor().pos())
+        
+        
+    def maskPreset(self, preset):
+        self.imgdata.init_channel_statistics(preset)
+        self.populateTable()
 
         
     def setMaskStats(self, row, checked):        

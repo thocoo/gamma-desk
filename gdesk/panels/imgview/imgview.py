@@ -1948,6 +1948,7 @@ class ImageProfileWidget(QWidget):
         elif option == 'custom visibility':
             dialog = VisibilityDialog(self.imviewer.imgdata)
             dialog.exec_()
+            self.statsPanel.formatTable()            
             
         self.refresh()        
         

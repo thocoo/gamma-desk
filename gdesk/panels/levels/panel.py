@@ -599,7 +599,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addWidget(self.asUnityBtn)           
         
         self.eyeBtn = QtWidgets.QToolButton()
-        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
+        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))      
         self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
         self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))                  
         self.addWidget(self.eyeBtn)
