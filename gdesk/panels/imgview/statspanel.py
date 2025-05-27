@@ -496,6 +496,8 @@ class VisibilityToolBar(QtWidgets.QToolBar):
 
     selectRoi = QtCore.Signal(str)
     addMask = QtCore.Signal()
+    editMask = QtCore.Signal()
+    removeMask = QtCore.Signal()
     moveItem = QtCore.Signal(str)
     maskPreset = QtCore.Signal(str)
 
@@ -511,6 +513,8 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_form_edit.png')), "Edit mask",  lambda: self.editMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'delete.png')), "Remove mask",  lambda: self.removeMask.emit())
 
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
@@ -550,6 +554,8 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.toolbar.selectRoi.connect(self.selectRoi)
         self.toolbar.moveItem.connect(self.moveItem)
         self.toolbar.addMask.connect(self.addMask)
+        self.toolbar.editMask.connect(self.editMask)
+        self.toolbar.removeMask.connect(self.removeMask)
         self.toolbar.maskPreset.connect(self.maskPreset)
         
         self.vbox.addWidget(self.toolbar)
@@ -644,9 +650,9 @@ class VisibilityDialog(QtWidgets.QDialog):
         
         self.contextMenu.addSeparator()
         
-        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
+        act = QtWidgets.QAction('Modify', self, triggered=self.editMask)
         self.contextMenu.addAction(act)      
-        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
+        act = QtWidgets.QAction('Remove', self, triggered=self.removeMask)
         self.contextMenu.addAction(act)  
         
         
@@ -772,7 +778,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.populateTable()
         
             
-    def modifyMask(self):
+    def editMask(self):
         row=None
         column=None
         
@@ -801,13 +807,15 @@ class VisibilityDialog(QtWidgets.QDialog):
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])    
 
+        pos = self.chanstats.get_position(maskName)
         self.chanstats.pop(maskName)
         self.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)
+        self.chanstats.move_to_position(maskName, pos)  
         
         self.populateTable()
 
 
-    def removeSelectedStatistics(self):
+    def removeMask(self):
         selection = self.table.selectionModel().selectedRows()
         
         for index in selection:
