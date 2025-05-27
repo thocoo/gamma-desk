@@ -254,32 +254,32 @@ class StatisticsPanel(QtWidgets.QWidget):
                 item.setText(text)
                                            
                 
-    def setMaskView(self, row, checked):
+    # def setMaskView(self, row, checked):
         
-        nameCell = self.table.item(row, 0)
-        maskName = nameCell.text()   
+        # nameCell = self.table.item(row, 0)
+        # maskName = nameCell.text()   
 
-        if maskName in RESERVED_MASK_FULL: return
+        # if maskName in RESERVED_MASK_FULL: return
         
-        stat = self.imviewer.imgdata.chanstats[maskName]
-        stat.mask_visible = checked          
-        self.activesChanged.emit()           
+        # stat = self.imviewer.imgdata.chanstats[maskName]
+        # stat.mask_visible = checked          
+        # self.activesChanged.emit()           
             
             
-    def setMaskPlot(self, row, checked):
-        nameCell = self.table.item(row, 0)
-        maskName = nameCell.text()          
-        stat = self.imviewer.imgdata.chanstats[maskName]
-        stat.plot_visible = checked        
-        self.activesChanged.emit()
+    # def setMaskPlot(self, row, checked):
+        # nameCell = self.table.item(row, 0)
+        # maskName = nameCell.text()          
+        # stat = self.imviewer.imgdata.chanstats[maskName]
+        # stat.plot_visible = checked        
+        # self.activesChanged.emit()
                 
         
-    def setMaskHist(self, row, checked):
-        nameCell = self.table.item(row, 0)
-        maskName = nameCell.text()          
-        stat = self.imviewer.imgdata.chanstats[maskName]
-        stat.hist_visible = checked        
-        self.activesChanged.emit()        
+    # def setMaskHist(self, row, checked):
+        # nameCell = self.table.item(row, 0)
+        # maskName = nameCell.text()          
+        # stat = self.imviewer.imgdata.chanstats[maskName]
+        # stat.hist_visible = checked        
+        # self.activesChanged.emit()        
             
             
     def handleHeaderMenu(self, pos):
@@ -303,10 +303,10 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.exec_(QtGui.QCursor().pos())
 
         
-    def toggleShowInactives(self):
-        self.showInActives = not self.showInActives
-        self.formatTable()
-        self.updateStatistics()
+    # def toggleShowInactives(self):
+        # self.showInActives = not self.showInActives
+        # self.formatTable()
+        # self.updateStatistics()
         
         
 class TitleToolBar(QtWidgets.QToolBar): 
@@ -382,7 +382,9 @@ class VisibilityDialog(QtWidgets.QDialog):
         
         
     def initUi(self):
-        self.setWindowTitle('Masks Visible')                        
+        self.setWindowTitle('Masks Configuration')                        
+        self.setMinimumWidth(640)
+        self.setMinimumWidth(450)
                 
         self.vbox = QtWidgets.QVBoxLayout()
         #self.vbox.setContentsMargins(0,0,0,0)
@@ -401,7 +403,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
-        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Slices']
+        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.verticalHeader().hide()
@@ -461,41 +463,23 @@ class VisibilityDialog(QtWidgets.QDialog):
             histCheck = CheckBox(i, stats.hist_visible)
             histCheck.checkedSignal.connect(lambda row, checked: self.changeCheck(row, 5, checked))
             self.table.setCellWidget(i, 4, histCheck) 
+            
+            dimCheck = CheckBox(i, stats.dim)
+            dimCheck.checkedSignal.connect(lambda row, checked: self.changeCheck(row, 6, checked))
+            self.table.setCellWidget(i, 5, dimCheck)             
       
             slices = QtWidgets.QTableWidgetItem(stats.slices_repr())          
-            self.table.setItem(i, 5, slices)      
+            self.table.setItem(i, 6, slices)      
  
 
     def handleContextMenu(self, pos):      
         
         self.contextMenu = QtWidgets.QMenu('Mask') 
         
-        # averageCheckStates = self.getAverageCheckStates()        
-        # act = QtWidgets.QAction('Statistics', self, triggered=lambda: self.setCheckedOnSelection(1))
-        # act.setCheckable(True)
-        # act.setChecked(averageCheckStates[1] >= 0)
-        # self.contextMenu.addAction(act)        
-        # act = QtWidgets.QAction('Viewer', self, triggered=lambda: self.setCheckedOnSelection(2))
-        # act.setCheckable(True)
-        # act.setChecked(averageCheckStates[2] >= 0)
-        # self.contextMenu.addAction(act)
-        # act = QtWidgets.QAction('Profile', self, triggered=lambda: self.setCheckedOnSelection(3))
-        # act.setCheckable(True)
-        # act.setChecked(averageCheckStates[3] >= 0)
-        # self.contextMenu.addAction(act)        
-        # act = QtWidgets.QAction('Levels', self, triggered=lambda: self.setCheckedOnSelection(4))
-        # act.setCheckable(True)
-        # act.setChecked(averageCheckStates[4] >= 0)
-        # self.contextMenu.addAction(act)        
-        
-        # self.contextMenu.addSeparator()
-        
         act = QtWidgets.QAction('Modify', self, triggered=self.editMask)
         self.contextMenu.addAction(act)      
         act = QtWidgets.QAction('Remove', self, triggered=self.removeMask)
-        self.contextMenu.addAction(act)  
-        
-        
+        self.contextMenu.addAction(act)
         self.contextMenu.exec_(QtGui.QCursor().pos())
         
         
@@ -519,6 +503,7 @@ class VisibilityDialog(QtWidgets.QDialog):
             if column == 3: stat.mask_visible = checked                          
             if column == 4: stat.plot_visible = checked                          
             if column == 5: stat.hist_visible = checked                          
+            if column == 6: stat.dim = checked                          
             
         self.populateTable()                              
         
@@ -594,7 +579,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         selectionModel.clearSelection()                
         
         topLeft = selectionModel.model().createIndex(min(new_positions), 0)
-        bottomRight = selectionModel.model().createIndex(max(new_positions), 5)
+        bottomRight = selectionModel.model().createIndex(max(new_positions), 6)
         selection = QtCore.QItemSelection(topLeft, bottomRight)        
         selectionModel.select(selection, QtCore.QItemSelectionModel.Select)
           
@@ -648,50 +633,6 @@ class VisibilityDialog(QtWidgets.QDialog):
 
         self.populateTable()                     
                 
-        
-    # def setCheckedOnSelection(self, column=2):
-        # selection = self.table.selectionModel().selectedRows()
-        
-        # checked = 0
-        
-        # for index in selection:
-            # selected_row = index.row()
-            # item = self.table.cellWidget(selected_row, column)
-            
-            # if item.isChecked():
-                # checked += 1
-                
-            # else:
-                # checked -= 1
-                
-        # check = not (checked >= 0)        
-
-        # for index in selection:
-            # selected_row = index.row()
-            # item = self.table.cellWidget(selected_row, column)    
-            # item.setChecked(check)
-            
-    
-    # def getAverageCheckStates(self):
-  
-        # selection = self.table.selectionModel().selectedRows()
-        
-        # checked = 0
-        
-        # results = {1:0, 2:0, 3:0, 4:0}
-        
-        # for index in selection:
-            # selected_row = index.row()
-            # for column in [1, 2, 3, 4]:
-                # item = self.table.cellWidget(selected_row, column)
-                
-                # if item.isChecked():
-                    # results[column] += 1
-                    
-                # else:
-                    # results[column] -= 1
-                
-        # return results
 
 
         
