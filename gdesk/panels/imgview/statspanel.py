@@ -33,18 +33,22 @@ else:
 
 
 def sort_masks(masks):
+    return masks
+
+
+# def sort_masks(masks):
     
-    def location(mask):
-        if mask in RESERVED_MASK_FULL:
-            return RESERVED_MASK_FULL.index(mask) - 1000
+    # def location(mask):
+        # if mask in RESERVED_MASK_FULL:
+            # return RESERVED_MASK_FULL.index(mask) - 1000
                 
-        elif mask in RESERVED_MASK_ROI:
-            return RESERVED_MASK_ROI.index(mask) + 1000
+        # elif mask in RESERVED_MASK_ROI:
+            # return RESERVED_MASK_ROI.index(mask) + 1000
             
-        else:
-            return masks.index(mask)
+        # else:
+            # return masks.index(mask)
             
-    return sorted(masks, key=location)
+    # return sorted(masks, key=location)
 
     
 def get_last_active(chanstats):
@@ -142,16 +146,16 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu = QtWidgets.QMenu('Mask')
         #dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         
-        act = QtWidgets.QAction('Activate', self, triggered=self.activateSelectedStatistics)
-        self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Deactivate', self, triggered=self.deactivateSelectedStatistics)
-        self.contextMenu.addAction(act)
+        # act = QtWidgets.QAction('Activate', self, triggered=self.activateSelectedStatistics)
+        # self.contextMenu.addAction(act)
+        # act = QtWidgets.QAction('Deactivate', self, triggered=self.deactivateSelectedStatistics)
+        # self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
         self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
-        self.contextMenu.addAction(act)        
-        act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
-        self.contextMenu.addAction(act)
+        # act = QtWidgets.QAction('Modify', self, triggered=self.modifyMask)
+        # self.contextMenu.addAction(act)        
+        # act = QtWidgets.QAction('Remove', self, triggered=self.removeSelectedStatistics)
+        # self.contextMenu.addAction(act)
 
         #self.showInActives = True
         
@@ -198,39 +202,39 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.maskSelected.emit(','.join(maskNames))
                             
             
-    def modifyMask(self):
-        row=None
-        column=None
+    # def modifyMask(self):
+        # row=None
+        # column=None
         
-        if row is None and column is None:
-            indices = self.table.selectionModel().selectedRows()
-            row = list(indices)[0].row()
+        # if row is None and column is None:
+            # indices = self.table.selectionModel().selectedRows()
+            # row = list(indices)[0].row()
         
-        maskName = self.table.item(row, 0).text()
+        # maskName = self.table.item(row, 0).text()
         
-        chanstat = self.imviewer.imgdata.chanstats.get(maskName)
+        # chanstat = self.imviewer.imgdata.chanstats.get(maskName)
         
-        form = [('Name',  maskName),
-                ('Color',  chanstat.plot_color.name()),
-                ('x start', chanstat.slices[1].start),
-                ('x stop', chanstat.slices[1].stop),
-                ('x step', chanstat.slices[1].step),
-                ('y start', chanstat.slices[0].start),
-                ('y stop',chanstat.slices[0].stop),
-                ('y step', chanstat.slices[0].step)]
+        # form = [('Name',  maskName),
+                # ('Color',  chanstat.plot_color.name()),
+                # ('x start', chanstat.slices[1].start),
+                # ('x stop', chanstat.slices[1].stop),
+                # ('x step', chanstat.slices[1].step),
+                # ('y start', chanstat.slices[0].start),
+                # ('y stop',chanstat.slices[0].stop),
+                # ('y step', chanstat.slices[0].step)]
 
-        r = fedit(form, title='Change Roi Statistics') 
-        if r is None: return        
+        # r = fedit(form, title='Change Roi Statistics') 
+        # if r is None: return        
 
-        newMaskName = r[0]
-        color = QtGui.QColor(r[1])
-        h_slice = slice(r[2], r[3], r[4])
-        v_slice = slice(r[5], r[6], r[7])    
+        # newMaskName = r[0]
+        # color = QtGui.QColor(r[1])
+        # h_slice = slice(r[2], r[3], r[4])
+        # v_slice = slice(r[5], r[6], r[7])    
 
-        self.imviewer.imgdata.chanstats.pop(maskName)
-        self.imviewer.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color) 
-        self.formatTable()
-        self.updateStatistics()   
+        # self.imviewer.imgdata.chanstats.pop(maskName)
+        # self.imviewer.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color) 
+        # self.formatTable()
+        # self.updateStatistics()   
 
 
     def formatTable(self):    
@@ -298,13 +302,12 @@ class StatisticsPanel(QtWidgets.QWidget):
                 item.setText(text)
                 
                 
-    def set_visibility(self):
-        chanstats = self.imviewer.imgdata.chanstats
-        
+    # def set_visibility(self):
+        # chanstats = self.imviewer.imgdata.chanstats        
 
             
-    def cellClicked(self, row, column):
-        return
+    # def cellClicked(self, row, column):
+        # return
         
         # if column == 0:
         
@@ -387,28 +390,28 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.exec_(QtGui.QCursor().pos())
 
 
-    def activateSelectedStatistics(self):
-        selection = self.table.selectionModel().selectedRows()
+    # def activateSelectedStatistics(self):
+        # selection = self.table.selectionModel().selectedRows()
         
-        for index in selection:
-            nameCell = self.table.item(index.row(), 0)
-            roi_name = nameCell.text()
-            self.imviewer.imgdata.chanstats[roi_name].active = True
+        # for index in selection:
+            # nameCell = self.table.item(index.row(), 0)
+            # roi_name = nameCell.text()
+            # self.imviewer.imgdata.chanstats[roi_name].active = True
             
-        self.formatTable()
-        self.updateStatistics()
+        # self.formatTable()
+        # self.updateStatistics()
         
         
-    def deactivateSelectedStatistics(self):
-        selection = self.table.selectionModel().selectedRows()
+    # def deactivateSelectedStatistics(self):
+        # selection = self.table.selectionModel().selectedRows()
         
-        for index in selection:
-            nameCell = self.table.item(index.row(), 0)
-            roi_name = nameCell.text()
-            self.imviewer.imgdata.chanstats[roi_name].active = False
+        # for index in selection:
+            # nameCell = self.table.item(index.row(), 0)
+            # roi_name = nameCell.text()
+            # self.imviewer.imgdata.chanstats[roi_name].active = False
             
-        self.formatTable()
-        self.updateStatistics()        
+        # self.formatTable()
+        # self.updateStatistics()        
         
         
     def toggleShowInactives(self):
@@ -417,79 +420,38 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.updateStatistics()
         
         
-    def removeSelectedStatistics(self):
-        selection = self.table.selectionModel().selectedRows()
+    # def removeSelectedStatistics(self):
+        # selection = self.table.selectionModel().selectedRows()
         
-        for index in selection:
-            nameCell = self.table.item(index.row(), 0)
-            roi_name = nameCell.text()
-            self.imviewer.imgdata.chanstats.pop(roi_name)
+        # for index in selection:
+            # nameCell = self.table.item(index.row(), 0)
+            # roi_name = nameCell.text()
+            # self.imviewer.imgdata.chanstats.pop(roi_name)
             
-        self.formatTable()
-        self.updateStatistics()
+        # self.formatTable()
+        # self.updateStatistics()
                         
         
         
-class TitleToolBar(QtWidgets.QWidget): 
+class TitleToolBar(QtWidgets.QToolBar): 
     
     toggleProfile = Signal()
-    showHideInactives = Signal()
-    refresh = Signal()
+    #showHideInactives = Signal()
+    #refresh = Signal()
     toggleDock = Signal()
-    selectMasks = Signal(str)
+    #selectMasks = Signal(str)
     selectRoi = Signal(str)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)        
+        super().__init__(*args, **kwargs)                
+        self.initUi()
         
-        self.hbox = QtWidgets.QHBoxLayout()
-        self.hbox.setContentsMargins(0,0,0,0)
-        self.hbox.setSpacing(0)
-        self.setLayout(self.hbox)       
         
-        self.profBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), None, self)
-        self.profBtn.setToolTip('Show/Hide row and column profiles')
-        # self.profBtn.setFixedHeight(20)
-        # self.profBtn.setFixedWidth(20)
-        self.profBtn.clicked.connect(lambda: self.toggleProfile.emit())           
-        self.hbox.addWidget(self.profBtn)
-                
-        self.hbox.addStretch(1)
-        self.hbox.addWidget(QtWidgets.QLabel('Masks'))
-        self.hbox.addStretch(1)
-          
-        self.eyeBtn = QtWidgets.QToolButton()
-        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))      
-        self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
-        self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))          
-        self.hbox.addWidget(self.eyeBtn)
+    def initUi(self):
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), 'Dock/Undock', lambda: self.toggleDock.emit())
         
-        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
-        #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.selectMasks.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.selectMasks.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.selectMasks.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.selectMasks.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.selectMasks.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.selectMasks.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
-        
-        self.masksSelectBtn = QtWidgets.QToolButton()
-        self.masksSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.masksSelectBtn.setToolTip('Select one of the default masks options')
-        self.masksSelectBtn.setMenu(self.masksSelectMenu)
-        self.masksSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
-        
-        self.hbox.addWidget(self.masksSelectBtn)                
-
-        self.refreshBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')), None, self)
-        self.refreshBtn.setToolTip("Show/Hide Inactive Roi's")
-        self.refreshBtn.clicked.connect(lambda: self.refresh.emit())           
-        self.hbox.addWidget(self.refreshBtn)         
-        
-        self.showHideInactivesBtn = QtWidgets.QPushButton(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), None, self)
-        self.showHideInactivesBtn.setToolTip("Dock/Undock")
-        self.showHideInactivesBtn.clicked.connect(lambda: self.toggleDock.emit())           
-        self.hbox.addWidget(self.showHideInactivesBtn)
 
 
 class VisibilityToolBar(QtWidgets.QToolBar):
@@ -505,17 +467,7 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         super().__init__(*args, **kwargs) 
         self.initUi()
         
-    def initUi(self):
-        
-        self.addAction('All', lambda: self.selectRoi.emit('all'))
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
-        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_form_edit.png')), "Edit mask",  lambda: self.editMask.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'delete.png')), "Remove mask",  lambda: self.removeMask.emit())
-
+    def initUi(self):        
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
         self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
@@ -531,6 +483,17 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.masksPresetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         self.addWidget(self.masksPresetBtn)         
+        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'delete.png')), "Remove mask",  lambda: self.removeMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_form_edit.png')), "Edit mask",  lambda: self.editMask.emit())
+        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down')) 
+        
+        self.addAction('All', lambda: self.selectRoi.emit('all'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
+        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))                      
 
 
 class VisibilityDialog(QtWidgets.QDialog): 

@@ -1854,7 +1854,7 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
         #self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
-        self.statsToolbar.refresh.connect(self.statsPanel.formatTable)        
+        #self.statsToolbar.refresh.connect(self.statsPanel.formatTable)        
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         #self.toolbar = RoiToolBar(self.corner)
@@ -1864,7 +1864,7 @@ class ImageProfileWidget(QWidget):
         self.statsDock.setWidget(self.statsPanel)        
         
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
-        self.statsToolbar.selectMasks.connect(self.selectMasks)
+        #self.statsToolbar.selectMasks.connect(self.selectMasks)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
         
         
