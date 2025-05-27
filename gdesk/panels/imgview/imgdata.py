@@ -19,6 +19,7 @@ from ...utils import imconvert
 
 from .dimensions import DimRanges
 from . import fasthist
+from ...dialogs.formlayout import fedit
 
 here = pathlib.Path(__file__).absolute().parent
 
@@ -500,7 +501,33 @@ class ImageData(object):
         
             for mask, mask_props in self.chanstats.items():
             
-                mask_props.active = True                      
+                mask_props.active = True
+                
+                
+    def addMaskStatsDialog(self):
+        selroi = self.selroi
+        
+        color = get_next_color_tuple()        
+        color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
+
+        form = [('Name',  'custom'),
+                ('Color',  color_str),
+                ('x start', selroi.xr.start),
+                ('x stop', selroi.xr.stop),
+                ('x step', selroi.xr.step),
+                ('y start', selroi.yr.start),
+                ('y stop', selroi.yr.stop),
+                ('y step', selroi.yr.step)]
+
+        r = fedit(form, title='Add Mask Statistics')
+        if r is None: return
+
+        name = r[0]                
+        color = QtGui.QColor(r[1])
+        h_slice = slice(r[2], r[3], r[4])
+        v_slice = slice(r[5], r[6], r[7])
+        
+        self.addMaskStatistics(name, (v_slice, h_slice), color)               
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True):

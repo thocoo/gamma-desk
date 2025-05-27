@@ -1273,31 +1273,7 @@ class ImageViewerBase(BasePanel):
         
 
     def addMaskStatistics(self):
-        selroi = self.imviewer.imgdata.selroi
-        
-        color = get_next_color_tuple()
-        
-        color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
-
-        form = [('Name',  'custom'),
-                ('Color',  color_str),
-                ('x start', selroi.xr.start),
-                ('x stop', selroi.xr.stop),
-                ('x step', selroi.xr.step),
-                ('y start', selroi.yr.start),
-                ('y stop', selroi.yr.stop),
-                ('y step', selroi.yr.step)]
-
-        r = fedit(form, title='Add Mask Statistics')
-        if r is None: return
-
-        name = r[0]                
-        color = QtGui.QColor(r[1])
-        h_slice = slice(r[2], r[3], r[4])
-        v_slice = slice(r[5], r[6], r[7])
-
-        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
-        self.imviewer.set_custom_selection(name, color)
+        self.imviewer.imgdata.addMaskStatsDialog()        
         self.imgprof.statsPanel.formatTable()
         self.refresh()
 

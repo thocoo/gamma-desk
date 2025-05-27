@@ -7,6 +7,7 @@ from qtpy.QtCore import Qt, Signal
 
 from ...dialogs.formlayout import fedit
 from ... import config
+from .imgdata import get_next_color_tuple
 
 from qtpy.QtCore import Qt, Signal, QUrl
 
@@ -493,7 +494,8 @@ class TitleToolBar(QtWidgets.QWidget):
 
 class VisibilityToolBar(QtWidgets.QToolBar):
 
-    selectRoi = QtCore.Signal(str)    
+    selectRoi = QtCore.Signal(str)
+    addMask = QtCore.Signal()
     moveItem = QtCore.Signal(str)
     maskPreset = QtCore.Signal(str)
 
@@ -507,7 +509,8 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
         self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))    
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
 
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
@@ -546,6 +549,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.toolbar = VisibilityToolBar(self)
         self.toolbar.selectRoi.connect(self.selectRoi)
         self.toolbar.moveItem.connect(self.moveItem)
+        self.toolbar.addMask.connect(self.addMask)
         self.toolbar.maskPreset.connect(self.maskPreset)
         
         self.vbox.addWidget(self.toolbar)
@@ -727,6 +731,12 @@ class VisibilityDialog(QtWidgets.QDialog):
                 item = self.table.item(row, 0)
                 name = item.text()
                 setMaskStats(name, row, True)
+                
+                
+    def addMask(self):                
+        self.imgdata.addMaskStatsDialog()        
+        self.populateTable()      
+        
                 
     def moveItem(self, direction):
         selectionModel = self.table.selectionModel()
