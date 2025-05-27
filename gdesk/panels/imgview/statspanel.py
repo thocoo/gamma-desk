@@ -539,8 +539,8 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.setWindowTitle('Masks Visible')                        
                 
         self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setContentsMargins(0,0,0,0)
-        self.vbox.setSpacing(0)
+        #self.vbox.setContentsMargins(0,0,0,0)
+        #self.vbox.setSpacing(0)
         self.setLayout(self.vbox)     
         
         self.toolbar = VisibilityToolBar(self)
@@ -561,7 +561,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table.customContextMenuRequested.connect(self.handleContextMenu)
         
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(10,10,10,10)
+        #hbox.setContentsMargins(10,10,10,10)
         self.vbox.addLayout(hbox)
         
         hbox.addStretch(1)
