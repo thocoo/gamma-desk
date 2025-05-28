@@ -1853,24 +1853,17 @@ class ImageProfileWidget(QWidget):
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        #self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
-        #self.statsToolbar.refresh.connect(self.statsPanel.formatTable)        
+        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
+        self.statsToolbar.selectRoi.connect(self.selectRoi)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
-        #self.toolbar = RoiToolBar(self.corner)
         self.statsDock.setTitleBarWidget(self.statsToolbar)
         self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
         self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
-        self.statsDock.setWidget(self.statsPanel)        
-        
-        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
-        #self.statsToolbar.selectMasks.connect(self.selectMasks)
-        self.statsToolbar.selectRoi.connect(self.selectRoi)
-        
+        self.statsDock.setWidget(self.statsPanel)            
         
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
-        #self.corner.hide()
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
 

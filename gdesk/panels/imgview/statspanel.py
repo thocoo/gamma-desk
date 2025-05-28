@@ -82,10 +82,9 @@ class CheckBox(QtWidgets.QWidget):
         lay.setAlignment(chkBox, Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(lay)        
-        self.setFixedWidth(15)
+        #self.setFixedWidth(15)
 
     def __sendCheckedSignal(self, flag):
-        #flag = Qt.CheckState(flag)
         self.checkedSignal.emit(self.__r_idx, flag)
 
     def isChecked(self):
@@ -251,35 +250,7 @@ class StatisticsPanel(QtWidgets.QWidget):
                     text = ''
                     
                 item = self.table.item(i, j+1)
-                item.setText(text)
-                                           
-                
-    # def setMaskView(self, row, checked):
-        
-        # nameCell = self.table.item(row, 0)
-        # maskName = nameCell.text()   
-
-        # if maskName in RESERVED_MASK_FULL: return
-        
-        # stat = self.imviewer.imgdata.chanstats[maskName]
-        # stat.mask_visible = checked          
-        # self.activesChanged.emit()           
-            
-            
-    # def setMaskPlot(self, row, checked):
-        # nameCell = self.table.item(row, 0)
-        # maskName = nameCell.text()          
-        # stat = self.imviewer.imgdata.chanstats[maskName]
-        # stat.plot_visible = checked        
-        # self.activesChanged.emit()
-                
-        
-    # def setMaskHist(self, row, checked):
-        # nameCell = self.table.item(row, 0)
-        # maskName = nameCell.text()          
-        # stat = self.imviewer.imgdata.chanstats[maskName]
-        # stat.hist_visible = checked        
-        # self.activesChanged.emit()        
+                item.setText(text)     
             
             
     def handleHeaderMenu(self, pos):
@@ -301,21 +272,12 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def handleContextMenu(self, pos):      
         self.contextMenu.exec_(QtGui.QCursor().pos())
-
-        
-    # def toggleShowInactives(self):
-        # self.showInActives = not self.showInActives
-        # self.formatTable()
-        # self.updateStatistics()
         
         
 class TitleToolBar(QtWidgets.QToolBar): 
     
     toggleProfile = Signal()
-    #showHideInactives = Signal()
-    #refresh = Signal()
     toggleDock = Signal()
-    #selectMasks = Signal(str)
     selectRoi = Signal(str)
 
     def __init__(self, *args, **kwargs):
@@ -324,10 +286,12 @@ class TitleToolBar(QtWidgets.QToolBar):
         
         
     def initUi(self):
+        fontHeight = self.fontMetrics().height()
+        self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
+ 
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), 'Dock/Undock', lambda: self.toggleDock.emit())
-        
 
 
 class VisibilityToolBar(QtWidgets.QToolBar):
@@ -384,11 +348,9 @@ class VisibilityDialog(QtWidgets.QDialog):
     def initUi(self):
         self.setWindowTitle('Masks Configuration')                        
         self.setMinimumWidth(640)
-        self.setMinimumWidth(450)
+        self.setMinimumWidth(640)
                 
         self.vbox = QtWidgets.QVBoxLayout()
-        #self.vbox.setContentsMargins(0,0,0,0)
-        #self.vbox.setSpacing(0)
         self.setLayout(self.vbox)     
         
         self.toolbar = VisibilityToolBar(self)
@@ -410,11 +372,8 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu) 
         self.table.customContextMenuRequested.connect(self.handleContextMenu)
-        #self.table.cellClicked.connect(self.cellClicked)
-        #self.table.cellChanged.connect(self.cellChanged)
         
         hbox = QtWidgets.QHBoxLayout()
-        #hbox.setContentsMargins(10,10,10,10)
         self.vbox.addLayout(hbox)
         
         hbox.addStretch(1)
