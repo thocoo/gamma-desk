@@ -162,11 +162,14 @@ def putFile(filter='*.*', title='save', defaultFile=None, defaultFilter=''):
             dir = defaultDir,
             selectedFilter = defaultFilter)
     elif using_pyqt():
-        fileName, selectedFilter = QtWidgets.QFileDialog.getSaveFileNameAndFilter(
-            caption = title,
-            filter = filter,
-            directory = defaultDir,
-            selectedFilter = defaultFilter)
+        fileName, selectedFilter = QtWidgets.QFileDialog.getSaveFileName(
+            parent=None,
+            caption=title,
+            filter=filter,
+            directory=defaultDir,
+            initialFilter=defaultFilter,
+        )
+
     LASTMAP = str(Path(fileName).parent)
     return fileName, selectedFilter
 

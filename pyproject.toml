@@ -65,6 +65,10 @@ pyside2 = [
 pyside6 = [
     "pyside6; python_version<='3.10'",
 ]
+pyqt6 = [
+    "pyqt6'",
+]
+
 
 [dependency-groups]
 # See COMPATIBILITY.md.
