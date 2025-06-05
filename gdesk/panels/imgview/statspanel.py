@@ -10,6 +10,7 @@ from ... import config
 from .imgdata import get_next_color_tuple
 
 from qtpy.QtCore import Qt, Signal, QUrl
+from gdesk import gui
 
 
 RESPATH = Path(config['respath'])
@@ -82,7 +83,6 @@ class CheckBox(QtWidgets.QWidget):
         lay.setAlignment(chkBox, Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(lay)        
-        #self.setFixedWidth(15)
 
     def __sendCheckedSignal(self, flag):
         self.checkedSignal.emit(self.__r_idx, flag)
@@ -402,6 +402,7 @@ class VisibilityDialog(QtWidgets.QDialog):
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
             item_name.setBackground(QtGui.QColor(R, G, B, 128))            
+            item_name.setFlags(item_name.flags() ^ Qt.ItemIsEditable) 
             self.table.setItem(i, 0, item_name)                        
       
             statsheck = CheckBox(i, stats.active)
@@ -427,7 +428,8 @@ class VisibilityDialog(QtWidgets.QDialog):
             dimCheck.checkedSignal.connect(lambda row, checked: self.changeCheck(row, 6, checked))
             self.table.setCellWidget(i, 5, dimCheck)             
       
-            slices = QtWidgets.QTableWidgetItem(stats.slices_repr())          
+            slices = QtWidgets.QTableWidgetItem(stats.slices_repr())
+            slices.setFlags(slices.flags() ^ Qt.ItemIsEditable)      
             self.table.setItem(i, 6, slices)      
  
 
@@ -546,14 +548,16 @@ class VisibilityDialog(QtWidgets.QDialog):
         
             
     def editMask(self):
-        row=None
-        column=None
         
-        if row is None and column is None:
-            indices = self.table.selectionModel().selectedRows()
-            row = list(indices)[0].row()
+
+        indices = self.table.selectionModel().selectedRows()
+        row = list(indices)[0].row()
         
         maskName = self.table.item(row, 0).text()
+        
+        if maskName in  RESERVED_MASK_FULL or maskName in RESERVED_MASK_ROI:
+            gui.msgbox('You can not change this reserved mask.\nThis is not a user mask.', title='Warning', icon='warn')
+            return
         
         chanstat = self.chanstats.get(maskName)
         
