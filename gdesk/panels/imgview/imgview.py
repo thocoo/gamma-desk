@@ -164,8 +164,7 @@ class selectNamedMask():
         self.roiName = roiName
         
     def __call__(self):
-        self.imgpanel.imgprof.selectMask(self.roiName)        
-        #self.imgpanel.imgprof.showMask(self.roiName)               
+        self.imgpanel.imgprof.selectMask(self.roiName)                     
         self.imgpanel.imgprof.setSelection(self.roiName)               
     
 
@@ -1274,6 +1273,7 @@ class ImageViewerBase(BasePanel):
 
     def addMaskStatistics(self):
         self.imviewer.imgdata.addMaskStatsDialog()        
+        self.imviewer.roi.hideRoi()
         self.imgprof.statsPanel.formatTable()
         self.refresh()
 
@@ -1880,6 +1880,7 @@ class ImageProfileWidget(QWidget):
         self.setLayout(self.gridsplit)
 
         self.profilesVisible = False
+        self.selected_mask = None
 
 
     def toggleProfileVisible(self):
@@ -1982,14 +1983,17 @@ class ImageProfileWidget(QWidget):
         
         if not (mask == ''):
             chanstats = self.imviewer.imgdata.chanstats[mask]
-        
+            self.selected_mask = mask
             selroi = self.imviewer.imgdata.selroi  
             selroi.xr.setfromslice(chanstats.slices[1])
             selroi.yr.setfromslice(chanstats.slices[0])                                    
             roi.clip()
             roi.show()
             roi.roiChanged.emit()
-            self.statsPanel.formatTable()           
+            self.statsPanel.formatTable()   
+
+        else:
+            self.selected_mask = None
         
         
     def drawRoiProfile(self):                     
@@ -2102,6 +2106,18 @@ class ImageProfilePanel(ImageViewerBase):
 
 
     def passRoiChanged(self):
+        imgdata = self.imviewer.imgdata
+        selroi = imgdata.selroi
+        print(f'{self.imgprof.selected_mask=} {selroi}')
+        
+        if not self.imgprof.selected_mask is None:
+            if self.imgprof.selected_mask in imgdata.chanstats:
+                h_slice = slice(selroi.xr.start, selroi.xr.stop, selroi.xr.step)
+                v_slice = slice(selroi.yr.start, selroi.yr.stop, selroi.yr.step)
+                stats = imgdata.chanstats[self.imgprof.selected_mask]
+                stats.attach_full_array((v_slice, h_slice))
+                self.imviewer.refresh()
+        
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile()
@@ -2109,6 +2125,7 @@ class ImageProfilePanel(ImageViewerBase):
         
         
     def removeRoiProfile(self):
+        self.imgprof.selected_mask = None
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()

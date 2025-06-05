@@ -41,9 +41,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.timer.timeout.connect(self.newPhase)
         self.timer.setSingleShot(True)
         self.timer.start(100)                        
-        self.setMouseTracking(True)   
-           
-        #self.get_context_menu = lambda: None      
+        self.setMouseTracking(True)    
 
 
     def initUI(self, color=None):

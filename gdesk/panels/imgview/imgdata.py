@@ -372,7 +372,7 @@ class ImageData(object):
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
-        self.custom_selroi = {}
+        #self.custom_selroi = {}
         
         self.pre_def_masks = dict()
         self.chanstats = OrderedStats()
@@ -417,7 +417,8 @@ class ImageData(object):
                 for name, stat in self.chanstats.items():
                     stat.clear()
             
-        for selection in [self.selroi] + list(self.custom_selroi.values()):
+        #for selection in [self.selroi] + list(self.custom_selroi.values()):
+        for selection in [self.selroi]:
             if selection.isfullrange():
                 selection.xr.maxstop = self.width
                 selection.yr.maxstop = self.height
@@ -509,8 +510,12 @@ class ImageData(object):
         
         color = get_next_color_tuple()        
         color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
+        
+        i = 1
+        while f'custom{i}' in self.chanstats:
+            i += 1
 
-        form = [('Name',  'custom'),
+        form = [('Name',  f'custom{i}'),
                 ('Color',  color_str),
                 ('x start', selroi.xr.start),
                 ('x stop', selroi.xr.stop),
