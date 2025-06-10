@@ -48,6 +48,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
         
         if color is None: color = QtGui.QColor(*config['roi color'])
+        
         self.solidColor = color        
         self.fillColor = color
         self.dashColor = Qt.white
@@ -322,9 +323,10 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         
     def hideRoi(self):
-        #self.selroi.reset()
         self.hide()
         self.unsetCursor()
+        #Reset to original color
+        self.initUI()
         self.roiRemoved.emit()
         self.repaint()   
         

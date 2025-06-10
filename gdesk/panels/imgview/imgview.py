@@ -1986,7 +1986,9 @@ class ImageProfileWidget(QWidget):
             self.selected_mask = mask
             selroi = self.imviewer.imgdata.selroi  
             selroi.xr.setfromslice(chanstats.slices[1])
-            selroi.yr.setfromslice(chanstats.slices[0])                                    
+            selroi.yr.setfromslice(chanstats.slices[0]) 
+            color = chanstats.plot_color
+            roi.initUI(color)
             roi.clip()
             roi.show()
             roi.roiChanged.emit()
@@ -1994,6 +1996,7 @@ class ImageProfileWidget(QWidget):
 
         else:
             self.selected_mask = None
+            roi.initUI()
         
         
     def drawRoiProfile(self):                     
