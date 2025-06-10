@@ -21,7 +21,6 @@ class RawImportForm(QtWidgets.QWidget):
         
         vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(5, 5, 5, 5)
-        vbox.setMargin(5)
         self.setLayout(vbox)
         
         flay = QtWidgets.QFormLayout()
