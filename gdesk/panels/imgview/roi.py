@@ -41,15 +41,14 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.timer.timeout.connect(self.newPhase)
         self.timer.setSingleShot(True)
         self.timer.start(100)                        
-        self.setMouseTracking(True)   
-           
-        #self.get_context_menu = lambda: None      
+        self.setMouseTracking(True)    
 
 
     def initUI(self, color=None):
         self.scaleCursor = QtGui.QCursor(Qt.SizeAllCursor)
         
         if color is None: color = QtGui.QColor(*config['roi color'])
+        
         self.solidColor = color        
         self.fillColor = color
         self.dashColor = Qt.white
@@ -324,9 +323,10 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         
     def hideRoi(self):
-        #self.selroi.reset()
         self.hide()
         self.unsetCursor()
+        #Reset to original color
+        self.initUI()
         self.roiRemoved.emit()
         self.repaint()   
         

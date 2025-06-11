@@ -598,18 +598,11 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
         self.addWidget(self.asUnityBtn)           
         
-        self.roiSelectMenu = QtWidgets.QMenu('Show Roi')
-        self.roiSelectMenu.addAction(QtWidgets.QAction("All", self, triggered=lambda: self.selectRoi.emit('all')))
-        self.roiSelectMenu.addAction(QtWidgets.QAction("Show Roi only",  self, triggered=lambda: self.selectRoi.emit('show roi only'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png'))))
-        self.roiSelectMenu.addAction(QtWidgets.QAction("Hide ROI",   self, triggered=lambda: self.selectRoi.emit('hide roi')))        
-        
-        self.roiSelectBtn = QtWidgets.QToolButton()
-        self.roiSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'eye.png')))      
-        self.roiSelectBtn.setToolTip('Show/Hide Roi')
-        self.roiSelectBtn.setMenu(self.roiSelectMenu)
-        self.roiSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
-        
-        self.addWidget(self.roiSelectBtn)
+        self.eyeBtn = QtWidgets.QToolButton()
+        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))      
+        self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
+        self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))                  
+        self.addWidget(self.eyeBtn)
         
         self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
         #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      

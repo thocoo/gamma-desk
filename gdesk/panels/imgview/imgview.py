@@ -110,7 +110,7 @@ from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .imgdata import get_next_color_tuple
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel, TitleToolBar
+from .statspanel import StatisticsPanel, TitleToolBar, VisibilityDialog
 
 
 here = Path(__file__).parent.absolute()
@@ -164,8 +164,7 @@ class selectNamedMask():
         self.roiName = roiName
         
     def __call__(self):
-        self.imgpanel.imgprof.selectMask(self.roiName)        
-        #self.imgpanel.imgprof.showMask(self.roiName)               
+        self.imgpanel.imgprof.selectMask(self.roiName)                     
         self.imgpanel.imgprof.setSelection(self.roiName)               
     
 
@@ -1221,7 +1220,7 @@ class ImageViewerBase(BasePanel):
             rgb = (args['r'], args['g'], args['b'])                
             
         config['roi color'] = list(rgb)
-        self.imviewer.roi.initUI()
+        self.imviewer.roi.initUI()            
         
         
     def copySliceToClipboard(self):
@@ -1239,10 +1238,12 @@ class ImageViewerBase(BasePanel):
 
     def reselect(self):
         self.imviewer.roi.showRoi()
+        self.imgprof.statsPanel.formatTable()
         
 
     def selectNone(self):
         self.imviewer.roi.hideRoi()
+        self.imgprof.statsPanel.formatTable()
         
 
     def setRoi(self):
@@ -1267,34 +1268,13 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
+        self.imgprof.statsPanel.formatTable()
         
 
     def addMaskStatistics(self):
-        selroi = self.imviewer.imgdata.selroi
-        
-        color = get_next_color_tuple()
-        
-        color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
-
-        form = [('Name',  'custom'),
-                ('Color',  color_str),
-                ('x start', selroi.xr.start),
-                ('x stop', selroi.xr.stop),
-                ('x step', selroi.xr.step),
-                ('y start', selroi.yr.start),
-                ('y stop', selroi.yr.stop),
-                ('y step', selroi.yr.step)]
-
-        r = fedit(form, title='Add Mask Statistics')
-        if r is None: return
-
-        name = r[0]                
-        color = QtGui.QColor(r[1])
-        h_slice = slice(r[2], r[3], r[4])
-        v_slice = slice(r[5], r[6], r[7])
-
-        self.imviewer.imgdata.addMaskStatistics(name, (v_slice, h_slice), color)     
-        self.imviewer.set_custom_selection(name, color)
+        self.imviewer.imgdata.addMaskStatsDialog()        
+        self.imviewer.roi.hideRoi()
+        self.imgprof.statsPanel.formatTable()
         self.refresh()
 
         
@@ -1392,6 +1372,7 @@ class ImageViewerBase(BasePanel):
         
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
+        self.imgprof.statsPanel.formatTable()
         self.refresh()
         
 
@@ -1860,13 +1841,7 @@ class ImageProfileWidget(QWidget):
         self.profBtn1.setToolTip('Show/Hide row and column profiles')
         self.profBtn1.setFixedHeight(20)
         self.profBtn1.setFixedWidth(20)
-        self.profBtn1.clicked.connect(self.toggleProfileVisible)     
-
-        # self.profBtn2 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
-        # self.profBtn2.setToolTip('Show/Hide row and column profiles')
-        # self.profBtn2.setFixedHeight(20)
-        # self.profBtn2.setFixedWidth(20)
-        # self.profBtn2.clicked.connect(self.toggleProfileVisible)          
+        self.profBtn1.clicked.connect(self.toggleProfileVisible)       
         
         self.corner = QtWidgets.QMainWindow()        
         self.corner.setCentralWidget(self.profBtn1)        
@@ -1878,23 +1853,17 @@ class ImageProfileWidget(QWidget):
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        self.statsToolbar.showHideInactives.connect(self.statsPanel.toggleShowInactives)        
+        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
+        self.statsToolbar.selectRoi.connect(self.selectRoi)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
-        #self.toolbar = RoiToolBar(self.corner)
         self.statsDock.setTitleBarWidget(self.statsToolbar)
         self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
         self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
-        self.statsDock.setWidget(self.statsPanel)        
-        
-        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
-        self.statsToolbar.selectMasks.connect(self.selectMasks)
-        self.statsToolbar.selectRoi.connect(self.selectRoi)
-        
+        self.statsDock.setWidget(self.statsPanel)            
         
         self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
-        #self.corner.hide()
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
 
@@ -1911,6 +1880,7 @@ class ImageProfileWidget(QWidget):
         self.setLayout(self.gridsplit)
 
         self.profilesVisible = False
+        self.selected_mask = None
 
 
     def toggleProfileVisible(self):
@@ -1929,6 +1899,7 @@ class ImageProfileWidget(QWidget):
             
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
+        self.statsPanel.formatTable()
         self.refresh()
         
         
@@ -1936,8 +1907,13 @@ class ImageProfileWidget(QWidget):
     
         if option in ['show roi only']:
             self.imviewer.roi.showRoi()
-    
-        self.imviewer.imgdata.selectRoiOption(option)
+            self.imviewer.imgdata.selectRoiOption(option)
+            
+        elif option == 'custom visibility':
+            dialog = VisibilityDialog(self.imviewer.imgdata)
+            dialog.exec_()
+            self.statsPanel.formatTable()            
+            
         self.refresh()        
         
 
@@ -2007,13 +1983,20 @@ class ImageProfileWidget(QWidget):
         
         if not (mask == ''):
             chanstats = self.imviewer.imgdata.chanstats[mask]
-        
+            self.selected_mask = mask
             selroi = self.imviewer.imgdata.selroi  
             selroi.xr.setfromslice(chanstats.slices[1])
-            selroi.yr.setfromslice(chanstats.slices[0])                                    
+            selroi.yr.setfromslice(chanstats.slices[0]) 
+            color = chanstats.plot_color
+            roi.initUI(color)
             roi.clip()
             roi.show()
-            roi.roiChanged.emit()                                     
+            roi.roiChanged.emit()
+            self.statsPanel.formatTable()   
+
+        else:
+            self.selected_mask = None
+            roi.initUI()
         
         
     def drawRoiProfile(self):                     
@@ -2126,6 +2109,18 @@ class ImageProfilePanel(ImageViewerBase):
 
 
     def passRoiChanged(self):
+        imgdata = self.imviewer.imgdata
+        selroi = imgdata.selroi
+        print(f'{self.imgprof.selected_mask=} {selroi}')
+        
+        if not self.imgprof.selected_mask is None:
+            if self.imgprof.selected_mask in imgdata.chanstats:
+                h_slice = slice(selroi.xr.start, selroi.xr.stop, selroi.xr.step)
+                v_slice = slice(selroi.yr.start, selroi.yr.stop, selroi.yr.step)
+                stats = imgdata.chanstats[self.imgprof.selected_mask]
+                stats.attach_full_array((v_slice, h_slice))
+                self.imviewer.refresh()
+        
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile()
@@ -2133,6 +2128,7 @@ class ImageProfilePanel(ImageViewerBase):
         
         
     def removeRoiProfile(self):
+        self.imgprof.selected_mask = None
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()

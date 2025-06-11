@@ -19,6 +19,7 @@ from ...utils import imconvert
 
 from .dimensions import DimRanges
 from . import fasthist
+from ...dialogs.formlayout import fedit
 
 here = pathlib.Path(__file__).absolute().parent
 
@@ -123,10 +124,13 @@ class OrderedStats(UserDict):
         self.data.clear()
         self.order.clear()
         
+    def get_position(self, key):
+        return  self.order.index(key)
+        
         
     def move_to_position(self, key, index=0):
         self.order.remove(key)
-        self.order.insert(index, key)        
+        self.order.insert(index, key)
             
             
     def move_to_end(self, key, last=True):
@@ -368,7 +372,7 @@ class ImageData(object):
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
-        self.custom_selroi = {}
+        #self.custom_selroi = {}
         
         self.pre_def_masks = dict()
         self.chanstats = OrderedStats()
@@ -413,7 +417,8 @@ class ImageData(object):
                 for name, stat in self.chanstats.items():
                     stat.clear()
             
-        for selection in [self.selroi] + list(self.custom_selroi.values()):
+        #for selection in [self.selroi] + list(self.custom_selroi.values()):
+        for selection in [self.selroi]:
             if selection.isfullrange():
                 selection.xr.maxstop = self.width
                 selection.yr.maxstop = self.height
@@ -472,8 +477,7 @@ class ImageData(object):
                 self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
             
-    def selectRoiOption(self, option: str):
-    
+    def selectRoiOption(self, option: str):        
         if option == 'show roi only':
         
             for mask, mask_props in self.chanstats.items():
@@ -498,7 +502,37 @@ class ImageData(object):
         
             for mask, mask_props in self.chanstats.items():
             
-                mask_props.active = True                      
+                mask_props.active = True
+                
+                
+    def addMaskStatsDialog(self):
+        selroi = self.selroi
+        
+        color = get_next_color_tuple()        
+        color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
+        
+        i = 1
+        while f'custom{i}' in self.chanstats:
+            i += 1
+
+        form = [('Name',  f'custom{i}'),
+                ('Color',  color_str),
+                ('x start', selroi.xr.start),
+                ('x stop', selroi.xr.stop),
+                ('x step', selroi.xr.step),
+                ('y start', selroi.yr.start),
+                ('y stop', selroi.yr.stop),
+                ('y step', selroi.yr.step)]
+
+        r = fedit(form, title='Add Mask Statistics')
+        if r is None: return
+
+        name = r[0]                
+        color = QtGui.QColor(r[1])
+        h_slice = slice(r[2], r[3], r[4])
+        v_slice = slice(r[5], r[6], r[7])
+        
+        self.addMaskStatistics(name, (v_slice, h_slice), color)               
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True):
