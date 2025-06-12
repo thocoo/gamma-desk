@@ -1,11 +1,18 @@
 
-vNext
------
-date: TBD
+v1.8.0.dev0
+-----------
+
+date: 2025-06-12
 
 - Support `GDESKSTARTUP` environment variable; execute that file when configured.
 - Improve support for PyQt5, PyQt6.
-- Support multiple ROI widgets.
+- Improve compatiblity with recent Python versions
+- Add custom mask widgets.
+- Resize custom mask by selection widget
+- Add visibility dialog for all masks
+- Various bug fixes
+- extend xarrays support
+- Add shell.start_thread() to start a new thread with stdout the same as the current thread
 
 
 v1.7.0
