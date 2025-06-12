@@ -70,7 +70,7 @@ if os.environ['QT_API'].startswith('pyqt'):
             try:
                 import PySide2  # analysis:ignore
             except ImportError:
-                raise ImportError("formlayout requires PyQt4, PyQt5, PySide or PySide2")
+                raise ImportError("formlayout requires a compatible Qt lib, either PySide6, PySide2, PyQt5 or PyQt6")
 
 if os.environ['QT_API'] == 'pyqt':
     try:
