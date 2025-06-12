@@ -446,6 +446,16 @@ class Shell(object):
         if next(iterator, None):
             print(f'... length_limit, {length_limit}, reached, counted:')
         print(f'\n{directories} directories' + (f', {files} files' if files else ''))
+        
+        
+    def start_thread(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None):
+        """
+ |      This constructor should always be called with keyword arguments. Arguments are:
+        """
+        new_thread = threading.Thread(group, target, name, args=args, kwargs=kwargs, daemon=daemon)
+        new_thread.start()
+        sys.stdout.copy_to_thread(new_thread.ident)
+        return new_thread
                 
         
     def start_in_this_thread(self, cqs, console_id=None):      
