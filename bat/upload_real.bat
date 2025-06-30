@@ -1,6 +1,8 @@
 REM token in $HOME/.pypirc
 cd ..
-py -3.8 -m twine upload --repository pypi --verbose dist/*1.7.0-*
+:: py -3.8 -m twine upload --repository pypi --verbose dist/*1.8.0.dev0-*
+uvx twine upload --repository pypi --verbose dist/*1.8.0.dev0-*
+
 
 :: Note: alternative using UV, requires custom configuration.
 :: See https://docs.astral.sh/uv/guides/package/#publishing-your-package
