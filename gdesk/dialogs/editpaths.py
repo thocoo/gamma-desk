@@ -18,13 +18,17 @@ class PathList(QtWidgets.QListWidget):
 
 class EditPaths(QtWidgets.QDialog):
 
-    def __init__(self, paths):
+    def __init__(self, paths, title='Edit Search Paths'):
         super().__init__(None)
-        self.initgui(paths)
+        self.initgui(paths, title)
         
-    def initgui(self, paths):
+        
+    def initgui(self, paths, title):
         self.paths = paths
-        self.selectionlist = PathList(self, paths)
+        
+        self.setWindowTitle(title)
+        
+        self.selectionlist = PathList(self, paths)                
         
         self.addPathBtn = QtWidgets.QPushButton('Add', self)
         self.addPathBtn.clicked.connect(self.add)

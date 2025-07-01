@@ -912,7 +912,7 @@ class Console(BasePanel):
         
         def callback(mode, error_code, result):            
             paths = result.copy()
-            dialog_code = EditPaths(paths).exec_()        
+            dialog_code = EditPaths(paths, title='Edit System Search Paths').exec_()        
             result = task.call_func(Shell.set_sys_paths, args=(paths,))
             
         result = task.call_func(Shell.get_sys_paths, args=(False,), callback=callback)        
@@ -922,7 +922,7 @@ class Console(BasePanel):
         
         def callback(mode, error_code, result):
             paths = result.copy()
-            dialog_code = EditPaths(paths).exec_()
+            dialog_code = EditPaths(paths, title='Edit Live Scripting Search Paths').exec_()
             result = task.call_func(Shell.set_live_paths, args=(paths,))
 
         result = task.call_func(Shell.get_live_paths, callback=callback)
