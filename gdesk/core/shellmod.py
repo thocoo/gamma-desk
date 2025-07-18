@@ -195,8 +195,9 @@ class Shell(object):
                     
         (filename, lineno) = self.getcodefile(object)
         
+        print(f'File "{filename}", line {lineno}')
+        
         if not filename is None:
-            logger.info('opening "%s" with editor at line %d' % (filename, lineno))
             self.edit_file(filename, lineno)
             
         else:
