@@ -8,6 +8,7 @@ import os, sys, traceback, time
 from pathlib import Path
 import functools
 from enum import Enum
+from collections import OrderedDict
 
 import logging
 
@@ -105,6 +106,18 @@ def markUpdateCallMp(script_manager, module, attr):
             return gui.console.child_live_exec(func, *args, **kwargs)            
         
     return wrapped_caller    
+    
+    
+def get_mod_str(mod_path):
+    mod_parts = mod_path.parts
+    last_part = mod_parts[-1].lower()
+    
+    if last_part.endswith('.py'):
+        last_part = last_part[:last_part.index('.py')]
+        mod_parts = list(mod_parts[:-1]) + [last_part]
+        
+    mod_str = ".".join(mod_parts)    
+    return mod_str    
     
 
 class LiveScriptModuleReference(object):
@@ -313,8 +326,8 @@ class LiveScriptScan(object):
         object.__setattr__(self, '_mp', mp)
         
         
-    def _find(self, part):
-        return self.__script_manager__.search_script(part)
+    def _find(self, part, dir_listing=False):
+        return self.__script_manager__.search_script(part, dir_listing)
 
 
     def __dir__(self):
@@ -398,12 +411,44 @@ class LiveScriptManager(object):
         return result
             
             
-    def search_script(self, part, paths=None):        
+    def search_script(self, part, dir_listing=False, paths=None):        
         if paths is None: paths = self.path
-        for path in paths:
+        
+        found_scripts = OrderedDict()
+        
+        if paths is None: paths = self.path
+        
+        for path in paths:        
+            path_shown = False
             for p in Path(path).rglob('*.py'):
                 if part in str(p):
-                    print(p)
+                    if dir_listing and not path_shown:
+                        print()
+                        print(path)
+                        print()
+                        path_shown = True
+                        
+                    mod_path = p.relative_to(path)                
+                    mod_str = get_mod_str(mod_path)
+                    
+                    try:
+                        find_path = self.locate_script(mod_str)
+                        if find_path[0][0] == p:
+                            if dir_listing:
+                                print(f'    {mod_path} <- {mod_str}')
+                            found_scripts[mod_str] = path / mod_path
+                        else:
+                            if dir_listing:
+                                print(f'    {mod_path} <- UNREACHABLE')
+                        
+                    except KeyError:
+                        print(f'    COULD NOT LOCATE {mod_path}')
+                        
+        if dir_listing:              
+            print()
+                        
+        for mod_str, mod_path in found_scripts.items():
+            print(f'use.{mod_str} -> {mod_path}')
 
                 
     def append_path(self, path, resolve=True):
