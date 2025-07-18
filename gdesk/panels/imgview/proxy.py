@@ -471,7 +471,8 @@ class ImageGuiProxy(GuiProxyBase):
         if chanstat is None:
             raise KeyError(f'{name} not found')
             
-        chanstat.active = active                    
+        chanstat.active = active
+        panel.imgprof.statsPanel.formatTable()   
 
         
     @StaticGuiCall
