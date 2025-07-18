@@ -529,12 +529,14 @@ class ImageViewerWidget(QWidget):
 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)
-
             qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                       
 
-            for layer in self.imgdata.layers.values():
-                qp.setCompositionMode(layer['composition'])
-                qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
+        for layer in self.imgdata.layers.values():
+            qp.resetTransform() 
+            qp.scale(self.zoomDisplay, self.zoomDisplay)
+            qp.translate(-sx, -sy)            
+            qp.setCompositionMode(layer['composition'])
+            qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
         
         qp.resetTransform() 
         
