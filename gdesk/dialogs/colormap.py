@@ -7,6 +7,7 @@ class ColorMapDialog(QtWidgets.QDialog):
 
     def __init__(self):
         super().__init__()
+        self.setWindowTitle('Color Map')
         colormaps = imconvert.colormaps   
         self.thumbs = Thumbs(self)
         
