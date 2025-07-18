@@ -607,7 +607,7 @@ class ImageViewerBase(BasePanel):
                        ('dtype', [1] + dtypes),
                        ('mean', args['mean'])]
 
-            result = fedit(options_form)
+            result = fedit(options_form, title='New Image')
             if result is None: return
             args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
             args['dtype'] = dtypes[dtype_ind-1]
@@ -770,7 +770,7 @@ class ImageViewerBase(BasePanel):
             format = imageio.formats.search_write_format(Request(filepath, 'wi')).name
 
         if format == 'JPEG-FI':
-            (quality, progressive, optimize, baseline) = gui.fedit([('quality', 90), ('progressive', False), ('optimize', False), ('baseline', False)])
+            (quality, progressive, optimize, baseline) = gui.fedit([('quality', 90), ('progressive', False), ('optimize', False), ('baseline', False)], title='JPEG Options')
 
             with gui.qapp.waitCursor(f'Saving to {filepath}'):
                 imageio.imwrite(filepath, self.ndarray, format,
@@ -786,7 +786,7 @@ class ImageViewerBase(BasePanel):
                 'lzw': imageio.plugins.freeimage.IO_FLAGS.TIFF_LZW,
                 'deflate': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFLATE,
                 'logluv': imageio.plugins.freeimage.IO_FLAGS.TIFF_LOGLUV}
-            (compression_index,) = gui.fedit([('compression', [2] + list(compression_options.keys()))])
+            (compression_index,) = gui.fedit([('compression', [2] + list(compression_options.keys()))], title='TIFF Options')
             compression = list(compression_options.keys())[compression_index-1]
             compression_flag = compression_options[compression]
 
@@ -795,7 +795,7 @@ class ImageViewerBase(BasePanel):
 
         elif format == 'PNG-FI':
             compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-            (compression_index, quantize, interlaced) = gui.fedit([('compression', [2] + [item[0] for item in compression_options]), ('quantize', 0), ('interlaced', True)])
+            (compression_index, quantize, interlaced) = gui.fedit([('compression', [2] + [item[0] for item in compression_options]), ('quantize', 0), ('interlaced', True)], title='PNG Options')
             compression = compression_options[compression_index-1][1]
 
             print(f'compression: {compression}')
@@ -805,7 +805,7 @@ class ImageViewerBase(BasePanel):
 
         elif format == 'PNG-PIL':
             compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-            (compression_index, quantize, optimize) = gui.fedit([('compression', [4] + [item[0] for item in compression_options]), ('quantize', 0), ('optimize', True)])
+            (compression_index, quantize, optimize) = gui.fedit([('compression', [4] + [item[0] for item in compression_options]), ('quantize', 0), ('optimize', True)], title='PNG Options')
             compression = compression_options[compression_index-1][1]
             if quantize == 0: quantize = None
 
@@ -825,7 +825,7 @@ class ImageViewerBase(BasePanel):
         hostname = 'localhost'
         
         form = [('port', port), ('host', hostname), ('new panel', False)]
-        results = fedit(form)
+        results = fedit(form, title='Send Array to Host')
         if results is None: return
         
         port = results[0]        
@@ -880,7 +880,7 @@ class ImageViewerBase(BasePanel):
             ('Screen', screen_names),
             ('Delay', 1.0)]
         
-        results = fedit(form)
+        results = fedit(form, title='Screenshot')
         
         if results is None: return
         
@@ -932,7 +932,7 @@ class ImageViewerBase(BasePanel):
                     ('Gamma', self.gamma * 1.0),
                     ('Color Map', [cmapind] + colormaps)]
 
-            results = fedit(form)
+            results = fedit(form, title = 'Offset & Gain')
             if results is None: return
             offset, gain, gamma, cmapind = results
             self.colormap = colormaps[cmapind-1]
@@ -997,7 +997,7 @@ class ImageViewerBase(BasePanel):
                     ('White', self.white),
                     ('Color Map', [cmapind] + colormaps)]
 
-            results = fedit(form)
+            results = fedit(form, title='Black & White')
             if results is None: return
             black, white, cmapind = results
             self.colormap = colormaps[cmapind-1]
@@ -1051,7 +1051,7 @@ class ImageViewerBase(BasePanel):
                     ('Gain', self.gain * 1.0),
                     ('Color Map', [cmapind] + colormaps)]
 
-            results = fedit(form)
+            results = fedit(form, title='Grey & Gain')
             if results is None: return
             grey, gain, cmapind = results
             self.colormap = colormaps[cmapind-1]
@@ -1127,7 +1127,7 @@ class ImageViewerBase(BasePanel):
             args['zoom'] = self.imviewer.zoomValue * 100
 
         if args.isNotSet():
-            results = fedit([('Zoom value %', args['zoom'])])
+            results = fedit([('Zoom value %', args['zoom'])], title='Set Zoom')
             if results is None: return
             args['zoom'] = results[0]
 
@@ -1407,7 +1407,7 @@ class ImageViewerBase(BasePanel):
 
         if args.isNotSet():
             form = [('Angle', args['angle'])]
-            results = fedit(form)
+            results = fedit(form, title='Rotate')
             if results is None: return
             args['angle'] = results[0]
 
@@ -1434,7 +1434,7 @@ class ImageViewerBase(BasePanel):
         if args.isNotSet():
 
             form = [('Width', args['width']), ('Height', args['height'])]
-            results = fedit(form)
+            results = fedit(form, title='Canvas Resize')
             if results is None: return
             args['width'], args['height'] = results
 
@@ -1464,7 +1464,7 @@ class ImageViewerBase(BasePanel):
         shape = self.ndarray.shape
 
         form = [("width", shape[1]), ("height", shape[0]), ("order", 1)]
-        results = fedit(form)
+        results = fedit(form, title = 'Image Resize')
         if results is None: return
         width, height, order = results
 
@@ -1494,7 +1494,7 @@ class ImageViewerBase(BasePanel):
 
         if args.isNotSet():
             form = [('Value', args['value'])]
-            results = fedit(form)
+            results = fedit(form, title='Fill Value')
             if results is None: return
             args['value'] = results[0]
 
@@ -1505,7 +1505,7 @@ class ImageViewerBase(BasePanel):
 
     def addNoise(self):
         form = [('Standard Deviation', 1.0)]
-        results = fedit(form)
+        results = fedit(form, title='Add Noise')
         if results is None: return
         std = float(results[0])
 
