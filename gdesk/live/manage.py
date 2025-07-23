@@ -162,7 +162,7 @@ class LiveScriptModuleReference(object):
 
 
     def __repr__(self):
-        return f'{self.__modstr__} from {self.__file__}'
+        return f'{self.__modstr__} -> {self.__file__}'
 
 
     def __call__(self, *args, **kwargs):
@@ -326,8 +326,11 @@ class LiveScriptScan(object):
         object.__setattr__(self, '_mp', mp)
         
         
-    def _find(self, part, dir_listing=False):
-        return self.__script_manager__.search_script(part, dir_listing)
+    def _find(self, part, dir_listing=False, content=False):
+        if content:
+            return self.__script_manager__.search_content(part)
+        else:
+            return self.__script_manager__.search_script(part, dir_listing)
 
 
     def __dir__(self):
@@ -449,7 +452,37 @@ class LiveScriptManager(object):
                         
         for mod_str, mod_path in found_scripts.items():
             print(f'use.{mod_str} -> {mod_path}')
-
+            
+            
+    def search_content(self, part):
+        
+        for path in self.path:        
+            path_shown = False        
+            for p in Path(path).rglob('*.py'):    
+                file_show = False
+                
+                mod_path = p.relative_to(path)
+                mod_str = get_mod_str(mod_path)
+                
+                if not self.locate_script(mod_str)[0][0] == p: continue
+                
+                file = open(p, 'r')
+                
+                for i, line in enumerate(file):
+                    if part in line:
+                        if not path_shown:
+                            print()
+                            print(path)
+                            print()
+                            path_shown = True    
+                            
+                        if not file_show:
+                            print()
+                            print(mod_str)
+                            print()
+                            file_show = True
+                            
+                        print(f'{i:06d}: {line.rstrip()}')
                 
     def append_path(self, path, resolve=True):
         path = Path(path).absolute()
