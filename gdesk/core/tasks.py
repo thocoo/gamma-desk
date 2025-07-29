@@ -33,7 +33,7 @@ from .conf import config, configure
 from .. import refer_shell_instance
 
 #Configure in case of the child process before importing anything else of gdesk
-configure(matplotlib={'backend':'svg'})
+#configure(matplotlib={'backend':'svg'})
 process_name = multiprocessing.current_process().name
 logger.debug(f'import of {__name__} by {process_name}\n')
 
@@ -356,14 +356,19 @@ class ProcessTask(TaskBase):
         #no existing queue from an existing master process
         #Start a new child process
         if self.start_child:
-            self.process = Process(target=ProcessTask.start_child_process, args=(self.cqs, self.panid), daemon=True)
+            self.process = Process(target=ProcessTask.start_child_process, args=(config['config_files'], self.cqs, self.panid), daemon=True)
             self.process.start()                   
         
         self.flusher = None
                 
     @staticmethod    
-    def start_child_process(cqs, panid=None):            
+    def start_child_process(config_files, cqs, panid=None):
         try:
+            config_kwargs = {}
+            config_kwargs['path_config_files'] = config_files
+            config_kwargs['matplotlib'] = {'backend':'svg'}            
+            configure(**config_kwargs)
+            
             shell = Shell()
             refer_shell_instance(shell)
             shell.start_in_this_thread(cqs, panid)
