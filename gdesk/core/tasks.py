@@ -77,10 +77,15 @@ class TimeOutGuiCall(object):
             self.lock.release()
             
             
-def callbackexcept(func, mode, error_code, result):
+def callbackexcept(func, func_err, mode, error_code, result):
 
-    if not error_code == 0:
-        gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')
+    if not error_code == 0:        
+        
+        if not func_err is None:
+            func_err(mode, error_code, result)
+            
+        else:
+            gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')        
         
     else:
         func(result)
@@ -148,12 +153,12 @@ class TaskBase(object):
             return self.send_func_and_call('flow_func', (func, args), callback, wait)
             
 
-    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False):           
+    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False, callerr=None):           
         if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
             func = self.gui_proxy.encode_func(func)
             
         if not callback is None:
-            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, mode, error_code, result)
+            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, callerr, mode, error_code, result)
             
         else:
             callback_errhandle = None
