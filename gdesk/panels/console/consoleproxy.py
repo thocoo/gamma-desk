@@ -7,10 +7,7 @@ from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
 from ...core.shellmod import Shell
 
 
-class ProcessError(BaseException):
-    # With as message the formatted traceback
-    # of the error caused in the other process
-    pass
+
 
 
 class MpTask(object):
@@ -21,15 +18,11 @@ class MpTask(object):
         self.console_id = console_id
         self.done = False
         self.result = None
-        self.ex = None
-        self.tb_message = None
+        self.exception = None
         
 
-    def _accept_error(self, mode, error_code, result):      
-        
-        if error_code == 5:
-            self.ex, self.tb_message = result
-            
+    def _accept_error(self, exception):              
+        self.exception = exception           
         self.lock.release()
         
         
@@ -50,8 +43,8 @@ class MpTask(object):
         #    RuntimeError: Internal C++ object (StdPlainOutputPanel) already deleted.
         gui.console.close(self.console_id)
         
-        if not self.ex is None:
-            raise ProcessError(self.tb_message)
+        if not self.exception is None:
+            raise self.exception
                    
         return self.result
         
@@ -225,7 +218,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         mptask.lock.acquire()        
             
         new_panel.task.call_func_ext(func, args=args, kwargs=kwargs,
-            callback=mptask._accept_result, callerr=mptask._accept_error)
+            callback=mptask._accept_result, errhandler=mptask._accept_error)
             
         return mptask        
         
@@ -242,7 +235,7 @@ class ConsoleGuiProxy(GuiProxyBase):
         mptask.lock.acquire()        
             
         new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs,
-            callback=mptask._accept_result, callerr=mptask._accept_error)
+            callback=mptask._accept_result, errhandler=mptask._accept_error)
             
         return mptask
         

@@ -76,16 +76,29 @@ class TimeOutGuiCall(object):
         finally:
             self.lock.release()
             
-            
-def callbackexcept(func, func_err, mode, error_code, result):
 
-    if not error_code == 0:        
+class ProcessError(BaseException):
+    # With as message the formatted traceback
+    # of the error caused in the other process
+    
+    def __init__(self, exception, tb_message):
+        BaseException.__init__(self, tb_message)
+        self.original_exception = exception
+    
+            
+def callbackexcept(func, errhandler, mode, error_code, result):
+
+    if error_code == 5:       
+    
+        original_exception, tb_message = result
+        exception = ProcessError(original_exception, tb_message)        
         
-        if not func_err is None:
-            func_err(mode, error_code, result)
+        if not errhandler is None:
+            errhandler(exception)
             
         else:
-            gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')        
+            raise exception
+            #gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')
         
     else:
         func(result)
@@ -153,12 +166,12 @@ class TaskBase(object):
             return self.send_func_and_call('flow_func', (func, args), callback, wait)
             
 
-    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False, callerr=None):           
+    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False, errhandler=None):           
         if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
             func = self.gui_proxy.encode_func(func)
             
         if not callback is None:
-            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, callerr, mode, error_code, result)
+            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, errhandler, mode, error_code, result)
             
         else:
             callback_errhandle = None
