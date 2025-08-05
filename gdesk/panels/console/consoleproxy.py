@@ -1,9 +1,53 @@
 import sys
 import threading
 import multiprocessing
+import traceback
 
 from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
 from ...core.shellmod import Shell
+
+
+
+
+
+class MpTask(object):
+    
+    
+    def __init__(self, console_id):
+        self.lock = multiprocessing.Lock()
+        self.console_id = console_id
+        self.done = False
+        self.result = None
+        self.exception = None
+        
+
+    def _accept_error(self, exception):              
+        self.exception = exception           
+        self.lock.release()
+        
+        
+    def _accept_result(self, result):
+        self.result = result
+        self.lock.release()
+        
+        
+    def join(self):
+        if self.done: return self.result
+        
+        self.lock.acquire()
+        self.done = True                
+        
+        # TO DO
+        # There is a risk that print messages are not yet processed
+        # Closing before this will cause 
+        #    RuntimeError: Internal C++ object (StdPlainOutputPanel) already deleted.
+        gui.console.close(self.console_id)
+        
+        if not self.exception is None:
+            raise self.exception
+                   
+        return self.result
+        
        
 class ConsoleGuiProxy(GuiProxyBase):    
     category = 'console'
@@ -161,6 +205,23 @@ class ConsoleGuiProxy(GuiProxyBase):
         panel.task.call_func(init_caller, args=args, callback=None)           
         return panel.panid
         
+        
+    @StaticGuiCall    
+    def child_exec(func, *args, **kwargs):
+        shell = Shell.instance
+        this_panid = shell.this_interpreter().console_id        
+        new_panel = gui.qapp.panels.select_or_new('console', None, 'child')
+        new_panel.task.wait_process_ready()        
+        ConsoleGuiProxy.sync_paths(this_panid, new_panel.panid)   
+        
+        mptask = MpTask(new_panel.panid)  
+        mptask.lock.acquire()        
+            
+        new_panel.task.call_func_ext(func, args=args, kwargs=kwargs,
+            callback=mptask._accept_result, errhandler=mptask._accept_error)
+            
+        return mptask        
+        
     
     @StaticGuiCall    
     def child_live_exec(live_func, *args, **kwargs):
@@ -169,18 +230,18 @@ class ConsoleGuiProxy(GuiProxyBase):
         new_panel = gui.qapp.panels.select_or_new('console', None, 'child')
         new_panel.task.wait_process_ready()        
         ConsoleGuiProxy.sync_paths(this_panid, new_panel.panid)   
-        lock = multiprocessing.Lock()  
-        lock.acquire()
         
-        def release_lock(result):
-            lock.release()
+        mptask = MpTask(new_panel.panid)  
+        mptask.lock.acquire()        
             
-        new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs, callback=release_lock) 
-        return new_panel.panid, lock
+        new_panel.task.call_func_ext(ConsoleGuiProxy.use_exec, args=(live_func.__module__, live_func.__name__) + args, kwargs=kwargs,
+            callback=mptask._accept_result, errhandler=mptask._accept_error)
+            
+        return mptask
         
         
     @staticmethod    
     def use_exec(live_module, func_name, *args, **kwargs):
         from gdesk import use
-        getattr(use(live_module), func_name)(*args, **kwargs)
+        return getattr(use(live_module), func_name)(*args, **kwargs)
         

@@ -30,8 +30,8 @@ from ..live.manage import LiveScriptModuleReference
 from rlcompleter import Completer
 from ..live.completer import Completer as LiveCompleter
 
-COMPLETER = config.get('console', {}).get('completer', 'native')      
-MULTIKEY =  config.get('console', {}).get('multikey', False)
+COMPLETER = None
+MULTIKEY =  None
 
 here = Path(__file__).absolute().parent
 logger = logging.getLogger(__name__) 
@@ -40,6 +40,8 @@ class Shell(object):
     instance = None
     
     def __init__(self, workspace=None, redirect=True, logdir=True):
+        global COMPLETER, MULTIKEY
+        
         self.wsdict = dict() if workspace is None else workspace
         self.ws = DictStruct(self.wsdict)
              
@@ -52,6 +54,9 @@ class Shell(object):
         if redirect:
             self.redirect_stdout()            
             self.redirect_input()
+            
+        COMPLETER = config.get('console', {}).get('completer', 'native')      
+        MULTIKEY =  config.get('console', {}).get('multikey', False)
         
         if COMPLETER == 'native':
             self.comp = Completer(self.wsdict)

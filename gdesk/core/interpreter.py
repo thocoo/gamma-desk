@@ -484,7 +484,7 @@ class QueueInterpreter(object):
                 
             except BaseException as ex:
                 error_code = 4
-                result = repr(ex)                
+                result = ex
                 
             finally:
                 #Finish the side thread
@@ -640,13 +640,18 @@ class Interpreter(object):
         sys.last_value = value
         sys.last_traceback = tb
         tblist = traceback.extract_tb(tb)
+        
         del tblist[:1]
         lines = traceback.format_list(tblist)
+        
         if lines:
             lines.insert(0, "Traceback (most recent call last):\n")
         lines.extend(traceback.format_exception_only(type, value))
-
-        self.write_error(''.join(lines)) 
+        
+        tb_message = ''.join(lines)
+        self.write_error(tb_message)
+        
+        return tb_message
         
 
     def write_error(self, text):
@@ -659,8 +664,8 @@ class Interpreter(object):
             return 0, result
             
         except BaseException as ex:
-            self.showtraceback()
-            raise
+            tb_message = self.showtraceback()
+            return 5, (ex, tb_message)
         
             
     def use_one_command(self, cmd):                        
@@ -674,8 +679,8 @@ class Interpreter(object):
             return 0, result
              
         except BaseException as ex:
-            self.showtraceback()
-            raise
+            tb_message = self.showtraceback()
+            return 5, (ex, tb_message)
             
 
     def async_break(self):

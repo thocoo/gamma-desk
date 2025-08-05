@@ -33,7 +33,7 @@ from .conf import config, configure
 from .. import refer_shell_instance
 
 #Configure in case of the child process before importing anything else of gdesk
-configure(matplotlib={'backend':'svg'})
+#configure(matplotlib={'backend':'svg'})
 process_name = multiprocessing.current_process().name
 logger.debug(f'import of {__name__} by {process_name}\n')
 
@@ -76,11 +76,29 @@ class TimeOutGuiCall(object):
         finally:
             self.lock.release()
             
-            
-def callbackexcept(func, mode, error_code, result):
 
-    if not error_code == 0:
-        gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')
+class ProcessError(BaseException):
+    # With as message the formatted traceback
+    # of the error caused in the other process
+    
+    def __init__(self, exception, tb_message):
+        BaseException.__init__(self, tb_message)
+        self.original_exception = exception
+    
+            
+def callbackexcept(func, errhandler, mode, error_code, result):
+
+    if error_code == 5:       
+    
+        original_exception, tb_message = result
+        exception = ProcessError(original_exception, tb_message)        
+        
+        if not errhandler is None:
+            errhandler(exception)
+            
+        else:
+            raise exception
+            #gui.msgbox(f'Error code {error_code}\nMessage: {str(result)}', icon='Error')
         
     else:
         func(result)
@@ -148,12 +166,12 @@ class TaskBase(object):
             return self.send_func_and_call('flow_func', (func, args), callback, wait)
             
 
-    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False):           
+    def call_func_ext(self, func, args=(), kwargs={}, callback=None, wait=False, errhandler=None):           
         if not isinstance(func, str) and not self.gui_proxy.call_queue is None:
             func = self.gui_proxy.encode_func(func)
             
         if not callback is None:
-            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, mode, error_code, result)
+            callback_errhandle = lambda mode, error_code, result: callbackexcept(callback, errhandler, mode, error_code, result)
             
         else:
             callback_errhandle = None
@@ -356,14 +374,19 @@ class ProcessTask(TaskBase):
         #no existing queue from an existing master process
         #Start a new child process
         if self.start_child:
-            self.process = Process(target=ProcessTask.start_child_process, args=(self.cqs, self.panid), daemon=True)
+            self.process = Process(target=ProcessTask.start_child_process, args=(config['config_files'], self.cqs, self.panid), daemon=True)
             self.process.start()                   
         
         self.flusher = None
                 
     @staticmethod    
-    def start_child_process(cqs, panid=None):            
+    def start_child_process(config_files, cqs, panid=None):
         try:
+            config_kwargs = {}
+            config_kwargs['path_config_files'] = config_files
+            config_kwargs['matplotlib'] = {'backend':'svg'}            
+            configure(**config_kwargs)
+            
             shell = Shell()
             refer_shell_instance(shell)
             shell.start_in_this_thread(cqs, panid)
