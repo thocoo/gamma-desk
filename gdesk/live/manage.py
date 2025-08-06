@@ -298,8 +298,11 @@ class LiveScriptTree(object):
         return lst
         
         
-    def _find(self, part):
-        return self.__script_manager__.search_script(part, self.__paths__)        
+    def _find(self, part='', dir_listing=False, content=False):
+        if content:
+            return self.__script_manager__.search_content(part, self.__paths__, self.__name__)
+        else:
+            return self.__script_manager__.search_script(part, dir_listing, self.__paths__, self.__name__)        
         
 
     def __getattr__(self, attr):
@@ -326,7 +329,7 @@ class LiveScriptScan(object):
         object.__setattr__(self, '_mp', mp)
         
         
-    def _find(self, part, dir_listing=False, content=False):
+    def _find(self, part='', dir_listing=False, content=False):
         if content:
             return self.__script_manager__.search_content(part)
         else:
@@ -414,9 +417,7 @@ class LiveScriptManager(object):
         return result
             
             
-    def search_script(self, part, dir_listing=False, paths=None):        
-        if paths is None: paths = self.path
-        
+    def search_script(self, part, dir_listing=False, paths=None, parent_modstr=None):        
         found_scripts = OrderedDict()
         
         if paths is None: paths = self.path
@@ -433,6 +434,9 @@ class LiveScriptManager(object):
                         
                     mod_path = p.relative_to(path)                
                     mod_str = get_mod_str(mod_path)
+                    
+                    if not parent_modstr is None:
+                        mod_str = f'{parent_modstr}.{mod_str}'
                     
                     try:
                         find_path = self.locate_script(mod_str)
@@ -454,15 +458,21 @@ class LiveScriptManager(object):
             print(f'use.{mod_str} -> {mod_path}')
             
             
-    def search_content(self, part):
+    def search_content(self, part, paths=None, parent_modstr=None): 
         
-        for path in self.path:        
+        if paths is None: paths = self.path
+        
+        for path in paths:        
+            
             path_shown = False        
             for p in Path(path).rglob('*.py'):    
                 file_show = False
                 
                 mod_path = p.relative_to(path)
                 mod_str = get_mod_str(mod_path)
+                
+                if not parent_modstr is None:
+                    mod_str = f'{parent_modstr}.{mod_str}'                
                 
                 if not self.locate_script(mod_str)[0][0] == p: continue
                 
