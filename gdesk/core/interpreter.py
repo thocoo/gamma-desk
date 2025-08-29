@@ -44,7 +44,8 @@ class QueueInterpreter(object):
         
         self.enable_trace = config['console'].get('trace', False)
         self.prevent_trace = config['console'].get('prevent_trace', False)
-        self.clear_stdin_on_break = config['console'].get('clear_on_break', False)
+        self.clear_stdin_on_break = config['console'].get('clear_on_break', True)
+        self.clear_stdin_on_errr = config['console'].get('clear_on_error', True)
         
         self.breakable = False
         self.break_sent = False
@@ -360,6 +361,8 @@ class QueueInterpreter(object):
     def clear_stdin_queue(self):
         cqs = self.cqs
         
+        print('Clearing command queue')
+        
         while True:
             try:
                 content = cqs.stdin_queue.get(timeout=0.1)
@@ -416,7 +419,7 @@ class QueueInterpreter(object):
                 if mode == 'interprete':
                     self.breakable = True
                     error_code, result = interpreter.use_one_command(*args)
-                    self.breakable = False  
+                    self.breakable = False                    
                 
                 elif mode in ['func', 'func_ext']:
                     func = gui_proxy.decode_func(args[0])
@@ -444,7 +447,13 @@ class QueueInterpreter(object):
 
                     self.breakable = True
                     error_code, result = interpreter.use_one_func(func, func_args, func_kwargs)
-                    self.breakable = False                                               
+                    self.breakable = False
+
+                if error_code == 5:
+                    # An error occured and traceback is printed
+                    # But no re-raise was given
+                    # It probably makes sens to clear are commands in the command queue
+                    self.clear_stdin_queue()                                            
                 
                 if self.break_sent:
                     # A async KeyboardInterrupt was sent but the exception
@@ -473,8 +482,7 @@ class QueueInterpreter(object):
                 error_code = 3
                 result = 'Thread Interrupted by KeyboardInterrupt'
                 print(result)    
-                if self.clear_stdin_on_break:
-                    print('Clearing command queue')
+                if self.clear_stdin_on_break:                    
                     self.clear_stdin_queue()
                 
             except SyncBreaked:
@@ -663,6 +671,10 @@ class Interpreter(object):
             result = func(*args, **kwargs)
             return 0, result
             
+        except KeyboardInterrupt as ex:
+            self.showtraceback()
+            raise            
+            
         except BaseException as ex:
             tb_message = self.showtraceback()
             return 5, (ex, tb_message)
@@ -677,6 +689,10 @@ class Interpreter(object):
         try:
             result = exec(code, self.workspace)
             return 0, result
+            
+        except KeyboardInterrupt as ex:
+            self.showtraceback()
+            raise            
              
         except BaseException as ex:
             tb_message = self.showtraceback()
