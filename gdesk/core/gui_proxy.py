@@ -169,6 +169,7 @@ class GuiProxyBase(object):
             panel = gui.qapp.panels[category][panid]
         
         if not panel is None:
+            panel.stdio.stdOutputPanel.flush()
             panel.close_panel()
             return True
         else:

@@ -469,6 +469,22 @@ class ImageGuiProxy(GuiProxyBase):
             if chanstat is None:
                 raise KeyError(f'{name} not found')
             return chanstat.slices
+            
+            
+    @StaticGuiCall
+    def set_roi_active(name, active=True):
+        """
+        Enable or disable named roi
+        """
+        panel = gui.qapp.panels.selected('image')
+        chanstat = panel.imviewer.imgdata.chanstats.get(name)
+        
+        if chanstat is None:
+            raise KeyError(f'{name} not found')
+            
+        chanstat.active = active
+        panel.imgprof.statsPanel.formatTable()   
+
         
     @StaticGuiCall
     def get_roi():

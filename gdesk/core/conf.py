@@ -117,8 +117,8 @@ def configure(**overwrites):
     deep_update(config, load_config(config_file))
 
     prior_config_file = None
-    config_files = overwrites.get('path_config_files', None) or config.get('path_config_files', [])
-    #if not isinstance(config_files, list): config_files = [config_files]
+    config_files = overwrites.get('path_config_files', None) or config.get('path_config_files', [])    
+    config['config_files'] = config_files.copy()
     
     while len(config_files) > 0:
         print(f'config_files: {config_files}')

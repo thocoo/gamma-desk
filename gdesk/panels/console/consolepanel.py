@@ -933,12 +933,18 @@ class Console(BasePanel):
     def search(self):
         task = self.stdio.task
         
-        def search_part(part):
-            use._find(part)
+        def search_part(part, dir_listing, content):
+            use._find(part, dir_listing, content)      
             
-        part = gui.getstring('Give Part', title='Search Script')
+        #part = gui.getstring('Give Part', title='Search Script')
+        result = gui.fedit([('Give Part', ''), ('Detailed', False), ('Content', False)], result='dict', title='Search Script')
+        if result is None: return
         
-        task.call_func(search_part, args=(part,))
+        part = result['Give Part']
+        dir_listing = result['Detailed']
+        content = result['Content']
+        
+        task.call_func(search_part, args=(part, dir_listing, content))
         
     def setLogLevel(self, level):
         task = self.stdio.task

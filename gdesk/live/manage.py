@@ -8,6 +8,7 @@ import os, sys, traceback, time
 from pathlib import Path
 import functools
 from enum import Enum
+from collections import OrderedDict
 
 import logging
 
@@ -106,6 +107,18 @@ def markUpdateCallMp(script_manager, module, attr):
         
     return wrapped_caller    
     
+    
+def get_mod_str(mod_path):
+    mod_parts = mod_path.parts
+    last_part = mod_parts[-1].lower()
+    
+    if last_part.endswith('.py'):
+        last_part = last_part[:last_part.index('.py')]
+        mod_parts = list(mod_parts[:-1]) + [last_part]
+        
+    mod_str = ".".join(mod_parts)    
+    return mod_str    
+    
 
 class LiveScriptModuleReference(object):
     """"For every reference to a module, a dedicated LiveScriptModuleReference is created
@@ -149,7 +162,7 @@ class LiveScriptModuleReference(object):
 
 
     def __repr__(self):
-        return f'{self.__modstr__} from {self.__file__}'
+        return f'{self.__modstr__} -> {self.__file__}'
 
 
     def __call__(self, *args, **kwargs):
@@ -285,8 +298,11 @@ class LiveScriptTree(object):
         return lst
         
         
-    def _find(self, part):
-        return self.__script_manager__.search_script(part, self.__paths__)        
+    def _find(self, part='', dir_listing=False, content=False):
+        if content:
+            return self.__script_manager__.search_content(part, self.__paths__, self.__name__)
+        else:
+            return self.__script_manager__.search_script(part, dir_listing, self.__paths__, self.__name__)        
         
 
     def __getattr__(self, attr):
@@ -313,8 +329,11 @@ class LiveScriptScan(object):
         object.__setattr__(self, '_mp', mp)
         
         
-    def _find(self, part):
-        return self.__script_manager__.search_script(part)
+    def _find(self, part='', dir_listing=False, content=False):
+        if content:
+            return self.__script_manager__.search_content(part)
+        else:
+            return self.__script_manager__.search_script(part, dir_listing)
 
 
     def __dir__(self):
@@ -398,13 +417,82 @@ class LiveScriptManager(object):
         return result
             
             
-    def search_script(self, part, paths=None):        
+    def search_script(self, part, dir_listing=False, paths=None, parent_modstr=None):        
+        found_scripts = OrderedDict()
+        
         if paths is None: paths = self.path
-        for path in paths:
+        
+        for path in paths:        
+            path_shown = False
             for p in Path(path).rglob('*.py'):
                 if part in str(p):
-                    print(p)
-
+                    if dir_listing and not path_shown:
+                        print()
+                        print(path)
+                        print()
+                        path_shown = True
+                        
+                    mod_path = p.relative_to(path)                
+                    mod_str = get_mod_str(mod_path)
+                    
+                    if not parent_modstr is None:
+                        mod_str = f'{parent_modstr}.{mod_str}'
+                    
+                    try:
+                        find_path = self.locate_script(mod_str)
+                        if find_path[0][0] == p:
+                            if dir_listing:
+                                print(f'    {mod_path} <- {mod_str}')
+                            found_scripts[mod_str] = path / mod_path
+                        else:
+                            if dir_listing:
+                                print(f'    {mod_path} <- UNREACHABLE')
+                        
+                    except KeyError:
+                        print(f'    COULD NOT LOCATE {mod_path}')
+                        
+        if dir_listing:              
+            print()
+                        
+        for mod_str, mod_path in found_scripts.items():
+            print(f'use.{mod_str} -> {mod_path}')
+            
+            
+    def search_content(self, part, paths=None, parent_modstr=None): 
+        
+        if paths is None: paths = self.path
+        
+        for path in paths:        
+            
+            path_shown = False        
+            for p in Path(path).rglob('*.py'):    
+                file_show = False
+                
+                mod_path = p.relative_to(path)
+                mod_str = get_mod_str(mod_path)
+                
+                if not parent_modstr is None:
+                    mod_str = f'{parent_modstr}.{mod_str}'                
+                
+                if not self.locate_script(mod_str)[0][0] == p: continue
+                
+                file = open(p, 'r')
+                
+                for i, line in enumerate(file):
+                    if part in line:
+                        if not path_shown:
+                            print()
+                            print(path)
+                            print()
+                            path_shown = True    
+                            
+                        if not file_show:
+                            print()
+                            print(mod_str)
+                            print()
+                            file_show = True
+                            
+                        print(f'{i:06d}: {line.rstrip()}')
                 
     def append_path(self, path, resolve=True):
         path = Path(path).absolute()

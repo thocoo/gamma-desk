@@ -529,15 +529,48 @@ class ImageViewerWidget(QWidget):
 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)
-
             qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                       
 
-            for layer in self.imgdata.layers.values():
-                qp.setCompositionMode(layer['composition'])
-                qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
+        for layer in self.imgdata.layers.values():
+            qp.resetTransform() 
+            qp.scale(self.zoomDisplay, self.zoomDisplay)
+            qp.translate(-sx, -sy)            
+            qp.setCompositionMode(layer['composition'])
+            qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
         
-        qp.resetTransform() 
+        qp.resetTransform()                                             
         
+        for mask_name, chanstat in self.vd.chanstats.items():
+            if not chanstat.is_valid(): continue
+            if mask_name in PRE_DEF_MASK_NAMES: continue
+            if mask_name.startswith('roi.'): continue
+            if not (chanstat.active and chanstat.mask_visible): continue
+            
+            y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
+            y0, y1, _ = y_slice.indices(self.imgdata.height)
+            x0, x1, _ = x_slice.indices(self.imgdata.width)            
+            
+            x0 = round((x0 - self.dispOffsetX) * self.zoomDisplay)
+            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay - 1)
+            y0 = round((y0 - self.dispOffsetY) * self.zoomDisplay)            
+            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay - 1)
+            
+            qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+            pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
+            qp.setPen(pensolid)
+            polygon = QtGui.QPolygon()
+            polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
+                << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
+            qp.drawPolyline(polygon)
+            
+            labelWidth = self.fontmetric.width(mask_name)
+            labelHeight = self.fontmetric.height()
+            
+            qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
+            qp.setPen(self.pentext)
+            qp.drawText(x0, y0, mask_name)               
+            
+            
         if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
             qp.setPen(QColor(128,128,128))
             
@@ -553,7 +586,6 @@ class ImageViewerWidget(QWidget):
             
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
-            #qp.setRenderHint(qp.Antialiasing, False)
             
             x, y, w, h = self.visibleRegion()
             mh, mw = self.imgdata.statarr.shape[:2]
@@ -580,39 +612,7 @@ class ImageViewerWidget(QWidget):
                             label = fmt.format(val)
                         except:
                             label = 'invalid'
-                        qp.drawText(xpos, ypos, label)
-                                      
-        
-        for mask_name, chanstat in self.vd.chanstats.items():
-            if not chanstat.is_valid(): continue
-            if mask_name in PRE_DEF_MASK_NAMES: continue
-            if mask_name.startswith('roi.'): continue
-            if not (chanstat.active and chanstat.mask_visible): continue
-            
-            y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]
-            y0, y1 = y_slice.start, y_slice.stop
-            x0, x1 = x_slice.start, x_slice.stop
-            
-            if (x0 is None) or (x1 is None) or (y0 is None) or (y1 is None): continue
-            x0 = round((x0 - self.dispOffsetX) * self.zoomDisplay)
-            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay) - 1
-            y0 = round((y0 - self.dispOffsetY) * self.zoomDisplay)            
-            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay) - 1
-            
-            pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
-            qp.setPen(pensolid)
-            polygon = QtGui.QPolygon()
-            polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
-                << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
-            qp.drawPolyline(polygon)
-            
-            labelWidth = self.fontmetric.width(mask_name)
-            labelHeight = self.fontmetric.height()
-            
-            qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
-            qp.setPen(self.pentext)
-            qp.drawText(x0, y0, mask_name)               
-            
+                        qp.drawText(xpos, ypos, label)            
             
 
     def dragEnterEvent(self, event):

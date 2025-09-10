@@ -99,9 +99,10 @@ class StdErrRouter(StreamRouter):
         
         
 class GhStreamHandler(Handler):
-    def __init__(self, stream):
+    def __init__(self, stream, show_on_warning=False):
         super().__init__()
         self.stream = stream
+        self.show_on_warning = show_on_warning
         self.set_name('ghstream')
         
         if not config['console'].get('logformat') is None:
@@ -128,11 +129,12 @@ class GhStreamHandler(Handler):
         else:        
             self.stream.write(f'LOG {text}')
 
-        try:
-            if record.levelno >= logging.WARNING:
-                gui.console.show_me()
-        except:
-            pass
+        if self.show_on_warning:
+            try:
+                if record.levelno >= logging.WARNING:                
+                    gui.console.show_me()
+            except:
+                pass
 
 
 class PopupHandler(Handler):
