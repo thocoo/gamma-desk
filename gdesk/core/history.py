@@ -242,8 +242,13 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
 
         return query
         
+        
+    def item_count(self):
+        return next(self.execfetch('SELECT COUNT(*) FROM CMDHIST'))[0]
+        
+        
     def delete_all_but_last(self, keep_count=100):
-        count = next(self.execfetch('SELECT COUNT(*) FROM CMDHIST'))[0]
+        count = self.item_count()
         keep_count = min(count, keep_count)
         keep_id = next(self.execfetch(f'SELECT ID FROM CMDHIST ORDER BY ID DESC LIMIT {keep_count}, 1'))[0]
         self.server.execute(f'DELETE FROM CMDHIST WHERE ID < {keep_id}')

@@ -733,6 +733,10 @@ class Console(BasePanel):
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
             statusTip = "Close this Thread",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cross.png')))
+            
+        self.historyMenu = self.menuBar().addMenu("&History")
+        self.addMenuItem(self.historyMenu, 'Trim History', self.trimHistory)
+        
 
         traceMenu = QtWidgets.QMenu('tracing')
         traceMenu.addAction(QAction("Enable Tracing", self, triggered=lambda: self.task.set_tracing(True),
@@ -902,7 +906,14 @@ class Console(BasePanel):
             logger.error(f'Suffix {filepath.suffix} of {filepath.name} not registered')
             return
         
-        gui.qapp.history.storepath(str(filepath), category='console')        
+        gui.qapp.history.storepath(str(filepath), category='console')                
+    
+    def trimHistory(self):
+        answer = gui.getstring('Amount of last items to keep')
+        
+        if answer.isdecimal():            
+            keep = int(answer)
+            gui.qapp.history.delete_all_but_last(keep)                
 
     def addText(self, text):
         self.stdio.stdOutputPanel.addText(text)
