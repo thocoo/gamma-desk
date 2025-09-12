@@ -1978,17 +1978,20 @@ class ImageProfileWidget(QWidget):
         self.colPanel.selectProfiles(masks)
         
         
-    def setSelection(self, mask):
+    def setSelection(self, mask, modify=False):
         roi = self.imviewer.roi
         
         if not (mask == ''):
-            chanstats = self.imviewer.imgdata.chanstats[mask]
-            self.selected_mask = mask
+            chanstats = self.imviewer.imgdata.chanstats[mask]            
             selroi = self.imviewer.imgdata.selroi  
             selroi.xr.setfromslice(chanstats.slices[1])
-            selroi.yr.setfromslice(chanstats.slices[0]) 
-            color = chanstats.plot_color
-            roi.initUI(color)
+            selroi.yr.setfromslice(chanstats.slices[0])             
+            
+            if modify:
+                color = chanstats.plot_color            
+                roi.initUI(color)
+                self.selected_mask = mask
+                
             roi.clip()
             roi.show()
             roi.roiChanged.emit()
