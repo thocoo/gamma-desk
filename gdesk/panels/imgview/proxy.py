@@ -122,6 +122,7 @@ class ImageGuiProxy(GuiProxyBase):
         gui.qapp.processEvents()
         return panel.panid        
         
+        
     @StaticGuiCall    
     def get_clipboard_image():
         from ...utils.imconvert import qimage_to_ndarray
@@ -133,7 +134,17 @@ class ImageGuiProxy(GuiProxyBase):
             logger.error('No image data on clipboard')
             return
         arr = qimage_to_ndarray(qimg)
-        return arr              
+        return arr             
+        
+
+    @StaticGuiCall    
+    def set_clipboard_image(arr8bit):
+        from ...utils.imconvert import process_ndarray_to_qimage_8bit
+        
+        cb = gui.qapp.clipboard()
+        qimg = process_ndarray_to_qimage_8bit(arr8bit, 0, 1)
+        cb.setImage(qimg)
+        
         
     @StaticGuiCall
     def select(panid=-1):
