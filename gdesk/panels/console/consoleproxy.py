@@ -7,9 +7,6 @@ from ...core.gui_proxy import GuiProxyBase, StaticGuiCall, gui
 from ...core.shellmod import Shell
 
 
-
-
-
 class MpTask(object):
     
     
@@ -34,8 +31,8 @@ class MpTask(object):
     def join(self):
         if self.done: return self.result
         
-        self.lock.acquire()
-        self.done = True                
+        while not self.done:
+            self.done = self.lock.acquire(timeout=3)             
         
         # TO DO
         # There is a risk that print messages are not yet processed
