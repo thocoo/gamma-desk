@@ -45,6 +45,8 @@ def init_tiny_gdesk(workspace=None):
     from gdesk.core import shellmod
     from gdesk.core import gui_proxy
     
+    global shell
+    
     if workspace is None:
         frame = sys._getframe(1)
         workspace = frame.f_globals
