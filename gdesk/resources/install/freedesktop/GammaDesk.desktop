@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Gamma Desk
+Terminal=false
+Comment=Gamma Desk
+Icon=PACKAGE_PATH/gdesk/resources/logo/logo_128px.png
+Exec=SCRIPTS_PATH/gdesk
+Terminal=false
+Categories=Office;
+StartupWMClass=gdesk

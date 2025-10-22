@@ -1,4 +1,6 @@
 {
+  "application_name": "gdesk",
+  "organization_name": "Gamma Desk",
   "path_log": "%USERPROFILE%/AppData/Local/Gamma-Desk",  
   "max_log_paths": 10,
   "high_dpiscaling": false,

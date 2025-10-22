@@ -94,6 +94,10 @@ class GuiApplication(QApplication):
         
         super().__init__(argv)                
 
+        # Configure app name so that WM_CLASS can be recognized by the desktop environment.
+        self.setApplicationName(config.get("application_name", "gdesk"))
+        self.setOrganizationName(config.get("organization_name", "Gamma Desk"))
+
         if sys.platform == "darwin":
             # Menu contains customizations; OSX can't draw these in its top-of-screen menu.
             # Instead, let Qt draw the menu inside the app window.
