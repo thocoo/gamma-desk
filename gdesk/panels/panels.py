@@ -88,6 +88,7 @@ class Panels(object):
             return panel.panid
 
     def new(self, category, paneltype=None, windowname=None, size=None, *args, **kwargs):
+        args, kwargs = self._get_args_kwargs(args, kwargs)
         image_classes = self.classes_of_category(category)
         if paneltype is None:
             ImageClass = next(iter(image_classes.values()))
@@ -96,12 +97,12 @@ class Panels(object):
         panel = self.new_panel(ImageClass, windowname, None, size=size, args=args, kwargs=kwargs)
         return panel
 
-    def select_or_new(self, category, panid=None, defaulttype='basic', parentName='main', args=(), kwargs={}):
+    def select_or_new(self, category, panid=None, defaulttype='basic', parentName='main', *args, **kwargs):
         """
         If panid < 0, -1: select the active panel, -2: selected before that, ...
         panid > 0: select the panel if exists, otherwise a new with that number
         """
-
+        args, kwargs = self._get_args_kwargs(args, kwargs)
         if not panid is None and panid < 0:
             panel = self.selected(category, panid)
 
@@ -115,7 +116,7 @@ class Panels(object):
             panid = None
 
         if panel is None:
-            panel = self.new(category, defaulttype, parentName, *args, **kwargs)
+            panel = self.new(category, defaulttype, parentName, args=args, kwargs=kwargs)
 
         panel.select()
 
@@ -164,8 +165,8 @@ class Panels(object):
         return dict([(Cls.panelShortName, Cls) for Cls in panelClassesCat])
 
     def new_panel(self, PanelClass, parentName=None, panid=None, floating=False, title=None,
-            position=None, size=None, args=(), kwargs={}):
-
+            position=None, size=None, *args, **kwargs):
+        args, kwargs = self._get_args_kwargs(args, kwargs)
         if parentName is None:
             activeWindow = self.qapp.activeWindow()
             if isinstance(activeWindow, MainWindow):
@@ -266,3 +267,20 @@ class Panels(object):
             for p, panel in panels.items():
                 if (category, panid) in panel.bindings:
                     panel.removeBindingTo(category, panid)
+
+    @staticmethod
+    def _get_args_kwargs(args, kwargs):
+        """Return args and kwargs, even if either of both is present as a key/value in kwargs."""
+        kwargs_args = kwargs.pop("args", None)
+        kwargs_kwargs = kwargs.pop("kwargs", None)
+        if kwargs_args:
+            if args:
+                raise ValueError("Positional 'args' are present, but 'args' kwargs key as well.")
+            args = kwargs_args
+        if kwargs_kwargs:
+            if len(kwargs) > 0:
+                raise ValueError("Positional 'args' are present, but 'args' kwargs key as well.")
+            kwargs = kwargs_kwargs
+
+        return args, kwargs
+
