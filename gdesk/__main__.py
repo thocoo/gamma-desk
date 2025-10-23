@@ -17,6 +17,7 @@
 """This file is executed with python -m gdesk"""
 import os
 
+_prevent_init_tiny_gdesk = True
 from gdesk.console import argexec
 
 if __name__ == '__main__':    

@@ -17,11 +17,9 @@
 """Gamma Desk"""
 
 import sys
+from pathlib import Path
 from .version import __version__, __version_info__
 from .core.conf import config, configure
-
-#from .core.gui_proxy import gui
-gui = None
 
 from .live import use, using, usp
 
@@ -30,9 +28,6 @@ DOC_HTML = 'https://thocoo.github.io/gdesk-data/docs'
 DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = __version__
-
-shell = None
-
 
 def init_tiny_gdesk(workspace=None):
     """
@@ -45,8 +40,6 @@ def init_tiny_gdesk(workspace=None):
     from gdesk.core import shellmod
     from gdesk.core import gui_proxy
     
-    global shell
-    
     if workspace is None:
         frame = sys._getframe(1)
         workspace = frame.f_globals
@@ -56,8 +49,8 @@ def init_tiny_gdesk(workspace=None):
         
     gui = gui_proxy.FakeGui()
     shell.wsdict['gui'] = gui    
-    refer_gui_instance(gui)
-    
+    refer_gui_instance(gui)    
+
 
 def refer_shell_instance(shellinst):
     """refer_shell_instance"""
@@ -68,3 +61,20 @@ def refer_shell_instance(shellinst):
 def refer_gui_instance(guiinst):
     global gui
     gui = guiinst
+
+
+def init_tiny_desk_if_not_running_gdesk():
+    
+    if len(sys.argv) > 0:
+        try:
+            if Path(sys.argv[0]).stem in ['gdesk', 'gdcam']:
+                return
+                
+        except:
+            pass
+    
+    print('Init tiny gdesk (no-gui)')    
+    init_tiny_gdesk()           
+    
+init_tiny_desk_if_not_running_gdesk()    
+    
