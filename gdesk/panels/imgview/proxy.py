@@ -355,7 +355,14 @@ class ImageGuiProxy(GuiProxyBase):
         Select a certain pixel and zoom to it
         """ 
         panel = gui.qapp.panels.selected('image')
-        panel.jumpTo(x, y)        
+        panel.jumpTo(x, y)   
+
+
+    @StaticGuiCall
+    def hide_roi():
+        panel = gui.qapp.panels.selected('image')
+        panel.selectNone()
+        
         
     @StaticGuiCall
     def set_roi_slices(slices, yonfirst=True):
