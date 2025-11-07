@@ -1,4 +1,6 @@
 {
+  "application_name": "gdesk",
+  "organization_name": "Gamma Desk",
   "path_log": "~/.gamma-desk-log",
   "max_log_paths": 10,
   "path_config_files": ["~/.config/gamma-desk/gdconf.json", "gdconf.json"],
