@@ -11,10 +11,14 @@ import time
 
 import numpy as np
 
-from ..utils.funccom import find_nested_func
-from ..utils.imconvert import qimage_to_ndarray
-
 from .conf import config
+
+from ..utils.funccom import find_nested_func
+
+if config.get('qapp'):
+    # Don't import if not in gui/qt process
+    from ..utils.imconvert import qimage_to_ndarray
+    
 
 if sys.platform == "win32":
     from ..utils.keypress import PressKey, ReleaseKey
