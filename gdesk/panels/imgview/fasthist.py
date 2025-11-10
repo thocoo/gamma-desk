@@ -129,8 +129,8 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
     
 def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use_numba=True):
 
-    if (low is None or high is None):
-        if use_numba:
+    if low is None or high is None:
+        if use_numba and numba_func:
             minimum, maximum = numba_func.get_min_max(array)
         else:
             minimum, maximum = array.min(), array.max()
