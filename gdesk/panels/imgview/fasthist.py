@@ -1,4 +1,3 @@
-import sys
 import math
 import logging
 
@@ -8,10 +7,9 @@ logger = logging.getLogger(__name__)
 
 try:
     from ...utils import numba_func
-    has_numba = True
 except:
     logger.warn('Could not import Numba functions')
-    has_numba = False    
+    numba_func = None
 
 def is_integer_num(n):
     if isinstance(n, int):
@@ -75,7 +73,7 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
         offset = 32768
     
     if array.dtype in ['uint8', 'uint16']:
-        if use_numba and has_numba:
+        if use_numba and numba_func:
             hist = numba_func.bincount2d(array, length)    
         else:
             # if use_numba:
@@ -87,7 +85,7 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
             unsigned_array = array.view('uint8')
         else:
             unsigned_array = array.view('uint16')
-        if use_numba and has_numba:
+        if use_numba and numba_func:
             hist = numba_func.bincount2d(unsigned_array, length)    
         else:
             # if use_numba:
@@ -131,8 +129,8 @@ def hist16bit(array, bins=64, step=None, low=None, high=None, use_numba=True):
     
 def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use_numba=True):
 
-    if (low is None or high is None):
-        if use_numba:
+    if low is None or high is None:
+        if use_numba and numba_func:
             minimum, maximum = numba_func.get_min_max(array)
         else:
             minimum, maximum = array.min(), array.max()
@@ -173,10 +171,10 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
         
     array16bit = scaled.clip(0, 65535).astype('uint16')
     
-    if use_numba and has_numba:
+    if use_numba and numba_func:
         hist = numba_func.bincount2d(array16bit, 65536) 
     else:
-        hist = np.bincount2d(array16bit, minlength=65536)
+        hist = np.bincount(array16bit.ravel(), minlength=65536)
         
     bins = len(hist) - np.nonzero(hist[::-1])[0][0]
     starts = first_edge + np.arange(bins) * stepsize
