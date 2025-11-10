@@ -1,18 +1,71 @@
 
-v1.8.0.dev0
------------
+
+vnext
+-----
+
+date: FIXME
+
+- Start supporting Python v3.14.
+- ...
+
+
+v1.9.3
+------
+
+date: 2025-11-07
+
+- Feature: Create shell and gui also when importing gdesk outside of real gdesk.
+- Feature: Add image panel hide_roi().
+- Fix: Properly support args and kwargs in panels select_or_new (issue #61).
+- Feature: Allow to install as application with logon on FreeDesktop systems (issue: #62).
+
+
+v1.9.2
+------
+
+date: 2025-09-12
+
+- Bugfix: clear command queue on keyboard interrupt.
+- Make mask modifications by ROI optional.
+- Feature: Add impage panel set_clipboard_image().
+- Feature: Allow to trim command history through console menu.
+
+
+v1.9.1
+------
+
+date: 2025-08-06
+
+- Improve script search: search relative to current script tree object.
+
+
+v1.9.0
+------
+
+date: 2025-08-05
+
+- Allow to not show main console on warning.
+- Cleanup: Add more titles to windows.
+- Improve script search functionality.
+- Streamline parent/child console.
+
+
+v1.8.0
+------
 
 date: 2025-06-12
 
+- Allow to add multiple 'mask' ROIs with flexible configuration.
+- Resize custom mask by selection widget.
+- Add visibility dialog for all masks.
 - Support `GDESKSTARTUP` environment variable; execute that file when configured.
 - Improve support for PyQt5, PyQt6.
-- Improve compatiblity with recent Python versions
-- Add custom mask widgets.
-- Resize custom mask by selection widget
-- Add visibility dialog for all masks
-- Various bug fixes
-- extend xarrays support
-- Add shell.start_thread() to start a new thread with stdout the same as the current thread
+- Improve compatiblity with recent Python versions.
+- Allow multiple ROI widgets at once.
+- Various bug fixes.
+- Extend support for xarrays, xarray 'str' units.
+- Add shell.start_thread() to start a new thread with stdout the same as the current thread.
+- Docs: Extend documentation of gui.show().
 
 
 v1.7.0
