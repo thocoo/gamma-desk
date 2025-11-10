@@ -6,6 +6,7 @@ vnext
 date: FIXME
 
 - Start supporting Python v3.14.
+- Feature: Allow to configure histogram step size and scale from code.
 - ...
 
 
