@@ -5,6 +5,7 @@ vnext
 
 date: FIXME
 
+- Start supporting Python v3.14.
 - ...
 
 

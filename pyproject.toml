@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "pillow",
@@ -36,10 +37,10 @@ dependencies = [
     "scipy",
     "qtpy",
     "psutil",
-    "numba",
     "pyzmq",
     "packaging",
     # Some more 'fun' dependencies, see COMPATIBILITY.md.
+    "numba; python_version < '3.14'",
     "matplotlib != 3.5.2",
     "legacy-cgi; python_version > '3.12'",
     "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
