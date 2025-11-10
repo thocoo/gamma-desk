@@ -174,7 +174,7 @@ def histfloat(array, bins=64, step=None, low=None, high=None, pow2snap=True, use
     if use_numba and numba_func:
         hist = numba_func.bincount2d(array16bit, 65536) 
     else:
-        hist = np.bincount2d(array16bit, minlength=65536)
+        hist = np.bincount(array16bit.ravel(), minlength=65536)
         
     bins = len(hist) - np.nonzero(hist[::-1])[0][0]
     starts = first_edge + np.arange(bins) * stepsize
