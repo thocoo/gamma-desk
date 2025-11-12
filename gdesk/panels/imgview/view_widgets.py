@@ -126,6 +126,12 @@ class ValuePanel(MyStatusBar):
 
 class ContrastPanel(MyStatusBar):
 
+    """
+    A panel showing offset, gain and gamma factor.
+
+    For use in the status bar.
+    """
+
     offsetGainEdited = Signal(str, str, str)
     blackWhiteEdited = Signal(str, str)
 
@@ -190,10 +196,18 @@ class ContrastPanel(MyStatusBar):
         blackWhitePressEvent(self.white)
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
-        if not self.offset.hasFocus(): self.offset.setText(f'{offset:8.6g}')
-        if not self.gain.hasFocus(): self.gain.setText(f'{gain:8.6g}')
-        if not self.white.hasFocus(): self.white.setText(f'{white:8.6g}')
-        if not self.gamma.hasFocus(): self.gamma.setText(f'{gamma:8.6g}')
+        if not self.offset.hasFocus():
+            self.offset.setText(f'{offset:8.6g}')
+            self.offset.setCursorPosition(0)
+        if not self.gain.hasFocus():
+            self.gain.setText(f'{gain:8.6g}')
+            self.gain.setCursorPosition(0)
+        if not self.white.hasFocus():
+            self.white.setText(f'{white:8.6g}')
+            self.white.setCursorPosition(0)
+        if not self.gamma.hasFocus():
+            self.gamma.setText(f'{gamma:8.6g}')
+            self.gamma.setCursorPosition(0)
 
 def offsetGainKeyPressEvent(self, event=None):
     key_enter = event is None or (event.key() == Qt.Key_Return) or \
