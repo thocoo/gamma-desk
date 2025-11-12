@@ -1,15 +1,10 @@
-import threading
 import sys, os
 import ctypes
 import logging
-import textwrap
-import mmap
-import struct
-import threading
 import psutil
 from pathlib import Path
 
-from qtpy import QtGui, QtWidgets, QtCore, API_NAME
+from qtpy import QtGui, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
 
 from ..utils.qt import using_pyqt

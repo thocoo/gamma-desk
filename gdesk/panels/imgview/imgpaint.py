@@ -61,9 +61,8 @@ def getEventPos(event):
 
 
 class ImageViewerWidget(QWidget):
-#class ImageViewerWidget(QtWidgets.QOpenGLWidget):
-    #Image size seems to be limitted to 8192x8182
-    #Tile shading limitation?
+    # Experiment: drive from QtWidgets.QOpenGLWidget instead.
+    # Image size seems to be limited to 8192x8182 -- tile shading limitation?
 
     pickerPositionChanged = Signal(int, int)
     zoomChanged = Signal(float)

@@ -9,10 +9,8 @@ from ... import config, gui
 from ...graphics.view import SceneView
 from ...graphics.items import createCurve, Indicator
 from ...graphics.rulers import TickedRuler, Grid
-from ...graphics.point import Point
 from ..base import BasePanel, CheckMenu
 
-from ..imgview import fasthist
 
 RESPATH = pathlib.Path(config['respath'])
 
