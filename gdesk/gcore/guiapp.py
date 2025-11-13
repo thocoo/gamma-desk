@@ -6,6 +6,7 @@ from pathlib import Path
 
 import qdarktheme
 from qtpy import QtGui, QtCore, API_NAME
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QShortcut
 
 from ..utils.qt import using_pyqt
@@ -342,18 +343,27 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp.setShortCuts()
     qapp.newWindow('main')
 
-    if config.get("color_scheme_force_dark", False):
-        qdarktheme.setup_theme()
-            
+    # Make color scheme available as gui._qapp.color_scheme.
+    qapp.color_scheme = Qt.ColorScheme.Unknown
+
     # To run in a new thread but on the same gui process
     # panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
     if API_NAME in ['PySide6', 'PyQt6']:
         desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
+        qapp.color_scheme = QGuiApplication.styleHints().colorScheme()
     else:
         desktopGeometry = QDesktopWidget().availableGeometry()
-        
+
+    if qapp.color_scheme == Qt.ColorScheme.Dark or config.get("color_scheme_force_dark", False):
+        # Load dark theme and color palette.
+        qdarktheme.setup_theme()
+        qdarktheme.load_palette()
+
+        # When forced in dark mode, remember this.
+        qapp.color_scheme = Qt.ColorScheme.Dark
+
     qapp.mainWindow.resize(int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5))
     
     qtRectangle = qapp.mainWindow.frameGeometry()    
