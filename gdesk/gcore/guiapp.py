@@ -4,6 +4,7 @@ import logging
 import psutil
 from pathlib import Path
 
+import qdarktheme
 from qtpy import QtGui, QtCore, API_NAME
 from qtpy.QtWidgets import QApplication, QShortcut
 
@@ -340,6 +341,9 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp = GuiApplication(shell, sys.argv)           
     qapp.setShortCuts()
     qapp.newWindow('main')
+
+    if config.get("color_scheme_force_dark", False):
+        qdarktheme.setup_theme()
             
     #To run in a new thread but on the same gui process
     #panid = qapp.mainWindow.newThread()
