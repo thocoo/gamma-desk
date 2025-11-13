@@ -107,8 +107,9 @@ class PlotView(QtWidgets.QGraphicsView):
         """
         self._background = background
         if background == 'default':
-            background = (250, 250, 250)
-        if background is None:
+            background_color = self.palette().color(QtGui.QPalette.Base)
+            self.setBackgroundBrush(background_color)
+        elif background is None:
             self.setBackgroundRole(QtGui.QPalette.NoRole)
         else:
             brush = fn.mkBrush(background)
