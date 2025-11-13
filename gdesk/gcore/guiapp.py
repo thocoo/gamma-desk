@@ -359,7 +359,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     if qapp.color_scheme == Qt.ColorScheme.Dark or config.get("color_scheme_force_dark", False):
         # Load dark theme and color palette.
         qdarktheme.setup_theme()
-        qdarktheme.load_palette()
+        qapp._palette = qdarktheme.load_palette()
 
         # When forced in dark mode, remember this.
         qapp.color_scheme = Qt.ColorScheme.Dark
