@@ -15,7 +15,7 @@ from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, 
 from ... import config, gui, use
 from ...core import tasks
 from ...core.shellmod import Shell
-from ...panels.base import BasePanel, selectThisPanel, CheckMenu
+from ...panels.base import BasePanel, CheckMenu
 from ...dialogs.formlayout import fedit
 from ...dialogs.base import messageBox
 from ...dialogs.editpaths import EditPaths
@@ -25,7 +25,7 @@ from ...gcore.utils import getMenuAction
 from ...core import stdinout
 
 respath = Path(config['respath'])
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
 MAXCHARPERLINE = 10000  #Only for ansi mode
 #PREFIXWIDTH = 30  # width of the left side line numbers
@@ -158,7 +158,7 @@ class StdInputPanel(QPlainTextEdit):
         self.configure(config)
         self.lineNumberArea=LineNumberArea(self)
 
-        #self.setFocusPolicy(Qt.StrongFocus)
+        # self.setFocusPolicy(Qt.StrongFocus)
 
         self.styles = dict()
 
@@ -669,6 +669,7 @@ class StdioFrame(QWidget):
     def keyPressEvent(self, event):
         pass
 
+
 class WrapCaller(object):
     def __init__(self, caller, *args, **kwargs):
         self.caller = caller
@@ -677,6 +678,7 @@ class WrapCaller(object):
 
     def __call__(self):
         self.caller(*self.args, **self.kwargs)
+
 
 class RecentMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
@@ -695,6 +697,7 @@ class RecentMenu(QtWidgets.QMenu):
             action.triggered.connect(WrapCaller(self.panel.openFile, path))
             self.addAction(action)
             self.actions.append(action)
+
 
 class Console(BasePanel):
     panelCategory = 'console'
@@ -999,6 +1002,7 @@ class Console(BasePanel):
             self.stdio.task.unregister()
             super().close_panel()
 
+
 class MainThreadConsole(Console):
     panelShortName = 'main'
     userVisible = False
@@ -1028,6 +1032,7 @@ class MainThreadConsole(Console):
 
     def close_panel(self):
         pass
+
 
 class SubThreadConsole(Console):
     panelShortName = 'thread'
