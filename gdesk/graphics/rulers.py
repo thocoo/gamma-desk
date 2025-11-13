@@ -1,21 +1,31 @@
 from qtpy import QtCore, QtGui, QtWidgets
 from ..utils.ticks import tickValues, Ticks
       
-fonts = []
-fonts.append(QtGui.QFont('Arial', 8))
-fonts.append(QtGui.QFont('Arial', 7))
-fonts.append(QtGui.QFont('Arial', 5))
+fonts = [
+    QtGui.QFont('Arial', 8),
+    QtGui.QFont('Arial', 7),
+    QtGui.QFont('Arial', 5),
+]
 
-grid_pens = []
-grid_pens.append(QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine))
-grid_pens.append(QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine))
-grid_pens.append(QtGui.QPen(QtGui.QColor(223,223,223), 0, QtCore.Qt.DotLine))
-        
-        
+grid_pens = {
+    "Light": [
+        QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine),
+        QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine),
+        QtGui.QPen(QtGui.QColor(223,223,223), 0, QtCore.Qt.DotLine),
+    ],
+    "Dark": [
+        QtGui.QPen(QtGui.QColor(128, 128, 128), 0, QtCore.Qt.SolidLine),
+        QtGui.QPen(QtGui.QColor(100, 100, 100), 0, QtCore.Qt.DashLine),
+        QtGui.QPen(QtGui.QColor(90, 90, 90), 0, QtCore.Qt.DotLine),
+    ],
+}
+
+
 class LabelItem(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, text='', level=0, grid=False, parent=None, scene=None):
-        super().__init__(parent=parent)        
+        super().__init__(parent=parent)
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
         if scene: scene.addItem(self)                   
         self.setLine(0, 0, 0, 10)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
@@ -25,7 +35,7 @@ class LabelItem(QtWidgets.QGraphicsLineItem):
         
         if grid:
             self.gline = QtWidgets.QGraphicsLineItem(self)
-            self.gline.setPen(grid_pens[level])
+            self.gline.setPen(grid_pens[self.color_scheme][level])
             self.gline.setLine(0, -1e6, 0, 0)
             #self.gline.setZValue(0)
         
@@ -37,10 +47,11 @@ class GridItem(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, level=0,  parent=None, scene=None):
         super().__init__(parent=parent)
-        if scene: scene.addItem(self)         
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
+        if scene: scene.addItem(self)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         self.gline = QtWidgets.QGraphicsLineItem(self)
-        self.gline.setPen(grid_pens[level])
+        self.gline.setPen(grid_pens[self.color_scheme][level])
         self.gline.setLine(0, -1e6, 0, 0)    
         
         
