@@ -6,7 +6,6 @@ from qtpy.QtCore import Qt
 
 from ...graphics.plotview import PlotView
 from ...graphics.rulers import TickedRuler, Axis
-from ...graphics.functions import arrayToQPath
 from ...graphics.items import createCurve
 
 from ...utils.ticks import tickValues
@@ -26,7 +25,7 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.imagePanel = imviewer
         self.scene = QtWidgets.QGraphicsScene()
         self.view = ProfileGraphicView(self)
-        self.view.setScene(self.scene)            
+        self.view.setScene(self.scene)
         
         vbox = QtWidgets.QVBoxLayout(self)
         vbox.setContentsMargins(0,0,0,0)
@@ -174,7 +173,7 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.startX = self.imagePanel.dispOffsetX
                 self.stopX = math.ceil(self.startX + self.width() / scaleX)
                 
-            self.stopX = min(self.imagePanel.vd.width, self.stopX)                                                                      
+            self.stopX = min(self.imagePanel.vd.width, self.stopX)
             self.ruler = TickedRuler(0, self.startX, self.stopX, scaleX,
                                      bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
@@ -234,7 +233,6 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         if self.direction == 0:
             axis = 0
-            
         else:
             axis = 1
             
@@ -281,7 +279,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         
     def createCurve(self, x, y, color=None, z=0):
-        if color == None:
+        if color is None:
             color = QtCore.Qt.blue                    
                 
         if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
@@ -406,4 +404,3 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.redrawSlices()
         self.repositionRuler()
         self.repositionYAxis()
-
