@@ -146,6 +146,9 @@ class LineNumberArea(QWidget):
         
 
 class StdInputPanel(QPlainTextEdit):
+
+    """Allow to type code."""
+
     def __init__(self, parent, task, outputPanel):
         super().__init__(parent = parent)
         self.task = task
@@ -507,6 +510,9 @@ class StdInputPanel(QPlainTextEdit):
 
 
 class StdPlainOutputPanel(QPlainTextEdit):
+
+    """Show entered code and the generated output."""
+
     def __init__(self, parent, stdout_queue):
         super().__init__(parent = parent)
         self.stdout_queue = stdout_queue
