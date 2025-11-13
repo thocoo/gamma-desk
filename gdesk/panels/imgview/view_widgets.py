@@ -1,35 +1,21 @@
-import os
-import time
-import collections
 from pathlib import Path
 import types
 from collections.abc import Iterable
-import queue
-from itertools import zip_longest
 import logging
-
-import numpy as np
 
 logger = logging.getLogger(__name__)
    
 
 from ... import config, gui
 
-from qtpy import QtCore, QtGui, QtWidgets, API_NAME
+from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal, QUrl
 from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
     QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
 
-from ...panels import BasePanel, thisPanel, CheckMenu
-from ...panels.base import MyStatusBar, selectThisPanel
-from ...dialogs.formlayout import fedit
-from ...dialogs.colormap import ColorMapDialog
-from ...widgets.grid import GridSplitter
-from ...utils import lazyf, clip_array
-from ...utils import imconvert
-from ...gcore.utils import ActionArguments
-from ...external import client
+from ...panels import CheckMenu
+from ...panels.base import MyStatusBar
 
 
 here = Path(__file__).parent.absolute()
@@ -76,6 +62,7 @@ class ZoomWidget(MyStatusBar):
             statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
 
         QLineEdit.keyPressEvent(self.zoom, event)                  
+
 
 class ValuePanel(MyStatusBar):
     zoomEdited = Signal(float)

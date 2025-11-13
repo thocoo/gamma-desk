@@ -190,17 +190,15 @@ class GuiProxyBase(object):
         image = pixmap.toImage()
         arr = qimage_to_ndarray(image)        
         return arr
-        
 
-    
 
-#Note that a embeded function is also be static if closure is None            
+# Note that an embeded function is also static if closure is None
 STATIC = 1   
 
-#Embeded functions with closure not None
+# Embeded functions with closure not None
 ENCLOSED = 2
 
-#Method on object
+# Method on object
 METHOD = 4
 
                                

@@ -32,7 +32,7 @@ from ..utils import new_id_using_keys
 
 from .qgc import QGarbageCollector
 from .threadcom import HandOver
-from .utils import getMenuAction, relax_menu_text, relax_menu_trace
+from .utils import getMenuAction, relax_menu_trace
 
 from ..panels.window import MainWindow
 from ..panels.panels import Panels
@@ -345,8 +345,8 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     if config.get("color_scheme_force_dark", False):
         qdarktheme.setup_theme()
             
-    #To run in a new thread but on the same gui process
-    #panid = qapp.mainWindow.newThread()
+    # To run in a new thread but on the same gui process
+    # panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
     if API_NAME in ['PySide6', 'PyQt6']:
@@ -400,7 +400,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     if config['watcher']:
         qapp.cmdserver.start(qapp)    
         
-    exit_code = qapp.exec_()
+    qapp.exec_()
     
     #Kill all the children
     if not config.get('keep_children', False):
@@ -415,6 +415,3 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     sys.stderr = sys.__stderr__
     print(f'Exiting {PROGNAME}. Releasing lock.')   
     shell.logdir.release_lock_file()    
-    
-
-            
