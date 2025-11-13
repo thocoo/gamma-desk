@@ -1,13 +1,13 @@
 from qtpy import QtCore, QtGui, QtWidgets
 from ..utils.ticks import tickValues, Ticks
       
-fonts = [
+FONTS = [
     QtGui.QFont('Arial', 8),
     QtGui.QFont('Arial', 7),
     QtGui.QFont('Arial', 5),
 ]
 
-grid_pens = {
+GRID_PENS = {
     "Light": [
         QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine),
         QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine),
@@ -20,7 +20,7 @@ grid_pens = {
     ],
 }
 
-label_layout = {
+LABEL_LAYOUT = {
     "Light": {
         "background": (QtGui.QPen(QtGui.QColor(200, 200, 200, 200)), QtGui.QBrush(QtGui.QColor(200, 200, 200, 200), QtCore.Qt.SolidPattern)),
         "text": QtGui.QColor(120, 120, 120),
@@ -41,12 +41,12 @@ class LabelItem(QtWidgets.QGraphicsLineItem):
         self.setLine(0, 0, 0, 10)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         self.label = QtWidgets.QGraphicsTextItem(text, self)
-        self.label.setFont(fonts[level])
+        self.label.setFont(FONTS[level])
         self.label.setPos(-1, 2)
         
         if grid:
             self.gline = QtWidgets.QGraphicsLineItem(self)
-            self.gline.setPen(grid_pens[self.color_scheme][level])
+            self.gline.setPen(GRID_PENS[self.color_scheme][level])
             self.gline.setLine(0, -1e6, 0, 0)
             #self.gline.setZValue(0)
         
@@ -62,7 +62,7 @@ class GridItem(QtWidgets.QGraphicsLineItem):
         if scene: scene.addItem(self)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         self.gline = QtWidgets.QGraphicsLineItem(self)
-        self.gline.setPen(grid_pens[self.color_scheme][level])
+        self.gline.setPen(GRID_PENS[self.color_scheme][level])
         self.gline.setLine(0, -1e6, 0, 0)    
         
         
@@ -75,12 +75,12 @@ class yAxisLabel(QtWidgets.QGraphicsLineItem):
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         
         self.bgrect = QtWidgets.QGraphicsRectItem(-40, -10, 40, 20, parent=self)
-        self.bgrect.setPen(label_layout[self.color_scheme]["background"][0])
-        self.bgrect.setBrush(label_layout[self.color_scheme]["background"][1])
+        self.bgrect.setPen(LABEL_LAYOUT[self.color_scheme]["background"][0])
+        self.bgrect.setBrush(LABEL_LAYOUT[self.color_scheme]["background"][1])
         
         self.label = QtWidgets.QGraphicsTextItem(text, self)
-        self.label.setDefaultTextColor(label_layout[self.color_scheme]["text"])
-        self.label.setFont(fonts[fontNumber])
+        self.label.setDefaultTextColor(LABEL_LAYOUT[self.color_scheme]["text"])
+        self.label.setFont(FONTS[fontNumber])
         self.label.setPos(-self.label.boundingRect().width(), -10)
         
     def setRightAlign(self):
