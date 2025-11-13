@@ -4,7 +4,10 @@ import logging
 import psutil
 from pathlib import Path
 
-import qdarktheme
+try:
+    import qdarktheme
+except ImportError:
+    qdarktheme = None
 from qtpy import QtGui, QtCore, API_NAME
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QShortcut
@@ -358,8 +361,10 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
 
     if qapp.color_scheme == Qt.ColorScheme.Dark or config.get("color_scheme_force_dark", False):
         # Load dark theme and color palette.
-        qdarktheme.setup_theme()
-        qapp._palette = qdarktheme.load_palette()
+        if qdarktheme:
+            qdarktheme.setup_theme()
+            dark_palette = qdarktheme.load_palette()
+            qapp.setPalette(dark_palette)
 
         # When forced in dark mode, remember this.
         qapp.color_scheme = Qt.ColorScheme.Dark
