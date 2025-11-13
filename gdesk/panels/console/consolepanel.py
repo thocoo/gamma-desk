@@ -48,6 +48,8 @@ ERROR_SUFFIX = ESC + '0m'
 
 class LineNumberArea(QWidget):
 
+    """Show input prefix ">>>" and in multi-line mode, the line number."""
+
     def __init__(self, textEditor):
         QWidget.__init__(self, textEditor)
         color_scheme = QApplication.instance().color_scheme.name
