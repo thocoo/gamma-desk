@@ -20,6 +20,17 @@ grid_pens = {
     ],
 }
 
+label_layout = {
+    "Light": {
+        "background": (QtGui.QPen(QtGui.QColor(200, 200, 200, 200)), QtGui.QBrush(QtGui.QColor(200, 200, 200, 200), QtCore.Qt.SolidPattern)),
+        "text": QtGui.QColor(120, 120, 120),
+    },
+    "Dark": {
+        "background": (QtGui.QPen(QtGui.QColor(0, 0, 0, 200)), QtGui.QBrush(QtGui.QColor(0, 0, 0, 200), QtCore.Qt.SolidPattern)),
+        "text": QtGui.QColor(190, 190, 190),
+    },
+}
+
 
 class LabelItem(QtWidgets.QGraphicsLineItem):
     
@@ -59,15 +70,16 @@ class yAxisLabel(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, text='', fontNumber=0, parent=None, scene=None):
         super().__init__(parent=parent)
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
         if scene: scene.addItem(self)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         
         self.bgrect = QtWidgets.QGraphicsRectItem(-40, -10, 40, 20, parent=self)
-        self.bgrect.setPen(QtGui.QPen(QtGui.QColor(250,250,250, 200)))
-        self.bgrect.setBrush(QtGui.QBrush(QtGui.QColor(250,250,250, 200), QtCore.Qt.SolidPattern))        
+        self.bgrect.setPen(label_layout[self.color_scheme]["background"][0])
+        self.bgrect.setBrush(label_layout[self.color_scheme]["background"][1])
         
         self.label = QtWidgets.QGraphicsTextItem(text, self)
-        self.label.setDefaultTextColor(QtGui.QColor(120,120,120))
+        self.label.setDefaultTextColor(label_layout[self.color_scheme]["text"])
         self.label.setFont(fonts[fontNumber])
         self.label.setPos(-self.label.boundingRect().width(), -10)
         
