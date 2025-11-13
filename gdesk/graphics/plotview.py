@@ -163,7 +163,6 @@ class PlotView(QtWidgets.QGraphicsView):
         self.matrixUpdated.emit()
         self.viewport().update()            
         
-                
     def setXPosScale(self, pos, scale):
         if scale == 0:
             return
