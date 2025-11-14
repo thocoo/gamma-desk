@@ -77,7 +77,7 @@ class ValuePanel(MyStatusBar):
         self.vallab = QLabel('val')
         self.val = QLineEdit('0')
         self.val.setFont(console_font)
-        if gui.qapp.color_scheme == Qt.ColorScheme.Dark:
+        if gui.qapp.color_scheme == "Dark":
             self.val.setStyleSheet(f"QLineEdit {{ background: rgb(33, 33, 33);}}")
         else:
             self.val.setStyleSheet(f"QLineEdit {{ background: rgb(224, 224, 224); color: rgb(0, 0, 0);}}")

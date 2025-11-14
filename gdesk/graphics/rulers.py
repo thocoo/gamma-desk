@@ -36,7 +36,7 @@ class LabelItem(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, text='', level=0, grid=False, parent=None, scene=None):
         super().__init__(parent=parent)
-        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme
         if scene: scene.addItem(self)                   
         self.setLine(0, 0, 0, 10)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
@@ -58,7 +58,7 @@ class GridItem(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, level=0,  parent=None, scene=None):
         super().__init__(parent=parent)
-        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme
         if scene: scene.addItem(self)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         self.gline = QtWidgets.QGraphicsLineItem(self)
@@ -70,7 +70,7 @@ class yAxisLabel(QtWidgets.QGraphicsLineItem):
     
     def __init__(self, text='', fontNumber=0, parent=None, scene=None):
         super().__init__(parent=parent)
-        self.color_scheme = QtWidgets.QApplication.instance().color_scheme.name
+        self.color_scheme = QtWidgets.QApplication.instance().color_scheme
         if scene: scene.addItem(self)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         

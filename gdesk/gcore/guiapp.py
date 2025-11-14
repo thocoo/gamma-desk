@@ -334,7 +334,41 @@ class GuiApplication(QApplication):
     
     def restoreCursor(self):
         self.restoreOverrideCursor()
-        
+
+
+def configure_color_scheme(qapp):
+    """
+    Configure either 'Light' or 'Dark' mode.
+
+    On Windows, Qt v6 can deduct this from the OS.
+    On other platforms, this requires `gdesk.conf` setting 'color_scheme_force_dark'.
+
+    To make it work, use either PySide6 or PyQt6 and install third-party package `pyqtdarktheme`.
+    """
+    if not hasattr(Qt, "ColorScheme"):
+        # Dark mode not implemented for older Qt versions.
+        qapp.color_scheme = "Light"
+        return
+
+    # Make color scheme available as gui._qapp.color_scheme.
+    qapp.color_scheme = QApplication.instance().styleHints().colorScheme().name
+
+    force_dark = config.get("color_scheme_force_dark", False)
+
+    if force_dark and not qdarktheme:
+        # Not implemented...
+        return
+
+    if force_dark:
+        qapp.color_scheme = "Dark"
+
+    if qapp.color_scheme == "Dark" or force_dark:
+        # Load dark theme and color palette if possible.
+        if qdarktheme:
+            qdarktheme.setup_theme()
+            dark_palette = qdarktheme.load_palette()
+            qapp.setPalette(dark_palette)
+
 
 def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None):
     """
@@ -346,9 +380,6 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp.setShortCuts()
     qapp.newWindow('main')
 
-    # Make color scheme available as gui._qapp.color_scheme.
-    qapp.color_scheme = Qt.ColorScheme.Unknown
-
     # To run in a new thread but on the same gui process
     # panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
@@ -359,15 +390,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     else:
         desktopGeometry = QDesktopWidget().availableGeometry()
 
-    if qapp.color_scheme == Qt.ColorScheme.Dark or config.get("color_scheme_force_dark", False):
-        # Load dark theme and color palette.
-        if qdarktheme:
-            qdarktheme.setup_theme()
-            dark_palette = qdarktheme.load_palette()
-            qapp.setPalette(dark_palette)
-
-        # When forced in dark mode, remember this.
-        qapp.color_scheme = Qt.ColorScheme.Dark
+    configure_color_scheme(qapp)
 
     qapp.mainWindow.resize(int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5))
     

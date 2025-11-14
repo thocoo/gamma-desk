@@ -52,7 +52,7 @@ class LineNumberArea(QWidget):
 
     def __init__(self, textEditor):
         QWidget.__init__(self, textEditor)
-        color_scheme = QApplication.instance().color_scheme.name
+        color_scheme = QApplication.instance().color_scheme
 
         self.textEditor=textEditor
         self.prefix_color = QtGui.QColor(config["styles"][color_scheme]["console"]["prefix_color"])
@@ -167,7 +167,7 @@ class StdInputPanel(QPlainTextEdit):
 
         self.styles = dict()
 
-        self.color_scheme = QApplication.instance().color_scheme.name
+        self.color_scheme = QApplication.instance().color_scheme
         console_style = config["styles"][self.color_scheme]["console"]
         self.styles = console_style
         if not self.styles["interprete"]:
@@ -1021,7 +1021,7 @@ class MainThreadConsole(Console):
         super().__init__(mainWindow, panid, task)
         task.panid = self.panid
         task.start()
-        color_scheme = QApplication.instance().color_scheme.name
+        color_scheme = QApplication.instance().color_scheme
         if config["styles"][color_scheme]["console"]["interprete"]:
             self.stdio.stdInputPanel.styles['interprete'] = config["styles"][color_scheme]["console"]["interprete"]
         else:
