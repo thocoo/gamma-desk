@@ -865,8 +865,29 @@ class LevelsPanel(BasePanel):
           
         if not bits is None:          
             self.levels.bringIndicVisible(skip_if_visible=False)
-            
-    def gain1(self):    
+
+    def setHistSizePolicy(self, size_policy: str, count: int):
+        """
+        Configure the higtogram bin size.
+
+        :param size_policy: Either 'bins' or 'step'.
+        :param count: Number of bins to use, or the step size in number of bits.
+        """
+        assert size_policy in ["bins", "step"]
+        assert isinstance(count, int)
+        self.toolbar.histSizePolicyBox.setCurrentText(size_policy)
+        self.toolbar.stepcount.setText(str(count))
+
+    def setScale(self, scale_name: str):
+        """
+        Configure the vertical scale of the histogram.
+
+        :param scale_name: Either 'lin', 'log' or 'norm'.
+        """
+        assert scale_name in ["lin", "log", "norm"]
+        self.toolbar.setScale(scale_name)
+
+    def gain1(self):
         #self.offsetGainChanged.emit('default', 'default', 'default')
         for panel in self.targetPanels('image'):
             panel.changeOffsetGain('default', 'default', 'default', True)

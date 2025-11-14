@@ -49,8 +49,15 @@ We try to avoid numpy v2, but that is only possible up to Python v3.12.
 To avoid the most problems, starting from Python 3.12, we move to numpy v2 and require PySide6 v6.8.
 
 
+## Numba
+
+For very recent Python releases, numba may be unavailable for a while.
+
+In this case, we drop the requirement for numba until it's out, but only for that recent Python version.
+
+
 # Pooch
 
-Pooch is used by scipy for downloading datasets (used in test only).
+Pooch is used by `scipy` for downloading datasets (used in test only).
 
 Older scipy versions (pre Python 3.9) had the datasets built-in.

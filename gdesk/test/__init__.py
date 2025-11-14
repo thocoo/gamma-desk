@@ -234,7 +234,7 @@ class GammaDeskSuite(unittest.TestCase):
         plt.title('Row Means')
         plt.show()
 
-        answer = gui.question('Looks everything OK?')
+        answer = gui.question('Does everything look OK?')
 
         plt.close('all')
         gui.menu_trigger('image', GammaDeskSuite.panid, ['Edit', 'Show Prior Image'])

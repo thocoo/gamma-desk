@@ -8,7 +8,7 @@ panel.stdio.stdOutputPanel.addText('This is the start-up banner, before thread i
 
 test_code_1 = '''\
 import unittest
-from gdesk import test
+import gdesk.test as test
 runner = unittest.TextTestRunner()
 runner.run(test.suite())        
 '''

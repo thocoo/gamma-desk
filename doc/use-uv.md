@@ -6,7 +6,7 @@
 
 To create a simple project with Gamma Desk using `uv`, follow these steps.
 
-Create a folder and cd into it.
+Create a folder and `cd` into it.  Then create a `uv` project and add `gamma-desk` as a dependency.
 
 ```shell
 uv init
