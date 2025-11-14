@@ -28,6 +28,7 @@ If you want to use PyQt5 or PyQt6, you have to install it manually and set envir
 
 | Python | PySide6  | PySide2     | PyQt5    | PyQt6    |
 |--------|----------|-------------|----------|----------|
+| 3.14   | default  | unavailable | possible | possible |
 | 3.13   | default  | unavailable | possible | possible |
 | 3.12   | default  | unavailable | possible | possible |
 | 3.11   | default  | unavailable | possible | possible |
