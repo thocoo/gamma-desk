@@ -253,11 +253,11 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
                 offset = 0
             ylabel.update_offset(offset)
             prior_bottom = ypos -5 + offset
-        
+
     def mouseReleaseEvent(self, event):        
         self.mouse_released.emit(self.pos().x())
         super().mouseReleaseEvent(event)        
-                
+
     def mouseMoveEvent(self, event):        
         x = event.scenePos().x()
         if (not self.label is None) and ('%' in self.text):            
