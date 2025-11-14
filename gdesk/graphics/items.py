@@ -162,6 +162,8 @@ class YLabelItem(QtWidgets.QGraphicsPolygonItem):
     
     
 class Indicator(QtWidgets.QGraphicsPolygonItem):
+
+    YLABEL_Y_SPACING = 32
     
     def __init__(self, color = QtCore.Qt.blue, text = None, parent=None, scene=None):
         super().__init__(parent=parent)
@@ -238,15 +240,15 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
             ylabel.updateText("%0.4g" % v)                    
                 
             ylabel.setPen(curve.pen())
-        self.declutter_ylabels(-view.height()+22)
+        self.declutter_ylabels(-view.height() + self.YLABEL_Y_SPACING + 1)
 
     def declutter_ylabels(self, ymin=-4000, ymax=0):
         self.ylabels = sorted(self.ylabels, key = YLabelItem.sortkey)
         prior_bottom = ymin
         for ylabel in self.ylabels:
             ypos = ylabel.pos().y()
-            if (ypos - prior_bottom) < 21:
-                offset = abs(21 - (ypos - prior_bottom))
+            if (ypos - prior_bottom) < self.YLABEL_Y_SPACING:
+                offset = abs(self.YLABEL_Y_SPACING - (ypos - prior_bottom))
             else:
                 offset = 0
             ylabel.update_offset(offset)
