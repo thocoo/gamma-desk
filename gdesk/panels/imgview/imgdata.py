@@ -659,11 +659,11 @@ class ImageData(object):
         return imconvert.natural_range(self.statarr.dtype)
         
         
-    def set_mask(self, array=None, composition='sourceover'):
-        self.set_layer('mask', array, composition)
+    def set_mask(self, array=None, composition='sourceover', cmap='mask', alpha=255):
+        self.set_layer('mask', array, composition, cmap, alpha)
         
         
-    def set_layer(self, name, array=None, composition='sourceover'):
+    def set_layer(self, name, array=None, composition='sourceover', cmap='mask', alpha=255):
         if array is None:
             if name in self.layers.keys():
                 self.layers.pop(name)
@@ -674,10 +674,10 @@ class ImageData(object):
         
         height, width = array.shape
         
-        compmode = COMPMODE[composition.lower()]
-            
-        qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
-        qimage.setColorTable(imconvert.make_color_table('mask'))
+        compmode = COMPMODE[composition.lower()]            
+
+        qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)            
+        qimage.setColorTable(imconvert.make_color_table(cmap, alpha))
         self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode}                
         
         

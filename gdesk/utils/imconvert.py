@@ -338,7 +338,7 @@ def color_table_preview_qimg(name, height=32):
     arr = np.ones((height,1), 'uint8').dot(np.arange(256, dtype='uint8').reshape(1,256))        
     return process_ndarray_to_qimage_8bit(arr, 0, 1, color_table_name=name)
 
-def make_color_table(name):
+def make_color_table(name, alpha=255):
     #8bit
     
     table = list()
@@ -351,14 +351,14 @@ def make_color_table(name):
     rBase = 1 << 16
     aBase = 1 << 24
     
+    a = int(round(max(0, min(255, alpha))))
+    
     if name in ('grey', 'gray'):
-        a = 255
         for i in range(0, 256):
             b = g = r = i
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)
             
     elif name == 'clip':
-        a = 255
         table.append(255 * aBase + 255 * bBase + 0 * gBase + 0 * rBase)
         for i in range(1, 255):
             b = g = r = i
@@ -368,10 +368,9 @@ def make_color_table(name):
     elif name == 'mask':
         table.append(0)
         for i in range(1, 256):
-            table.append(255 * aBase + 0 * bBase + 0 * gBase + 255 * rBase)          
-
+            table.append(a * aBase + 0 * bBase + 0 * gBase + 255 * rBase)
+                       
     elif name == 'jet':
-        a = 255
         for i in range(0, 256):
             r = min(max(383 - round(abs(i-191) * 4), 0), 255)
             g = min(max(383 - round(abs(i-127) * 4), 0), 255)
@@ -379,7 +378,6 @@ def make_color_table(name):
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)     
 
     elif name == 'invert':
-        a = 255
         for i in range(0,256):
             b = 255 - i
             g = 255 - i
@@ -387,7 +385,6 @@ def make_color_table(name):
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)
 
     elif name == 'hot':
-        a = 255
         for i in range(0,256):
             b = min(max( i * 5 - 1020, 0),255)
             g = min(max( round(i * 2.5) - 255, 0),255)
@@ -395,7 +392,6 @@ def make_color_table(name):
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)
 
     elif name == 'cold':
-        a = 255
         for i in range(0,256):
             r = min(max( i * 5 - 1020, 0),255)
             g = min(max( round(i * 2.5) - 255, 0),255)
@@ -403,14 +399,12 @@ def make_color_table(name):
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)            
 
     elif name == 'turbo':
-        a = 255
         for i in range(0,256):
             r, g, b = [min(max(0, int(c*255)), 255) for c in turbo_colormap_data[i]]
             table.append(a*aBase + r*rBase + g*gBase + b*bBase )     
             
     elif name in ['viridis', 'plasma', 'inferno', 'magma', 'cividis']:
         mplcmap = matplotlib.colormaps[name]
-        a = 255
         for i in range(0,256):
             r, g, b = mplcmap.colors[i]
             r = min(255, max(0, round(r * 256)))

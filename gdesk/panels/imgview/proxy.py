@@ -224,17 +224,19 @@ class ImageGuiProxy(GuiProxyBase):
         
     
     @StaticGuiCall    
-    def show_mask(array=None, composition='sourceover'):
+    def show_mask(array=None, composition='sourceover', cmap='mask', alpha=255):
         panel = gui.qapp.panels.selected('image')
-        panel.imviewer.imgdata.set_mask(array, composition)
+        panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)        
         panel.imviewer.refresh()
        
     def refresh(self):
         ImageGuiProxy.show_array()        
+        
 
     @StaticGuiCall
     def cmap(cmap):
         ImageGuiProxy.show_array(None, cmap)
+        
         
     @property    
     def vs(self):
