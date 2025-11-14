@@ -217,7 +217,6 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
         
         if self.show_ylabels:
             self.set_ylabel_count(len(self.curves))
-            
         else:
             self.set_ylabel_count(0)
             
