@@ -1,5 +1,6 @@
 import numpy as np
 from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtGui import QColor
 from .functions import arrayToQPath
 
 QtSignal = QtCore.Signal
@@ -99,21 +100,34 @@ class LabelItem(QtWidgets.QGraphicsPolygonItem):
         
         
 class YLabelItem(QtWidgets.QGraphicsPolygonItem):
+
+    COLORS = {
+        "Light": {
+            "color": QColor(30, 30, 30),
+            "background": QColor(240, 240, 240),
+        },
+        "Dark": {
+            "color": QColor(210, 210, 210),
+            "background": QColor(30, 30, 30),
+        },
+    }
     
     def __init__(self, text='', color=QtGui.QColor(0,0,0), parent=None, scene=None):
         super().__init__(parent=parent)
+        color_scheme = QtWidgets.QApplication.instance().color_scheme
+        pen_color = self.COLORS[color_scheme]["color"]
+        background_color = self.COLORS[color_scheme]["background"]
         if scene: scene.addItem(self)
                 
-        self.setPen(QtGui.QPen(color))
-        self.setBrush(QtGui.QColor(240, 240, 240))        
+        self.setPen(pen_color)
+        self.setBrush(background_color)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         
         self.label = QtWidgets.QGraphicsTextItem('', self)
         self.label.setFont(QtGui.QFont('Arial', 8))
-        # set text color to black to also make it readable in dark mode
-        self.label.setDefaultTextColor(QtGui.QColor(0,0,0))
-                        
+        self.label.setDefaultTextColor(pen_color)
+
         self.offset = 0
         self.updateText(text)
         
