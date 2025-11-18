@@ -67,7 +67,7 @@ class WaitCursorContext(object):
             self.window = None
         
     def __enter__(self):
-        self.qapp.setOverrideCursor(QtCore.Qt.WaitCursor)
+        self.qapp.setOverrideCursor(Qt.WaitCursor)
         if not self.message is None:
             #TO DO, bring this to the relevant window status bar
             #self.qapp.panels['console'][0].addText(f'{self.message}\n')
@@ -101,7 +101,7 @@ class GuiApplication(QApplication):
         if sys.platform == "darwin":
             # Menu contains customizations; OSX can't draw these in its top-of-screen menu.
             # Instead, let Qt draw the menu inside the app window.
-            self.setAttribute(QtCore.Qt.AA_DontUseNativeMenuBar)
+            self.setAttribute(Qt.AA_DontUseNativeMenuBar)
         
         self.windows = dict()
         self.unnamed_windows = []
@@ -329,7 +329,7 @@ class GuiApplication(QApplication):
             self.panelsDialog.showNormal()                               
             
     def setBusyCursor(self):
-        self.setOverrideCursor(QtCore.Qt.BusyCursor)
+        self.setOverrideCursor(Qt.BusyCursor)
     
     
     def restoreCursor(self):
