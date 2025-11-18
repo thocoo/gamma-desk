@@ -5,8 +5,10 @@ vnext
 
 date: FIXME
 
+- Visual: Extend support for dark mode (issue: #35).
 - Start supporting Python v3.14.
 - Feature: Allow to configure histogram step size and scale from code.
+- Cosmetic: Show *leftmost* part of long offset/gain/gamma values by default.
 - ...
 
 
@@ -17,7 +19,7 @@ date: 2025-11-07
 
 - Feature: Create shell and gui also when importing gdesk outside of real gdesk.
 - Feature: Add image panel hide_roi().
-- Fix: Properly support args and kwargs in panels select_or_new (issue #61).
+- Fix: Properly support args and kwargs in panels select_or_new (issue: #61).
 - Feature: Allow to install as application with logon on FreeDesktop systems (issue: #62).
 
 

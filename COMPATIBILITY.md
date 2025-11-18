@@ -11,7 +11,7 @@ Since `PyWinPty` dropped Python 3.8 support in `v2.0.15`, we stay below that ver
 
 ## Matplotlib
 
-Avoid MatPlotLib 3.5.2: because it crashes plotting on PySide6.
+Avoid MatPlotLib 3.5.2 because it crashes plotting on PySide6.
 
 
 ## Qt wrapper
@@ -28,6 +28,7 @@ If you want to use PyQt5 or PyQt6, you have to install it manually and set envir
 
 | Python | PySide6  | PySide2     | PyQt5    | PyQt6    |
 |--------|----------|-------------|----------|----------|
+| 3.14   | default  | unavailable | possible | possible |
 | 3.13   | default  | unavailable | possible | possible |
 | 3.12   | default  | unavailable | possible | possible |
 | 3.11   | default  | unavailable | possible | possible |
@@ -56,8 +57,14 @@ For very recent Python releases, numba may be unavailable for a while.
 In this case, we drop the requirement for numba until it's out, but only for that recent Python version.
 
 
-# Pooch
+## Pooch
 
 Pooch is used by `scipy` for downloading datasets (used in test only).
 
 Older scipy versions (pre Python 3.9) had the datasets built-in.
+
+
+## Pyqtdarktheme
+
+This package helps to configure a dark theme in Qt.
+On Windows this is not necessary.

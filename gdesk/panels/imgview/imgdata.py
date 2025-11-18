@@ -362,7 +362,8 @@ def apply_roi_slice(large_slices, roi_slices):
     return tuple(merged_slices)
         
 
-class ImageData(object):        
+class ImageData:
+
     def __init__(self):
         self.qimg = None
         self.map8 = None

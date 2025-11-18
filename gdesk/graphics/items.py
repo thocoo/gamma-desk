@@ -1,5 +1,6 @@
 import numpy as np
 from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtGui import QColor
 from .functions import arrayToQPath
 
 QtSignal = QtCore.Signal
@@ -99,21 +100,34 @@ class LabelItem(QtWidgets.QGraphicsPolygonItem):
         
         
 class YLabelItem(QtWidgets.QGraphicsPolygonItem):
+
+    COLORS = {
+        "Light": {
+            "color": QColor(30, 30, 30),
+            "background": QColor(240, 240, 240),
+        },
+        "Dark": {
+            "color": QColor(210, 210, 210),
+            "background": QColor(30, 30, 30),
+        },
+    }
     
     def __init__(self, text='', color=QtGui.QColor(0,0,0), parent=None, scene=None):
         super().__init__(parent=parent)
+        color_scheme = QtWidgets.QApplication.instance().color_scheme
+        pen_color = self.COLORS[color_scheme]["color"]
+        background_color = self.COLORS[color_scheme]["background"]
         if scene: scene.addItem(self)
                 
-        self.setPen(QtGui.QPen(color))
-        self.setBrush(QtGui.QColor(240, 240, 240))        
+        self.setPen(pen_color)
+        self.setBrush(background_color)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         
         self.label = QtWidgets.QGraphicsTextItem('', self)
         self.label.setFont(QtGui.QFont('Arial', 8))
-        # set text color to black to also make it readable in dark mode
-        self.label.setDefaultTextColor(QtGui.QColor(0,0,0))
-                        
+        self.label.setDefaultTextColor(pen_color)
+
         self.offset = 0
         self.updateText(text)
         
@@ -148,6 +162,8 @@ class YLabelItem(QtWidgets.QGraphicsPolygonItem):
     
     
 class Indicator(QtWidgets.QGraphicsPolygonItem):
+
+    YLABEL_Y_SPACING = 32
     
     def __init__(self, color = QtCore.Qt.blue, text = None, parent=None, scene=None):
         super().__init__(parent=parent)
@@ -203,7 +219,6 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
         
         if self.show_ylabels:
             self.set_ylabel_count(len(self.curves))
-            
         else:
             self.set_ylabel_count(0)
             
@@ -225,24 +240,24 @@ class Indicator(QtWidgets.QGraphicsPolygonItem):
             ylabel.updateText("%0.4g" % v)                    
                 
             ylabel.setPen(curve.pen())
-        self.declutter_ylabels(-view.height()+22)
+        self.declutter_ylabels(-view.height() + self.YLABEL_Y_SPACING + 1)
 
     def declutter_ylabels(self, ymin=-4000, ymax=0):
         self.ylabels = sorted(self.ylabels, key = YLabelItem.sortkey)
         prior_bottom = ymin
         for ylabel in self.ylabels:
             ypos = ylabel.pos().y()
-            if (ypos - prior_bottom) < 21:
-                offset = abs(21 - (ypos - prior_bottom))
+            if (ypos - prior_bottom) < self.YLABEL_Y_SPACING:
+                offset = abs(self.YLABEL_Y_SPACING - (ypos - prior_bottom))
             else:
                 offset = 0
             ylabel.update_offset(offset)
             prior_bottom = ypos -5 + offset
-        
+
     def mouseReleaseEvent(self, event):        
         self.mouse_released.emit(self.pos().x())
         super().mouseReleaseEvent(event)        
-                
+
     def mouseMoveEvent(self, event):        
         x = event.scenePos().x()
         if (not self.label is None) and ('%' in self.text):            

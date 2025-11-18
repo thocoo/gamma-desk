@@ -9,10 +9,8 @@ from ... import config, gui
 from ...graphics.view import SceneView
 from ...graphics.items import createCurve, Indicator
 from ...graphics.rulers import TickedRuler, Grid
-from ...graphics.point import Point
 from ..base import BasePanel, CheckMenu
 
-from ..imgview import fasthist
 
 RESPATH = pathlib.Path(config['respath'])
 
@@ -50,7 +48,7 @@ class LevelPlot(QtWidgets.QWidget):
     
     def __init__(self, parent):
         super().__init__(parent=parent)
-        
+
         self.scene = QtWidgets.QGraphicsScene()
         self.view = SceneView(self)  
         self.view.freeze_y0 = True
@@ -114,7 +112,7 @@ class LevelPlot(QtWidgets.QWidget):
         self.x_ruler.setZValue(1.0)
         self.v_grid.setZValue(-1)
         self.scene.addItem(self.x_ruler)              
-        self.scene.addItem(self.v_grid)              
+        self.scene.addItem(self.v_grid)
         
     def create_y_ruler(self):
         x0, y0, x1, y1 = self.view.viewRectCoord()
@@ -126,7 +124,7 @@ class LevelPlot(QtWidgets.QWidget):
         self.y_ruler.setZValue(0.9)
         self.h_grid.setZValue(-1)
         self.scene.addItem(self.y_ruler)          
-        self.scene.addItem(self.h_grid)          
+        self.scene.addItem(self.h_grid)
         
     def attach_indicators(self):
         for indicator in self.indicators:

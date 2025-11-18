@@ -3,13 +3,37 @@ import numpy as np
 
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt
+from qtpy.QtGui import QPen, QColor
 
 from ...graphics.plotview import PlotView
 from ...graphics.rulers import TickedRuler, Axis
-from ...graphics.functions import arrayToQPath
 from ...graphics.items import createCurve
 
 from ...utils.ticks import tickValues
+
+
+GRID_PENS = {
+    "Light": (
+        # Y-axis gridlines.
+        QPen(QColor(159, 159, 159), 0, Qt.SolidLine),
+        QPen(QColor(191, 191, 191), 0, Qt.DashLine),
+        QPen(QColor(223, 223, 223), 0, Qt.DotLine),
+        # X-axis gridlines.
+        QPen(QColor(159, 159, 159), 0, Qt.SolidLine),
+        QPen(QColor(191, 191, 191), 0, Qt.DashLine),
+        QPen(QColor(223, 223, 223), 0, Qt.DotLine),
+    ),
+    "Dark": (
+        # Y-axis gridlines.
+        QPen(QColor(90, 90, 90), 0, Qt.SolidLine),
+        QPen(QColor(70, 70, 70), 0, Qt.DashLine),
+        QPen(QColor(60, 60, 60), 0, Qt.DotLine),
+        # X-axis gridlines.
+        QPen(QColor(90, 90, 90), 0, Qt.SolidLine),
+        QPen(QColor(70, 70, 70), 0, Qt.DashLine),
+        QPen(QColor(60, 60, 60), 0, Qt.DotLine),
+    ),
+}
 
 
 class ProfileGraphicView(PlotView):
@@ -26,7 +50,7 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.imagePanel = imviewer
         self.scene = QtWidgets.QGraphicsScene()
         self.view = ProfileGraphicView(self)
-        self.view.setScene(self.scene)            
+        self.view.setScene(self.scene)
         
         vbox = QtWidgets.QVBoxLayout(self)
         vbox.setContentsMargins(0,0,0,0)
@@ -174,7 +198,7 @@ class ProfilerPanel(QtWidgets.QWidget):
                 self.startX = self.imagePanel.dispOffsetX
                 self.stopX = math.ceil(self.startX + self.width() / scaleX)
                 
-            self.stopX = min(self.imagePanel.vd.width, self.stopX)                                                                      
+            self.stopX = min(self.imagePanel.vd.width, self.stopX)
             self.ruler = TickedRuler(0, self.startX, self.stopX, scaleX,
                                      bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
@@ -234,7 +258,6 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         if self.direction == 0:
             axis = 0
-            
         else:
             axis = 1
             
@@ -281,7 +304,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             
         
     def createCurve(self, x, y, color=None, z=0):
-        if color == None:
+        if color is None:
             color = QtCore.Qt.blue                    
                 
         if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
@@ -346,40 +369,37 @@ class ProfilerPanel(QtWidgets.QWidget):
     def createGrid(self):
         self.grid = []
         if not self.gridEnabled:
-            return 0
+            return
             
-        pens = []
-        pens.append(QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine))
-        pens.append(QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine))
-        pens.append(QtGui.QPen(QtGui.QColor(223,223,223), 0, QtCore.Qt.DotLine))
-        pens.append(QtGui.QPen(QtGui.QColor(159,159,159), 0, QtCore.Qt.SolidLine))
-        pens.append(QtGui.QPen(QtGui.QColor(191,191,191), 0, QtCore.Qt.DashLine))
-        pens.append(QtGui.QPen(QtGui.QColor(223,223,223), 0, QtCore.Qt.DotLine))        
-        paths = []
-                
-                           
+        grid_line_paths = []
+
+        # X ticks: construct Y gridlines
         for thicklevel in range(3):
-            paths.append(QtGui.QPainterPath())
+            grid_line_paths.append(QtGui.QPainterPath())
             for i in self.ruler.thicks[thicklevel][1]:
                 if self.direction == 0:
-                    paths[-1].moveTo(i, self.startY)
-                    paths[-1].lineTo(i, self.stopY)               
+                    grid_line_paths[-1].moveTo(i, self.startY)
+                    grid_line_paths[-1].lineTo(i, self.stopY)
                 else:
-                    paths[-1].moveTo(self.startY, i)
-                    paths[-1].lineTo(self.stopY, i) 
-                               
+                    grid_line_paths[-1].moveTo(self.startY, i)
+                    grid_line_paths[-1].lineTo(self.stopY, i)
+
+        # Y ticks: construct X gridlines
         for thicklevel in range(3):        
-            paths.append(QtGui.QPainterPath())  
+            grid_line_paths.append(QtGui.QPainterPath())
             for i in self.thicksY[thicklevel][1]:
                 if self.direction == 0:
-                    paths[-1].moveTo(self.startX, i)
-                    paths[-1].lineTo(self.stopX, i)
+                    grid_line_paths[-1].moveTo(self.startX, i)
+                    grid_line_paths[-1].lineTo(self.stopX, i)
                 else:
-                    paths[-1].moveTo(i, self.startX)
-                    paths[-1].lineTo(i, self.stopX)
-                
-        for i in range(len(paths)):
-            self.grid.append(QtWidgets.QGraphicsPathItem(paths[i]))
+                    grid_line_paths[-1].moveTo(i, self.startX)
+                    grid_line_paths[-1].lineTo(i, self.stopX)
+
+        # Add all grid lines to the scene with the correct color.
+        color_scheme = QtWidgets.QApplication.instance().color_scheme
+        pens = GRID_PENS[color_scheme]
+        for i in range(len(grid_line_paths)):
+            self.grid.append(QtWidgets.QGraphicsPathItem(grid_line_paths[i]))
             self.grid[-1].setPen(pens[i])
             self.grid[-1].setZValue(-2)
             self.scene.addItem(self.grid[-1])                                      
@@ -406,4 +426,3 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.redrawSlices()
         self.repositionRuler()
         self.repositionYAxis()
-

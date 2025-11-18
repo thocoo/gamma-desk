@@ -1,15 +1,15 @@
-import threading
 import sys, os
 import ctypes
 import logging
-import textwrap
-import mmap
-import struct
-import threading
 import psutil
 from pathlib import Path
 
-from qtpy import QtGui, QtWidgets, QtCore, API_NAME
+try:
+    import qdarktheme
+except ImportError:
+    qdarktheme = None
+from qtpy import QtGui, QtCore, API_NAME
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QShortcut
 
 from ..utils.qt import using_pyqt
@@ -36,7 +36,7 @@ from ..utils import new_id_using_keys
 
 from .qgc import QGarbageCollector
 from .threadcom import HandOver
-from .utils import getMenuAction, relax_menu_text, relax_menu_trace
+from .utils import getMenuAction, relax_menu_trace
 
 from ..panels.window import MainWindow
 from ..panels.panels import Panels
@@ -67,7 +67,7 @@ class WaitCursorContext(object):
             self.window = None
         
     def __enter__(self):
-        self.qapp.setOverrideCursor(QtCore.Qt.WaitCursor)
+        self.qapp.setOverrideCursor(Qt.WaitCursor)
         if not self.message is None:
             #TO DO, bring this to the relevant window status bar
             #self.qapp.panels['console'][0].addText(f'{self.message}\n')
@@ -101,7 +101,7 @@ class GuiApplication(QApplication):
         if sys.platform == "darwin":
             # Menu contains customizations; OSX can't draw these in its top-of-screen menu.
             # Instead, let Qt draw the menu inside the app window.
-            self.setAttribute(QtCore.Qt.AA_DontUseNativeMenuBar)
+            self.setAttribute(Qt.AA_DontUseNativeMenuBar)
         
         self.windows = dict()
         self.unnamed_windows = []
@@ -329,12 +329,46 @@ class GuiApplication(QApplication):
             self.panelsDialog.showNormal()                               
             
     def setBusyCursor(self):
-        self.setOverrideCursor(QtCore.Qt.BusyCursor)
+        self.setOverrideCursor(Qt.BusyCursor)
     
     
     def restoreCursor(self):
         self.restoreOverrideCursor()
-        
+
+
+def configure_color_scheme(qapp):
+    """
+    Configure either 'Light' or 'Dark' mode.
+
+    On Windows, Qt v6 can deduct this from the OS.
+    On other platforms, this requires `gdesk.conf` setting 'color_scheme_force_dark'.
+
+    To make it work, use either PySide6 or PyQt6 and install third-party package `pyqtdarktheme`.
+    """
+    if not hasattr(Qt, "ColorScheme"):
+        # Dark mode not implemented for older Qt versions.
+        qapp.color_scheme = "Light"
+        return
+
+    # Make color scheme available as gui._qapp.color_scheme.
+    qapp.color_scheme = QApplication.instance().styleHints().colorScheme().name
+
+    force_dark = config.get("color_scheme_force_dark", False)
+
+    if force_dark and not qdarktheme:
+        # Not implemented...
+        return
+
+    if force_dark:
+        qapp.color_scheme = "Dark"
+
+    if qapp.color_scheme == "Dark" or force_dark:
+        # Load dark theme and color palette if possible.
+        if qdarktheme:
+            qdarktheme.setup_theme()
+            dark_palette = qdarktheme.load_palette()
+            qapp.setPalette(dark_palette)
+
 
 def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None):
     """
@@ -345,16 +379,19 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp = GuiApplication(shell, sys.argv)           
     qapp.setShortCuts()
     qapp.newWindow('main')
-            
-    #To run in a new thread but on the same gui process
-    #panid = qapp.mainWindow.newThread()
+
+    # To run in a new thread but on the same gui process
+    # panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
             
     if API_NAME in ['PySide6', 'PyQt6']:
         desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
+        qapp.color_scheme = QGuiApplication.styleHints().colorScheme()
     else:
         desktopGeometry = QDesktopWidget().availableGeometry()
-        
+
+    configure_color_scheme(qapp)
+
     qapp.mainWindow.resize(int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5))
     
     qtRectangle = qapp.mainWindow.frameGeometry()    
@@ -401,7 +438,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     if config['watcher']:
         qapp.cmdserver.start(qapp)    
         
-    exit_code = qapp.exec_()
+    qapp.exec_()
     
     #Kill all the children
     if not config.get('keep_children', False):
@@ -416,6 +453,3 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     sys.stderr = sys.__stderr__
     print(f'Exiting {PROGNAME}. Releasing lock.')   
     shell.logdir.release_lock_file()    
-    
-
-            

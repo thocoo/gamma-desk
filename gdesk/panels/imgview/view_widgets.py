@@ -1,35 +1,21 @@
-import os
-import time
-import collections
 from pathlib import Path
 import types
 from collections.abc import Iterable
-import queue
-from itertools import zip_longest
 import logging
-
-import numpy as np
 
 logger = logging.getLogger(__name__)
    
 
 from ... import config, gui
 
-from qtpy import QtCore, QtGui, QtWidgets, API_NAME
+from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal, QUrl
 from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
     QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
 
-from ...panels import BasePanel, thisPanel, CheckMenu
-from ...panels.base import MyStatusBar, selectThisPanel
-from ...dialogs.formlayout import fedit
-from ...dialogs.colormap import ColorMapDialog
-from ...widgets.grid import GridSplitter
-from ...utils import lazyf, clip_array
-from ...utils import imconvert
-from ...gcore.utils import ActionArguments
-from ...external import client
+from ...panels import CheckMenu
+from ...panels.base import MyStatusBar
 
 
 here = Path(__file__).parent.absolute()
@@ -77,6 +63,7 @@ class ZoomWidget(MyStatusBar):
 
         QLineEdit.keyPressEvent(self.zoom, event)                  
 
+
 class ValuePanel(MyStatusBar):
     zoomEdited = Signal(float)
     
@@ -90,7 +77,10 @@ class ValuePanel(MyStatusBar):
         self.vallab = QLabel('val')
         self.val = QLineEdit('0')
         self.val.setFont(console_font)
-        self.val.setStyleSheet(f"QLineEdit {{ background: rgb(224, 224, 224); color: rgb(0, 0, 0);}}");
+        if gui.qapp.color_scheme == "Dark":
+            self.val.setStyleSheet(f"QLineEdit {{ background: rgb(33, 33, 33);}}")
+        else:
+            self.val.setStyleSheet(f"QLineEdit {{ background: rgb(224, 224, 224); color: rgb(0, 0, 0);}}")
         self.val.setReadOnly(True)
         self.val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         
@@ -125,6 +115,12 @@ class ValuePanel(MyStatusBar):
                 self.val.setText(str(val))               
 
 class ContrastPanel(MyStatusBar):
+
+    """
+    A panel showing offset, gain and gamma factor.
+
+    For use in the status bar.
+    """
 
     offsetGainEdited = Signal(str, str, str)
     blackWhiteEdited = Signal(str, str)
@@ -190,10 +186,18 @@ class ContrastPanel(MyStatusBar):
         blackWhitePressEvent(self.white)
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
-        if not self.offset.hasFocus(): self.offset.setText(f'{offset:8.6g}')
-        if not self.gain.hasFocus(): self.gain.setText(f'{gain:8.6g}')
-        if not self.white.hasFocus(): self.white.setText(f'{white:8.6g}')
-        if not self.gamma.hasFocus(): self.gamma.setText(f'{gamma:8.6g}')
+        if not self.offset.hasFocus():
+            self.offset.setText(f'{offset:8.6g}')
+            self.offset.setCursorPosition(0)
+        if not self.gain.hasFocus():
+            self.gain.setText(f'{gain:8.6g}')
+            self.gain.setCursorPosition(0)
+        if not self.white.hasFocus():
+            self.white.setText(f'{white:8.6g}')
+            self.white.setCursorPosition(0)
+        if not self.gamma.hasFocus():
+            self.gamma.setText(f'{gamma:8.6g}')
+            self.gamma.setCursorPosition(0)
 
 def offsetGainKeyPressEvent(self, event=None):
     key_enter = event is None or (event.key() == Qt.Key_Return) or \

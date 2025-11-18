@@ -20,12 +20,39 @@
   "scroll_area": false,
   "hide_solo_panel": true,
   "keep_children": false,
+  "color_scheme_force_dark": false,
   "debug": {
     "skip_restore_perspective": false,
     "skip_main_stdout_redirect": false,
     "skip_main_stderr_redirect": false,
     "place select button": false,
     "list_packages": false
+  },
+  "styles": {
+    "Dark": {
+      "console": {
+        "interprete": "background-color:#222222;",
+        "wait": "background-color:#002211;",
+        "running": "background-color:#001122;",
+        "input": "background-color:#360000;",
+        "ended": "background-color:#221100;",
+        "prefix_color": "#333333",
+        "prefix_font_color": "#CCCCCC",
+        "printed_prefix_bg_color_index": 238
+      }
+    },
+    "Light": {
+      "console": {
+        "interprete": "",
+        "wait": "background-color:#DDBBBB;",
+        "running": "background-color:#FFFFE0;",
+        "input": "background-color:#BBBBDD;",
+        "ended": "background-color:#EFEFEF;",
+        "prefix_color": "#d3d3d3",
+        "prefix_font_color": "#000000",
+        "printed_prefix_bg_color_index": 7
+      }
+    }
   },
   "console": {
     "font": "Consolas",

@@ -9,13 +9,13 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 from qtpy.QtCore import Qt, QTimer, QSize
 from qtpy.QtGui import QFont, QFontMetrics, QTextCursor, QTextOption, QPainter, QTextCharFormat, QPalette
-from qtpy.QtWidgets import (QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QLineEdit, QLabel,
+from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QTextEdit, QWidget, QStyle, QStyleFactory, QApplication, QCompleter, QComboBox)
 
 from ... import config, gui, use
 from ...core import tasks
 from ...core.shellmod import Shell
-from ...panels.base import BasePanel, selectThisPanel, CheckMenu
+from ...panels.base import BasePanel, CheckMenu
 from ...dialogs.formlayout import fedit
 from ...dialogs.base import messageBox
 from ...dialogs.editpaths import EditPaths
@@ -25,7 +25,7 @@ from ...gcore.utils import getMenuAction
 from ...core import stdinout
 
 respath = Path(config['respath'])
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
 MAXCHARPERLINE = 10000  #Only for ansi mode
 #PREFIXWIDTH = 30  # width of the left side line numbers
@@ -48,11 +48,15 @@ ERROR_SUFFIX = ESC + '0m'
 
 class LineNumberArea(QWidget):
 
+    """Show input prefix ">>>" and in multi-line mode, the line number."""
+
     def __init__(self, textEditor):
         QWidget.__init__(self, textEditor)
+        color_scheme = QApplication.instance().color_scheme
+
         self.textEditor=textEditor
-        self.prefix_color = Qt.lightGray
-        self.prefix_font_color = Qt.black
+        self.prefix_color = QtGui.QColor(config["styles"][color_scheme]["console"]["prefix_color"])
+        self.prefix_font_color = QtGui.QColor(config["styles"][color_scheme]["console"]["prefix_font_color"])
         self.update_font()
 
         self._firstlinecode = [' >>> ']
@@ -144,6 +148,9 @@ class LineNumberArea(QWidget):
         
 
 class StdInputPanel(QPlainTextEdit):
+
+    """Allow to type code."""
+
     def __init__(self, parent, task, outputPanel):
         super().__init__(parent = parent)
         self.task = task
@@ -156,14 +163,15 @@ class StdInputPanel(QPlainTextEdit):
         self.configure(config)
         self.lineNumberArea=LineNumberArea(self)
 
-        #self.setFocusPolicy(Qt.StrongFocus)
+        # self.setFocusPolicy(Qt.StrongFocus)
 
         self.styles = dict()
-        self.styles['interprete'] = f"background-color:{self.palette().color(QPalette.Base).name()};"
-        self.styles['wait'] = "background-color:#DDBBBB;"
-        self.styles['running'] = "background-color:#FFFFE0;"
-        self.styles['input'] = "background-color:#BBBBDD;"
-        self.styles['ended'] = "background-color:#EFEFEF;"
+
+        self.color_scheme = QApplication.instance().color_scheme
+        console_style = config["styles"][self.color_scheme]["console"]
+        self.styles = console_style
+        if not self.styles["interprete"]:
+            self.styles["interprete"] = f"background-color:{self.palette().color(QPalette.Base).name()};"
 
         self.setMinimumHeight(32)        
 
@@ -340,12 +348,13 @@ class StdInputPanel(QPlainTextEdit):
             elif cmd.endswith('!'):
                 cmd = 'print(' + cmd[:-1] + ')'
 
+            bg_color_index = config["styles"][self.color_scheme]["console"]["printed_prefix_bg_color_index"]
             if cmd.count('\n') == 0:
-                prefix = '\033[48;5;7m>>>\033[0m \033[1m'
+                prefix = f'\033[48;5;{bg_color_index}m>>>\033[0m \033[1m'
                 suffix = '\033[0m\n'
             else:
-                prefix = '\033[48;5;7m>>>\n\033[0m\033[1m'
-                suffix = '\033[0m\n\033[48;5;7m<<<\033[0m\n'
+                prefix = f'\033[48;5;{bg_color_index}m>>>\n\033[0m\033[1m'
+                suffix = f'\033[0m\n\033[48;5;{bg_color_index}m<<<\033[0m\n'
 
             try:
                 cmdecho = ansi_highlight(analyze_python(cmd), colors=ANSI_ESCAPE_SYNTAX_HIGHLIGHT)
@@ -503,6 +512,9 @@ class StdInputPanel(QPlainTextEdit):
 
 
 class StdPlainOutputPanel(QPlainTextEdit):
+
+    """Show entered code and the generated output."""
+
     def __init__(self, parent, stdout_queue):
         super().__init__(parent = parent)
         self.stdout_queue = stdout_queue
@@ -665,6 +677,7 @@ class StdioFrame(QWidget):
     def keyPressEvent(self, event):
         pass
 
+
 class WrapCaller(object):
     def __init__(self, caller, *args, **kwargs):
         self.caller = caller
@@ -673,6 +686,7 @@ class WrapCaller(object):
 
     def __call__(self):
         self.caller(*self.args, **self.kwargs)
+
 
 class RecentMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
@@ -691,6 +705,7 @@ class RecentMenu(QtWidgets.QMenu):
             action.triggered.connect(WrapCaller(self.panel.openFile, path))
             self.addAction(action)
             self.actions.append(action)
+
 
 class Console(BasePanel):
     panelCategory = 'console'
@@ -995,6 +1010,7 @@ class Console(BasePanel):
             self.stdio.task.unregister()
             super().close_panel()
 
+
 class MainThreadConsole(Console):
     panelShortName = 'main'
     userVisible = False
@@ -1005,7 +1021,11 @@ class MainThreadConsole(Console):
         super().__init__(mainWindow, panid, task)
         task.panid = self.panid
         task.start()
-        self.stdio.stdInputPanel.styles['interprete'] = "background-color:#CBE9FF;"
+        color_scheme = QApplication.instance().color_scheme
+        if config["styles"][color_scheme]["console"]["interprete"]:
+            self.stdio.stdInputPanel.styles['interprete'] = config["styles"][color_scheme]["console"]["interprete"]
+        else:
+            self.stdio.stdInputPanel.styles['interprete'] = f"background-color:{self.palette().color(QPalette.Base).name()};"
         self.stdio.stdInputPanel.set_mode('interprete')
         self.stdio.stdInputPanel.heightHint = 0
         self.stdio.stdInputPanel.setPlainText('# Reserved for debugging only')
@@ -1020,6 +1040,7 @@ class MainThreadConsole(Console):
 
     def close_panel(self):
         pass
+
 
 class SubThreadConsole(Console):
     panelShortName = 'thread'

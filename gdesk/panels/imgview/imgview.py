@@ -1,10 +1,6 @@
 import os
-import time
 import collections
 from pathlib import Path
-import types
-from collections.abc import Iterable
-import queue
 from itertools import zip_longest
 import logging
 
@@ -88,12 +84,11 @@ from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette,
 from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
     QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
 
-from ...panels import BasePanel, thisPanel, CheckMenu
-from ...panels.base import MyStatusBar, selectThisPanel
+from ...panels import BasePanel, CheckMenu
 from ...dialogs.formlayout import fedit
 from ...dialogs.colormap import ColorMapDialog
 from ...widgets.grid import GridSplitter
-from ...utils import lazyf, clip_array
+from ...utils import clip_array
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
 from ...external import client
@@ -108,7 +103,6 @@ from .blueprint import make_thumbnail
 from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
-from .imgdata import get_next_color_tuple
 from .dialogs import RawImportDialog
 from .statspanel import StatisticsPanel, TitleToolBar, VisibilityDialog
 
@@ -148,8 +142,8 @@ class RecentMenu(QMenu):
             action.triggered.connect(OpenImage(self.imgpanel, path))
             self.addAction(action)
             self.actions.append(action)
-            
-            
+
+
 def wrap(func, *args, **kwargs):
 
     def wrapper():
