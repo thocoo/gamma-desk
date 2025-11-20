@@ -12,11 +12,9 @@
 
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics
+from qtpy.QtGui import QFontMetrics
 
 from ... import config
-
-from .imgdata import SelectRoi
 
 
 class SelRoiWidget(QtWidgets.QWidget):

@@ -20,7 +20,7 @@
   "scroll_area": false,
   "hide_solo_panel": true,
   "keep_children": false,
-  "color_scheme_force_dark": false,
+  "color_scheme": null,
   "debug": {
     "skip_restore_perspective": false,
     "skip_main_stdout_redirect": false,
@@ -98,6 +98,11 @@
     58,
     110,
     165
+  ],
+  "image background_dark": [
+    24,
+    24,
+    40
   ],
   "roi color": [255,0,0],
   "image color map": "grey",

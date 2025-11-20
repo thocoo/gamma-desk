@@ -1,24 +1,17 @@
-import os
-import time
-import collections
 from pathlib import Path
-import types
 from collections.abc import Iterable
-import queue
-from itertools import zip_longest
 import logging
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
 from ... import config, gui
 
-from qtpy import QtCore, QtGui, QtWidgets, API_NAME
+from qtpy import QtCore, QtGui, API_NAME
 from qtpy.QtCore import Qt, Signal, QUrl
-from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence, QFontMetrics
-from qtpy.QtWidgets import QAction, QVBoxLayout, QWidget
+from qtpy.QtGui import QFont, QPainter, QPixmap, QCursor, QColor, QFontMetrics
+from qtpy.QtWidgets import QApplication, QWidget
 
 from ...panels import thisPanel
 
@@ -89,8 +82,12 @@ class ImageViewerWidget(QWidget):
         self.sel_pix_x = 0
         self.sel_pix_y = 0
 
-        self.setBackgroundColor(*config['image background'])
-        
+        color_scheme = QApplication.instance().color_scheme
+        if color_scheme == "Dark":
+            self.setBackgroundColor(*config["image background dark"])
+        else:
+            self.setBackgroundColor(*config["image background"])
+
         self.set_val_item_format('dec')        
 
         self.pickCursor = QCursor(QPixmap(str(respath / "icons" / "pixPick256.png")), 15, 15)
