@@ -9,6 +9,7 @@ date: FIXME
 - Start supporting Python v3.14.
 - Feature: Allow to configure histogram step size and scale from code.
 - Cosmetic: Show *leftmost* part of long offset/gain/gamma values by default.
+- Visual: Add configuration setting 'color_scheme' (value: null / 'Dark' / 'Light').
 - ...
 
 
