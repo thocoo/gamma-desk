@@ -98,6 +98,11 @@
     110,
     165
   ],
+  "image background dark": [
+    24,
+    24,
+    40
+  ],
   "roi color": [255,0,0],
   "image color map": "grey",
   "matplotlib": {

@@ -1190,9 +1190,13 @@ class ImageViewerBase(BasePanel):
         else:
             rgb = (args['r'], args['g'], args['b'])
 
-        config['image background'] = rgb
-        self.imviewer.setBackgroundColor(*config['image background'])
-
+        color_scheme = QApplication.instance().color_scheme
+        if color_scheme == "Dark":
+            config["image background dark"] = rgb
+            self.imviewer.setBackgroundColor(*config["image background dark"])
+        else:
+            config["image background"] = rgb
+            self.imviewer.setBackgroundColor(*config["image background"])
 
     def setRoiColor(self):
         

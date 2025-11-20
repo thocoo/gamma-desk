@@ -10,6 +10,7 @@ date: FIXME
 - Feature: Allow to configure histogram step size and scale from code.
 - Cosmetic: Show *leftmost* part of long offset/gain/gamma values by default.
 - Visual: Add configuration setting 'color_scheme' (value: null / 'Dark' / 'Light').
+- Visual: Add separate setting 'image background dark' (background color in dark mode).
 - ...
 
 
