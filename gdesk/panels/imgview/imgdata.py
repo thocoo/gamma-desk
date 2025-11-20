@@ -7,6 +7,7 @@ from collections import OrderedDict, UserDict
 
 from qtpy import QtGui, QtCore
 from qtpy.QtGui import QImage
+from qtpy.QtWidgets import QApplication
 
 import numpy as np
 
@@ -364,6 +365,11 @@ def apply_roi_slice(large_slices, roi_slices):
 
 class ImageData:
 
+    COLOR_K = {
+        "Light": QtGui.QColor(0x40, 0x40, 0x40, 255),
+        "Dark": QtGui.QColor(0xC0, 0xC0, 0xC0, 255),
+    }
+
     def __init__(self):
         self.qimg = None
         self.map8 = None
@@ -574,12 +580,13 @@ class ImageData:
     
         self.pre_def_masks.clear()
         mode = mode.lower()
-           
+        color_scheme = QApplication.instance().color_scheme
+
         if mode == 'mono':
             self.cfa = mode
             self.pre_def_masks = {
-                'K': {'slices': (slice(None), slice(None)), 'color': QtGui.QColor(0x40, 0x40, 0x40, 255), 'roi.color': QtGui.QColor(255, 0, 0, 255)}
-                }
+                'K': {'slices': (slice(None), slice(None)), 'color': self.COLOR_K[color_scheme], 'roi.color': QtGui.QColor(255, 0, 0, 255)}
+            }
         
         elif mode == 'rgb':
             self.pre_def_masks = {

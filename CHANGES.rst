@@ -11,6 +11,7 @@ date: FIXME
 - Cosmetic: Show *leftmost* part of long offset/gain/gamma values by default.
 - Visual: Add configuration setting 'color_scheme' (value: null / 'Dark' / 'Light').
 - Visual: Add separate setting 'image background dark' (background color in dark mode).
+- Visual: Draw more widgets with suitable colors in dark mode.
 - ...
 
 
