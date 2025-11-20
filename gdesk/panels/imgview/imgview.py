@@ -1172,7 +1172,6 @@ class ImageViewerBase(BasePanel):
                 src_panel.removeBindingTo('image', tgt_panid)                
 
     def setBackground(self):
-
         old_color = self.imviewer.palette().window().color()
         rgb = old_color.getRgb()[:3]
         with ActionArguments(self) as args:
@@ -1186,7 +1185,6 @@ class ImageViewerBase(BasePanel):
                 rgb = color.getRgb()[:3]
             except:
                 rgb = (0,0,0)
-
         else:
             rgb = (args['r'], args['g'], args['b'])
 
@@ -1199,7 +1197,6 @@ class ImageViewerBase(BasePanel):
             self.imviewer.setBackgroundColor(*config["image background"])
 
     def setRoiColor(self):
-        
         old_color = QtGui.QColor(*config['roi color'])
         rgb = old_color.getRgb()[:3]
         with ActionArguments(self) as args:

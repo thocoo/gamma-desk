@@ -181,7 +181,7 @@ class LevelPlot(QtWidgets.QWidget):
             
         elif curveid is None:            
             curveid = len(self.curves)            
-        
+
         if color is None:
             if oldcolor is None:
                 color = COLORS[curveid]
@@ -919,8 +919,7 @@ class LevelsPanel(BasePanel):
         
     def roiChanged(self, image_panel_id):
         self.levels.updateHistOfPanel(image_panel_id)
-            
-           
+
     def selectMasks(self, masks):
         if masks == '':
             masks = []
@@ -929,6 +928,3 @@ class LevelsPanel(BasePanel):
             masks = masks.split(',')    
         
         self.levels.selectMasks(masks)
-    
-        
-        

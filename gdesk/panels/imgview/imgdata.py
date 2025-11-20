@@ -1,11 +1,10 @@
 import pathlib
 import collections
-import queue
 import threading
 import math
-from collections import OrderedDict, UserDict
+from collections import UserDict
 
-from qtpy import QtGui, QtCore
+from qtpy import QtGui
 from qtpy.QtGui import QImage
 from qtpy.QtWidgets import QApplication
 
@@ -29,7 +28,6 @@ PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb
     has_numba = True
-    
 except:
     has_numba = False
 
@@ -574,10 +572,7 @@ class ImageData:
                 
         return found
                     
-            
-            
     def defineModeMasks(self, mode='mono'):
-    
         self.pre_def_masks.clear()
         mode = mode.lower()
         color_scheme = QApplication.instance().color_scheme

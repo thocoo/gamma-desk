@@ -1,23 +1,16 @@
-import os
-import time
-import collections
 from pathlib import Path
-import types
 from collections.abc import Iterable
-import queue
-from itertools import zip_longest
 import logging
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
 from ... import config, gui
 
-from qtpy import QtCore, QtGui, QtWidgets, API_NAME
+from qtpy import QtCore, QtGui, API_NAME
 from qtpy.QtCore import Qt, Signal, QUrl
-from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence, QFontMetrics
+from qtpy.QtGui import QFont, QPainter, QPixmap, QCursor, QColor, QFontMetrics
 from qtpy.QtWidgets import QApplication, QWidget
 
 from ...panels import thisPanel
