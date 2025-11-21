@@ -20,7 +20,7 @@
   "scroll_area": false,
   "hide_solo_panel": true,
   "keep_children": false,
-  "color_scheme": null,
+  "color_scheme": "Auto",
   "debug": {
     "skip_restore_perspective": false,
     "skip_main_stdout_redirect": false,

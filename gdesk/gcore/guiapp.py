@@ -340,11 +340,11 @@ def configure_color_scheme(qapp):
     """
     Configure either 'Light' or 'Dark' mode.
 
-    On Windows, Qt version 6 can deduct this from the OS.
-    On other platforms, this requires `gdesk.conf` setting 'force_color_scheme' set
-    to either 'Dark' or 'White'.
+    In some cases (Windows/Ubuntu, Qt6, ...) Qt can deduct this from the OS.
+    On other platforms, or if you want to deviate, this requires `gdesk.conf` setting
+    'color_scheme' set to either 'Dark' or 'White'.
 
-    To mark dark mode work, use either PySide6 or PyQt6.
+    To make dark mode work, use either PySide6 or PyQt6.
     To make dark mode work outside of Windows, install third-party package 'pyqtdarktheme'.
     To make *forced* dark mode work, install 'pyqtdarktheme' also on Windows.
     """
@@ -355,24 +355,35 @@ def configure_color_scheme(qapp):
         return
 
     force_color_scheme = config.get("color_scheme", None)
-    if not force_color_scheme:
+    if force_color_scheme in (None, "Auto"):
         # Use the color scheme as deducted by Qt.
         color_scheme = QApplication.instance().styleHints().colorScheme().name
-    else:
+    elif force_color_scheme in ("Dark", "Light"):
         color_scheme = force_color_scheme
+    else:
+        raise ValueError("Color scheme should be 'Auto', 'Light' or 'Dark'.")
 
     # Make the color scheme available as gui._qapp.color_scheme.
     qapp.color_scheme = color_scheme
 
-    if force_color_scheme == "Dark" and not qdarktheme:
+    if force_color_scheme in ("Dark", "Light") and not qdarktheme:
         # Can not enforce dark mode.
-        raise NotImplementedError("Can not enforce dark mode without third-part package 'pyqtdarktheme'. Please install it.")
+        raise NotImplementedError(
+            f"Can not enforce color scheme without third-part package 'pyqtdarktheme': '{force_color_scheme}'."
+            "\nPlease install pyqtdarktheme or use color scheme 'Auto'.",
+        )
 
     if color_scheme == "Dark" and qdarktheme:
-        # Load dark theme and color palette if possible.
-        qdarktheme.setup_theme()
-        dark_palette = qdarktheme.load_palette()
+        # Load dark theme and color palette.
+        qdarktheme.setup_theme("dark")
+        dark_palette = qdarktheme.load_palette("dark")
         qapp.setPalette(dark_palette)
+
+    if force_color_scheme == "Light":
+        # Load light theme and color palette.
+        qdarktheme.setup_theme("light")
+        light_palette = qdarktheme.load_palette("light")
+        qapp.setPalette(light_palette)
 
 
 def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None):

@@ -19,7 +19,7 @@
   "scroll_area": false,
   "hide_solo_panel": true,
   "keep_children": false,
-  "color_scheme": null,
+  "color_scheme": "Auto",
   "styles": {
     "Dark": {
       "console": {
