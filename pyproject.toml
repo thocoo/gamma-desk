@@ -10,7 +10,7 @@ name = "gdesk"
 
 [project]
 name = "gamma-desk"
-version = "1.9.4.dev5"
+version = "1.9.4.dev6"
 description = "A Python work environment with image viewers & plots"
 readme = "README.md"
 requires-python = ">=3.8"
