@@ -91,6 +91,8 @@ def argexec(argv=None, **config_kwargs):
     from .gcore.guiapp import eventloop    
     eventloop(shell, init_file=config['init_file'], pictures=pics)
 
+    # Note: application is done at this point.
+    # The returned shell is printed out by the executable script.
     return shell
 
 
