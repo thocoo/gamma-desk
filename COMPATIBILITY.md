@@ -62,9 +62,3 @@ In this case, we drop the requirement for numba until it's out, but only for tha
 Pooch is used by `scipy` for downloading datasets (used in test only).
 
 Older scipy versions (pre Python 3.9) had the datasets built-in.
-
-
-## Pyqtdarktheme
-
-This package helps to configure a dark theme in Qt.
-On Windows this is not necessary.
