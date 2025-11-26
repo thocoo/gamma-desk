@@ -150,6 +150,7 @@ class ImageStatistics(object):
         self.imgdata = imgdata
         self._cache = dict()
         self.slices = None
+        self.bmask = None
         
         if plot_color is None:
             plot_color = get_next_color_tuple()
@@ -184,7 +185,11 @@ class ImageStatistics(object):
     @property
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
-        return self.full_array[self.slices[:min_ndim]]
+        if (not self.bmask is None) and (self.full_array.shape == self.bmash.shape):
+            array = np.ma.masked_array(self.full_array, self.bmask)
+        else:
+            array = self.full_array
+        return array[self.slices[:min_ndim]]
         
         
     @property
@@ -251,11 +256,16 @@ class ImageStatistics(object):
             return starts1      
     
     def calc_histogram(self, bins=None, step=None):  
+        if isinstance(self.roi, np.ma.MaskedArray):
+            data = self.roi.compressed()
+        else:
+            data = self.roi
+            
         if self.dtype in ['int8', 'uint8', 'int16', 'uint16']:
-            hist, starts, stepsize = fasthist.hist16bit(self.roi, bins=None, step=1, use_numba=True)
+            hist, starts, stepsize = fasthist.hist16bit(data, bins=None, step=1, use_numba=True)
             
         elif self.dtype in ['int32', 'uint32', 'int64', 'uint64', 'float16', 'float32', 'float64']:
-            hist, starts, stepsize = fasthist.histfloat(self.roi, bins=65536, step=None, pow2snap=False, use_numba=True)
+            hist, starts, stepsize = fasthist.histfloat(data, bins=65536, step=None, pow2snap=False, use_numba=True)
             
         self._cache['hist'] = hist
         self._cache['starts'] = starts
@@ -269,7 +279,11 @@ class ImageStatistics(object):
         return self._cache['stepsize'] * step
         
     def n(self):
-        return np.prod(self.roi.shape)
+        if isinstance(self.roi, np.ma.MaskedArray):
+            #return np.prod(self.roi.shape) - self.roi.mask.sum()
+            return np.ma.count(self.roi)
+        else:
+            return np.prod(self.roi.shape)
         
     def sum(self):
         return (self.histogram() * self.starts()).sum()
@@ -329,7 +343,11 @@ class ImageStatistics(object):
             
         x = np.arange(array.shape[1-axis])[slices[1-axis]]
         
-        return x, y
+        if isinstance(self.roi, np.ma.MaskedArray):
+            not_masked_indices = np.where(~y.mask)
+            return x[not_masked_indices], y[not_masked_indices]
+        else:                    
+            return x, y
         
         
 def apply_roi_slice(large_slices, roi_slices):
