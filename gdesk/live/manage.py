@@ -9,6 +9,7 @@ from pathlib import Path
 import functools
 from enum import Enum
 from collections import OrderedDict
+import types
 
 import logging
 
@@ -32,20 +33,24 @@ class LoadError(Enum):
     SUCCEED = 2
     SYNTAX = 3
     EXECUTE = 4
+    
+    
+RAISE_LOAD_ERRORS = config.get('console', {}).get('raise_load_errors', False)
 
 
-def show_syntax_error():
+def show_syntax_error(level='error'):
     """Display the syntax error that just occurred."""
     type, value, tb = sys.exc_info()
     sys.last_type = type
     sys.last_value = value
     sys.last_traceback = tb
-
+    
     lines = traceback.format_exception_only(type, value)
-    logger.error(''.join(lines))
+    queue = getattr(logger, level)
+    queue(''.join(lines))
 
 
-def show_traceback():
+def show_traceback(level='error'):
     """Display the exception that just occurred."""
     try:
         type, value, tb = sys.exc_info()
@@ -61,7 +66,8 @@ def show_traceback():
     finally:
         tblist = tb = None
         
-    logger.error(''.join(lines))
+    queue = getattr(logger, level)
+    queue(''.join(lines))
 
 
 def is_nested(back=0):
@@ -196,7 +202,7 @@ class LiveScriptModule(object):
 
         if self.ask_refresh == UpdateFlag.ENFORCE or \
                 ((self.ask_refresh == UpdateFlag.MODIFIED) and (self.is_modified())):
-            loaderror = self.load()
+            loaderror = self.load(RAISE_LOAD_ERRORS)
 
         if loaderror == LoadError.SUCCEED:
             self.ask_refresh = UpdateFlag.DONE
@@ -226,7 +232,7 @@ class LiveScriptModule(object):
         return modified
 
 
-    def load(self):
+    def load(self, raise_load_errors=False):
         """Import Python file (from disk, compile and execute)"""
         self.code = None
         self.workspace = LsWorkspace(str(self), str(self.path), self.name, self.script_manager)
@@ -242,17 +248,25 @@ class LiveScriptModule(object):
             codeobj = compile(pycode, str(self.path), 'exec')
             self.code = codeobj
 
-        except SyntaxError:
-            show_syntax_error()
-            return LoadError.SYNTAX
+        except SyntaxError as ex:
+            if raise_load_errors:
+                show_syntax_error('warning')
+                raise
+            else:
+                show_syntax_error()
+                return LoadError.SYNTAX
 
         try:
             logger.debug(f'Importing')
             exec(codeobj, self.workspace.__dict__, self.workspace.__dict__)
 
         except:
-            show_traceback()
-            return LoadError.EXECUTE
+            if raise_load_errors:
+                show_syntax_error('warning')
+                raise
+            else:
+                show_traceback()
+                return LoadError.EXECUTE
 
         self.load_modify = current_modify_stamp
         logger.info(f'{self.name}@{time.ctime(self.load_modify)}')
@@ -298,9 +312,11 @@ class LiveScriptTree(object):
         return lst
         
         
-    def _find(self, part='', dir_listing=False, content=False):
+    def _find(self, part='', dir_listing=False, content=False, function=False):
         if content:
             return self.__script_manager__.search_content(part, self.__paths__, self.__name__)
+        elif function:
+            return self.__script_manager__.scan_script_tree_for_function(self, part)            
         else:
             return self.__script_manager__.search_script(part, dir_listing, self.__paths__, self.__name__)        
         
@@ -329,10 +345,12 @@ class LiveScriptScan(object):
         object.__setattr__(self, '_mp', mp)
         
         
-    def _find(self, part='', dir_listing=False, content=False):
+    def _find(self, part='', dir_listing=False, content=False, function=False):
         if content:
             return self.__script_manager__.search_content(part)
-        else:
+        elif function:
+            return self.__script_manager__.scan_script_tree_for_function(self, part)
+        else:                
             return self.__script_manager__.search_script(part, dir_listing)
 
 
@@ -455,7 +473,50 @@ class LiveScriptManager(object):
             print()
                         
         for mod_str, mod_path in found_scripts.items():
-            print(f'use.{mod_str} -> {mod_path}')
+            print(f'use.{mod_str} -> {mod_path}')                        
+        
+        
+    def scan_script_tree_for_function(self, node, part):
+
+        try:
+            keys = dir(node)
+            
+        except:
+            return
+            
+        for k in keys:
+
+            try:
+                item = getattr(node, k)        
+                
+            except:
+                continue
+            
+            if isinstance(item, LiveScriptTree):
+                self.scan_script_tree_for_function(item, part)
+                
+            elif isinstance(item, LiveScriptModuleReference):
+                self.scan_module_for_function(item, part)               
+
+
+    def scan_module_for_function(self, module, part):
+        
+        try:
+            keys = dir(module)
+            
+        except:
+            return
+            
+        for k in keys:
+            
+            try:
+                item = getattr(module, k) 
+            except:
+                continue
+            
+            if isinstance(item, types.FunctionType):
+                if part in k:
+                    print(f'{module.__name__}.{k}(')                
             
             
     def search_content(self, part, paths=None, parent_modstr=None): 
@@ -512,7 +573,7 @@ class LiveScriptManager(object):
     def load_module(self, path, modstr=None):
         module = LiveScriptModule(self, path, modstr)
         self.modules[modstr] = module
-        module.load()
+        module.load(RAISE_LOAD_ERRORS)
 
 
     def update_now(self, enforce=False):
@@ -524,7 +585,7 @@ class LiveScriptManager(object):
         
         for module in list(self.modules.values()):
             if enforce or module.is_modified():
-                load_error = module.load()
+                load_error = module.load(RAISE_LOAD_ERRORS)
 
 
     def mark_for_update(self, enforce=False):
