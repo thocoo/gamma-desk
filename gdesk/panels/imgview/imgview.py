@@ -1845,6 +1845,7 @@ class ImageProfileWidget(QWidget):
         self.statsPanel.maskSelected.connect(self.selectMask)
         self.statsPanel.activesChanged.connect(self.refresh)                
         self.statsPanel.setSelection.connect(self.setSelection)        
+        self.statsPanel.showBmask.connect(self.showBmask)        
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
@@ -1995,6 +1996,13 @@ class ImageProfileWidget(QWidget):
         else:
             self.selected_mask = None
             roi.initUI()
+            
+            
+    def showBmask(self, mask_name, modify=False):
+        chanstats = self.imviewer.imgdata.chanstats[mask_name]            
+        bmask = chanstats.bmask
+        self.imviewer.imgdata.set_mask(bmask, alpha=128)        
+        self.imviewer.refresh()                            
         
         
     def drawRoiProfile(self):                     
