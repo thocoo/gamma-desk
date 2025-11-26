@@ -185,7 +185,7 @@ class ImageStatistics(object):
     @property
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
-        if (not self.bmask is None) and (self.full_array.shape == self.bmash.shape):
+        if (not self.bmask is None) and (self.full_array.shape == self.bmask.shape):
             array = np.ma.masked_array(self.full_array, self.bmask)
         else:
             array = self.full_array
