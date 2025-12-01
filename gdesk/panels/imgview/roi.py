@@ -104,12 +104,8 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.repaint(self.width()-self.overscan-1,0,1,self.height())
         
         self.timer.start(100)
-        
-        return
-        
 
     def setStartEndPoints(self, startX, startY, endX, endY):
-    
         startX = int(round(startX))
         startY = int(round(startY))
         endX = int(round(endX))
@@ -388,5 +384,3 @@ class SelRoiWidget(QtWidgets.QWidget):
         qp.setPen(self.pendash)
         qp.drawPolyline(polygonNe)
         qp.drawPolyline(polygonSw)
-        
-        

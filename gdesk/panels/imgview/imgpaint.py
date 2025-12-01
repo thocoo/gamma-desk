@@ -2,7 +2,6 @@ from pathlib import Path
 from collections.abc import Iterable
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,8 +53,8 @@ def getEventPos(event):
 
 
 class ImageViewerWidget(QWidget):
-    # Experiment: drive from QtWidgets.QOpenGLWidget instead.
-    # Image size seems to be limited to 8192x8182 -- tile shading limitation?
+    # Note: Inheriting from QOpenGLWidget instead limits
+    # image to 8192x8182 (texture / tile shading limitation?)
 
     pickerPositionChanged = Signal(int, int)
     zoomChanged = Signal(float)
@@ -97,7 +96,7 @@ class ImageViewerWidget(QWidget):
 
         self.roi = SelRoiWidget(self)
         self.zoomPanChanged.connect(self.roi.recalcGeometry)
-        
+
         #Tryout of extra roi's
         self.custom_rois = dict()               
 
@@ -115,7 +114,6 @@ class ImageViewerWidget(QWidget):
         
         
     def set_custom_selection(self, name, color=None):
-        
         if name in self.custom_rois:
             widget = self.custom_rois[name]
             
@@ -126,8 +124,8 @@ class ImageViewerWidget(QWidget):
             
         else:
             self.vd.add_custom_selection(name)
-            chanstats = self.vd.chanstats[name]
-            
+
+            # chanstats = self.vd.chanstats[name]
             # custom_roi = SelRoiWidget(self, color=color, custom=True, name=name)
             # self.custom_rois[name] = custom_roi
             # custom_roi.selroi.xr.setfromslice(chanstats.slices[1])
@@ -143,12 +141,12 @@ class ImageViewerWidget(QWidget):
         self.bgcolor = QColor(r,g,b)
         palette.setColor(self.backgroundRole(), self.bgcolor)
         self.setPalette(palette)
-        #self.setAutoFillBackground(True)
-        #This auto fill background seems not to work fine if
-        #color is changed at runtime
-        #As soon the parent of self is set to None, it retores back to the prior color
-        #So it also happens after a relayout. (Even after a distribute)
-        #There seems to be some cache of the prior background
+        # self.setAutoFillBackground(True)
+        # This auto fill background seems not to work fine if
+        # color is changed at runtime
+        # As soon the parent of self is set to None, it restores back to the prior color
+        # So it also happens after a relayout. (Even after a distribute)
+        # There seems to be some cache of the prior background
         self.qpainter = QPainter()
         
 
@@ -447,15 +445,14 @@ class ImageViewerWidget(QWidget):
             self.roiDragStartX, self.roiDragStartY = self.getImageCoordOfMouseEvent(event, floor=False)
 
     def mouseMoveEvent(self, event):
-        if (event.buttons() == Qt.LeftButton) or \
-                (event.buttons() == Qt.MiddleButton):
+        if event.buttons() in (Qt.LeftButton, Qt.MiddleButton):
             self.setCursor(self.dragCursor)
             pos = event.pos()
             self.dragEndX = pos.x()
             self.dragEndY = pos.y()
             self.panned(event.modifiers() & QtCore.Qt.ShiftModifier)
 
-        elif (event.buttons() == Qt.RightButton):
+        elif event.buttons() == Qt.RightButton:
             self.roiDragEndX, self.roiDragEndY = self.getImageCoordOfMouseEvent(event, floor=False)
             self.roi.createState = True
             self.roi.setStartEndPoints(self.roiDragStartX, self.roiDragStartY, \
@@ -473,16 +470,14 @@ class ImageViewerWidget(QWidget):
         return ((pos.x() - self.dragStartX)**2 + (pos.y() - self.dragStartY)**2) ** 0.5
 
     def mouseReleaseEvent(self, event):        
-            
-        if (event.button() == Qt.RightButton):
+        if event.button() == Qt.RightButton:
             if self.roi.createState:
                 self.roi.release_creation()
                 
             else:
                 x, y = self.getImageCoordOfMouseEvent(event)
                 self.contextMenuRequest.emit(x, y)
-                
-                
+
         self.setCursor(self.pickCursor)
 
     def refresh(self):
@@ -565,7 +560,6 @@ class ImageViewerWidget(QWidget):
             qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
             qp.setPen(self.pentext)
             qp.drawText(x0, y0, mask_name)               
-            
             
         if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
             qp.setPen(QColor(128,128,128))

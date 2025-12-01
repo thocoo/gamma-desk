@@ -404,10 +404,10 @@ class GuiProxy(object):
     @StaticGuiCall    
     def get_panel_ids(category):
         """
-        Returns all current panal ids of a category.
+        Returns all current panel ids of a category.
         The last one is the selected one.
         
-        :returns: current panal ids 
+        :returns: current panel ids
         :rtype: list
         """
         if category in gui.qapp.panels.keys():

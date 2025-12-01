@@ -145,7 +145,6 @@ class RecentMenu(QMenu):
 
 
 def wrap(func, *args, **kwargs):
-
     def wrapper():
         func(*args, **kwargs)
         
