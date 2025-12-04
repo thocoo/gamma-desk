@@ -185,10 +185,20 @@ class ImageStatistics(object):
     @property
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
-        if (not self.bmask is None) and (self.full_array.shape == self.bmask.shape):
+        
+        if not self.bmask is None:
+            
+            if self.full_array.shape != self.bmask.shape:
+                bmask = np.zeros(self.full_array.shape, dtype=bool)                                
+                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask.shape)])                    
+                bmask[slices] = self.bmask[slices]                    
+                self.bmask = bmask
+                
             array = np.ma.masked_array(self.full_array, self.bmask)
+            
         else:
             array = self.full_array
+            
         return array[self.slices[:min_ndim]]
         
         
