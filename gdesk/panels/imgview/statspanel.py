@@ -108,6 +108,7 @@ class StatisticsPanel(QtWidgets.QWidget):
     
     setSelection = Signal(str)
     showMask = Signal(str)
+    showBmask = Signal(str)
     hideMask = Signal(str)
     
     def __init__(self, *args, **kwargs):    
@@ -144,6 +145,8 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu = QtWidgets.QMenu('Mask')
         act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
         self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Show Bmask', self, triggered=self.setImviewBmask)
+        self.contextMenu.addAction(act)
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
@@ -172,6 +175,15 @@ class StatisticsPanel(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.setSelection.emit(roi_name)
+            
+
+    def setImviewBmask(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.showBmask.emit(roi_name)            
         
         
     def selectionChanged(self, selected, deselected):
