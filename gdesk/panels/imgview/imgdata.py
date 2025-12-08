@@ -150,7 +150,8 @@ class ImageStatistics(object):
         self.imgdata = imgdata
         self._cache = dict()
         self.slices = None
-        self.bmask = None
+        
+        self.set_bmask(None)
         
         if plot_color is None:
             plot_color = get_next_color_tuple()
@@ -181,17 +182,22 @@ class ImageStatistics(object):
     def full_array(self):
         return self.imgdata.statarr
         
+                
+    def set_bmask(self, bmask):
+        self.bmask_original = bmask
+        self.bmask = None
+        
         
     @property
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
         
-        if not self.bmask is None:
+        if not self.bmask_original is None:
             
-            if self.full_array.shape != self.bmask.shape:
+            if self.bmask is None or self.full_array.shape != self.bmask.shape:
                 bmask = np.zeros(self.full_array.shape, dtype=bool)                                
-                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask.shape)])                    
-                bmask[slices] = self.bmask[slices]                    
+                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask_original.shape)])                    
+                bmask[slices] = self.bmask_original[slices]                    
                 self.bmask = bmask
                 
             array = np.ma.masked_array(self.full_array, self.bmask)

@@ -412,7 +412,7 @@ class ImageGuiProxy(GuiProxyBase):
         
         if name in panel.imviewer.imgdata.chanstats:
             stats = panel.imviewer.imgdata.chanstats[name]
-            stats.bmask = bmask
+            stats.set_bmask(bmask)
             
         else:
             raise KeyError(f'ROI name {name} not found')
