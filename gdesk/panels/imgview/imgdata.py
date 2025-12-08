@@ -186,6 +186,7 @@ class ImageStatistics(object):
     def set_bmask(self, bmask):
         self.bmask_original = bmask
         self.bmask = None
+        self.clear()
         
         
     @property
