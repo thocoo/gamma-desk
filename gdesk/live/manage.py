@@ -325,6 +325,16 @@ class LiveScriptTree(object):
         qualname = f'{self.__name__}.{attr}'        
         path_and_stypes = self.__script_manager__.locate_script(attr, self.__paths__)            
         return self.__script_manager__.using_path(path_and_stypes, modstr=qualname, mp=self._mp)
+        
+        
+    def __call__(self, *args, **kwargs):
+        try:
+            func = getattr(self, 'call')
+            
+        except KeyError:
+            raise KeyError('call not found')
+
+        return func(*args, **kwargs)
 
 
     def __repr__(self):
