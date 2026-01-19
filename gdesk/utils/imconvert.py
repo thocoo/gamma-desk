@@ -104,7 +104,7 @@ def natural_range(dtype):
     elif dtype in ['float16', 'float32', 'float64']:
         return 1
     else:
-        raise TypeError('dtype %s not supported to display' % str(statbuff.dtype))    
+        raise TypeError('dtype %s not supported to display' % str(dtype))
         
 def integer_limits(integer):
     return  np.iinfo(integer).min, np.iinfo(integer).max        
