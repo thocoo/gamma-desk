@@ -2,6 +2,10 @@
 
 import pathlib
 import numpy as np
+try:
+    import xarray as xr
+except ModuleNotFoundError:
+    xr = None
 
 import imageio.v2
 from qtpy import QtGui
@@ -61,9 +65,9 @@ class NdimPanel(BasePanel):
             filepath = here.parent.parent / 'resources' / 'ndim' / 'space_cat.npz'
 
         filepath, filter = gui.getfile(title='Open n-dim data or multiple images', file=str(filepath.absolute()),
-                                       filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4);;"
-                                              "hdf5 (*.h5 *.hdf5);;Numpy (*.npz);;GIF (*.gif);;MOV (*.mov);;"
-                                              "MP4 (*.mp4);; All (*.*)")
+                                       filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4 *.nc *.nc4);;"
+                                              "hdf5 (*.h5 *.hdf5);;NetCDF (*.nc *.nc4);;Numpy (*.npz);;GIF (*.gif);;"
+                                              "MOV (*.mov);;MP4 (*.mp4);; All (*.*)")
         if filepath == '':
             return
 
@@ -74,9 +78,9 @@ class NdimPanel(BasePanel):
     def save_dialog(self):
         """Open file selection dialog and save the data to the selected file"""
         filepath, filter = gui.putfile(title='Save n-dim data',
-                                       filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4);;"
-                                              "hdf5 (*.h5 *.hdf5);;Numpy (*.npz);;GIF (*.gif);;MOV (*.mov);;"
-                                              "MP4 (*.mp4);; All (*.*)")
+                                       filter="Supported (*.h5 *.hdf5 *.npz *.gif *.mov *.mp4 *.nc *.nc4);;"
+                                              "hdf5 (*.h5 *.hdf5);;NetCDF (*.nc *.nc4);;Numpy (*.npz);;GIF (*.gif);;"
+                                              "MOV (*.mov);;MP4 (*.mp4);; All (*.*)")
         if filepath == '':
             return
         self.save(filepath, **self.main_widget.get_save_data())
@@ -87,6 +91,11 @@ class NdimPanel(BasePanel):
         if filepath.suffix.lower() in (".h5", ".hdf5", ".he5"):
             data, name, dim_names, dim_scales = load_ndim_from_hdf5(filepath)
             self.load(data, name=name, dim_names=dim_names, dim_scales=dim_scales)
+        elif filepath.suffix.lower() in (".nc", ".nc4"):
+            if xr is None:
+                raise ModuleNotFoundError("xarray is required to read netcdf files")
+            data = xr.load_dataarray(filepath)
+            self.load(data=data)  # all other info is in the xarray object
         else:
             data = np.array(imageio.v2.mimread(filepath))
             self.load(data)
@@ -107,6 +116,13 @@ class NdimPanel(BasePanel):
         if filepath.suffix.lower() in (".h5", ".hdf5", ".he5"):
             save_ndim_to_hdf5(filepath=filepath, data=data, data_name=data_name,
                               dim_names=dim_names, dim_scales=dim_scales)
+        elif filepath.suffix.lower() in (".nc", ".nc4"):
+            if xr is None:
+                raise ModuleNotFoundError("xarray is required to write netcdf files")
+            if dim_scales == [(None, None)] * data.ndim:
+                dim_scales = None
+            xr_data = xr.DataArray(data, dims=dim_names, coords=dim_scales, name=data_name)
+            xr_data.to_netcdf(filepath)
         else:
             imageio.v2.mimsave(filepath, [im for im in data])
 

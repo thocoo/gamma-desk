@@ -76,6 +76,7 @@ pyqt6 = [
 # See COMPATIBILITY.md.
 dev = [
     "pooch; python_version>='3.9'",
+    "xarray",
 ]
 
 
