@@ -399,6 +399,8 @@ class NdimWidget(QtWidgets.QWidget):
             ImageGuiProxy.new()
         # send to any image viewer panel that is connected
         for panel in self.parent().targetPanels('image'):
+            if im.dtype == np.bool:
+                im = im.astype(np.uint8)
             panel.show_array(im, zoomFitHist=False, log=False)
 
         # update the scales
