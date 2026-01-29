@@ -525,7 +525,7 @@ class LiveScriptManager(object):
                 continue
             
             if isinstance(item, types.FunctionType):
-                if part in k:
+                if part.lower() in k.lower():
                     print(f'{module.__name__}.{k}(')                
             
             
