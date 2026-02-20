@@ -567,8 +567,14 @@ class LevelsToolBar(QtWidgets.QToolBar):
         actGainSigma4 = QtWidgets.QAction('Gain to Sigma 4', self, triggered=lambda: self.panel.autoContrast(4))
         actGainSigma4.setText('4σ 99.99%')
         actGainSigma4.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_low.png')))        
-        self.gainSigmaMenu.addAction(actGainSigma4)                   
-                
+        self.gainSigmaMenu.addAction(actGainSigma4)
+
+        actGainBinary = QtWidgets.QAction('Gain to binary 0/1', self, triggered=enclose_func_args(self.panel.autoContrast, None, 1))
+        actGainBinary.setText('Binary 1 bit')
+        actGainBinary.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_high.png')))
+        actGainBinary.triggered.connect(self.setHistogramToBinary)
+        self.gainSigmaMenu.addAction(actGainBinary)
+
         for word in [8, 10, 12, 14, 16, 20, 22, 24]:
             actGain = QtWidgets.QAction(f'{word} bit', self, triggered=enclose_func_args(self.panel.autoContrast, None, word))
             actGain.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))        
@@ -715,6 +721,9 @@ class LevelsToolBar(QtWidgets.QToolBar):
         panids = self.panel.panIdsOfBounded('image')
         for panid in panids:
             gui.menu_trigger('image', panid, ['View','Colormap...'])
+
+    def setHistogramToBinary(self):
+        self.panel.setHistSizePolicy("bins", 2)
                     
         
 class LevelsPanel(BasePanel):
@@ -856,7 +865,12 @@ class LevelsPanel(BasePanel):
                 panel.gainToSigma(self.sigma)             
             
             elif not bits is None or 'bit' in text:
-                panel.changeBlackWhite(0, 2**self.bits)      
+                if self.bits == 1:
+                    # Special case for boolean: set white level at 1 instead of 2.
+                    # Otherwise, value 1 becomes gray instead of white.
+                    panel.changeBlackWhite(0, 1)
+                else:
+                    panel.changeBlackWhite(0, 2**self.bits)
             
         if not sigma is None:            
             self.levels.bringIndicVisible(skip_if_visible=True)
