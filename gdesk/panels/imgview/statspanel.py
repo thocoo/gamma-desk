@@ -560,8 +560,6 @@ class VisibilityDialog(QtWidgets.QDialog):
         
             
     def editMask(self):
-        
-
         indices = self.table.selectionModel().selectedRows()
         row = list(indices)[0].row()
         
@@ -607,9 +605,3 @@ class VisibilityDialog(QtWidgets.QDialog):
             self.chanstats.pop(roi_name)
 
         self.populateTable()                     
-                
-
-
-        
-        
-        

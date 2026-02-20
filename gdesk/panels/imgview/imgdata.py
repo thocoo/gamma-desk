@@ -296,6 +296,7 @@ class ImageStatistics(object):
         return self._cache['stepsize'] * step
         
     def n(self):
+        """Return the number of sample values to calculate statistics on."""
         if isinstance(self.roi, np.ma.MaskedArray):
             #return np.prod(self.roi.shape) - self.roi.mask.sum()
             return np.ma.count(self.roi)
@@ -510,9 +511,8 @@ class ImageData:
             else:
                 chanstat.clear()
             
-        for mask in list(self.pre_def_masks.keys()):
-            mask_props = self.pre_def_masks[mask]
-            if not mask in self.chanstats:                            
+        for mask, mask_props in self.pre_def_masks.items():
+            if not mask in self.chanstats:
                 self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
                 self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
             
