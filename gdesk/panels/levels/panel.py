@@ -256,6 +256,8 @@ class LevelPlot(QtWidgets.QWidget):
                 yvecclip = yvec[indices]
             else:
                 yvecclip = yvec
+            if len(yvecclip) == 0:
+                continue
             ymin_chan = min(yvecclip)
             ymax_chan= max(yvecclip)            
             if (ymin_cand is None) or (ymin_chan < ymin_cand):
