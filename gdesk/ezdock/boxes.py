@@ -367,6 +367,10 @@ class SplitBox(QtWidgets.QWidget):
         return [self.layout().stretch(index) for index in range(self.count()*2)]
         
     def setSizes(self, sizes):
+        if sizes is None:
+            print("WARNING: sizes is None")
+            sizes = []
+
         total_size = sum(sizes) + self.space * self.count()
         # print(f'Sizes:    Stretches: {self.stretches()}')
         # print(f'    Old: {self.sizes()}')
