@@ -148,8 +148,8 @@ class Ticks:
             for i in range(len(values)):            
                 old_scaled_spacing, old_values = self.values[i]
                 new_scaled_spacing, new_values = values[i]
-                push_mask = np.in1d(new_values, old_values, invert = True)
-                pop_mask = np.in1d(old_values, new_values, invert = True)
+                push_mask = np.isin(new_values, old_values, invert = True)
+                pop_mask = np.isin(old_values, new_values, invert = True)
                 self.push_values.append(np.array(new_values)[push_mask])
                 self.pop_values.append(np.array(old_values)[pop_mask])
         else:

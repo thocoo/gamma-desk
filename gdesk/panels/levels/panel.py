@@ -251,7 +251,7 @@ class LevelPlot(QtWidgets.QWidget):
         for curve in self.curves.values():            
             xvec = curve.xvector
             yvec = curve.yvector
-            indices = np.argwhere((x0 <= xvec) & (xvec < x1))
+            indices = np.nonzero((x0 <= xvec) & (xvec < x1))
             if len(indices) > 0:
                 yvecclip = yvec[indices]
             else:
