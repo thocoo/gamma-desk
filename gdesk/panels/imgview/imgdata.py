@@ -184,6 +184,14 @@ class ImageStatistics(object):
         
                 
     def set_bmask(self, bmask):
+        
+        if not bmask is None:
+            if not bmask.dtype == 'uint8':
+                raise TypeError(f'The mask has dtype {bmask.dtype} but only uint8 is supported')
+                
+            if not bmask.ndim == 2:
+                raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
+        
         self.bmask_original = bmask
         self.bmask = None 
         self.bmask_qimg = None
@@ -195,15 +203,15 @@ class ImageStatistics(object):
         min_ndim = min(len(self.slices), self.full_array.ndim)
         
         if not self.bmask_original is None:
+            height, width = self.bmask_original.shape
+            self.bmask_qimg = QImage(memoryview(self.bmask_original), width, height, width, QImage.Format_Indexed8)
+            self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
             
-            if self.bmask is None or self.full_array.shape != self.bmask.shape:
+            if self.bmask is None or self.full_array.shape != self.bmask.shape:                
                 bmask = np.zeros(self.full_array.shape, dtype=bool)                                
                 slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask_original.shape)])                    
                 bmask[slices] = self.bmask_original[slices]                    
-                self.bmask = bmask
-                height, width = bmask.shape
-                self.bmask_qimg = QImage(memoryview(self.bmask), width, height, width, QImage.Format_Indexed8)
-                self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+                self.bmask = bmask                
                 
             array = np.ma.masked_array(self.full_array, self.bmask)
             
