@@ -505,7 +505,22 @@ class ImageGuiProxy(GuiProxyBase):
         chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
         if chanstat is None:
             raise KeyError(f'{name} not found')
-        return chanstat.bmask            
+        return chanstat.bmask  
+        
+
+    @StaticGuiCall
+    def get_roi_array(name=None):
+        """
+        Get the current region of interest as a tupple of slice objects
+        """
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return
+        
+        chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
+        if chanstat is None:
+            raise KeyError(f'{name} not found')
+            
+        return chanstat.roi            
             
             
     @StaticGuiCall
