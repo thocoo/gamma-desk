@@ -522,6 +522,17 @@ class ImageViewerWidget(QWidget):
             qp.translate(-sx, -sy)
             qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                       
 
+
+        for mask_name, chanstat in self.vd.chanstats.items():
+            if not (chanstat.active and chanstat.mask_visible): continue
+            if not chanstat.bmask_qimg is None:
+                qp.resetTransform()
+                qp.scale(self.zoomDisplay, self.zoomDisplay)
+                qp.translate(-sx, -sy)            
+                qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                qp.drawImage(0, 0, chanstat.bmask_qimg, 0, 0, -1, -1)
+                
+                
         for layer in self.imgdata.layers.values():
             qp.resetTransform() 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
@@ -529,8 +540,9 @@ class ImageViewerWidget(QWidget):
             qp.setCompositionMode(layer['composition'])
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
         
-        qp.resetTransform()                                             
-        
+        qp.resetTransform()        
+                
+            
         for mask_name, chanstat in self.vd.chanstats.items():
             if not chanstat.is_valid(): continue
             if mask_name in PRE_DEF_MASK_NAMES: continue

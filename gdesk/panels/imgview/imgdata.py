@@ -185,7 +185,8 @@ class ImageStatistics(object):
                 
     def set_bmask(self, bmask):
         self.bmask_original = bmask
-        self.bmask = None
+        self.bmask = None 
+        self.bmask_qimg = None
         self.clear()
         
         
@@ -200,6 +201,9 @@ class ImageStatistics(object):
                 slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask_original.shape)])                    
                 bmask[slices] = self.bmask_original[slices]                    
                 self.bmask = bmask
+                height, width = bmask.shape
+                self.bmask_qimg = QImage(memoryview(self.bmask), width, height, width, QImage.Format_Indexed8)
+                self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128))
                 
             array = np.ma.masked_array(self.full_array, self.bmask)
             
@@ -714,7 +718,7 @@ class ImageData:
         
         compmode = COMPMODE[composition.lower()]            
 
-        qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)            
+        qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
         qimage.setColorTable(imconvert.make_color_table(cmap, alpha))
         self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode}                
         
