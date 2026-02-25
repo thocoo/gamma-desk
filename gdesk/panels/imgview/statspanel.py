@@ -377,7 +377,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
-        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices']
+        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices', 'Mask']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.verticalHeader().hide()
@@ -443,6 +443,9 @@ class VisibilityDialog(QtWidgets.QDialog):
             slices = QtWidgets.QTableWidgetItem(stats.slices_repr())
             slices.setFlags(slices.flags() ^ Qt.ItemIsEditable)      
             self.table.setItem(i, 6, slices)      
+            
+            bmask_str = QtWidgets.QTableWidgetItem(str(not stats.bmask_qimg is None))
+            self.table.setItem(i, 7, bmask_str)
  
 
     def handleContextMenu(self, pos):      
