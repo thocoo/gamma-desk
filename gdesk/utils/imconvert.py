@@ -368,7 +368,8 @@ def make_color_table(name, alpha=255, color=(255, 0, 0)):
     elif name == 'mask':
         table.append(0)
         for i in range(1, 256):
-            table.append(a * aBase + color[0] * bBase + color[1] * gBase + color[2] * rBase)
+            am = int(round(a * (i-1) / 255))
+            table.append(am * aBase + color[2] * bBase + color[1] * gBase + color[0] * rBase)
                        
     elif name == 'jet':
         for i in range(0, 256):
