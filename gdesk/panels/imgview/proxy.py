@@ -33,11 +33,10 @@ class ViewerRoiAccess():
         
     def __getitem__(self, key):
         if isinstance(key, str):
-            slices = self.parent.get_roi_slices(key)            
+            return self.parent.get_roi_array(key)            
         else:
-            slices = self.parent.get_roi_slices(None)
-            
-        return self.parent.vs[slices]
+            slices = self.parent.get_roi_slices(None)               
+            return self.parent.vs[slices]
         
         
     def __setitem__(self, key, value):
