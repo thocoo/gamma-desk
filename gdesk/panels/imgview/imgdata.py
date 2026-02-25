@@ -203,7 +203,7 @@ class ImageStatistics(object):
                 self.bmask = bmask
                 height, width = bmask.shape
                 self.bmask_qimg = QImage(memoryview(self.bmask), width, height, width, QImage.Format_Indexed8)
-                self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128))
+                self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
                 
             array = np.ma.masked_array(self.full_array, self.bmask)
             
