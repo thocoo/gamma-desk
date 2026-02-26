@@ -436,6 +436,18 @@ class ImageGuiProxy(GuiProxyBase):
             
         else:
             panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
+            
+
+    @StaticGuiCall
+    def add_roi(name, slices=None, mask=None, color=None, active=True):
+        
+        if slices is None:
+            slices = slice(None), slice(None)
+            
+        self.add_roi_slices(name, slices, color, active)
+        
+        if not mask is None:
+            self.set_roi_bmask(name, mask)
         
         
     @StaticGuiCall
