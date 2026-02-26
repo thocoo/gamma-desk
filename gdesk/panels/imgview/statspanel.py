@@ -444,7 +444,7 @@ class VisibilityDialog(QtWidgets.QDialog):
             slices.setFlags(slices.flags() ^ Qt.ItemIsEditable)      
             self.table.setItem(i, 6, slices)      
             
-            bmask_str = QtWidgets.QTableWidgetItem(str(not stats.bmask_qimg is None))
+            bmask_str = QtWidgets.QTableWidgetItem(str(not stats.mask_qimg is None))
             self.table.setItem(i, 7, bmask_str)
  
 

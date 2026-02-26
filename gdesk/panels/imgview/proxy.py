@@ -444,10 +444,10 @@ class ImageGuiProxy(GuiProxyBase):
         if slices is None:
             slices = slice(None), slice(None)
             
-        self.add_roi_slices(name, slices, color, active)
+        ImageGuiProxy.add_roi_slices(name, slices, color, active)
         
         if not mask is None:
-            self.set_roi_bmask(name, mask)
+            ImageGuiProxy.set_roi_bmask(name, mask)
         
         
     @StaticGuiCall

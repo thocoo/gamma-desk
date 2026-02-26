@@ -525,12 +525,13 @@ class ImageViewerWidget(QWidget):
 
         for mask_name, chanstat in self.vd.chanstats.items():
             if not (chanstat.active and chanstat.mask_visible): continue
-            if not chanstat.bmask_qimg is None:
+            if not chanstat.mask_qimg is None:
                 qp.resetTransform()
                 qp.scale(self.zoomDisplay, self.zoomDisplay)
-                qp.translate(-sx, -sy)            
-                qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-                qp.drawImage(0, 0, chanstat.bmask_qimg, 0, 0, -1, -1)
+                qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
+                #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
+                #qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)
                 
                 
         for layer in self.imgdata.layers.values():

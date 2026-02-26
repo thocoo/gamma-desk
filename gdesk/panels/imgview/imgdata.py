@@ -192,9 +192,10 @@ class ImageStatistics(object):
             if not bmask.ndim == 2:
                 raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
         
-        self.bmask_original = bmask
+        self.mask_full = bmask
+        self.mask_crop = None
         self.bmask = None 
-        self.bmask_qimg = None
+        self.mask_qimg = None
         self.clear()
         
         
@@ -202,29 +203,38 @@ class ImageStatistics(object):
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
         
-        if not self.bmask_original is None:
-            height, width = self.bmask_original.shape
-            self.bmask_qimg = QImage(memoryview(self.bmask_original), width, height, width, QImage.Format_Indexed8)
-            self.bmask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+        if not self.mask_full is None and self.mask_crop is None:
+            height, width = self.full_array.shape[:2]
+            self.mask_crop_offset_y, stop_y, _ = self.slices[0].indices(height)
+            self.mask_crop_offset_x, stop_x, _ = self.slices[1].indices(width)
+              
+            self.mask_crop = self.mask_full[:stop_y-self.mask_crop_offset_y, :stop_x-self.mask_crop_offset_x].copy()    #need to be C-continuous
             
-            if self.bmask is None or self.full_array.shape != self.bmask.shape:                
-                bmask = np.zeros(self.full_array.shape, dtype=bool)                                
-                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask_original.shape)])                    
+            h, w = self.mask_crop.shape            
+            self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)            
+            self.mask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+            
+            if self.bmask is None or self.full_array.shape != self.bmask.shape:  
+                
+                array_cropped = self.full_array[self.slices[:min_ndim]]
+                bmask = np.zeros(array_cropped.shape, dtype=bool)
+                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
                 
                 if self.full_array.ndim == 2:
-                    bmask[slices] = self.bmask_original[slices]
+                    bmask[slices] = self.mask_crop[slices]
                 else:
                     for i in range(self.full_array.ndim):
-                        bmask[slices[0], slices[1], i] = self.bmask_original[slices]
+                        bmask[slices[0], slices[1], i] = self.mask_crop[slices]
                     
-                self.bmask = bmask                
-                
-            array = np.ma.masked_array(self.full_array, self.bmask)
+                self.bmask = bmask                                
+            return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
+            
+        elif not self.mask_full is None:
+            return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
             
         else:
-            array = self.full_array
-            
-        return array[self.slices[:min_ndim]]
+            array = self.full_array            
+            return array[self.slices[:min_ndim]]
         
         
     @property
