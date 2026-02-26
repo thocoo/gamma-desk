@@ -210,7 +210,13 @@ class ImageStatistics(object):
             if self.bmask is None or self.full_array.shape != self.bmask.shape:                
                 bmask = np.zeros(self.full_array.shape, dtype=bool)                                
                 slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(self.full_array.shape, self.bmask_original.shape)])                    
-                bmask[slices] = self.bmask_original[slices]                    
+                
+                if self.full_array.ndim == 2:
+                    bmask[slices] = self.bmask_original[slices]
+                else:
+                    for i in range(self.full_array.ndim):
+                        bmask[slices[0], slices[1], i] = self.bmask_original[slices]
+                    
                 self.bmask = bmask                
                 
             array = np.ma.masked_array(self.full_array, self.bmask)
