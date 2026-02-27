@@ -183,7 +183,11 @@ class ImageStatistics(object):
         return self.imgdata.statarr
         
                 
-    def set_bmask(self, bmask):
+    def set_bmask(self, bmask: np.ndarray, origin: str='slices'):
+        """
+        Args:
+            origin: 'slices' or 'global'            
+        """
         
         if not bmask is None:
             if not bmask.dtype == 'uint8':
@@ -193,9 +197,10 @@ class ImageStatistics(object):
                 raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
         
         self.mask_full = bmask
-        self.mask_crop = None
-        self.bmask = None 
-        self.mask_qimg = None
+        self.mask_origin = origin
+        # self.mask_crop = None
+        # self.bmask = None 
+        # self.mask_qimg = None
         self.clear()
         
         
@@ -205,10 +210,19 @@ class ImageStatistics(object):
         
         if not self.mask_full is None and self.mask_crop is None:
             height, width = self.full_array.shape[:2]
-            self.mask_crop_offset_y, stop_y, _ = self.slices[0].indices(height)
-            self.mask_crop_offset_x, stop_x, _ = self.slices[1].indices(width)
-              
-            self.mask_crop = self.mask_full[:stop_y-self.mask_crop_offset_y, :stop_x-self.mask_crop_offset_x].copy()    #need to be C-continuous
+
+            start_y, stop_y, _ = self.slices[0].indices(height)
+            start_x, stop_x, _ = self.slices[1].indices(width) 
+                
+            if self.mask_origin == 'slices':            
+                self.mask_crop = self.mask_full[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+                
+            elif self.mask_origin == 'global':
+                self.mask_crop = self.mask_full[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+                
+            self.mask_crop_offset_y = start_y
+            self.mask_crop_offset_x = start_x                
+                
             
             h, w = self.mask_crop.shape            
             self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)            
@@ -252,6 +266,9 @@ class ImageStatistics(object):
         
         
     def clear(self):
+        self.mask_crop = None
+        self.bmask = None 
+        self.mask_qimg = None        
         self._cache.clear()
         
         
