@@ -365,6 +365,11 @@ def make_color_table(name, alpha=255, color=(255, 0, 0)):
             table.append(a*aBase + b*bBase + g * gBase + r * rBase)                    
         table.append(255 * aBase + 127 * bBase + 127 * gBase + 255 * rBase)
         
+    elif name == 'bmask':
+        table.append(0)
+        for i in range(1, 256):
+            table.append(alpha * aBase + color[2] * bBase + color[1] * gBase + color[0] * rBase)        
+        
     elif name == 'mask':
         table.append(0)
         for i in range(1, 256):

@@ -535,6 +535,7 @@ class ImageViewerWidget(QWidget):
                 
                 
         for layer in self.imgdata.layers.values():
+            if not layer['visible']: continue
             qp.resetTransform() 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)            

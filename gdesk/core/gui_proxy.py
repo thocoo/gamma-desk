@@ -484,6 +484,11 @@ class GuiProxy(object):
         except:
             return None
             
+            
+    @property
+    def mask(self):
+        return self.img.get_mask()
+            
 
     @StaticGuiCall 
     def menu_trigger(category, pandid, action_names, *args, **kwargs):

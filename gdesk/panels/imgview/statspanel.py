@@ -107,7 +107,7 @@ class StatisticsPanel(QtWidgets.QWidget):
     activesChanged = Signal()
     
     setSelection = Signal(str)
-    showMask = Signal(str)
+    #showMask = Signal(str)
     showBmask = Signal(str)
     hideMask = Signal(str)
     
@@ -311,6 +311,7 @@ class VisibilityToolBar(QtWidgets.QToolBar):
     selectRoi = QtCore.Signal(str)
     addMask = QtCore.Signal()
     editMask = QtCore.Signal()
+    showMask = QtCore.Signal(bool)
     removeMask = QtCore.Signal()
     moveItem = QtCore.Signal(str)
     maskPreset = QtCore.Signal(str)
@@ -345,7 +346,10 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         
         self.addAction('All', lambda: self.selectRoi.emit('all'))
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
-        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))                      
+        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))
+        
+        self.addAction("Show Mask",  lambda: self.showMask.emit(True))
+        self.addAction("Hide Mask",  lambda: self.showMask.emit(False))
 
 
 class VisibilityDialog(QtWidgets.QDialog): 
@@ -372,6 +376,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.toolbar.editMask.connect(self.editMask)
         self.toolbar.removeMask.connect(self.removeMask)
         self.toolbar.maskPreset.connect(self.maskPreset)
+        self.toolbar.showMask.connect(self.showMask)
         
         self.vbox.addWidget(self.toolbar)
         self.table = QtWidgets.QTableWidget()       
@@ -462,6 +467,13 @@ class VisibilityDialog(QtWidgets.QDialog):
     def maskPreset(self, preset):
         self.imgdata.init_channel_statistics(preset)
         self.populateTable()
+        
+        
+    def showMask(self, visible):
+        if visible:
+            self.imgdata.show_layer('mask')
+        else:
+            self.imgdata.hide_layer('mask')
 
         
     def changeCheck(self, row, column, checked): 

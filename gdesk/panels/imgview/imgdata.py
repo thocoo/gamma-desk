@@ -742,11 +742,18 @@ class ImageData:
         return imconvert.natural_range(self.statarr.dtype)
         
         
-    def set_mask(self, array=None, composition='sourceover', cmap='mask', alpha=255):
+    def set_mask(self, array=None, composition='sourceover', cmap=None, alpha=255):
+        if cmap is None and not array is None:
+            if array.dtype == 'bool':
+                cmap = 'bmask'
+            
+            else:
+                cmap = 'mask'
+                
         self.set_layer('mask', array, composition, cmap, alpha)
         
         
-    def set_layer(self, name, array=None, composition='sourceover', cmap='mask', alpha=255):
+    def set_layer(self, name, array=None, composition='sourceover', cmap='bmask', alpha=255):
         if array is None:
             if name in self.layers.keys():
                 self.layers.pop(name)
@@ -761,7 +768,17 @@ class ImageData:
 
         qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
         qimage.setColorTable(imconvert.make_color_table(cmap, alpha))
-        self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode}                
+        self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode, 'visible': True}
+        
+        
+    def show_layer(self, layer='mask'):
+        if layer in self.layers:
+            self.layers[layer]['visible'] = True
+            
+            
+    def hide_layer(self, layer='mask'):
+        if layer in self.layers:
+            self.layers[layer]['visible'] = False                    
         
         
     def update_roi_statistics(self):
