@@ -346,10 +346,27 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         
         self.addAction('All', lambda: self.selectRoi.emit('all'))
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
-        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))
+        self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
         
-        self.addAction("Show Mask",  lambda: self.showMask.emit(True))
-        self.addAction("Hide Mask",  lambda: self.showMask.emit(False))
+        self.maskBtn = QtWidgets.QToolButton(self)
+        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        self.maskBtn.setCheckable(True)
+        
+        if self.parent().imgdata.is_layer_visible('mask'):
+            self.maskBtn.setChecked(True)
+        else:
+            self.maskBtn.setChecked(False)
+            
+        self.maskBtn.setToolTip('Show/Hide Mask')
+        self.maskBtn.clicked.connect(self.toggleShowMask)
+        self.addWidget(self.maskBtn)        
+        
+        
+    def toggleShowMask(self):
+        if self.maskBtn.isChecked():
+            self.showMask.emit(True)
+        else:
+            self.showMask.emit(False)
 
 
 class VisibilityDialog(QtWidgets.QDialog): 

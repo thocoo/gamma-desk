@@ -788,6 +788,13 @@ class ImageData:
     def hide_layer(self, layer='mask'):
         if layer in self.layers:
             self.layers[layer]['visible'] = False                    
+            
+    
+    def is_layer_visible(self, layer='mask'):
+        if layer in self.layers and self.layers[layer]['visible']:
+            return True
+        else:
+            return False
         
         
     def update_roi_statistics(self):
