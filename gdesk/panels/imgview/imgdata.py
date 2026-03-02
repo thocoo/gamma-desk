@@ -190,8 +190,8 @@ class ImageStatistics(object):
         """
         
         if not bmask is None:
-            if not bmask.dtype == 'uint8':
-                raise TypeError(f'The mask has dtype {bmask.dtype} but only uint8 is supported')
+            if not bmask.dtype in ['bool', 'uint8']:
+                raise TypeError(f'The mask has dtype {bmask.dtype} but only bool and uint8 is supported')
                 
             if not bmask.ndim == 2:
                 raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
@@ -225,8 +225,9 @@ class ImageStatistics(object):
                 
             
             h, w = self.mask_crop.shape            
-            self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)            
-            self.mask_qimg.setColorTable(imconvert.make_color_table('mask', 128, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+            self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
+            cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
+            self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
             
             if self.bmask is None or self.full_array.shape != self.bmask.shape:  
                 
@@ -608,6 +609,9 @@ class ImageData:
                 ('y start', selroi.yr.start),
                 ('y stop', selroi.yr.stop),
                 ('y step', selroi.yr.step)]
+                
+        if 'mask' in self.layers and not self.layers['mask']['array'] is None:
+            form.append(('Mask', False))
 
         r = fedit(form, title='Add Mask Statistics')
         if r is None: return
@@ -616,8 +620,13 @@ class ImageData:
         color = QtGui.QColor(r[1])
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])
+                
         
-        self.addMaskStatistics(name, (v_slice, h_slice), color)               
+        self.addMaskStatistics(name, (v_slice, h_slice), color)
+
+        if len(r) == 9 and r[8]:
+            ma = self.layers['mask']['array']                           
+            self.chanstats[name].set_bmask(ma, origin='global')
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True):
