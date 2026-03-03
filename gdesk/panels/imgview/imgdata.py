@@ -751,18 +751,20 @@ class ImageData:
         return imconvert.natural_range(self.statarr.dtype)
         
         
-    def set_mask(self, array=None, composition='sourceover', cmap=None, alpha=255):
+    def set_mask(self, array=None, composition='sourceover', cmap=None, alpha=255, color=None):
         if cmap is None and not array is None:
             if array.dtype == 'bool':
                 cmap = 'bmask'
             
             else:
                 cmap = 'mask'
-                
-        self.set_layer('mask', array, composition, cmap, alpha)
+        
+        if color is None:
+            color = config['image background']
+        self.set_layer('mask', array, composition, cmap, alpha, color)
         
         
-    def set_layer(self, name, array=None, composition='sourceover', cmap='bmask', alpha=255):
+    def set_layer(self, name, array=None, composition='sourceover', cmap='bmask', alpha=255, color=(255,0,0)):
         if array is None:
             if name in self.layers.keys():
                 self.layers.pop(name)
@@ -776,7 +778,7 @@ class ImageData:
         compmode = COMPMODE[composition.lower()]            
 
         qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
-        qimage.setColorTable(imconvert.make_color_table(cmap, alpha))
+        qimage.setColorTable(imconvert.make_color_table(cmap, alpha, color))
         self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode, 'visible': True}
         
         
