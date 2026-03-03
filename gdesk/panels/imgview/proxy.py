@@ -517,7 +517,7 @@ class ImageGuiProxy(GuiProxyBase):
             
             
     @StaticGuiCall
-    def get_roi_bmask(name=None):
+    def get_roi_bmask(name=None, full=False):
         """
         Get the current region of interest as a tupple of slice objects
         """
@@ -527,7 +527,16 @@ class ImageGuiProxy(GuiProxyBase):
         chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
         if chanstat is None:
             raise KeyError(f'{name} not found')
-        return chanstat.bmask  
+        
+        if full:
+            h, w = panel.imviewer.imgdata.height, panel.imviewer.imgdata.width
+            slices = ImageGuiProxy.get_roi_slices(name)    
+            roi_glbmask = np.ones((h, w), dtype='bool')
+            roi_glbmask[slices] = chanstat.bmask
+            return roi_glbmask
+            
+        else:
+            return chanstat.bmask  
         
 
     @StaticGuiCall
