@@ -520,8 +520,15 @@ class ImageViewerWidget(QWidget):
 
             qp.scale(self.zoomDisplay, self.zoomDisplay)
             qp.translate(-sx, -sy)
-            qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                       
+            qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                                   
 
+        for layer in self.imgdata.layers.values():
+            if not layer['visible']: continue
+            qp.resetTransform() 
+            qp.scale(self.zoomDisplay, self.zoomDisplay)
+            qp.translate(-sx, -sy)            
+            qp.setCompositionMode(layer['composition'])
+            qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
         for mask_name, chanstat in self.vd.chanstats.items():
             if not (chanstat.active and chanstat.mask_visible): continue
@@ -531,17 +538,8 @@ class ImageViewerWidget(QWidget):
                 qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
                 #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
                 #qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-                qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)
-                
-                
-        for layer in self.imgdata.layers.values():
-            if not layer['visible']: continue
-            qp.resetTransform() 
-            qp.scale(self.zoomDisplay, self.zoomDisplay)
-            qp.translate(-sx, -sy)            
-            qp.setCompositionMode(layer['composition'])
-            qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)
-        
+                qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
+
         qp.resetTransform()        
                 
             

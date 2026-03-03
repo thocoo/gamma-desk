@@ -596,35 +596,12 @@ class VisibilityDialog(QtWidgets.QDialog):
         row = list(indices)[0].row()
         
         maskName = self.table.item(row, 0).text()
-        
+  
         if maskName in  RESERVED_MASK_FULL or maskName in RESERVED_MASK_ROI:
             gui.msgbox('You can not change this reserved mask.\nThis is not a user mask.', title='Warning', icon='warn')
             return
-        
-        chanstat = self.chanstats.get(maskName)
-        
-        form = [('Name',  maskName),
-                ('Color',  chanstat.plot_color.name()),
-                ('x start', chanstat.slices[1].start),
-                ('x stop', chanstat.slices[1].stop),
-                ('x step', chanstat.slices[1].step),
-                ('y start', chanstat.slices[0].start),
-                ('y stop',chanstat.slices[0].stop),
-                ('y step', chanstat.slices[0].step)]
-
-        r = fedit(form, title='Change Roi Statistics') 
-        if r is None: return        
-
-        newMaskName = r[0]
-        color = QtGui.QColor(r[1])
-        h_slice = slice(r[2], r[3], r[4])
-        v_slice = slice(r[5], r[6], r[7])    
-
-        pos = self.chanstats.get_position(maskName)
-        self.chanstats.pop(maskName)
-        self.imgdata.addMaskStatistics(newMaskName, (v_slice, h_slice), color)
-        self.chanstats.move_to_position(maskName, pos)  
-        
+            
+        self.imgdata.addMaskStatsDialog(maskName)        
         self.populateTable()
 
 

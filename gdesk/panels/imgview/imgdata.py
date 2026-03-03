@@ -151,7 +151,7 @@ class ImageStatistics(object):
         self._cache = dict()
         self.slices = None
         
-        self.set_bmask(None)
+        self.set_mask(None)
         
         if plot_color is None:
             plot_color = get_next_color_tuple()
@@ -183,24 +183,21 @@ class ImageStatistics(object):
         return self.imgdata.statarr
         
                 
-    def set_bmask(self, bmask: np.ndarray, origin: str='slices'):
+    def set_mask(self, mask: np.ndarray, zero_origin: bool=False):
         """
         Args:
             origin: 'slices' or 'global'            
         """
         
-        if not bmask is None:
-            if not bmask.dtype in ['bool', 'uint8']:
+        if not mask is None:
+            if not mask.dtype in ['bool', 'uint8']:
                 raise TypeError(f'The mask has dtype {bmask.dtype} but only bool and uint8 is supported')
                 
-            if not bmask.ndim == 2:
+            if not mask.ndim == 2:
                 raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
         
-        self.mask_full = bmask
-        self.mask_origin = origin
-        # self.mask_crop = None
-        # self.bmask = None 
-        # self.mask_qimg = None
+        self.mask_not_cropped = mask
+        self.mask_zero_origin = zero_origin
         self.clear()
         
         
@@ -208,17 +205,17 @@ class ImageStatistics(object):
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
         
-        if not self.mask_full is None and self.mask_crop is None:
+        if not self.mask_not_cropped is None and self.mask_crop is None:
             height, width = self.full_array.shape[:2]
 
             start_y, stop_y, _ = self.slices[0].indices(height)
             start_x, stop_x, _ = self.slices[1].indices(width) 
                 
-            if self.mask_origin == 'slices':            
-                self.mask_crop = self.mask_full[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+            if not self.mask_zero_origin:             
+                self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
                 
-            elif self.mask_origin == 'global':
-                self.mask_crop = self.mask_full[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+            else:
+                self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
                 
             self.mask_crop_offset_y = start_y
             self.mask_crop_offset_x = start_x                
@@ -244,7 +241,7 @@ class ImageStatistics(object):
                 self.bmask = bmask                                
             return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
             
-        elif not self.mask_full is None:
+        elif not self.mask_not_cropped is None:
             return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
             
         else:
@@ -591,42 +588,67 @@ class ImageData:
                 mask_props.active = True
                 
                 
-    def addMaskStatsDialog(self):
-        selroi = self.selroi
+    def addMaskStatsDialog(self, edit_roi_name=None):
+        
         
         color = get_next_color_tuple()        
         color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
         
-        i = 1
-        while f'custom{i}' in self.chanstats:
-            i += 1
+        if edit_roi_name is None:
+            i = 1
+            while f'custom{i}' in self.chanstats:
+                i += 1
+                    
+            selroi = self.selroi
+            pos = None            
+            title='Add Mask Statistics'
 
-        form = [('Name',  f'custom{i}'),
-                ('Color',  color_str),
-                ('x start', selroi.xr.start),
-                ('x stop', selroi.xr.stop),
-                ('x step', selroi.xr.step),
-                ('y start', selroi.yr.start),
-                ('y stop', selroi.yr.stop),
-                ('y step', selroi.yr.step)]
+            form = [('Name',  f'custom{i}'),
+                    ('Color',  color_str),
+                    ('x start', selroi.xr.start),
+                    ('x stop', selroi.xr.stop),
+                    ('x step', selroi.xr.step),
+                    ('y start', selroi.yr.start),
+                    ('y stop', selroi.yr.stop),
+                    ('y step', selroi.yr.step)]
+                    
+        else:
+            chanstat = self.chanstats.get(edit_roi_name)
+            pos = self.chanstats.get_position(edit_roi_name)
+            
+            title='Edit Roi Statistics'
+            
+            form = [('Name',  edit_roi_name),
+                    ('Color',  chanstat.plot_color.name()),
+                    ('x start', chanstat.slices[1].start),
+                    ('x stop', chanstat.slices[1].stop),
+                    ('x step', chanstat.slices[1].step),
+                    ('y start', chanstat.slices[0].start),
+                    ('y stop',chanstat.slices[0].stop),
+                    ('y step', chanstat.slices[0].step)]            
                 
         if 'mask' in self.layers and not self.layers['mask']['array'] is None:
             form.append(('Mask', False))
 
-        r = fedit(form, title='Add Mask Statistics')
+        r = fedit(form, title=title)
         if r is None: return
 
         name = r[0]                
         color = QtGui.QColor(r[1])
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])
-                
+
+        if not pos is None:
+            self.chanstats.pop(edit_roi_name)
+            
+        self.addMaskStatistics(name, (v_slice, h_slice), color)        
         
-        self.addMaskStatistics(name, (v_slice, h_slice), color)
+        if not pos is None:
+            self.chanstats.move_to_position(name, pos) 
 
         if len(r) == 9 and r[8]:
             ma = self.layers['mask']['array']                           
-            self.chanstats[name].set_bmask(ma, origin='global')
+            self.chanstats[name].set_mask(ma, zero_origin=True)
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True):
