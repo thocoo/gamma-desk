@@ -197,7 +197,7 @@ class ImageStatistics(object):
                 raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
         
         self.mask_not_cropped = mask
-        self.mask_zero_origin = zero_origin
+        self.mask_zero_origin = zero_origin        
         self.clear()
         self.update_cropped_mask()
         
@@ -220,8 +220,9 @@ class ImageStatistics(object):
             
     def update_cropped_mask(self):
         if self.slices is None: return
-        
+                       
         height, width = self.full_array.shape[:2]
+        min_ndim = min(len(self.slices), self.full_array.ndim)
 
         start_y, stop_y, _ = self.slices[0].indices(height)
         start_x, stop_x, _ = self.slices[1].indices(width) 

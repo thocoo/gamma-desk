@@ -531,6 +531,7 @@ class ImageViewerWidget(QWidget):
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
         for mask_name, chanstat in self.vd.chanstats.items():
+            if not chanstat.is_valid(): continue
             if not (chanstat.active and chanstat.mask_visible): continue
             if not chanstat.mask_qimg is None:
                 qp.resetTransform()
@@ -540,8 +541,7 @@ class ImageViewerWidget(QWidget):
                 #qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
-        qp.resetTransform()        
-                
+        qp.resetTransform()                        
             
         for mask_name, chanstat in self.vd.chanstats.items():
             if not chanstat.is_valid(): continue
