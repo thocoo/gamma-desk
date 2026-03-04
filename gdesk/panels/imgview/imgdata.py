@@ -199,54 +199,61 @@ class ImageStatistics(object):
         self.mask_not_cropped = mask
         self.mask_zero_origin = zero_origin
         self.clear()
+        self.update_cropped_mask()
         
         
     @property
     def roi(self):             
         min_ndim = min(len(self.slices), self.full_array.ndim)
         
-        if not self.mask_not_cropped is None and self.mask_crop is None:
-            height, width = self.full_array.shape[:2]
-
-            start_y, stop_y, _ = self.slices[0].indices(height)
-            start_x, stop_x, _ = self.slices[1].indices(width) 
-                
-            if not self.mask_zero_origin:             
-                self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
-                
-            else:
-                self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
-                
-            self.mask_crop_offset_y = start_y
-            self.mask_crop_offset_x = start_x                
-                
+        if not self.mask_not_cropped is None:
             
-            h, w = self.mask_crop.shape            
-            self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
-            cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
-            self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
-            
-            if self.bmask is None or self.full_array.shape != self.bmask.shape:  
+            if self.mask_crop is None:
+                self.update_cropped_mask()
                 
-                array_cropped = self.full_array[self.slices[:min_ndim]]
-                bmask = np.zeros(array_cropped.shape, dtype=bool)
-                slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
-                
-                if self.full_array.ndim == 2:
-                    bmask[slices] = self.mask_crop[slices]
-                else:
-                    for i in range(self.full_array.ndim):
-                        bmask[slices[0], slices[1], i] = self.mask_crop[slices]
-                    
-                self.bmask = bmask                                
-            return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
-            
-        elif not self.mask_not_cropped is None:
             return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
             
         else:
             array = self.full_array            
             return array[self.slices[:min_ndim]]
+            
+            
+    def update_cropped_mask(self):
+        if self.slices is None: return
+        
+        height, width = self.full_array.shape[:2]
+
+        start_y, stop_y, _ = self.slices[0].indices(height)
+        start_x, stop_x, _ = self.slices[1].indices(width) 
+            
+        if not self.mask_zero_origin:             
+            self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+            
+        else:
+            self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+            
+        self.mask_crop_offset_y = start_y
+        self.mask_crop_offset_x = start_x                
+            
+        
+        h, w = self.mask_crop.shape            
+        self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
+        cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
+        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+        
+        if self.bmask is None or self.full_array.shape != self.bmask.shape:  
+            
+            array_cropped = self.full_array[self.slices[:min_ndim]]
+            bmask = np.zeros(array_cropped.shape, dtype=bool)
+            slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
+            
+            if self.full_array.ndim == 2:
+                bmask[slices] = self.mask_crop[slices]
+            else:
+                for i in range(self.full_array.ndim):
+                    bmask[slices[0], slices[1], i] = self.mask_crop[slices]
+                
+            self.bmask = bmask          
         
         
     @property
