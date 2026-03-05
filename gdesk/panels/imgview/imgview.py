@@ -278,6 +278,8 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.editMenu, 'Copy Display Image to clipboard', self.placeQimgOnClipboard,
             statusTip="Place the displayed image on clipboard with display processing applied",
             icon = 'page_copy.png')
+        self.addMenuItem(self.editMenu, 'Copy Image Viewer to clipboard', self.placeViewerOnClipboard)
+            
         self.addMenuItem(self.editMenu, 'Paste into New Image', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",
             icon = 'picture_clipboard.png')
@@ -861,6 +863,11 @@ class ImageViewerBase(BasePanel):
         #Clipboard can only take ownership if the object is a local?
         qimg = self.imviewer.imgdata.qimg.copy()
         clipboard.setImage(qimg)
+        
+    def placeViewerOnClipboard(self):
+        clipboard = self.qapp.clipboard()
+        qimg = self.imviewer.paintToQImage().copy()
+        clipboard.setImage(qimg)        
 
     def showFromClipboard(self):
         arr = gui.get_clipboard_image()

@@ -614,9 +614,20 @@ class ImageViewerWidget(QWidget):
                             label = fmt.format(val)
                         except:
                             label = 'invalid'
-                        qp.drawText(xpos, ypos, label)            
-            
+                        qp.drawText(xpos, ypos, label)   
+                        
 
+    def paintToQImage(self):
+        size = self.size()
+        #qimg = QtGui.QImage(size.width(), size.height(), QtGui.QImage.Format_RGB888)
+        qimg = QtGui.QImage(size.width(), size.height(), QtGui.QImage.Format_ARGB32)
+        qpainter = QtGui.QPainter(qimg)
+        qpainter.fillRect(0, 0, size.width(), size.height(), self.bgcolor)
+        self.paintImage(qpainter)
+        qpainter.end()     
+        return qimg
+        
+            
     def dragEnterEvent(self, event):
         event.accept()
 
