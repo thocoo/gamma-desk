@@ -221,11 +221,29 @@ class ImageGuiProxy(GuiProxyBase):
         lock = gui._call_no_wait(_gui_show, array, cmap)
         return retries, lock
         
-    
+
     @StaticGuiCall
     def show_mask(array=None, composition='sourceover', cmap=None, alpha=128):
+        if not array is None:
+            ImageGuiProxy.set_mask(array, composition, cmap, alpha)
+            
+        else:
+            panel = gui.qapp.panels.selected('image')
+            panel.imviewer.imgdata.show_layer('mask')    
+            panel.imviewer.refresh()
+        
+        
+    @StaticGuiCall
+    def set_mask(array=None, composition='sourceover', cmap=None, alpha=128):
         panel = gui.qapp.panels.selected('image')
-        panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)        
+        panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)
+        panel.imviewer.refresh()
+        
+        
+    @StaticGuiCall
+    def hide_mask():
+        panel = gui.qapp.panels.selected('image')
+        panel.imviewer.imgdata.hide_layer('mask')        
         panel.imviewer.refresh()
         
     
