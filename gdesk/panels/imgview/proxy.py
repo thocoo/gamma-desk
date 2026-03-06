@@ -370,6 +370,14 @@ class ImageGuiProxy(GuiProxyBase):
         """
         panel = gui.qapp.panels.selected('image')
         panel.zoomFull()  
+        
+    @StaticGuiCall
+    def zoom_to_roi():
+        """
+        Zoom in to the roi
+        """
+        panel = gui.qapp.panels.selected('image')
+        panel.zoomToRoi()          
 
     @StaticGuiCall
     def zoom_region(x, y, width, height):
