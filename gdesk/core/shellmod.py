@@ -66,9 +66,15 @@ class Shell(object):
         self.interpreters = dict()
         
         if logdir:
-            self.logdir = LogDir(config['path_log'])
+            self.use_logdir()
             
         self.bootpath = Path('.').resolve()
+        
+    def use_logdir(self, logdir=None):
+        if logdir is None:
+            logdir = config['path_log']
+            
+        self.logdir = LogDir(logdir)
         
     def redirect_stdout(self):
         if not config['debug']['skip_main_stdout_redirect']:
