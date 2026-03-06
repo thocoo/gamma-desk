@@ -1145,6 +1145,12 @@ class ImageViewerBase(BasePanel):
     def zoomAuto(self):
         self.imviewer.zoomAuto()
 
+    def zoomToRoi(self):
+        self.imviewer.zoomToRoi()        
+        
+    def zoomToRegion(self, x, y, width, height):        
+        self.imviewer.zoomToRegion(x, y, width, height)
+
     def setColorMap(self):
         with ActionArguments(self) as args:
             args['cmap'] = 'grey'
