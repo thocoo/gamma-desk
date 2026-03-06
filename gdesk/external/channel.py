@@ -13,7 +13,7 @@ configure(matplotlib={'backend':'svg'})
 
 from .. import gui
 
-from .. import console
+from ..console import run_as_child
 from ..core.shellmod import Shell
 from ..core.tasks import ZmqQueues
 from ..core.tasks import CommQueues
@@ -131,7 +131,7 @@ def start_gui(child=False, commqueues=None, deamon=False):
             'default_perspective': 'base',
             'init_command': {'cmd': 'connect_process', 'args': ()}}
 
-        process = Process(target=console.run_as_child,
+        process = Process(target=run_as_child,
             args=((), proc_config, {'cqs': commqueues}), daemon=deamon)
         process.start()
 
