@@ -264,7 +264,7 @@ class ImageStatistics(object):
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
-        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 192, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
         
         if self.bmask is None or self.full_array.shape != self.bmask.shape:  
             
