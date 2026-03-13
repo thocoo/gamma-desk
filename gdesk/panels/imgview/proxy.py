@@ -223,7 +223,7 @@ class ImageGuiProxy(GuiProxyBase):
         
 
     @StaticGuiCall
-    def show_mask(array=None, composition='sourceover', cmap=None, alpha=128):
+    def show_mask(array=None, composition='sourceover', cmap=None, alpha=192):
         if not array is None:
             ImageGuiProxy.set_mask(array, composition, cmap, alpha)
             
@@ -234,8 +234,8 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
-    def set_mask(array=None, composition='sourceover', cmap=None, alpha=128):
-        panel = gui.qapp.panels.selected('image')
+    def set_mask(array=None, composition='sourceover', cmap=None, alpha=192):
+        panel = gui.qapp.panels.selected('image')       
         panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)
         panel.imviewer.refresh()
         
@@ -254,7 +254,14 @@ class ImageGuiProxy(GuiProxyBase):
             array = panel.imviewer.imgdata.layers['mask']['array']
             return array
         else:
-            return None
+            return None                
+            
+    @StaticGuiCall
+    def init_mask(dtype='bool'):
+        panel = gui.qapp.panels.selected('image')
+        mask = np.zeros((panel.imviewer.imgdata.height, panel.imviewer.imgdata.width), dtype=dtype)   
+        ImageGuiProxy.set_mask(mask)
+        return mask
         
        
     def refresh(self):
