@@ -248,18 +248,20 @@ class StdInputPanel(QPlainTextEdit):
                 self.startAutoCompleter(wsmode=wsmode)
 
         elif event.key() == Qt.Key_Up and self.textCursor().block().blockNumber() == 0:
+            logtype = 'input' if self.mode == 'input' else 'cmd'
             if self.hist_prefix is None:
                 self.hist_prefix = self.toPlainText()
-            self.prior_cmd_id, cmd = self.qapp.history.retrievecmd(self.hist_prefix, self.prior_cmd_id, distinct=True, back=True, prefix=not key_ctrl)
+            self.prior_cmd_id, cmd = self.qapp.history.retrievecmd(self.hist_prefix, self.prior_cmd_id, distinct=True, back=True, prefix=not key_ctrl, logtype=logtype)
 
             self.setPlainText(cmd)
             self.moveCursorToEndOfBlock()
 
         elif event.key() == Qt.Key_Down and self.textCursor().block().blockNumber() == (self.blockCount()-1):
+            logtype = 'input' if self.mode == 'input' else 'cmd'
             if self.hist_prefix is None:
                 self.hist_prefix = self.toPlainText()
 
-            self.prior_cmd_id, cmd = self.qapp.history.retrievecmd(self.hist_prefix, self.prior_cmd_id, distinct=True, back=False, prefix=not key_ctrl)
+            self.prior_cmd_id, cmd = self.qapp.history.retrievecmd(self.hist_prefix, self.prior_cmd_id, distinct=True, back=False, prefix=not key_ctrl, logtype=logtype)
 
             self.setPlainText(cmd)
             self.moveCursorToEndOfDoc()
@@ -380,6 +382,7 @@ class StdInputPanel(QPlainTextEdit):
                 suffix = '\033[0m\n\033[48;5;7m?<\033[0m\n'
 
             self.outputPanel.addAnsiText(prefix + cmd + suffix)
+            self.qapp.history.logcmd(cmd, 'input')
             self.task.send_input(cmd)
             self.clear()
 

@@ -140,18 +140,28 @@ class History(object):
             
     def define_tables(self):
         query = """CREATE TABLE IF NOT EXISTS CMDHIST (
-ID INTEGER PRIMARY KEY, TIME TEXT, CMD TEXT)"""
+ID INTEGER PRIMARY KEY, TIME TEXT, CMD TEXT, LOGTYPE TEXT)"""
         self.server.execute(query)
         
         query = """CREATE TABLE IF NOT EXISTS PATHHIST (
 ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
-        self.server.execute(query)
+        self.server.execute(query)   
+
+        self.add_logtype_if_not_exists()
+            
+            
+    def add_logtype_if_not_exists(self):
         
-        query = """ALTER TABLE PATHHIST ADD COLUMN CATEGORY TEXT"""
-        try:
-            self.server.execute(query)
-        except:
-            pass        
+        for row in self.execfetch('PRAGMA table_info(CMDHIST)'):
+            rid, name, *others = row
+            if name == 'LOGTYPE':
+                return
+        
+        query = """ALTER TABLE CMDHIST
+ADD COLUMN LOGTYPE TEXT"""
+
+        self.server.execute(query)
+
             
     def execfetch(self, query, parameters=()):        
         cur = self.server.cursor()
@@ -161,10 +171,10 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             yield row
             row = cur.fetchone()        
 
-    def logcmd(self, cmd):
+    def logcmd(self, cmd, logtype='cmd'):
         now = time.strftime('%Y-%m-%d %H:%M:%S')
-        query = "INSERT INTO CMDHIST (TIME, CMD) VALUES (?, ?)"
-        self.server.execute(query, (now, cmd,))
+        query = "INSERT INTO CMDHIST (TIME, CMD, LOGTYPE) VALUES (?, ?, ?)"
+        self.server.execute(query, (now, cmd, logtype))
         self.server.commit()
         self.skip = -1
         rowid = None
@@ -191,19 +201,19 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             yield row
             
         
-    def retrievecmd(self, part='', from_id=None, distinct=True, back=True, prefix=True):        
+    def retrievecmd(self, part='', from_id=None, distinct=True, back=True, prefix=True, logtype='cmd'):        
             
-        query = self.make_retrieve_query(1, part, from_id, distinct, back, prefix)
+        query = self.make_retrieve_query(1, part, from_id, distinct, back, prefix, logtype)
         
         for cmdid, cmd in self.execfetch(query):
             return cmdid, cmd
             
         return from_id, part
 
-    def tail(self, count=20, part='', from_id=None, distinct=False, back=True, prefix=True, reverse=True):
+    def tail(self, count=20, part='', from_id=None, distinct=False, back=True, prefix=True, reverse=True, logtype='cmd'):
         cmds = []
         
-        query = self.make_retrieve_query(count, part, from_id, distinct, back, prefix)
+        query = self.make_retrieve_query(count, part, from_id, distinct, back, prefix, logtype)
             
         for row in self.execfetch(query):
             cmds.append(row)
@@ -213,7 +223,7 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
         else:
             return cmds
             
-    def make_retrieve_query(self, count=20, part='', from_id=None, distinct=False, back=True, prefix=True):
+    def make_retrieve_query(self, count=20, part='', from_id=None, distinct=False, back=True, prefix=True, logtype='cmd'):
     
         if back:
             order = 'DESC'
@@ -234,11 +244,16 @@ ID INTEGER PRIMARY KEY, CATEGORY TEXT, TIME TEXT, PATH TEXT)"""
             wild = '%'
             
         part = part.replace("'","''")
+        
+        if logtype == 'cmd':
+            logtype_cond = "(LOGTYPE = 'cmd' OR LOGTYPE IS NULL)"
+        else:
+            logtype_cond = f"LOGTYPE = '{logtype}'"
             
         if distinct:
-            query = f"SELECT LASTID AS ID, CMD FROM (SELECT MAX(ID) AS LASTID, CMD FROM CMDHIST WHERE CMD LIKE '{wild}{part}%' GROUP BY CMD ORDER BY LASTID {order}){rng} LIMIT {count}"
+            query = f"SELECT LASTID AS ID, CMD FROM (SELECT MAX(ID) AS LASTID, CMD FROM CMDHIST WHERE CMD LIKE '{wild}{part}%' AND {logtype_cond} GROUP BY CMD ORDER BY LASTID {order}){rng} LIMIT {count}"
         else:
-            query = f"SELECT ID, CMD FROM (SELECT ID, CMD FROM CMDHIST WHERE CMD LIKE '{part}%'{rng} ORDER BY ID {order}){rng} LIMIT {count}"
+            query = f"SELECT ID, CMD FROM (SELECT ID, CMD FROM CMDHIST WHERE CMD LIKE '{part}%'{rng} AND {logtype_cond} ORDER BY ID {order}){rng} LIMIT {count}"
 
         return query
         
