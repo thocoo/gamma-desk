@@ -1855,14 +1855,16 @@ class ImageProfileWidget(QWidget):
         
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
-        self.statsPanel.activesChanged.connect(self.refresh)                
-        self.statsPanel.setSelection.connect(self.setSelection)        
-        self.statsPanel.showBmask.connect(self.showBmask)        
+        self.statsPanel.activesChanged.connect(self.refresh)                        
+        self.statsPanel.setSelection.connect(self.setSelection)                       
+        self.statsPanel.showBmask.connect(self.showBmask)                
         
         self.statsToolbar = TitleToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
+        self.statsToolbar.showMask.connect(self.showMask)
+        self.statsToolbar.maskPreset.connect(self.selectMasks)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         self.statsDock.setTitleBarWidget(self.statsToolbar)
@@ -1909,6 +1911,15 @@ class ImageProfileWidget(QWidget):
         self.imviewer.imgdata.init_channel_statistics(masks)
         self.statsPanel.formatTable()
         self.refresh()
+        
+        
+    def showMask(self, visible):
+        if visible:
+            self.imviewer.imgdata.show_layer('mask')
+        else:
+            self.imviewer.imgdata.hide_layer('mask')        
+            
+        self.imviewer.refresh()
         
         
     def selectRoi(self, option):
@@ -2014,7 +2025,7 @@ class ImageProfileWidget(QWidget):
         chanstats = self.imviewer.imgdata.chanstats[mask_name]            
         bmask = chanstats.bmask
         self.imviewer.imgdata.set_mask(bmask, alpha=128)        
-        self.imviewer.refresh()                            
+        self.imviewer.refresh()  
         
         
     def drawRoiProfile(self):                     
@@ -2033,8 +2044,7 @@ class ImageProfileWidget(QWidget):
             self.profBtn1.show()
             self.showOnlyRuler()
 
-    profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)    
-
+    profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
 
     def refresh_profile_views(self):
         self.colPanel.zoomToImage()
@@ -2102,7 +2112,8 @@ class ImageProfilePanel(ImageViewerBase):
         if targetPanel.category == 'levels':
             self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMasks)
 
-        return targetPanel                
+        return targetPanel
+        
         
     def postLayoutInit(self):
         self.openTestImage()

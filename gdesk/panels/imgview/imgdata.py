@@ -4,7 +4,7 @@ import threading
 import math
 from collections import UserDict
 
-from qtpy import QtGui
+from qtpy import QtGui, QtCore, QtWidgets
 from qtpy.QtGui import QImage
 from qtpy.QtWidgets import QApplication
 
@@ -43,11 +43,35 @@ COMPMODE['lighten'] = QtGui.QPainter.CompositionMode_Lighten
 
 PRE_DEF_MASK_NAMES = ['K', 'R', 'G', 'B', 'Gr', 'Gb']
 
+RESPATH = pathlib.Path(config['respath'])
+
 
 def get_next_color_tuple():
     plot_color = tuple([int(round(ch)) for ch in PLOT_COLORS[0]])
     PLOT_COLORS[:] = np.roll(PLOT_COLORS, 1, axis=0)
     return plot_color
+    
+    
+class MaskPresetButton(QtWidgets.QToolButton):
+    
+    maskPreset = QtCore.Signal(str)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
+        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.maskPreset.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.maskPreset.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
+        
+        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        self.setToolTip('Select one of the default masks options')
+        self.setMenu(self.masksSelectMenu)
+        self.setPopupMode(QtWidgets.QToolButton.InstantPopup)            
+    
             
     
 class SelectRoi(DimRanges):

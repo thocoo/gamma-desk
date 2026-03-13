@@ -11,6 +11,8 @@ from ...graphics.items import createCurve, Indicator
 from ...graphics.rulers import TickedRuler, Grid
 from ..base import BasePanel, CheckMenu
 
+from ..imgview.imgdata import MaskPresetButton
+
 
 RESPATH = pathlib.Path(config['respath'])
 
@@ -609,22 +611,9 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.eyeBtn.setToolTip('Masks visibility in statastics, profiles and levels')
         self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))                  
         self.addWidget(self.eyeBtn)
-        
-        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
-        #self.masksSelectMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.selectMasks.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.selectMasks.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.selectMasks.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.selectMasks.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.selectMasks.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.selectMasks.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
-        
-        self.masksSelectBtn = QtWidgets.QToolButton()
-        self.masksSelectBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.masksSelectBtn.setToolTip('Select one of the default masks options')
-        self.masksSelectBtn.setMenu(self.masksSelectMenu)
-        self.masksSelectBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)          
-        
+             
+        self.masksSelectBtn = MaskPresetButton()
+        self.masksSelectBtn.maskPreset.connect(lambda mask: self.selectMasks.emit(mask))
         self.addWidget(self.masksSelectBtn)             
 
         self.scaleBtn = QtWidgets.QToolButton(self)

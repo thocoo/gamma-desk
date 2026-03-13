@@ -7,10 +7,11 @@ from qtpy.QtCore import Qt, Signal
 
 from ...dialogs.formlayout import fedit
 from ... import config
-from .imgdata import get_next_color_tuple
+from .imgdata import get_next_color_tuple, MaskPresetButton
 
 from qtpy.QtCore import Qt, Signal, QUrl
 from gdesk import gui
+
 
 
 RESPATH = Path(config['respath'])
@@ -291,6 +292,8 @@ class TitleToolBar(QtWidgets.QToolBar):
     toggleProfile = Signal()
     toggleDock = Signal()
     selectRoi = Signal(str)
+    showMask = QtCore.Signal(bool)
+    maskPreset = Signal(str)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)                
@@ -302,8 +305,33 @@ class TitleToolBar(QtWidgets.QToolBar):
         self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
  
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))        
+
+        self.masksPresetBtn = MaskPresetButton()
+        self.masksPresetBtn.maskPreset.connect(lambda mask: self.maskPreset.emit(mask))
+        self.addWidget(self.masksPresetBtn)  
+        
+        self.maskBtn = QtWidgets.QToolButton(self)
+        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        self.maskBtn.setCheckable(True)
+        
+        # if self.parent().imviewer.imgdata.is_layer_visible('mask'):
+            # self.maskBtn.setChecked(True)
+        # else:
+            # self.maskBtn.setChecked(False)
+            
+        self.maskBtn.setToolTip('Show/Hide Mask')
+        self.maskBtn.clicked.connect(self.toggleShowMask)
+        self.addWidget(self.maskBtn)                   
+        
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), 'Dock/Undock', lambda: self.toggleDock.emit())
+
+
+    def toggleShowMask(self):
+        if self.maskBtn.isChecked():
+            self.showMask.emit(True)
+        else:
+            self.showMask.emit(False)        
 
 
 class VisibilityToolBar(QtWidgets.QToolBar):
@@ -320,21 +348,9 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         super().__init__(*args, **kwargs) 
         self.initUi()
         
-    def initUi(self):        
-        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
-        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.maskPreset.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.maskPreset.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
-        
-        self.masksPresetBtn = QtWidgets.QToolButton()
-        self.masksPresetBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.masksPresetBtn.setToolTip('Select one of the default masks options')
-        self.masksPresetBtn.setMenu(self.masksSelectMenu)
-        self.masksPresetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-
+    def initUi(self):                
+        self.masksPresetBtn = MaskPresetButton()
+        self.masksPresetBtn.maskPreset.connect(lambda mask: self.maskPreset.emit(mask))
         self.addWidget(self.masksPresetBtn)         
         
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
