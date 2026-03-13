@@ -772,7 +772,8 @@ class Console(BasePanel):
         self.executionMenu.addMenu(traceMenu)
 
         self.addMenuItem(self.executionMenu, 'Debug Post Mortem', self.startPostMortem,
-            statusTip="Start the Post Morten debugger")
+            statusTip="Start the Post Morten debugger",
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'error.png')))            
         self.addMenuItem(self.executionMenu, 'Check Flow Alive', self.checkAlive,
             statusTip="Check if the flow loop is still alive")
         self.addMenuItem(self.executionMenu, 'Print Trace', self.stdio.task.print_trace,
