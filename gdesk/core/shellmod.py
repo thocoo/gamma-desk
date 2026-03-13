@@ -50,6 +50,7 @@ class Shell(object):
         self.wsdict['gui'] = gui
         self.wsdict['use'] = use     
         self.wsdict['__name__'] = '__main__'        
+        self.input_frame = None
         
         if redirect:
             self.redirect_stdout()            
@@ -479,7 +480,7 @@ class Shell(object):
         
         shell = Shell.instance        
             
-        if wsmode == 'input':
+        if wsmode == 'input' and not shell.input_frame is None:
             workspace = shell.input_frame.f_locals
             
             if COMPLETER == 'native':
@@ -512,6 +513,17 @@ class Shell(object):
 
         frame = sys._getframe(1)
         self.input_frame = frame
+        
+        while not frame is None:
+            if frame.f_code.co_name == 'cmdloop':
+                if not ('self' in frame.f_locals): frame = frame.f_back; continue
+                frame_self = frame.f_locals['self'] 
+                if not hasattr(frame_self, '__module__'): frame = frame.f_back; continue
+                if not frame_self.__module__ == 'pdb': frame = frame.f_back; continue
+                self.input_frame = frame_self.curframe
+                break
+                
+            frame = frame.f_back                       
         
         if ident in self.interpreters.keys():
             if gui.is_main():
