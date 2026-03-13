@@ -771,6 +771,8 @@ class Console(BasePanel):
         traceMenu.addAction(QAction("Toggle Inspect", self, triggered=lambda: self.task.flow('toggle_inspect')))
         self.executionMenu.addMenu(traceMenu)
 
+        self.addMenuItem(self.executionMenu, 'Debug Post Mortem', self.startPostMortem,
+            statusTip="Start the Post Morten debugger")
         self.addMenuItem(self.executionMenu, 'Check Flow Alive', self.checkAlive,
             statusTip="Check if the flow loop is still alive")
         self.addMenuItem(self.executionMenu, 'Print Trace', self.stdio.task.print_trace,
@@ -869,6 +871,10 @@ class Console(BasePanel):
 
     def newThread(self):
         self.duplicate()
+        
+    def startPostMortem(self):
+        cmd = """import pdb;pdb.pm()"""
+        self.exec_cmd(cmd)      
 
     def checkAlive(self):
         def response(mode, error_code, result):
