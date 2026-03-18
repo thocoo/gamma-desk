@@ -487,7 +487,12 @@ class GuiProxy(object):
             
     @property
     def mask(self):
-        return self.img.get_mask()
+        mask = self.img.get_mask()
+        
+        if mask is None:
+            mask = self.img.init_mask()
+            
+        return mask
             
 
     @StaticGuiCall 

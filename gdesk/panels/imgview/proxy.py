@@ -223,7 +223,7 @@ class ImageGuiProxy(GuiProxyBase):
         
 
     @StaticGuiCall
-    def show_mask(array=None, composition='sourceover', cmap=None, alpha=128):
+    def show_mask(array=None, composition='sourceover', cmap=None, alpha=192):
         if not array is None:
             ImageGuiProxy.set_mask(array, composition, cmap, alpha)
             
@@ -234,8 +234,8 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
-    def set_mask(array=None, composition='sourceover', cmap=None, alpha=128):
-        panel = gui.qapp.panels.selected('image')
+    def set_mask(array=None, composition='sourceover', cmap=None, alpha=192):
+        panel = gui.qapp.panels.selected('image')       
         panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)
         panel.imviewer.refresh()
         
@@ -254,7 +254,14 @@ class ImageGuiProxy(GuiProxyBase):
             array = panel.imviewer.imgdata.layers['mask']['array']
             return array
         else:
-            return None
+            return None                
+            
+    @StaticGuiCall
+    def init_mask(dtype='bool'):
+        panel = gui.qapp.panels.selected('image')
+        mask = np.zeros((panel.imviewer.imgdata.height, panel.imviewer.imgdata.width), dtype=dtype)   
+        ImageGuiProxy.set_mask(mask)
+        return mask
         
        
     def refresh(self):
@@ -449,6 +456,7 @@ class ImageGuiProxy(GuiProxyBase):
         if name in panel.imviewer.imgdata.chanstats:
             stats = panel.imviewer.imgdata.chanstats[name]
             stats.set_mask(bmask, full_mask)
+            panel.imviewer.refresh()
             
         else:
             raise KeyError(f'ROI name {name} not found')
@@ -484,7 +492,16 @@ class ImageGuiProxy(GuiProxyBase):
         ImageGuiProxy.add_roi_slices(name, slices, color, active)
         
         if not mask is None:
-            ImageGuiProxy.set_roi_mask(name, mask, full_mask)
+            ImageGuiProxy.set_roi_mask(name, mask, full_mask)            
+            
+            
+    @StaticGuiCall
+    def delete_roi(name):
+        panel = gui.qapp.panels.selected('image')
+        
+        if name in panel.imviewer.imgdata.chanstats:
+            panel.imviewer.imgdata.chanstats.pop(name)   
+            panel.imviewer.refresh()
         
         
     @StaticGuiCall
