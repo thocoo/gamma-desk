@@ -579,7 +579,7 @@ class ImageGuiProxy(GuiProxyBase):
             return roi_glbmask
             
         else:
-            return chanstat.bmask  
+            return chanstat.mask_crop  
         
 
     @StaticGuiCall

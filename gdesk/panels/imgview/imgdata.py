@@ -235,7 +235,13 @@ class ImageStatistics(object):
             if self.mask_crop is None:
                 self.update_cropped_mask()
                 
-            return np.ma.masked_array(self.full_array[self.slices[:min_ndim]], self.bmask)
+            # TO DO
+            # There is issue when the bmask is combined with slices with stepping
+            # slices should be applied, after applyin gthe bmask
+            # But the bmask seems to be already stepped
+                
+            #yx_slices = self.slices[:min_ndim]
+            return np.ma.masked_array(self.full_array[self.yx_step1_slices], self.bmask)[::self.yx_steps[0], ::self.yx_steps[1]]
             
         else:
             array = self.full_array            
@@ -259,16 +265,21 @@ class ImageStatistics(object):
             
         self.mask_crop_offset_y = start_y
         self.mask_crop_offset_x = start_x                
-            
+        
+        # TO DO
+        # There is issue when the bmask is combined with slices with stepping            
         
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
         self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 192, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
         
+        yx_slices = self.slices[:min_ndim]
+        self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])
+        self.yx_steps = [s.step for s in yx_slices]
         if self.bmask is None or self.full_array.shape != self.bmask.shape:  
             
-            array_cropped = self.full_array[self.slices[:min_ndim]]
+            array_cropped = self.full_array[self.yx_step1_slices]
             bmask = np.zeros(array_cropped.shape, dtype=bool)
             slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
             
