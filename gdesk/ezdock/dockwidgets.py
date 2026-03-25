@@ -487,6 +487,10 @@ class DockContainer(QWidget):
             items = node.get('items', [])
             pin_sizes = node.get('sizes', [])
             scroll_sizes = node.get('scroll', [])
+            if scroll_sizes is None:
+                print("WARNING: scroll_sizes is None")
+                scroll_sizes = []
+
             areas = len(pin_sizes) * [DockBox.PinArea] + len(scroll_sizes) * [DockBox.ScrollArea]
             for ind, (item, area) in enumerate(zip(items, areas)):
                 branch = self.make_layout_widget_branch(item, node, ind)
