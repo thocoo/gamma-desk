@@ -184,6 +184,10 @@ class TaskBase(object):
             callback = self.getReturnedValues    
     
         if not callback is None:
+            
+            if wait:
+                logger.warning(f'Unexpected wait for callback {callback}')
+                
             if timeout == 0:
                 call_back_id = self.gui_proxy.encode_func(callback, register=True)  
                 
@@ -216,7 +220,7 @@ class TaskBase(object):
                         mode, error_code, result = self.return_queue.get(timeout=0.1)
                         break
                         
-                    # TO DO: empty sentinel depends on type of queueu
+                    # TO DO: empty sentinel depends on type of queue
                     except Empty:
                         pass
                     
