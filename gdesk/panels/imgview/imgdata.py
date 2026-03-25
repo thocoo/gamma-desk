@@ -215,10 +215,10 @@ class ImageStatistics(object):
         
         if not mask is None:
             if not mask.dtype in ['bool', 'uint8']:
-                raise TypeError(f'The mask has dtype {bmask.dtype} but only bool and uint8 is supported')
+                raise TypeError(f'The mask has dtype {mask.dtype} but only bool and uint8 is supported')
                 
             if not mask.ndim == 2:
-                raise AttributeError(f'The mask has {bmask.ndim} dimensions but only 2 dimensions are supported')
+                raise AttributeError(f'The mask has {mask.ndim} dimensions but only 2 dimensions are supported')
         
         self.mask_not_cropped = mask
         self.mask_zero_origin = zero_origin        
