@@ -450,12 +450,12 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
-    def set_roi_mask(name, bmask, zero_origin=True):    
+    def set_roi_mask(name, bmask, zero_origin=True, alpha=128):    
         panel = gui.qapp.panels.selected('image')
         
         if name in panel.imviewer.imgdata.chanstats:
             stats = panel.imviewer.imgdata.chanstats[name]
-            stats.set_mask(bmask, zero_origin)
+            stats.set_mask(bmask, zero_origin, alpha)
             panel.imviewer.refresh()
             
         else:
@@ -484,7 +484,7 @@ class ImageGuiProxy(GuiProxyBase):
             
 
     @StaticGuiCall
-    def add_roi(name, slices=None, mask=None, color=None, active=True, zero_origin=True):
+    def add_roi(name, slices=None, mask=None, color=None, active=True, zero_origin=True, alpha=128):
         
         if slices is None:
             slices = slice(None), slice(None)
@@ -492,7 +492,7 @@ class ImageGuiProxy(GuiProxyBase):
         ImageGuiProxy.add_roi_slices(name, slices, color, active)
         
         if not mask is None:
-            ImageGuiProxy.set_roi_mask(name, mask, zero_origin)            
+            ImageGuiProxy.set_roi_mask(name, mask, zero_origin, alpha)            
             
             
     @StaticGuiCall

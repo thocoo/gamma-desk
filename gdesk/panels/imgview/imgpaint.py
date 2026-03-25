@@ -530,15 +530,22 @@ class ImageViewerWidget(QWidget):
             qp.setCompositionMode(layer['composition'])
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
-        for mask_name, chanstat in self.vd.chanstats.items():
+        for mask_name in reversed(list(self.vd.chanstats.keys())):
+            chanstat = self.vd.chanstats[mask_name]
             if not chanstat.is_valid(): continue
             if not (chanstat.active and chanstat.mask_visible): continue
+            
+            if chanstat.dim:
+                qp.setOpacity(0.25)
+            else:
+                qp.setOpacity(1.0)
+                
             if not chanstat.mask_qimg is None:
                 qp.resetTransform()
                 qp.scale(self.zoomDisplay, self.zoomDisplay)
                 qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
                 #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
-                #qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
         qp.resetTransform()                        

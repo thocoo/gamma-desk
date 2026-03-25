@@ -207,7 +207,7 @@ class ImageStatistics(object):
         return self.imgdata.statarr
         
                 
-    def set_mask(self, mask: np.ndarray, zero_origin: bool=False):
+    def set_mask(self, mask: np.ndarray, zero_origin: bool=False, alpha=128):
         """
         Args:
             origin: 'slices' or 'global'            
@@ -222,6 +222,7 @@ class ImageStatistics(object):
         
         self.mask_not_cropped = mask
         self.mask_zero_origin = zero_origin        
+        self.mask_alpha = alpha        
         self.clear()
         self.update_cropped_mask()
         
@@ -272,7 +273,7 @@ class ImageStatistics(object):
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
-        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 192, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
         
         yx_slices = self.slices[:min_ndim]
         self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])

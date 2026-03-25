@@ -1995,6 +1995,7 @@ class ImageProfileWidget(QWidget):
         self.imviewer.imgdata.selectChannelStat(masks)
         self.rowPanel.selectProfiles(masks)
         self.colPanel.selectProfiles(masks)
+        self.refresh()
         
         
     def setSelection(self, mask, modify=False):
