@@ -37,21 +37,6 @@ else:
 def sort_masks(masks):
     return masks
 
-
-# def sort_masks(masks):
-    
-    # def location(mask):
-        # if mask in RESERVED_MASK_FULL:
-            # return RESERVED_MASK_FULL.index(mask) - 1000
-                
-        # elif mask in RESERVED_MASK_ROI:
-            # return RESERVED_MASK_ROI.index(mask) + 1000
-            
-        # else:
-            # return masks.index(mask)
-            
-    # return sorted(masks, key=location)
-
     
 def get_last_active(chanstats):
     
@@ -145,10 +130,13 @@ class StatisticsPanel(QtWidgets.QWidget):
         
         self.contextMenu = QtWidgets.QMenu('Mask')
         act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_restangular.png')))
         self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Show Bmask', self, triggered=self.setImviewBmask)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
         self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Copy', self, triggered=self.copyTableToClipboard)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
         self.contextMenu.addAction(act)        
         
         
