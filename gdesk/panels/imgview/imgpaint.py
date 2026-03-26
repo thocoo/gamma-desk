@@ -625,12 +625,17 @@ class ImageViewerWidget(QWidget):
                         
 
     def paintToQImage(self):
-        size = self.size()
-        #qimg = QtGui.QImage(size.width(), size.height(), QtGui.QImage.Format_RGB888)
-        qimg = QtGui.QImage(size.width(), size.height(), QtGui.QImage.Format_ARGB32)
+        if self.roi.isVisible():
+            roi_x, roi_y = self.roi.x(), self.roi.y()
+            width, height = self.roi.width(), self.roi.height()
+            offset_x, offset_y = self.dispOffsetX + roi_x / self.zoomValue, self.dispOffsetY + roi_y / self.zoomValue
+        else:
+            width, height = self.imgdata.width * self.zoomValue, self.imgdata.height * self.zoomValue
+            offset_x, offset_y = 0, 0
+        qimg = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32)
         qpainter = QtGui.QPainter(qimg)
-        qpainter.fillRect(0, 0, size.width(), size.height(), self.bgcolor)
-        self.paintImage(qpainter)
+        qpainter.fillRect(0, 0, width, height, self.bgcolor)
+        self.paintImage(qpainter, (offset_x, offset_y))
         qpainter.end()     
         return qimg
         
