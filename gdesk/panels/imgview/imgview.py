@@ -272,15 +272,16 @@ class ImageViewerBase(BasePanel):
 
         self.editMenu.addSeparator()
 
-        self.addMenuItem(self.editMenu, 'Copy 8bit Image to clipboard', self.placeRawOnClipboard,
+        self.addMenuItem(self.editMenu, 'Copy 100%, gain 1 Image', self.placeRawOnClipboard,
             statusTip="Place the 8bit image on clipboard, offset and gain applied",
-            icon = 'page_copy.png')
-        self.addMenuItem(self.editMenu, 'Copy Display Image to clipboard', self.placeQimgOnClipboard,
-            statusTip="Place the displayed image on clipboard with display processing applied",
-            icon = 'page_copy.png')
-        self.addMenuItem(self.editMenu, 'Copy Image Viewer to clipboard', self.placeViewerOnClipboard)
+            icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))
+        # self.addMenuItem(self.editMenu, 'Copy Display Image to clipboard', self.placeQimgOnClipboard,
+            # statusTip="Place the displayed image on clipboard with display processing applied",
+            # icon = 'page_copy.png')
+        self.addMenuItem(self.editMenu, 'Copy scaled ROI', self.placeViewerOnClipboard,
+            icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
             
-        self.addMenuItem(self.editMenu, 'Paste into New Image', self.showFromClipboard,
+        self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",
             icon = 'picture_clipboard.png')
         self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
@@ -349,6 +350,7 @@ class ImageViewerBase(BasePanel):
             statusTip = "Use high quality resampling on zoom levels < 100%")
             
         self.bindMenu = CheckMenu("Bind", self.viewMenu)
+        self.bindMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'image_link.png')))
         self.addMenuItem(self.bindMenu, 'Bind All Image Viewers', self.bindImageViewers)
         self.addMenuItem(self.bindMenu, 'Unbind All Image Viewers', self.unbindImageViewers)        
         self.addMenuItem(self.bindMenu, 'Absolute Zoom Link', self.toggle_zoombind,
@@ -447,7 +449,8 @@ class ImageViewerBase(BasePanel):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas_size.png')))
         self.addMenuItem(self.canvasMenu, 'Resize Image', triggered=self.resize, enabled=has_scipy,
             statusTip="Resize the image by resampling",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'resize_picture.png')))
+            #icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'resize_picture.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'scale_image.png')))
 
         ### Image
         self.addMenuItem(self.imageMenu, 'Swap RGB | BGR', self.swapRGB,
@@ -494,8 +497,10 @@ class ImageViewerBase(BasePanel):
 
         #Analyse                    
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
             statusTip="Horizontal Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Vertical Spectrogram', self.verticalSpectrogram,
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
             statusTip="Vertical Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Measure Distance', self.measureDistance,
             statusTip="Measure Distance",
@@ -1824,18 +1829,18 @@ class ImageViewer(ImageViewerBase):
             self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
             
             
-class RoiToolBar(QtWidgets.QToolBar):
-    def __init__(self, *args, **kwargs):    
-        super().__init__(*args, **kwargs) 
-        self.initUi()     
+# class RoiToolBar(QtWidgets.QToolBar):
+    # def __init__(self, *args, **kwargs):    
+        # super().__init__(*args, **kwargs) 
+        # self.initUi()     
         
-    def toggleProfileVisible(self):
-        self.parent().parent().toggleProfileVisible()        
+    # def toggleProfileVisible(self):
+        # self.parent().parent().toggleProfileVisible()        
         
-    def initUi(self):
-        self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), 'Refresh', self.toggleProfileVisible)
-        fontHeight = self.fontMetrics().height()
-        self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
+    # def initUi(self):
+        # self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), 'Refresh', self.toggleProfileVisible)
+        # fontHeight = self.fontMetrics().height()
+        # self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
 
 
 class ImageProfileWidget(QWidget):
@@ -1844,7 +1849,7 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer = ImageViewerWidget(self)
 
-        self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), None, self)
+        self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')), None, self)
         self.profBtn1.setToolTip('Show/Hide row and column profiles')
         self.profBtn1.setFixedHeight(20)
         self.profBtn1.setFixedWidth(20)

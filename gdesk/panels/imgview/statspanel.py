@@ -304,7 +304,7 @@ class TitleToolBar(QtWidgets.QToolBar):
         fontHeight = self.fontMetrics().height()
         self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
  
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))        
 
         self.masksPresetBtn = MaskPresetButton()
@@ -314,11 +314,6 @@ class TitleToolBar(QtWidgets.QToolBar):
         self.maskBtn = QtWidgets.QToolButton(self)
         self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
         self.maskBtn.setCheckable(True)
-        
-        # if self.parent().imviewer.imgdata.is_layer_visible('mask'):
-            # self.maskBtn.setChecked(True)
-        # else:
-            # self.maskBtn.setChecked(False)
             
         self.maskBtn.setToolTip('Show/Hide Mask')
         self.maskBtn.clicked.connect(self.toggleShowMask)
