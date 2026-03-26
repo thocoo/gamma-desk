@@ -1,9 +1,9 @@
 
 
-vnext
------
+1.10.0.dev0
+-----------
 
-date: FIXME
+date: 2026-03-06
 
 - Visual: Extend support for dark mode (issue: #35).
 - Start supporting Python v3.14.
@@ -12,7 +12,8 @@ date: FIXME
 - Visual: Add configuration setting 'color_scheme' (value: null / 'Auto' / 'Dark' / 'Light').
 - Visual: Add separate setting 'image background dark' (background color in dark mode).
 - Visual: Draw more widgets with suitable colors in dark mode.
-- ...
+- Feature: Boolean masks on region of intereset
+
 
 
 v1.9.3
