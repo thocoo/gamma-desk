@@ -1826,21 +1826,7 @@ class ImageViewer(ImageViewerBase):
         if self.imviewer.zoombind:
             self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, self.imviewer.zoomValue)
         else:
-            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)
-            
-            
-# class RoiToolBar(QtWidgets.QToolBar):
-    # def __init__(self, *args, **kwargs):    
-        # super().__init__(*args, **kwargs) 
-        # self.initUi()     
-        
-    # def toggleProfileVisible(self):
-        # self.parent().parent().toggleProfileVisible()        
-        
-    # def initUi(self):
-        # self.addAction(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')), 'Refresh', self.toggleProfileVisible)
-        # fontHeight = self.fontMetrics().height()
-        # self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
+            self.visibleRegionChanged.emit(*self.imviewer.visibleRegion(normalized=True, clip_square=True), False, False, 0.0)                    
 
 
 class ImageProfileWidget(QWidget):
