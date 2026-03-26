@@ -148,12 +148,33 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.addAction(act)
         act = QtWidgets.QAction('Show Bmask', self, triggered=self.setImviewBmask)
         self.contextMenu.addAction(act)
+        act = QtWidgets.QAction('Copy', self, triggered=self.copyTableToClipboard)
+        self.contextMenu.addAction(act)        
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
         self.columns = ["Name"] + columns
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)        
+
+
+    def copyTableToClipboard(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        text = ''
+        for index in selection:
+            row = index.row()
+            rowText = []
+            for col in range(self.table.columnCount()):
+                cell = self.table.item(row, col)
+                if cell is not None:
+                    rowText.append(cell.text())
+                else:
+                    rowText.append('')
+            text += '\t'.join(rowText) + '\n'
+            
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText(text)
         
     
     @property
