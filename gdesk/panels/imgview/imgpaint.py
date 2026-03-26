@@ -465,7 +465,7 @@ class ImageViewerWidget(QWidget):
         return ((pos.x() - self.dragStartX)**2 + (pos.y() - self.dragStartY)**2) ** 0.5
 
     def mouseReleaseEvent(self, event):        
-        if event.button() == Qt.LeftButton:
+        if (event.button() == Qt.LeftButton) and not self.dragStartX is None and not self.dragStartY is None:
             pos = event.pos()
             if abs(pos.x() - self.dragStartX) < 2 and abs(pos.y() - self.dragStartY) < 2:
                 self.pixel_click_queue.put(self.getImageCoordOfMouseEvent(event))

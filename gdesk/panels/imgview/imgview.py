@@ -862,17 +862,22 @@ class ImageViewerBase(BasePanel):
         qimg = imconvert.process_ndarray_to_qimage_8bit(array, 0, 1)
         clipboard.setImage(qimg)
 
+
     def placeQimgOnClipboard(self):
         clipboard = self.qapp.clipboard()
         #If qimg is not copied, GH crashes on paste after the qimg instance has been garbaged!
         #Clipboard can only take ownership if the object is a local?
         qimg = self.imviewer.imgdata.qimg.copy()
         clipboard.setImage(qimg)
-        
+
+
     def placeViewerOnClipboard(self):
         clipboard = self.qapp.clipboard()
         qimg = self.imviewer.paintToQImage().copy()
         clipboard.setImage(qimg)        
+        text = self.statuspanel.val_label.text()
+        clipboard.setText(text)        
+        
 
     def showFromClipboard(self):
         arr = gui.get_clipboard_image()
