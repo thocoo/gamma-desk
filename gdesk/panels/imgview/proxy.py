@@ -641,6 +641,14 @@ class ImageGuiProxy(GuiProxyBase):
         gui.img.show(arr)        
         print('mirror_x ended')
         
+    @StaticGuiCall  
+    def screenshot():
+        from ...utils.imconvert import qimage_to_ndarray
+        panel = gui.qapp.panels.selected('image')
+        qimg, memo = panel.getViewerQImageAndMemo()
+        arr = qimage_to_ndarray(qimg)
+        return arr        
+        
     @staticmethod
     def high_pass_current_image():
         logger.error('Not implemented')    
