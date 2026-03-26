@@ -12,8 +12,11 @@ date: 2026-03-06
 - Visual: Add configuration setting 'color_scheme' (value: null / 'Auto' / 'Dark' / 'Light').
 - Visual: Add separate setting 'image background dark' (background color in dark mode).
 - Visual: Draw more widgets with suitable colors in dark mode.
+- Feature: Use of 'mask' layer as a default extra layer to `selection` mask on top of image
 - Feature: Boolean masks on region of intereset
-
+- Feature: Add autocompletion on debugger workspace
+- Feature: Remove case sensitivity on the script search dialog
+- Feature: Copy image viewer to clipboard
 
 
 v1.9.3
