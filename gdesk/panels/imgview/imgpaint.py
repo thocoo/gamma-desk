@@ -1,5 +1,7 @@
 from pathlib import Path
 from collections.abc import Iterable
+from queue import Queue
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -106,11 +108,13 @@ class ImageViewerWidget(QWidget):
         self.hqzoomout = config['image'].get('render_detail_hq', False)
         self.zoombind = config['image'].get('bind_zoom_absolute', False)
 
-        self.push_selected_pixel = False
+        #self.push_selected_pixel = False
+        self.pixel_click_queue = Queue(maxsize=100)
 
         self.setAcceptDrops(True)
         self.fontmetric = QFontMetrics(self.font())
         self.pentext = QtGui.QPen(Qt.black, 1, QtCore.Qt.SolidLine)
+        
         
         
     def set_custom_selection(self, name, color=None):
@@ -123,17 +127,7 @@ class ImageViewerWidget(QWidget):
             widget.show()
             
         else:
-            self.vd.add_custom_selection(name)
-
-            # chanstats = self.vd.chanstats[name]
-            # custom_roi = SelRoiWidget(self, color=color, custom=True, name=name)
-            # self.custom_rois[name] = custom_roi
-            # custom_roi.selroi.xr.setfromslice(chanstats.slices[1])
-            # custom_roi.selroi.yr.setfromslice(chanstats.slices[0])        
-            # custom_roi.clip()            
-            # custom_roi.show()
-            # self.roi.bring_to_front()
-            # self.zoomPanChanged.connect(self.custom_rois[name].recalcGeometry)                    
+            self.vd.add_custom_selection(name)                
         
 
     def setBackgroundColor(self, r, g, b):
@@ -439,6 +433,7 @@ class ImageViewerWidget(QWidget):
             #roi value at the start of the dragging
             self.dispRoiStartX = self.dispOffsetX
             self.dispRoiStartY = self.dispOffsetY
+            
 
         elif event.buttons() == Qt.RightButton:        
             #menu = self.parent().parent().get_select_menu()
@@ -470,7 +465,12 @@ class ImageViewerWidget(QWidget):
         return ((pos.x() - self.dragStartX)**2 + (pos.y() - self.dragStartY)**2) ** 0.5
 
     def mouseReleaseEvent(self, event):        
-        if event.button() == Qt.RightButton:
+        if event.button() == Qt.LeftButton:
+            pos = event.pos()
+            if abs(pos.x() - self.dragStartX) < 2 and abs(pos.y() - self.dragStartY) < 2:
+                self.pixel_click_queue.put(self.getImageCoordOfMouseEvent(event))
+
+        elif event.button() == Qt.RightButton:
             if self.roi.createState:
                 self.roi.release_creation()
                 

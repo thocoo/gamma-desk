@@ -5,6 +5,7 @@ from pathlib import Path
 import time
 import threading
 import multiprocessing
+from queue import Empty
 
 logger = logging.getLogger(__name__)
 
@@ -647,6 +648,7 @@ class ImageGuiProxy(GuiProxyBase):
     @staticmethod
     def get_distance():
         import math
+        ImageGuiProxy.clear_pixel_click_queue()
         
         print('Select first point: ', end='')
         p1 = ImageGuiProxy.get_selected_pixel()
@@ -664,11 +666,19 @@ class ImageGuiProxy(GuiProxyBase):
             
     @staticmethod
     def get_selected_pixel():        
-        ImageGuiProxy._push_selected_pixel_queue(True)
-        pixel = input()
-        return eval(pixel)            
+        pixel_click_queue = ImageGuiProxy._get_pixel_click_queue()
+        return pixel_click_queue.get()
+
+    @staticmethod
+    def clear_pixel_click_queue():
+        pixel_click_queue = ImageGuiProxy._get_pixel_click_queue()
+        while True:
+            try:
+                pixel_click_queue.get_nowait()
+            except Empty:
+                break
     
     @StaticGuiCall      
-    def _push_selected_pixel_queue(enable=True):
+    def _get_pixel_click_queue(enable=True):
         panel = gui.qapp.panels.selected('image')
-        panel.imviewer.push_selected_pixel = enable
+        return panel.imviewer.pixel_click_queue
