@@ -548,22 +548,28 @@ class ImageViewerWidget(QWidget):
                 qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
-        qp.resetTransform()                        
+        qp.resetTransform()    
+        qp.setOpacity(1.0)                    
             
         for mask_name, chanstat in self.vd.chanstats.items():
             if not chanstat.is_valid(): continue
             if mask_name in PRE_DEF_MASK_NAMES: continue
             if mask_name.startswith('roi.'): continue
             if not (chanstat.active and chanstat.mask_visible): continue
+
+            if chanstat.dim:
+                qp.setOpacity(0.25)
+            else:
+                qp.setOpacity(1.0)            
             
             y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
             y0, y1, _ = y_slice.indices(self.imgdata.height)
             x0, x1, _ = x_slice.indices(self.imgdata.width)            
             
-            x0 = round((x0 - self.dispOffsetX) * self.zoomDisplay)
-            x1 = round((x1 - self.dispOffsetX) * self.zoomDisplay - 1)
-            y0 = round((y0 - self.dispOffsetY) * self.zoomDisplay)            
-            y1 = round((y1 - self.dispOffsetY) * self.zoomDisplay - 1)
+            x0 = round((x0 - sx) * self.zoomDisplay)
+            x1 = round((x1 - sx) * self.zoomDisplay - 1)
+            y0 = round((y0 - sy) * self.zoomDisplay)            
+            y1 = round((y1 - sy) * self.zoomDisplay - 1)
             
             qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
             pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
@@ -621,21 +627,17 @@ class ImageViewerWidget(QWidget):
                             label = fmt.format(val)
                         except:
                             label = 'invalid'
-                        qp.drawText(xpos, ypos, label)   
-                        
+                        qp.drawText(xpos, ypos, label)        
 
-    def paintToQImage(self):
-        if self.roi.isVisible():
-            roi_x, roi_y = self.roi.x(), self.roi.y()
-            width, height = self.roi.width(), self.roi.height()
-            offset_x, offset_y = self.dispOffsetX + roi_x / self.zoomValue, self.dispOffsetY + roi_y / self.zoomValue
-        else:
-            width, height = self.imgdata.width * self.zoomValue, self.imgdata.height * self.zoomValue
-            offset_x, offset_y = 0, 0
+
+    def paintToQImageCropped(self, start_y, stop_y, start_x, stop_x):
+        height = (stop_y - start_y) * self.zoomValue
+        width = (stop_x - start_x) * self.zoomValue
+
         qimg = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32)
         qpainter = QtGui.QPainter(qimg)
         qpainter.fillRect(0, 0, width, height, self.bgcolor)
-        self.paintImage(qpainter, (offset_x, offset_y))
+        self.paintImage(qpainter, (start_x, start_y))
         qpainter.end()     
         return qimg
         

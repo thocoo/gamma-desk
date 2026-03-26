@@ -199,7 +199,13 @@ class ImageStatistics(object):
         
         
     def slices_repr(self):
-        return ','.join([f'{int_none_repr(slc.start)}:{int_none_repr(slc.stop)}:{int_none_repr(slc.step)}' for slc in self.slices])
+        if self.slices is None:
+            return ''
+        height, width = self.full_array.shape[:2]
+        start_y, stop_y, step_y = self.slices[0].indices(height)
+        start_x, stop_x, step_x = self.slices[1].indices(width)         
+        #return ','.join([f'{int_none_repr(slc.start)}:{int_none_repr(slc.stop)}:{int_none_repr(slc.step)}' for slc in self.slices])
+        return f'{start_y}:{stop_y}:{step_y},{start_x}:{stop_x}:{step_x}'
         
         
     @property
@@ -290,7 +296,7 @@ class ImageStatistics(object):
                 for i in range(self.full_array.ndim):
                     bmask[slices[0], slices[1], i] = self.mask_crop[slices]
                 
-            self.bmask = bmask          
+            self.bmask = bmask     
         
         
     @property

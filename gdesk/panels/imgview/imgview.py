@@ -864,6 +864,7 @@ class ImageViewerBase(BasePanel):
 
 
     def placeQimgOnClipboard(self):
+
         clipboard = self.qapp.clipboard()
         #If qimg is not copied, GH crashes on paste after the qimg instance has been garbaged!
         #Clipboard can only take ownership if the object is a local?
@@ -872,9 +873,68 @@ class ImageViewerBase(BasePanel):
 
 
     def placeViewerOnClipboard(self):
+        qimg, memo = self.getViewerQImageAndMemo()
+
+        form = gui.fedit([
+            ('Memo', memo + '\n'),
+            ], title='Memo on image to clipboard')        
+        if form is None: return
+
+        memo = form[0]
+        lines = memo.splitlines()        
+
+        if len(lines) > 0:
+            arr = imconvert.qimage_to_ndarray(qimg)
+            avg = arr.mean()
+            qp = QtGui.QPainter(qimg)
+            font = QFont(config["console"]["font"])            
+            if avg > 127:
+                qp.setPen(QColor(0,0,0))
+            else:
+                qp.setPen(QColor(255,255,255))
+            for line in lines:
+                qp.drawText(5, 10, line)
+                qp.translate(0, 15)
+            qp.end()
+        
         clipboard = self.qapp.clipboard()
-        qimg = self.imviewer.paintToQImage().copy()
-        clipboard.setImage(qimg)
+        clipboard.setImage(qimg.copy())
+
+
+    def getViewerQImageAndMemo(self):
+        imgdata = self.imviewer.imgdata
+
+        if self.imviewer.roi.isVisible():            
+            slices = imgdata.selroi.getslices()
+            height, width = self.ndarray.shape[:2]
+            start_y, stop_y, step_y = slices[0].indices(imgdata.height)
+            start_x, stop_x, step_x = slices[1].indices(imgdata.width)            
+        else:
+            start_x, start_y, width, height = self.imviewer.visibleRegion()
+            start_x = max(0, start_x)
+            start_y = max(0, start_y)            
+            stop_y = min(start_y + height, imgdata.height)
+            stop_x = min(start_x + width, imgdata.width)
+
+        qimg = self.imviewer.paintToQImageCropped(start_y, stop_y, start_x, stop_x)
+
+        lines = []
+        lines.append(f'{self.offset:.1f}→{self.white:.1f}')
+        lines.append(f'{stop_y-start_y:.0f}x{stop_x-start_x:.0f}')   
+
+        if (start_y > 0) or (start_x > 0):
+            lines.append(f'{start_y:.0f},{start_x:.0f}')
+        if self.gamma != 1:
+            lines.append(f'Gamma: {self.gamma:.2f}')        
+
+        for i, (name, stat) in enumerate(self.imviewer.imgdata.chanstats.items()):
+            if not name.startswith('roi.'): continue
+            if not stat.is_valid(): continue
+            lines.append(f'{name} {stat.slices_repr()}: {stat.mean():.1f} ± {stat.std():.1f}')                 
+
+        memo = '\n'.join(lines)    
+        
+        return qimg, memo
 
 
     def showFromClipboard(self):
