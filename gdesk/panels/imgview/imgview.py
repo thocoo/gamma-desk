@@ -874,10 +874,8 @@ class ImageViewerBase(BasePanel):
     def placeViewerOnClipboard(self):
         clipboard = self.qapp.clipboard()
         qimg = self.imviewer.paintToQImage().copy()
-        clipboard.setImage(qimg)        
-        text = self.statuspanel.val_label.text()
-        clipboard.setText(text)        
-        
+        clipboard.setImage(qimg)
+
 
     def showFromClipboard(self):
         arr = gui.get_clipboard_image()
