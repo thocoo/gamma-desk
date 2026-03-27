@@ -255,12 +255,20 @@ class ImageGuiProxy(GuiProxyBase):
             array = panel.imviewer.imgdata.layers['mask']['array']
             return array
         else:
-            return None                
+            return None               
             
     @StaticGuiCall
     def init_mask(dtype='bool'):
-        panel = gui.qapp.panels.selected('image')
-        mask = np.zeros((panel.imviewer.imgdata.height, panel.imviewer.imgdata.width), dtype=dtype)   
+        panel = gui.qapp.panels.selected('image')        
+        
+        if panel.imviewer.roi.isVisible():
+            mask = np.ones((panel.imviewer.imgdata.height, panel.imviewer.imgdata.width), dtype=dtype)   
+            slices = panel.imviewer.roi.selroi.getslices()
+            mask[slices] = False
+            
+        else:
+            mask = np.zeros((panel.imviewer.imgdata.height, panel.imviewer.imgdata.width), dtype=dtype)   
+        
         ImageGuiProxy.set_mask(mask)
         return mask
         

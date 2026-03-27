@@ -2180,7 +2180,8 @@ class ImageProfilePanel(ImageViewerBase):
         self.imviewer.contextMenuRequest.connect(self.exec_select_menu)
 
         self.addMenuItem(self.viewMenu, 'Show/Hide Profiles'    , self.showHideProfiles,
-            checkcall=lambda: self.imgprof.profilesVisible,
+            checkcall = lambda: self.imgprof.profilesVisible,
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')),
             statusTip="Show or Hide the image column and row profiles")
             
         if not kwargs.get('empty', True): self.openTestImage()
