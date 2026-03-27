@@ -1,4 +1,5 @@
 import os
+import sys
 import textwrap
 import psutil
 import time
@@ -834,13 +835,19 @@ class Console(BasePanel):
         self.addBaseMenu()
 
     def createStatusBar(self):
+
+        self.postMortemBtn = QtWidgets.QToolButton()
+        self.postMortemBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'error.png')))
+        self.postMortemBtn.clicked.connect(self.startPostMortem)
+
         self.tasktype = QLabel('')
         self.pid = QLabel('Pid:0')
         self.pname = QLabel('Name:')
         self.tid = QLabel('Tid:0')
         self.pmem = QLabel('Mem:')
-
+        
         self.statusBar().addWidget(self.tasktype,1)
+        self.statusBar().addWidget(self.postMortemBtn, 0)
         self.statusBar().addWidget(self.pid,1)
         self.statusBar().addWidget(self.pname,1)
         self.statusBar().addWidget(self.tid,1)
@@ -874,6 +881,10 @@ class Console(BasePanel):
         self.duplicate()
         
     def startPostMortem(self):
+        if not hasattr(sys, 'last_traceback') or sys.last_traceback is None:
+            messageBox('No traceback found', 'Info', 'Info')
+            return
+        
         cmd = """import pdb;pdb.pm()"""
         self.exec_cmd(cmd)      
 
