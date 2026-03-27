@@ -642,12 +642,12 @@ class ImageGuiProxy(GuiProxyBase):
         print('mirror_x ended')
         
     @StaticGuiCall  
-    def screenshot():
+    def screenshot(slices=None, zoom=None, show_masks=False):
         from ...utils.imconvert import qimage_to_ndarray
         panel = gui.qapp.panels.selected('image')
-        qimg, memo = panel.getViewerQImageAndMemo()
+        qimg, props = panel.getViewerQImage(slices=slices, zoom=zoom, show_masks=show_masks)
         arr = qimage_to_ndarray(qimg)
-        return arr        
+        return arr, props       
         
     @staticmethod
     def high_pass_current_image():
