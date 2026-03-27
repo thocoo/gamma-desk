@@ -1,9 +1,8 @@
 
-
 1.10.0.dev0
 -----------
 
-date: 2026-03-06
+date: 2026-03-07
 
 - Visual: Extend support for dark mode (issue: #35).
 - Start supporting Python v3.14.
@@ -13,10 +12,14 @@ date: 2026-03-06
 - Visual: Add separate setting 'image background dark' (background color in dark mode).
 - Visual: Draw more widgets with suitable colors in dark mode.
 - Feature: Use of 'mask' layer as a default extra layer to `selection` mask on top of image
-- Feature: Boolean masks on region of intereset
-- Feature: Add autocompletion on debugger workspace
+- Feature: Boolean masks on the custom mask definitions
+- Feature: Add post mortem menu and button and autocompletion on the debugger workspace
 - Feature: Remove case sensitivity on the script search dialog
-- Feature: Copy image viewer to clipboard
+- Feature: Improved Copy to clipboard feature on the image viewer
+- Visual: Hide top level statusbar by default
+- Visual: Adding more icons
+- Fix: Fix the measure distance tool
+- Feature: Double clici on viewer switch between 100% and (full or roi) zoom
 
 
 v1.9.3
