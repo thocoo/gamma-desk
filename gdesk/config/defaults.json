@@ -151,7 +151,8 @@
     "ScrollLock": {"console": ["View", "Auto Scroll"]},
     "F10": {"window": ["Cycle Tag Level"]},
     "F11": {"window": ["Full Screen"]},
-    "F12": {"window": ["Hide/show Menu & Statusbar"]}
+    "F12": {"window": ["Show/Hide Statusbar"]},
+    "Ctrl+F12": {"window": ["Show/Hide Menu"]}
     },
   "shortcuts": {
     "help": "F1",

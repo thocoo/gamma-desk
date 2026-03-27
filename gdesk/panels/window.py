@@ -69,7 +69,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f'[{self.name}]')
         
         self.createMenus()
-        self.createStatusBar()       
+        self.createStatusBar()
+        self.statusBar().hide()        
         
         #Hiding panelsDialog will disable all shortcuts
         sc = QShortcut(QKeySequence("Ctrl+Shift+Alt+F12"), self, 
@@ -139,7 +140,8 @@ class MainWindow(QMainWindow):
         addWindowMenuItem("Screenshot to Clipboard", self.screenShot, 'lcd_tv_image.png')
         addWindowMenuItem("Cycle Tag Level", self.cycle_tag_level)
         addWindowMenuItem("Full Screen", self.fullScreen, 'view_fullscreen_view.png')
-        addWindowMenuItem("Hide/Show Menu && Statusbar", self.toggleMenuStatusbar)                  
+        addWindowMenuItem("Show/Hide Statusbar", self.toggleStatusbar)
+        addWindowMenuItem("Show/Hide Menu", self.toggleMenubar)
         addWindowMenuItem('Name Layout...', self.qapp.panelsDialog.layoutMenu.saveLayout)
         
         self.layoutMenu.addSeparator()
@@ -257,13 +259,17 @@ class MainWindow(QMainWindow):
         else:
             self.showNormal() 
 
-    def toggleMenuStatusbar(self):
+    def toggleMenubar(self):
         if self.menuBar().isVisible():
             self.menuBar().hide()
-            self.statusBar().hide()
         else:
             self.menuBar().show()
-            self.statusBar().show()
+            
+    def toggleStatusbar(self):
+        if self.statusBar().isVisible():
+            self.statusBar().hide()
+        else:
+            self.statusBar().show()            
         
     def unregister(self):        
         #Detach all tool windows of this window
