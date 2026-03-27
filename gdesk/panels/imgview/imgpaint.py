@@ -501,96 +501,100 @@ class ImageViewerWidget(QWidget):
             self._scaledImage = qimg.scaledToWidth(int(qimg.width() * self.zoomDisplay), Qt.SmoothTransformation)
         return self._scaledImage
 
-    def paintImage(self, qp, position=None):
+    def paintImage(self, qp, position=None, zoom=None, show_masks=True):
         if position is None:
             sx = self.dispOffsetX
             sy = self.dispOffsetY
         else:
             sx, sy = position
+            
+        if zoom is None:
+            zoom = self.zoomDisplay
 
         qp.setOpacity(1.0)
 
-        if (self.zoomDisplay < 1) and (self.hqzoomout):
+        if (zoom < 1) and (self.hqzoomout):
             qp.scale(1, 1)
-            qp.drawImage(0, 0, self.scaledImage(), int(sx * self.zoomDisplay), int(sy * self.zoomDisplay), -1, -1)
+            qp.drawImage(0, 0, self.scaledImage(), int(sx * zoom), int(sy * zoom), -1, -1)
 
         else:
-            if config["image"].get('render_detail_smooth', False) and self.zoomDisplay < 1:
+            if config["image"].get('render_detail_smooth', False) and zoom < 1:
                 qp.setRenderHint(qp.RenderHint.SmoothPixmapTransform)
 
-            qp.scale(self.zoomDisplay, self.zoomDisplay)
+            qp.scale(zoom, zoom)
             qp.translate(-sx, -sy)
             qp.drawImage(0, 0, self.imgdata.qimg, 0, 0, -1, -1)                                   
 
         for layer in self.imgdata.layers.values():
             if not layer['visible']: continue
             qp.resetTransform() 
-            qp.scale(self.zoomDisplay, self.zoomDisplay)
+            qp.scale(zoom, zoom)
             qp.translate(-sx, -sy)            
             qp.setCompositionMode(layer['composition'])
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
-        for mask_name in reversed(list(self.vd.chanstats.keys())):
-            chanstat = self.vd.chanstats[mask_name]
-            if not chanstat.is_valid(): continue
-            if not (chanstat.active and chanstat.mask_visible): continue
-            
-            if chanstat.dim:
-                qp.setOpacity(0.25)
-            else:
-                qp.setOpacity(1.0)
-                
-            if not chanstat.mask_qimg is None:
-                qp.resetTransform()
-                qp.scale(self.zoomDisplay, self.zoomDisplay)
-                qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
-                #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
-                qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-                qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
+        if show_masks:
+            for mask_name in reversed(list(self.vd.chanstats.keys())):
+                chanstat = self.vd.chanstats[mask_name]
+                if not chanstat.is_valid(): continue
+                if not (chanstat.active and chanstat.mask_visible): continue
+                if chanstat.dim:
+                    qp.setOpacity(0.25)
+                else:
+                    qp.setOpacity(1.0)
+                    
+                if not chanstat.mask_qimg is None:
+                    qp.resetTransform()
+                    qp.scale(zoom, zoom)
+                    qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
+                    #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
+                    qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                    qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
         qp.resetTransform()    
         qp.setOpacity(1.0)                    
-            
-        for mask_name, chanstat in self.vd.chanstats.items():
-            if not chanstat.is_valid(): continue
-            if mask_name in PRE_DEF_MASK_NAMES: continue
-            if mask_name.startswith('roi.'): continue
-            if not (chanstat.active and chanstat.mask_visible): continue
 
-            if chanstat.dim:
-                qp.setOpacity(0.25)
-            else:
-                qp.setOpacity(1.0)            
+        if show_masks:         
+            for mask_name, chanstat in self.vd.chanstats.items():
+                if not chanstat.is_valid(): continue
+                if mask_name in PRE_DEF_MASK_NAMES: continue
+                if mask_name.startswith('roi.'): continue
+                if not (chanstat.active and chanstat.mask_visible): continue
+
+                if chanstat.dim:
+                    qp.setOpacity(0.25)
+                else:
+                    qp.setOpacity(1.0)            
+                
+                y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
+                y0, y1, _ = y_slice.indices(self.imgdata.height)
+                x0, x1, _ = x_slice.indices(self.imgdata.width)            
+                
+                x0 = round((x0 - sx) * zoom)
+                x1 = round((x1 - sx) * zoom - 1)
+                y0 = round((y0 - sy) * zoom)            
+                y1 = round((y1 - sy) * zoom - 1)
+                
+                qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
+                qp.setPen(pensolid)
+                polygon = QtGui.QPolygon()
+                polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
+                    << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
+                qp.drawPolyline(polygon)
+                
+                labelWidth = self.fontmetric.width(mask_name)
+                labelHeight = self.fontmetric.height()
+                
+                qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
+                qp.setPen(self.pentext)
+                qp.drawText(x0, y0, mask_name)               
             
-            y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
-            y0, y1, _ = y_slice.indices(self.imgdata.height)
-            x0, x1, _ = x_slice.indices(self.imgdata.width)            
-            
-            x0 = round((x0 - sx) * self.zoomDisplay)
-            x1 = round((x1 - sx) * self.zoomDisplay - 1)
-            y0 = round((y0 - sy) * self.zoomDisplay)            
-            y1 = round((y1 - sy) * self.zoomDisplay - 1)
-            
-            qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-            pensolid = QtGui.QPen(chanstat.plot_color, 1, QtCore.Qt.SolidLine) 
-            qp.setPen(pensolid)
-            polygon = QtGui.QPolygon()
-            polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
-                << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
-            qp.drawPolyline(polygon)
-            
-            labelWidth = self.fontmetric.width(mask_name)
-            labelHeight = self.fontmetric.height()
-            
-            qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
-            qp.setPen(self.pentext)
-            qp.drawText(x0, y0, mask_name)               
-            
-        if config['image'].get('pixel_labels', True) and self.zoomDisplay >= 125:
+        if config['image'].get('pixel_labels', True) and zoom >= 125:
             qp.setPen(QColor(128,128,128))
             
             font = QFont(config["console"]["font"])
-            fontSize = round(self.zoomDisplay / 10)
+            fontSize = round(zoom / 10)
             font.setPixelSize(fontSize)
             font.setStyleStrategy(QFont.NoAntialias)            
             
@@ -609,8 +613,8 @@ class ImageViewerWidget(QWidget):
         
             for sx in range(startx, endx):
                 for sy in range(starty, endy):     
-                    xpos = round((sx + 0.05 - self.dispOffsetX) * self.zoomDisplay)
-                    ypos = round((sy + 0.95 - self.dispOffsetY) * self.zoomDisplay)
+                    xpos = round((sx + 0.05 - self.dispOffsetX) * zoom)
+                    ypos = round((sy + 0.95 - self.dispOffsetY) * zoom)
                     val = self.imgdata.statarr[sy, sx]                    
                     
                     if isinstance(val, Iterable):
@@ -630,14 +634,18 @@ class ImageViewerWidget(QWidget):
                         qp.drawText(xpos, ypos, label)        
 
 
-    def paintToQImageCropped(self, start_y, stop_y, start_x, stop_x):
-        height = (stop_y - start_y) * self.zoomValue
-        width = (stop_x - start_x) * self.zoomValue
+    def paintToQImageCropped(self, start_y, stop_y, start_x, stop_x, zoom=None, show_masks=True):
+        
+        if zoom is None:
+            zoom = self.zoomDisplay
+            
+        height = (stop_y - start_y) * zoom
+        width = (stop_x - start_x) * zoom
 
         qimg = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32)
         qpainter = QtGui.QPainter(qimg)
         qpainter.fillRect(0, 0, width, height, self.bgcolor)
-        self.paintImage(qpainter, (start_x, start_y))
+        self.paintImage(qpainter, (start_x, start_y), zoom=zoom, show_masks=show_masks)
         qpainter.end()     
         return qimg
         
