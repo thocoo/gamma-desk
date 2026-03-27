@@ -493,13 +493,15 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.processMenu, 'Make Blueprint', self.makeBlueprint,
             statusTip="Make a thumbnail (8x smaller) with blowup high frequencies",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'map_blue.png')))
+        
+        vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
 
         #Analyse                    
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
             statusTip="Horizontal Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Vertical Spectrogram', self.verticalSpectrogram,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
+            icon=vertical_spectr_icon,
             statusTip="Vertical Spectrogram")
         self.addMenuItem(self.analyseMenu, 'Measure Distance', self.measureDistance,
             statusTip="Measure Distance",
