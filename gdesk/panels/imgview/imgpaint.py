@@ -304,8 +304,15 @@ class ImageViewerWidget(QWidget):
                 self.zoomFull()
         else:
             if not self.zoomFull():
-                self.zoomFit()
+                self.zoom100()
 
+    def zoom100(self):
+        """Zoom to the full image and do a best fit."""
+        zoomRegionWidth = self.imgdata.qimg.width()
+        zoomRegionHeight = self.imgdata.qimg.height()
+        return self.zoomToRegion(0, 0, zoomRegionWidth, zoomRegionHeight, zoomSnap = False, zoomValue=1)
+        
+        
     def zoomFull(self):
         """Zoom to the full image and do a best fit."""
         zoomRegionWidth = self.imgdata.qimg.width()
@@ -326,13 +333,13 @@ class ImageViewerWidget(QWidget):
         zoomRegionHeight =  self.roi.selroi.yr.stop - self.roi.selroi.yr.start
         return self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight)
 
-    def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
-        area = self.imgdata.width * self.imgdata.height
-        zoomRegionX *= self.imgdata.width
-        zoomRegionY *= self.imgdata.height
-        zoomRegionWidth *= self.imgdata.width
-        zoomRegionHeight *= self.imgdata.height
-        self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit, zoomValue)
+    # def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
+        # area = self.imgdata.width * self.imgdata.height
+        # zoomRegionX *= self.imgdata.width
+        # zoomRegionY *= self.imgdata.height
+        # zoomRegionWidth *= self.imgdata.width
+        # zoomRegionHeight *= self.imgdata.height
+        # self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit, zoomValue)
 
     def zoomToRegion(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
         """Zoom to a certain region and do a best fit."""
