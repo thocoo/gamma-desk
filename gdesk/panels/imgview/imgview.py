@@ -586,6 +586,7 @@ class ImageViewerBase(BasePanel):
     def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit, zoomValue):
         self.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit, zoomValue)
         self.imviewer.roi.recalcGeometry()
+        
 
     ############################
     # File Menu Connections
@@ -619,11 +620,13 @@ class ImageViewerBase(BasePanel):
         arr[:] = args['mean']
 
         self.show_array(arr, zoomFitHist=True)
+        
 
     def duplicate(self, floating=False):
         newPanel = super().duplicate(floating)
         newPanel.show_array(self.ndarray)
         return newPanel
+        
 
     def openImageDialog(self):
         filepath = here / 'images' / 'default.png'
@@ -645,7 +648,14 @@ class ImageViewerBase(BasePanel):
 
         self.openImage(args['filepath'], args['format'])
 
+
     def openImage(self, filepath, format=None, zoom='full'):
+        
+        if not Path(filepath).exists():
+            gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
+            return
+            
+            
         if has_imafio:
             arr = self.openImageImafio(filepath, format)
         else:
@@ -670,6 +680,7 @@ class ImageViewerBase(BasePanel):
                 self.zoomFull()
             else:
                 self.setZoomValue(zoom)
+                
 
     def openImagePIL(self, filepath):
         with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):
@@ -678,6 +689,7 @@ class ImageViewerBase(BasePanel):
             image = Image.open(str(filepath))
             arr = np.array(image)
         return arr
+        
 
     def openImageImafio(self, filepath, format=None):
         with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
@@ -873,7 +885,8 @@ class ImageViewerBase(BasePanel):
 
 
     def placeViewerOnClipboard(self):
-        qimg, memo = self.getViewerQImageAndMemo()
+        qimg, props = self.getViewerQImage()
+        memo = props.get('memo', '')
 
         form = gui.fedit([
             ('Memo', memo + '\n'),
@@ -888,6 +901,8 @@ class ImageViewerBase(BasePanel):
             avg = arr.mean()
             qp = QtGui.QPainter(qimg)
             font = QFont(config["console"]["font"])            
+            font.setPixelSize(14)
+            qp.setFont(font)
             if avg > 127:
                 qp.setPen(QColor(0,0,0))
             else:
@@ -901,22 +916,23 @@ class ImageViewerBase(BasePanel):
         clipboard.setImage(qimg.copy())
 
 
-    def getViewerQImageAndMemo(self):
+    def getViewerQImage(self, slices=None, zoom=None, show_masks=True):
         imgdata = self.imviewer.imgdata
-
-        if self.imviewer.roi.isVisible():            
-            slices = imgdata.selroi.getslices()
+        
+        if not slices is None or self.imviewer.roi.isVisible():            
+            if slices is None:  
+                slices = imgdata.selroi.getslices()
             height, width = self.ndarray.shape[:2]
             start_y, stop_y, step_y = slices[0].indices(imgdata.height)
-            start_x, stop_x, step_x = slices[1].indices(imgdata.width)            
+            start_x, stop_x, step_x = slices[1].indices(imgdata.width)
         else:
             start_x, start_y, width, height = self.imviewer.visibleRegion()
             start_x = max(0, start_x)
-            start_y = max(0, start_y)            
+            start_y = max(0, start_y)
             stop_y = min(start_y + height, imgdata.height)
-            stop_x = min(start_x + width, imgdata.width)
+            stop_x = min(start_x + width, imgdata.width)            
 
-        qimg = self.imviewer.paintToQImageCropped(start_y, stop_y, start_x, stop_x)
+        qimg = self.imviewer.paintToQImageCropped(start_y, stop_y, start_x, stop_x, zoom=zoom, show_masks=show_masks)
 
         lines = []
         lines.append(f'{self.offset:.1f}→{self.white:.1f}')
@@ -932,9 +948,14 @@ class ImageViewerBase(BasePanel):
             if not stat.is_valid(): continue
             lines.append(f'{name} {stat.slices_repr()}: {stat.mean():.1f} ± {stat.std():.1f}')                 
 
-        memo = '\n'.join(lines)    
+        props = {}
+        props['memo'] = '\n'.join(lines)
+        props['start_y'] = start_y
+        props['stop_y'] = stop_y
+        props['start_x'] = start_x
+        props['stop_x'] = stop_x
         
-        return qimg, memo
+        return qimg, props
 
 
     def showFromClipboard(self):
