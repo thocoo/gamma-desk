@@ -298,19 +298,22 @@ class ImageViewerWidget(QWidget):
     def set_info_xy(self):
         self.parent().statuspanel.set_xy()
 
-    def zoomAuto(self):
+    def zoomAuto(self, event):
+        cursor_x, cursor_y = self.getImageCoordOfMouseEvent(event)
         if self.roi.isVisible():
             if not self.zoomToRoi():
                 self.zoomFull()
         else:
             if not self.zoomFull():
-                self.zoom100()
+                self.zoom100(cursor_x, cursor_y)
 
-    def zoom100(self):
+    def zoom100(self, cursor_x=-1, cursor_y=-1):
         """Zoom to the full image and do a best fit."""
-        zoomRegionWidth = self.imgdata.qimg.width()
-        zoomRegionHeight = self.imgdata.qimg.height()
-        return self.zoomToRegion(0, 0, zoomRegionWidth, zoomRegionHeight, zoomSnap = False, zoomValue=1)
+        #zoomRegionWidth = self.imgdata.qimg.width()
+        #zoomRegionHeight = self.imgdata.qimg.height()
+        #return self.zoomToRegion(0, 0, zoomRegionWidth, zoomRegionHeight, zoomSnap = False, zoomValue=1)
+        
+        return self.zoom(1, cursor_x, cursor_y, step=False)
         
         
     def zoomFull(self):
@@ -415,7 +418,7 @@ class ImageViewerWidget(QWidget):
             self.repaint()
 
     def mouseDoubleClickEvent(self, event):
-        self.zoomAuto()
+        self.zoomAuto(event)
 
     def wheelEvent(self, event):
         if event.modifiers() & QtCore.Qt.ControlModifier:
