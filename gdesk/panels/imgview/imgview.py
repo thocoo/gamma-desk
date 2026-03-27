@@ -272,14 +272,13 @@ class ImageViewerBase(BasePanel):
 
         self.editMenu.addSeparator()
 
-        self.addMenuItem(self.editMenu, 'Copy 100%, gain 1 Image', self.placeRawOnClipboard,
-            statusTip="Place the 8bit image on clipboard, offset and gain applied",
-            icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))
-        # self.addMenuItem(self.editMenu, 'Copy Display Image to clipboard', self.placeQimgOnClipboard,
-            # statusTip="Place the displayed image on clipboard with display processing applied",
-            # icon = 'page_copy.png')
-        self.addMenuItem(self.editMenu, 'Copy scaled ROI', self.placeViewerOnClipboard,
+
+        self.addMenuItem(self.editMenu, 'Copy', self.placeViewerOnClipboard,
             icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
+            
+        self.addMenuItem(self.editMenu, 'Copy 100%, gain 1', self.placeRawOnClipboard,
+            statusTip="Place the 8bit image on clipboard, offset and gain applied",
+            icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))            
             
         self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",
@@ -882,9 +881,15 @@ class ImageViewerBase(BasePanel):
         #Clipboard can only take ownership if the object is a local?
         qimg = self.imviewer.imgdata.qimg.copy()
         clipboard.setImage(qimg)
-
-
+        
+        
     def placeViewerOnClipboard(self):
+        qimg, props = self.getViewerQImage()        
+        clipboard = self.qapp.clipboard()
+        clipboard.setImage(qimg.copy())        
+
+
+    def placeViewerWithMemoOnClipboard(self):
         qimg, props = self.getViewerQImage()
         memo = props.get('memo', '')
 
