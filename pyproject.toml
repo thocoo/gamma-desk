@@ -46,12 +46,9 @@ dependencies = [
     "legacy-cgi; python_version > '3.12'",
     "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
     "pywinpty; sys_platform=='win32' and python_version>'3.8'",
-    "pyside6<=6.7; python_version=='3.11'",
-    "pyside6>=6.8.1; python_version>='3.12'",
     "numpy<2; python_version<'3.12'",
     "numpy>=2; python_version>='3.12'",
 ]
- 
 
 [project.scripts]
 gdesk = "gdesk.console:argexec"
@@ -65,12 +62,17 @@ pyside2 = [
     "pyside2; python_version<='3.10'",
 ]
 pyside6 = [
-    "pyside6; python_version<='3.10'",
+     "pyside6<=6.7; python_version=='3.11'",
+     "pyside6-essentials>=6.8.1; python_version>='3.12'",
 ]
 pyqt6 = [
     "pyqt6",
 ]
-
+default = [
+    "pyside2; python_version<='3.10'",
+    "pyside6<=6.7; python_version=='3.11'",
+    "pyside6-essentials>=6.8.1; python_version>='3.12'",
+]
 
 [dependency-groups]
 # See COMPATIBILITY.md.
@@ -78,7 +80,6 @@ dev = [
     "pooch; python_version>='3.9'",
     "xarray",
 ]
-
 
 [tool.pytest.ini_options]
 testpaths = [
