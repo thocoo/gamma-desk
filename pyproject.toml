@@ -52,7 +52,7 @@ dependencies = [
 
 [project.scripts]
 gdesk = "gdesk.console:argexec"
-
+gamma-desk = "gdesk.console:argexec"
 
 [project.urls]
 Source = "https://github.com/thocoo/gamma-desk"
