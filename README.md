@@ -38,6 +38,12 @@ As of Gamma Desk v1.10, on Python >= 3.12, the `pyside6` extra installs `pyside6
 instead of `pyside6`, which avoids the large dependency `pyside6-addons`.
 
 
+# Run with uvx
+
+    uvx gamma-desk[default]
+    uvx --from git+https://github.com/thocoo/gamma-desk.git[default] gamma-desk
+
+
 # Usage
 
     python -m gdesk
