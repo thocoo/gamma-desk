@@ -25,16 +25,17 @@ A Python work environment with image viewers & Plots
 
 # Installation
 
-Gamma Desk requires PySide6 on Python 3.11 and higher.
+Install Gamma Desk with one of the supported Qt backends, or the default one.
 
-    pip install gamma-desk
+    pip install gamma-desk[default]
+    pip install gamma-desk[pyside6]
+    pip install gamma-desk[pyside2]
 
-On 3.8 to 3.10, you can choose between PySide2 or PySide6.
+Backends are `pyside6` (default from 3.11 and up) or `pyside2` (default up to Python 3.10).
+PyQt backends `pyqt6`, `pyqt5` are tested less thoroughly.
 
-    pip install gamma-desk[pyside2] 
-    pip install gamma-desk[pyside6] 
-
-Using PyQt5 or PyQt6 is possible, but not supported.
+As of Gamma Desk v1.10, on Python >= 3.12, the `pyside6` extra installs `pyside6-essentials`
+instead of `pyside6`, which avoids the large dependency `pyside6-addons`.
 
 
 # Usage
@@ -44,6 +45,7 @@ Using PyQt5 or PyQt6 is possible, but not supported.
 or
 
     gdesk
+    gamma-desk
   
 
 # More documentation
