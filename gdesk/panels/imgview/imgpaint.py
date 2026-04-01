@@ -321,12 +321,14 @@ class ImageViewerWidget(QWidget):
         zoomRegionWidth = self.imgdata.qimg.width()
         zoomRegionHeight = self.imgdata.qimg.height()
         return self.zoomToRegion(0, 0, zoomRegionWidth, zoomRegionHeight, zoomSnap = False)
+        
 
     def zoomFit(self):
         """Zoom to the full image and do a best fit. Snap of lower zoom value"""
         zoomRegionWidth = self.imgdata.qimg.width()
         zoomRegionHeight = self.imgdata.qimg.height()
         return self.zoomToRegion(0, 0, zoomRegionWidth, zoomRegionHeight, zoomSnap = True)
+        
 
     def zoomToRoi(self):
         """Zoom to the region of interest and do a best fit."""
@@ -335,14 +337,16 @@ class ImageViewerWidget(QWidget):
         zoomRegionWidth = self.roi.selroi.xr.stop - self.roi.selroi.xr.start
         zoomRegionHeight =  self.roi.selroi.yr.stop - self.roi.selroi.yr.start
         return self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight)
+        
 
-    # def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
-        # area = self.imgdata.width * self.imgdata.height
-        # zoomRegionX *= self.imgdata.width
-        # zoomRegionY *= self.imgdata.height
-        # zoomRegionWidth *= self.imgdata.width
-        # zoomRegionHeight *= self.imgdata.height
-        # self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit, zoomValue)
+    def zoomNormalized(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
+        area = self.imgdata.width * self.imgdata.height
+        zoomRegionX *= self.imgdata.width
+        zoomRegionY *= self.imgdata.height
+        zoomRegionWidth *= self.imgdata.width
+        zoomRegionHeight *= self.imgdata.height
+        self.zoomToRegion(zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap, emit, zoomValue)
+        
 
     def zoomToRegion(self, zoomRegionX, zoomRegionY, zoomRegionWidth, zoomRegionHeight, zoomSnap=True, emit=True, zoomValue=0):
         """Zoom to a certain region and do a best fit."""
