@@ -19,7 +19,9 @@ sys.path.insert(0, os.path.abspath('../../..'))
 
 print(sys.path)
 
-#formlayout seems to cause problems on Sphinx
+# formlayout seems to cause problems on Sphinx
+# Seems to be due to the use of the Property qt wrapper
+# If Python try to get ColorButton.color.__doc__, it enters an infinite loop
 autodoc_mock_imports = ["gdesk.dialogs.formlayout"]
 
 from gdesk.core.conf import configure
