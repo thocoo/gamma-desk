@@ -638,18 +638,27 @@ class ImageGuiProxy(GuiProxyBase):
 
         
     @StaticGuiCall
-    def get_roi():
+    def get_roi(name=None):
         """
         Get the region of interest of the current viewport as a tuple of integers.
         
         :return tuple(int, int, int, int): x0, y0, width, height.
         """
-        slices = ImageGuiProxy.get_roi_slices()
-        x0 = slices[1].start
-        width = slices[1].stop - x0
-        y0 = slices[0].start
-        height = slices[0].stop - y0
-        return x0, y0, width, height   
+        if name is None:
+            slices = ImageGuiProxy.get_roi_slices()
+            x0 = slices[1].start
+            width = slices[1].stop - x0
+            y0 = slices[0].start
+            height = slices[0].stop - y0
+            return x0, y0, width, height
+            
+        slices = ImageGuiProxy.get_roi_slices(name)
+        bmask = ImageGuiProxy.get_roi_bmask(name)
+        color = ImageGuiProxy.get_roi_color(name)      
+        roi = {'slices': slices, 'mask': bmask, 'zero_origin': False, 'color': color}   
+
+        return roi        
+        
 
     @property
     def vr(self):
