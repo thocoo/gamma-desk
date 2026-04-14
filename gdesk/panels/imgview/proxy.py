@@ -589,6 +589,22 @@ class ImageGuiProxy(GuiProxyBase):
             
         else:
             return chanstat.mask_crop  
+            
+            
+    @StaticGuiCall
+    def get_roi_color(name=None):
+        """
+        Get the current region of interest as a tupple of slice objects
+        """
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return
+        
+        chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
+        if chanstat is None:
+            raise KeyError(f'{name} not found')
+
+        c = chanstat.plot_color
+        return (c.red(), c.green(), c.blue())
         
 
     @StaticGuiCall
