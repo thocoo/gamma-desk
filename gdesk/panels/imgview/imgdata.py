@@ -496,6 +496,8 @@ class ImageData:
         "Light": QtGui.QColor(0x40, 0x40, 0x40, 255),
         "Dark": QtGui.QColor(0xC0, 0xC0, 0xC0, 255),
     }
+    
+    PRE_DEF_MASK_NAMES = PRE_DEF_MASK_NAMES
 
     def __init__(self):
         self.qimg = None

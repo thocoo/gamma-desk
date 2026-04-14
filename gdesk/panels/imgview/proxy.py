@@ -526,7 +526,7 @@ class ImageGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall
-    def get_roi_names(actives=None, valid=True):
+    def get_roi_names(actives=None, valid=True, skip_reserved=False):
         """
         Get the current region of interest as a tupple of slice objects
         """
@@ -541,6 +541,10 @@ class ImageGuiProxy(GuiProxyBase):
             roi_names = [k for k, v in chstats.items() if v.is_valid()]
         else:
             roi_names = [k for k, v in chstats.items() if not v.is_valid()]
+            
+        if skip_reserved:
+            roi_names = [name for name in roi_names if not name in panel.imviewer.imgdata.PRE_DEF_MASK_NAMES]
+            roi_names = [name for name in roi_names if not name.startswith('roi.')]
 
         if actives is None:
             return roi_names
