@@ -53,14 +53,15 @@ def get_last_active(chanstats):
 class CheckBox(QtWidgets.QWidget):
     checkedSignal = Signal(int, bool)
 
-    def __init__(self, r_idx, flag):
+    def __init__(self, r_idx, flag, read_only=False):
         super().__init__()
         self.__r_idx = r_idx
-        self.__initUi(flag)
+        self.__initUi(flag, read_only)
 
-    def __initUi(self, flag):
+    def __initUi(self, flag, read_only):
         chkBox = QtWidgets.QCheckBox()
         chkBox.setChecked(flag)
+        chkBox.setEnabled(not read_only)
         chkBox.stateChanged.connect(self.__sendCheckedSignal)
 
         lay = QtWidgets.QGridLayout()
@@ -419,7 +420,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
-        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices', 'Mask']
+        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices', 'Mask', 'Valid']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.verticalHeader().hide()
@@ -435,6 +436,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.okBtn.clicked.connect(self.okPressed)
         hbox.addWidget(self.okBtn)
         
+        self.only_valids = False
         self.populateTable()
         self.table.resizeColumnsToContents() 
         
@@ -445,13 +447,18 @@ class VisibilityDialog(QtWidgets.QDialog):
         
     def populateTable(self):
         chanstats = self.chanstats
-        valid_stats_names = sort_masks([name for name, stats in chanstats.items() if stats.is_valid()])
-        self.table.setRowCount(len(valid_stats_names))        
-        self.table.setVerticalHeaderLabels(valid_stats_names)
         
-        for i, name in enumerate(valid_stats_names):
+        if self.only_valids:
+            stats_names = sort_masks([name for name, stats in chanstats.items() if stats.is_valid()])
+        else:
+            stats_names = sort_masks(list(chanstats.keys()))
+            
+        self.table.setRowCount(len(stats_names))        
+        self.table.setVerticalHeaderLabels(stats_names)
+        
+        for i, name in enumerate(stats_names):
             self.table.setRowHeight(i, 20)
-            stats = chanstats[name]       
+            stats = chanstats[name]                              
             
             item_name = QtWidgets.QTableWidgetItem(name)
             R, G, B, A = stats.plot_color.getRgb()
@@ -488,6 +495,10 @@ class VisibilityDialog(QtWidgets.QDialog):
             
             bmask_str = QtWidgets.QTableWidgetItem(str(not stats.mask_qimg is None))
             self.table.setItem(i, 7, bmask_str)
+            
+            validCheck = CheckBox(i, stats.is_valid(), read_only=True)
+            #validCheck.checkedSignal.connect(lambda row, checked: self.changeCheck(row, 9, checked))
+            self.table.setCellWidget(i, 8, validCheck)            
  
 
     def handleContextMenu(self, pos):      
