@@ -315,7 +315,7 @@ class TitleToolBar(QtWidgets.QToolBar):
         self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
  
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')), 'Show/Hide profiles', lambda: self.toggleProfile.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), 'Configure Masks', lambda: self.selectRoi.emit('custom visibility'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')), "Configure Roi's", lambda: self.selectRoi.emit('custom visibility'))        
 
         self.masksPresetBtn = MaskPresetButton()
         self.masksPresetBtn.maskPreset.connect(lambda mask: self.maskPreset.emit(mask))
@@ -400,7 +400,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         
         
     def initUi(self):
-        self.setWindowTitle('Masks Configuration')                        
+        self.setWindowTitle('Region of Interest Configuration')                        
         self.setMinimumWidth(640)
         self.setMinimumWidth(640)
                 

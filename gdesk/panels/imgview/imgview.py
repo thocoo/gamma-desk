@@ -163,7 +163,7 @@ class selectNamedMask():
 
 class CustomMaskMenu(QMenu):
     def __init__(self, parent=None):
-        super().__init__('Custom Mask', parent)
+        super().__init__('Custom Roi', parent)
         self.imgpanel = self.parent()
         self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
 
@@ -392,13 +392,15 @@ class ImageViewerBase(BasePanel):
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
             
-        self.addMenuItem(self.selectMenu, 'Add Mask Statistics...', self.addMaskStatistics,
+        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addMaskStatistics,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
             
-        self.addMenuItem(self.selectMenu, 'Remove Mask Statistics...', self.removeMaskStatistics)            
+        self.addMenuItem(self.selectMenu, 'Remove Roi Statistics...', self.removeMaskStatistics)            
                     
-            
-        dataSplitMenu = QMenu('Default Masks')
+        self.addMenuItem(self.selectMenu, "Configure Roi's...", self.configureRois,
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layers_map.png')))
+                    
+        dataSplitMenu = QMenu('Default Roi')
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(respath / 'icons' / 'px16' / 'color_gradient.png'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(respath / 'icons' / 'px16' / 'color.png'))            
@@ -408,8 +410,7 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon=str(respath / 'icons' / 'px16' / 'cfa_gr.png'))
                 
         
-        self.selectMenu.addMenu(dataSplitMenu)                    
-        
+        self.selectMenu.addMenu(dataSplitMenu)                                            
         self.selectMenu.addMenu(CustomMaskMenu(self))
 
         self.addMenuItem(self.selectMenu, 'Show/Hide Mask', self.toggle_mask,
@@ -1476,6 +1477,12 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.imgdata.set_mask(mask)
         self.imviewer.refresh()
+
+    def configureRois(self):
+        dialog = VisibilityDialog(self.imviewer.imgdata)
+        dialog.exec_()        
+        self.imgprof.statsPanel.formatTable()
+        self.refresh()
         
         
     def toggle_mask(self):
@@ -2023,13 +2030,10 @@ class ImageProfileWidget(QWidget):
         if option in ['show roi only']:
             self.imviewer.roi.showRoi()
             self.imviewer.imgdata.selectRoiOption(option)
+            self.refresh()
             
         elif option == 'custom visibility':
-            dialog = VisibilityDialog(self.imviewer.imgdata)
-            dialog.exec_()
-            self.statsPanel.formatTable()            
-            
-        self.refresh()        
+            self.parent().configureRois()                                  
         
 
     def showOnlyRuler(self):

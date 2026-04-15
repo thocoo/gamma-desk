@@ -59,7 +59,7 @@ class MaskPresetButton(QtWidgets.QToolButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.masksSelectMenu = QtWidgets.QMenu('Select Masks')
+        self.masksSelectMenu = QtWidgets.QMenu("Select Roi's")
         self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
         self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
         self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
@@ -68,7 +68,7 @@ class MaskPresetButton(QtWidgets.QToolButton):
         self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
         
         self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.setToolTip('Select one of the default masks options')
+        self.setToolTip("Default Roi's")
         self.setMenu(self.masksSelectMenu)
         self.setPopupMode(QtWidgets.QToolButton.InstantPopup)            
     
