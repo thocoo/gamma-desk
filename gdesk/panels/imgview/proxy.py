@@ -51,7 +51,124 @@ class ViewerRoiAccess():
         else:            
             slices = self.parent.get_roi_slices(None)
             self.parent.vs[slices][key] = value
+            
+            
+class MaskEditor():
+    
+    def __init__(self, parent):
+        self.parent = parent
         
+        
+    def fit(self):
+        old_mask = self._mask.copy()        
+        new_mask = self.parent.init_mask()
+        common_shape = [min(a, b) for a, b in zip(new_mask.shape, old_mask.shape)]
+        new_mask[:common_shape[0], :common_shape[1]] = old_mask
+        self.parent.refresh()
+        
+        
+    @property
+    def _mask(self):
+        mask = self.parent.get_mask()
+        
+        if mask is None:
+            mask = self.parent.init_mask()
+            
+        return mask                 
+
+
+    @property
+    def shape(self):        
+        return self._mask.shape
+        
+        
+    @property
+    def size(self):        
+        return self._mask.size        
+        
+        
+    def sum(self, *args, **kwargs):        
+        return self._mask.sum( *args, **kwargs)
+
+
+    def prod(self, *args, **kwargs):        
+        return self._mask.prod( *args, **kwargs)
+        
+        
+    def min(self, *args, **kwargs):        
+        return self._mask.min( *args, **kwargs)
+
+
+    def max(self, *args, **kwargs):        
+        return self._mask.max( *args, **kwargs)
+
+
+    def mean(self, *args, **kwargs):        
+        return self._mask.mean( *args, **kwargs)        
+        
+
+    def ptp(self, *args, **kwargs):        
+        return self._mask.ptp( *args, **kwargs)
+        
+        
+    def std(self, *args, **kwargs):        
+        return self._mask.std( *args, **kwargs)        
+        
+        
+    def var(self, *args, **kwargs):        
+        return self._mask.var( *args, **kwargs)          
+        
+
+    def fill(self, *args, **kwargs):        
+        self._mask.fill( *args, **kwargs)
+        self.parent.refresh()  
+        
+        
+    def invert(self):
+        self[:] = ~self._mask
+        
+    
+    def roll(self, shift, axis=None):
+        self[:] = np.roll(self._mask, shift, axis)
+        
+        
+    def tile_content(self, kh, kw):
+        h, w = self.shape
+        th, tw = int(np.ceil(h / kh)), int(np.ceil(w / kw))
+        tiled = np.tile(self._mask[:kh, :kw], (th, tw))
+        self[:] = tiled[:h, :w]        
+        
+        
+    def tile(self, kernel):
+        kernel = np.array(kernel)
+        h, w = self.shape
+        kh, kw = kernel.shape
+        th, tw = int(np.ceil(h / kh)), int(np.ceil(w / kw))
+        tiled = np.tile(kernel[:kh, :kw], (th, tw))
+        self[:] = tiled[:h, :w]
+        
+    def __repr__(self):
+        h, w = self.shape
+        s = f'masked {self.sum()}/({h}x{w})'
+        return s
+        
+        
+    def __str__(self):
+        arrstr = str(self._mask)
+        #lines = arrstr.splitlines()
+        return arrstr
+        
+        
+    def __setitem__(self, *args):
+        self._mask.__setitem__(*args)
+        self.parent.refresh()        
+
+        
+    def __getitem__(self, *args):
+        return self._mask.__getitem__(*args)    
+
+      
+
     
         
 class ImageGuiProxy(GuiProxyBase):    
@@ -75,6 +192,8 @@ class ImageGuiProxy(GuiProxyBase):
         gui.zoom_full = self.zoom_full
         gui.zoom_region = self.zoom_region
         gui.get_clipboard_image = self.get_clipboard_image
+        
+        self.mask = MaskEditor(self)
         
         return 'img'
         
@@ -255,7 +374,8 @@ class ImageGuiProxy(GuiProxyBase):
             array = panel.imviewer.imgdata.layers['mask']['array']
             return array
         else:
-            return None               
+            return None
+            
             
     @StaticGuiCall
     def init_mask(dtype='bool'):

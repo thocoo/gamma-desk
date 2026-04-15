@@ -1265,7 +1265,8 @@ class ImageViewerBase(BasePanel):
         if args.isNotSet():
             colormapdialog = ColorMapDialog()
             colormapdialog.exec_()
-            self.colormap = colormapdialog.cm_name
+            if not colormapdialog.cm_name is None:
+                self.colormap = colormapdialog.cm_name
         else:
             self.colormap = args['cmap']
 
