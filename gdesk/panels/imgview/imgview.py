@@ -411,6 +411,11 @@ class ImageViewerBase(BasePanel):
         self.selectMenu.addMenu(dataSplitMenu)                    
         
         self.selectMenu.addMenu(CustomMaskMenu(self))
+
+        self.addMenuItem(self.selectMenu, 'Show/Hide Mask', self.toggle_mask,
+            icon=str(respath / 'icons' / 'px16' / 'mask.png'),
+            #checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
+            statusTip="Show or hide the mask layer")
             
         self.selectMenu.addSeparator()
         
@@ -1473,6 +1478,15 @@ class ImageViewerBase(BasePanel):
         self.imviewer.refresh()
         
         
+    def toggle_mask(self):
+        imgdata = self.imviewer.imgdata
+        if imgdata.layers.get('mask', {}).get('visible', False):
+            imgdata.hide_layer('mask')
+        else:
+            imgdata.show_layer('mask')
+        self.imviewer.refresh()
+
+
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
         self.imgprof.statsPanel.formatTable()

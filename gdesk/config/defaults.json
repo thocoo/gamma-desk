@@ -145,7 +145,7 @@
     "Ctrl+Shift+X": {"image": ["Canvas", "Crop on Selection"]},
     "Ctrl+Shift+I": {"image": ["Image", "Invert"]},    
     "Ctrl+S": {"console": ["Script", "Search..."]},
-	"Ctrl+M": {"console": ["Execution", "Debug Post Mortem"]},
+	"Ctrl+M": {"image": ["Select", "Show/Hide Mask"]},
 	"Esc": {"console": ["Execution", "Async Break"]},
     "Shift+Esc": {"console": ["Execution", "Sync Break"]},
     "ScrollLock": {"console": ["View", "Auto Scroll"]},
