@@ -78,6 +78,16 @@ class MaskEditor():
 
 
     @property
+    def dtype(self):        
+        return self._mask.dtype
+    
+
+    @property
+    def ndim(self):        
+        return self._mask.ndim
+        
+
+    @property
     def shape(self):        
         return self._mask.shape
         

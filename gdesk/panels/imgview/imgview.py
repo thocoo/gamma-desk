@@ -223,7 +223,8 @@ class ImageViewerBase(BasePanel):
         self.menuBar().addMenu(self.editMenu)
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
-        self.selectMenu = self.menuBar().addMenu("&Select")
+        #self.selectMenu = self.menuBar().addMenu("&Select")
+        self.selectMenu = CheckMenu("&Select", self.menuBar())
         self.canvasMenu = self.menuBar().addMenu("&Canvas")
         #self.imageMenu = self.menuBar().addMenu("&Image")
         self.imageMenu = CheckMenu("&Image", self.menuBar())
@@ -419,8 +420,8 @@ class ImageViewerBase(BasePanel):
         self.selectMenu.addMenu(CustomMaskMenu(self))
 
         self.addMenuItem(self.selectMenu, 'Show/Hide Mask', self.toggle_mask,
-            icon=str(respath / 'icons' / 'px16' / 'mask.png'),
-            #checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
+            #icon=str(respath / 'icons' / 'px16' / 'mask.png'),
+            checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
             statusTip="Show or hide the mask layer")
             
         self.selectMenu.addSeparator()
