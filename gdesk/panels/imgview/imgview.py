@@ -362,6 +362,11 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.viewMenu, 'Background Color...'    , self.setBackground,
             statusTip="Set the background color...",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'document_background.png')))
+        
+        self.addMenuItem(self.viewMenu, 'Mask Appearance...'    , self.setMaskApperance,
+            statusTip="Set the mask appearance...",
+            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'mask.png')))
+
         self.addMenuItem(self.viewMenu, 'Selection Color...'    , self.setRoiColor,
             statusTip="Set the Selection color...",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_swatch.png')))
@@ -1310,6 +1315,31 @@ class ImageViewerBase(BasePanel):
             config["image background"] = rgb
             self.imviewer.setBackgroundColor(*config["image background"])
 
+
+    def setMaskApperance(self):
+        old_color = QtGui.QColor(*config.get('mask color', (255,0,0)))
+        rgb = old_color.getRgb()[:3]
+        with ActionArguments(self) as args:
+            args['r'] = rgb[0]
+            args['g'] = rgb[1]
+            args['b'] = rgb[2]
+
+        if args.isNotSet():
+            color = QColorDialog.getColor(old_color)
+            try:
+                rgb = color.getRgb()[:3]
+            except:
+                rgb = (0,0,0)
+        else:
+            rgb = (args['r'], args['g'], args['b'])
+
+        if 'mask' in self.imviewer.imgdata.layers:
+            self.imviewer.imgdata.change_layer_appearance('mask', color=rgb)
+
+        config['mask color'] = list(rgb)
+        self.refresh
+
+
     def setRoiColor(self):
         old_color = QtGui.QColor(*config['roi color'])
         rgb = old_color.getRgb()[:3]
@@ -1329,7 +1359,7 @@ class ImageViewerBase(BasePanel):
             rgb = (args['r'], args['g'], args['b'])                
             
         config['roi color'] = list(rgb)
-        self.imviewer.roi.initUI()            
+        self.imviewer.roi.initUI()          
         
         
     def copySliceToClipboard(self):

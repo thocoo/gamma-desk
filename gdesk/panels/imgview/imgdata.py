@@ -834,7 +834,8 @@ class ImageData:
                 cmap = 'mask'
         
         if color is None:
-            color = config['image background']
+            color = config.get('mask color', (255, 0, 0))
+
         self.set_layer('mask', array, composition, cmap, alpha, color)
         
         
@@ -849,12 +850,30 @@ class ImageData:
         
         height, width = array.shape
         
-        compmode = COMPMODE[composition.lower()]            
+        if isinstance(composition, str):
+            compmode = COMPMODE[composition.lower()]
+        else:
+            compmode = composition
 
         qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
         qimage.setColorTable(imconvert.make_color_table(cmap, alpha, color))
-        self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode, 'visible': True}
+        self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode, 'cmap': cmap, 'alpha': alpha, 'color': color, 'visible': True}
+
+
+    def change_layer_appearance(self, name, composition=None, cmap=None, alpha=None, color=None):
+        if not name in self.layers.keys():
+            raise KeyError(f'Layer {name} does not exist')
         
+        layer = self.layers[name]
+
+        array = layer['array']
+        composition = layer['composition'] if composition is None else composition
+        cmap = layer['cmap'] if cmap is None else cmap
+        alpha = layer['alpha'] if alpha is None else alpha
+        color = layer['color'] if color is None else color
+        
+        self.set_layer(name, array, composition, cmap, alpha, color)
+    
         
     def show_layer(self, layer='mask'):
         if layer in self.layers:
