@@ -548,7 +548,7 @@ class ImageViewerWidget(QWidget):
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
         if show_masks:
-            for mask_name in reversed(list(self.vd.chanstats.keys())):
+            for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
                 if not (chanstat.active and chanstat.mask_visible): continue
@@ -569,7 +569,8 @@ class ImageViewerWidget(QWidget):
         qp.setOpacity(1.0)                    
 
         if show_masks:         
-            for mask_name, chanstat in self.vd.chanstats.items():
+            for mask_name in reversed(self.vd.chanstats.order):
+                chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
                 if mask_name in PRE_DEF_MASK_NAMES: continue
                 if mask_name.startswith('roi.'): continue

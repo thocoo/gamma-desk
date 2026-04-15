@@ -449,9 +449,9 @@ class VisibilityDialog(QtWidgets.QDialog):
         chanstats = self.chanstats
         
         if self.only_valids:
-            stats_names = sort_masks([name for name, stats in chanstats.items() if stats.is_valid()])
+            stats_names = [name for name in chanstats.order if chanstats[name].is_valid()]
         else:
-            stats_names = sort_masks(list(chanstats.keys()))
+            stats_names = chanstats.order
             
         self.table.setRowCount(len(stats_names))        
         self.table.setVerticalHeaderLabels(stats_names)
@@ -615,7 +615,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         selectionModel.clearSelection()                
         
         topLeft = selectionModel.model().createIndex(min(new_positions), 0)
-        bottomRight = selectionModel.model().createIndex(max(new_positions), 6)
+        bottomRight = selectionModel.model().createIndex(max(new_positions), 8)
         selection = QtCore.QItemSelection(topLeft, bottomRight)        
         selectionModel.select(selection, QtCore.QItemSelectionModel.Select)
           
