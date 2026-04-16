@@ -302,7 +302,7 @@ class TitleToolBar(QtWidgets.QToolBar):
     toggleProfile = Signal()
     toggleDock = Signal()
     selectRoi = Signal(str)
-    showMask = QtCore.Signal(bool)
+    toggleMask = Signal()
     maskPreset = Signal(str)
 
     def __init__(self, *args, **kwargs):
@@ -323,7 +323,7 @@ class TitleToolBar(QtWidgets.QToolBar):
         
         self.maskBtn = QtWidgets.QToolButton(self)
         self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
-        self.maskBtn.setCheckable(True)
+        #self.maskBtn.setCheckable(True)
             
         self.maskBtn.setToolTip('Show/Hide Mask')
         self.maskBtn.clicked.connect(self.toggleShowMask)
@@ -333,10 +333,7 @@ class TitleToolBar(QtWidgets.QToolBar):
 
 
     def toggleShowMask(self):
-        if self.maskBtn.isChecked():
-            self.showMask.emit(True)
-        else:
-            self.showMask.emit(False)        
+        self.toggleMask.emit()        
 
 
 class VisibilityToolBar(QtWidgets.QToolBar):

@@ -397,6 +397,8 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, 'Select 1 Pixel...'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
+        
+        self.selectMenu.addSeparator()
             
         self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addMaskStatistics,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
@@ -1998,7 +2000,7 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
-        self.statsToolbar.showMask.connect(self.showMask)
+        self.statsToolbar.toggleMask.connect(self.toggleMask)
         self.statsToolbar.maskPreset.connect(self.selectMasks)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
@@ -2048,13 +2050,8 @@ class ImageProfileWidget(QWidget):
         self.refresh()
         
         
-    def showMask(self, visible):
-        if visible:
-            self.imviewer.imgdata.show_layer('mask')
-        else:
-            self.imviewer.imgdata.hide_layer('mask')        
-            
-        self.imviewer.refresh()
+    def toggleMask(self):
+        self.parent().toggle_mask()
         
         
     def selectRoi(self, option):
