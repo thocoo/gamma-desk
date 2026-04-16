@@ -126,7 +126,12 @@ class MaskEditor():
         
         
     def var(self, *args, **kwargs):        
-        return self._mask.var( *args, **kwargs)          
+        return self._mask.var( *args, **kwargs)   
+
+
+    def clear(self):
+        self._mask.fill(False)
+        self.parent.refresh() 
         
 
     def fill(self, *args, **kwargs):        
@@ -149,13 +154,13 @@ class MaskEditor():
         self[:] = tiled[:h, :w]        
         
         
-    def tile(self, kernel):
+    def tile(self, kernel, offset_y=0, offset_x=0):
         kernel = np.array(kernel)
         h, w = self.shape
         kh, kw = kernel.shape
         th, tw = int(np.ceil(h / kh)), int(np.ceil(w / kw))
         tiled = np.tile(kernel[:kh, :kw], (th, tw))
-        self[:] = tiled[:h, :w]
+        self[offset_y:, offset_x:] = tiled[:h-offset_y, :w-offset_x]
         
     def __repr__(self):
         h, w = self.shape
