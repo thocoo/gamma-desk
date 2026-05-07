@@ -4,6 +4,7 @@ import threading
 import pathlib
 import pprint
 import json
+import time
 
 from multiprocessing import Process, Queue
 
@@ -11,7 +12,8 @@ from .. import config, configure
 
 configure(matplotlib={'backend':'svg'})
 
-from .. import gui
+from .. import  gui
+from ..core.history import LogDir
 
 from ..console import run_as_child
 from ..core.shellmod import Shell
@@ -32,6 +34,27 @@ def python_executable():
         #Base the python.exe location on the os module location
         executable = pathlib.Path(os.__file__).parent.parent / 'python.exe'
         return str(executable)
+
+
+def connect_by_logdir(logdir=None):    
+    if logdir is None:
+        logdir = pathlib.Path(os.environ['USERPROFILE']) / 'AppData' / 'Local' / 'Gamma-Desk'
+        
+    logdir = LogDir(logdir)
+    
+    lock_files = logdir.get_active_lock_files()
+    lock_files = sorted(lock_files, key=os.path.getmtime)
+    ports = []
+    
+    for lock_file in lock_files:
+        info_file = lock_file.parent / 'cmdserver.json'
+        if not info_file.exists(): continue
+        with open(str(info_file), 'r') as fp:
+            content = json.load(fp)
+        ports.append(content['port'])
+            
+    connect_to_gui(ports[0])
+    #time.sleep(3) 
 
 
 def connect_to_gui(port=None, host='localhost',
@@ -143,6 +166,10 @@ def init_gui(shell, commqueues, gui_redirect=True, client=True, console_id=None)
     name, tid = shell.new_interactive_thread(commqueues, client=client, console_id=console_id)
 
     if gui_redirect:
-        gui.redirects[threading.get_ident()] = tid
+        this_tid = threading.get_ident()
+        gui.redirects[this_tid] = tid
+        
+        while not tid in sys.stdout.streams:
+            time.sleep(0.1)
 
     return tid
