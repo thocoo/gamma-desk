@@ -576,6 +576,7 @@ class ImageGuiProxy(GuiProxyBase):
         roi.show()
         roi.roiChanged.emit()    
         
+        
     @StaticGuiCall
     def set_roi(x0, y0, width=1, height=1):
         """
@@ -592,6 +593,20 @@ class ImageGuiProxy(GuiProxyBase):
         roi.show()
         roi.roiChanged.emit()    
         
+
+    @StaticGuiCall
+    def delete_all_rois():        
+        panel = gui.qapp.panels.selected('image')
+        panel.imviewer.imgdata.chanstats.clear()
+        panel.imviewer.refresh()
+        
+        
+    @StaticGuiCall
+    def delete_roi(roi_name):        
+        panel = gui.qapp.panels.selected('image')
+        panel.imviewer.imgdata.chanstats.pop(roi_name)
+        panel.imviewer.refresh()
+        
         
     @StaticGuiCall
     def set_roi_mask(name, bmask, zero_origin=True, alpha=128):    
@@ -603,8 +618,7 @@ class ImageGuiProxy(GuiProxyBase):
             panel.imviewer.refresh()
             
         else:
-            raise KeyError(f'ROI name {name} not found')
-            
+            raise KeyError(f'ROI name {name} not found')            
         
 
     @StaticGuiCall
