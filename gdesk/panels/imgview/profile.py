@@ -183,7 +183,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.thicksY = tickValues(self.startY, self.stopY, scaleY)
             self.yAxis = Axis(90, self.startY, self.stopY, self.thicksY)
             
-        self.yAxis.setZValue(0.9)
+        self.yAxis.setZValue(1.1)
         self.scene.addItem(self.yAxis)
         
         
@@ -216,7 +216,7 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.ruler = TickedRuler(90, self.startX, self.stopX, scaleX,
                                      bg_color=self.palette().color(QtGui.QPalette.Base), noDecimals=True)
             
-        self.ruler.setZValue(1)
+        self.ruler.setZValue(1.2)
         self.scene.addItem(self.ruler)
         
         

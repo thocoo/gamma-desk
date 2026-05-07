@@ -22,7 +22,7 @@ GRID_PENS = {
 
 LABEL_LAYOUT = {
     "Light": {
-        "background": (QtGui.QPen(QtGui.QColor(200, 200, 200, 200)), QtGui.QBrush(QtGui.QColor(200, 200, 200, 200), QtCore.Qt.SolidPattern)),
+        "background": (QtGui.QPen(QtGui.QColor(255, 255, 255, 200)), QtGui.QBrush(QtGui.QColor(255, 255, 255, 200), QtCore.Qt.SolidPattern)),
         "text": QtGui.QColor(120, 120, 120),
     },
     "Dark": {
