@@ -619,7 +619,8 @@ class LiveScriptManager(object):
                 
             this_parts = name.split('.')
             mod_parts = modstr.split('.')
-            relative_level = mod_parts.count('')                
+            relative_level = mod_parts.count('')
+            if mod_parts[-1] == '': relative_level -= 1
             parts0 = this_parts[:-relative_level]
             parts1 = mod_parts[relative_level:]        
             modstr = '.'.join(parts0 + parts1)  
