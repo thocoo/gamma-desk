@@ -630,7 +630,8 @@ class ImageViewerWidget(QWidget):
                 for sy in range(starty, endy):     
                     xpos = round((sx + 0.05 - self.dispOffsetX) * zoom)
                     ypos = round((sy + 0.95 - self.dispOffsetY) * zoom)
-                    val = self.imgdata.statarr[sy, sx]                    
+                    
+                    val = self.imgdata.statarr[sy, sx]                                        
                     
                     if isinstance(val, Iterable):
                         values = list(val)
@@ -646,7 +647,16 @@ class ImageViewerWidget(QWidget):
                             label = fmt.format(val)
                         except:
                             label = 'invalid'
+                            
+                        roi_names = self.imgdata.find_chanstat_for_pixel(sx, sy, active_only=True)
+                        ypos -= (len(roi_names)) * (fontSize + 1)
+                        
+                        for roi_name in roi_names:
+                            qp.drawText(xpos, ypos, roi_name)
+                            ypos += fontSize + 1
+                        
                         qp.drawText(xpos, ypos, label)        
+                        
 
 
     def paintToQImageCropped(self, start_y, stop_y, start_x, stop_x, zoom=None, show_masks=True):

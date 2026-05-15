@@ -713,11 +713,12 @@ class ImageData:
         return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in PRE_DEF_MASK_NAMES)]
         
         
-    def find_chanstat_for_pixel(self, x, y):
+    def find_chanstat_for_pixel(self, x, y, active_only=False):
     
         found = []
     
         for name, chanstat in self.chanstats.items():
+            if active_only and not chanstat.active: continue          
             if name in PRE_DEF_MASK_NAMES: continue
             if name.startswith('roi.'): continue
             
@@ -727,7 +728,8 @@ class ImageData:
                 
         for name in PRE_DEF_MASK_NAMES:
             if not name in self.chanstats: continue
-            chanstat = self.chanstats[name]
+            chanstat = self.chanstats[name]            
+            if active_only and not chanstat.active: continue            
             
             if y in range(*chanstat.slices[0].indices(self.height)) and \
                 x in range(*chanstat.slices[1].indices(self.width)):
