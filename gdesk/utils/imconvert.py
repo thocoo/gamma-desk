@@ -338,7 +338,7 @@ def color_table_preview_qimg(name, height=32):
     arr = np.ones((height,1), 'uint8').dot(np.arange(256, dtype='uint8').reshape(1,256))        
     return process_ndarray_to_qimage_8bit(arr, 0, 1, color_table_name=name)
 
-def make_color_table(name, alpha=255, color=(255, 0, 0)):
+def make_color_table(name, alpha=255, color=(255, 0, 0), invert=False):
     #8bit
     
     table = list()
@@ -366,9 +366,15 @@ def make_color_table(name, alpha=255, color=(255, 0, 0)):
         table.append(255 * aBase + 127 * bBase + 127 * gBase + 255 * rBase)
         
     elif name == 'bmask':
-        table.append(0)
-        for i in range(1, 256):
+        if invert:
             table.append(alpha * aBase + color[2] * bBase + color[1] * gBase + color[0] * rBase)        
+            for i in range(1, 256):
+                table.append(0)
+        
+        else:
+            table.append(0)
+            for i in range(1, 256):
+                table.append(alpha * aBase + color[2] * bBase + color[1] * gBase + color[0] * rBase)        
         
     elif name == 'mask':
         table.append(0)
