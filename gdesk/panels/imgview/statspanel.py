@@ -368,7 +368,8 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
         
         self.maskBtn = QtWidgets.QToolButton(self)
-        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_mask.png')))
+        #self.maskBtn.setText('Mask Layer')
         self.maskBtn.setCheckable(True)
         
         if self.parent().imgdata.is_layer_visible('mask'):
@@ -376,13 +377,13 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         else:
             self.maskBtn.setChecked(False)
             
-        self.maskBtn.setToolTip('Show/Hide Mask')
+        self.maskBtn.setToolTip('Show/Hide Mask Layer')
         self.maskBtn.clicked.connect(self.toggleShowMask)
         self.addWidget(self.maskBtn)      
 
         self.roiMaskBtn = QtWidgets.QToolButton(self)
-        #self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
-        self.roiMaskBtn.setText('Roi Mask')
+        self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')))
+        #self.roiMaskBtn.setText('Roi Mask')
         self.roiMaskBtn.setCheckable(True)
 
         if self.parent().imgdata.roi_mask_visible:
