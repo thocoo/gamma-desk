@@ -244,7 +244,7 @@ class ImageStatistics(object):
                 
             # TO DO
             # There is issue when the bmask is combined with slices with stepping
-            # slices should be applied, after applyin gthe bmask
+            # slices should be applied, after applying the bmask
             # But the bmask seems to be already stepped
                 
             #yx_slices = self.slices[:min_ndim]
@@ -253,6 +253,30 @@ class ImageStatistics(object):
         else:
             array = self.full_array            
             return array[self.slices[:min_ndim]]
+            
+            
+    def contains(self, y, x, height, width):
+        if not self.mask_not_cropped is None:
+
+            if self.mask_crop is None:
+                self.update_cropped_mask()
+
+            slv, slh = self.slices[:2]
+            rngv = range(*slv.indices(height))
+            rngh = range(*slh.indices(width))
+            
+            if y in rngv and x in rngh:
+                masked = self.bmask[y-rngv.start, x-rngh.start]
+                return not bool(masked)
+                
+            else:
+                result = False         
+            
+        else:
+            result = y in range(*self.slices[0].indices(height)) and \
+                x in range(*self.slices[1].indices(width))    
+
+        return result
             
             
     def update_cropped_mask(self):
@@ -279,7 +303,7 @@ class ImageStatistics(object):
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
-        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())))
+        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
         
         yx_slices = self.slices[:min_ndim]
         self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])
@@ -722,17 +746,16 @@ class ImageData:
             if name in PRE_DEF_MASK_NAMES: continue
             if name.startswith('roi.'): continue
             
-            if y in range(*chanstat.slices[0].indices(self.height)) and \
-                x in range(*chanstat.slices[1].indices(self.width)):
+            if chanstat.contains(y, x, self.height, self.width):
                 found.append(name)
+            
                 
         for name in PRE_DEF_MASK_NAMES:
             if not name in self.chanstats: continue
             chanstat = self.chanstats[name]            
             if active_only and not chanstat.active: continue            
             
-            if y in range(*chanstat.slices[0].indices(self.height)) and \
-                x in range(*chanstat.slices[1].indices(self.width)):
+            if chanstat.contains(y, x, self.height, self.width):
                 found.append(name)
                 
         return found
