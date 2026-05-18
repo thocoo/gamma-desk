@@ -563,6 +563,10 @@ class ImageViewerWidget(QWidget):
                     qp.scale(zoom, zoom)
                     qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)
                     qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+
+                    #The next will colorize the grey image with the colors of the chanstat
+                    #qp.setCompositionMode(QtGui.QPainter.CompositionMode_Multiply) 
+
                     qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
         qp.resetTransform()

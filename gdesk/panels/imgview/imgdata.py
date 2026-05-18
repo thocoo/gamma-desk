@@ -278,14 +278,19 @@ class ImageStatistics(object):
         height, width = self.full_array.shape[:2]
         min_ndim = min(len(self.slices), self.full_array.ndim)
 
-        start_y, stop_y, _ = self.slices[0].indices(height)
-        start_x, stop_x, _ = self.slices[1].indices(width) 
-            
-        if not self.mask_zero_origin:             
-            self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+        start_y, stop_y, step_y = self.slices[0].indices(height)
+        start_x, stop_x, step_x = self.slices[1].indices(width)
+
+        if self.mask_not_cropped is None:
+            self.mask_crop = np.ones((stop_y-start_y, stop_x-start_x), dtype=bool)
+            self.mask_crop[::step_y, ::step_x] = False 
             
         else:
-            self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+            if not self.mask_zero_origin:             
+                self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+                
+            else:
+                self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
             
         self.mask_crop_offset_y = start_y
         self.mask_crop_offset_x = start_x                
@@ -296,7 +301,9 @@ class ImageStatistics(object):
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
+        
         self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
+        #self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
         
         yx_slices = self.slices[:min_ndim]
         self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])
@@ -520,7 +527,7 @@ class ImageData:
         self.qimg = None
         self.map8 = None
         self.array = None
-        self.roi_mask_visible = True
+        self.roi_mask_visible = False
         self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
         arr = np.array([[0, 128], [128, 255]], 'uint8')
@@ -906,6 +913,10 @@ class ImageData:
 
     def show_roi_mask(self, visible):
         self.roi_mask_visible = visible
+
+        for mask_name, chanstat in self.chanstats.items():
+            if mask_name.startswith('roi.'): continue
+            chanstat.update_cropped_mask()
     
 
     def is_layer_visible(self, layer='mask'):

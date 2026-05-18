@@ -1533,7 +1533,7 @@ class ImageViewerBase(BasePanel):
 
     def toggle_roi_mask(self):
         imgdata = self.imviewer.imgdata
-        imgdata.roi_mask_visible = not imgdata.roi_mask_visible
+        imgdata.show_roi_mask(not imgdata.roi_mask_visible)
         self.imviewer.refresh()
 
 
