@@ -173,8 +173,7 @@ class ImageStatistics(object):
     def __init__(self, imgdata, plot_color=None):
         self.imgdata = imgdata
         self._cache = dict()
-        self.slices = None
-        
+        self.slices = None        
         self.set_mask(None)
         
         if plot_color is None:
@@ -242,12 +241,6 @@ class ImageStatistics(object):
             if self.mask_crop is None:
                 self.update_cropped_mask()
                 
-            # TO DO
-            # There is issue when the bmask is combined with slices with stepping
-            # slices should be applied, after applying the bmask
-            # But the bmask seems to be already stepped
-                
-            #yx_slices = self.slices[:min_ndim]
             return np.ma.masked_array(self.full_array[self.yx_step1_slices], self.bmask)[::self.yx_steps[0], ::self.yx_steps[1]]
             
         else:

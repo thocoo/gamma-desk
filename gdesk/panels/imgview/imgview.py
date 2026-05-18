@@ -421,10 +421,13 @@ class ImageViewerBase(BasePanel):
         self.selectMenu.addMenu(dataSplitMenu)                                            
         self.selectMenu.addMenu(CustomMaskMenu(self))
 
-        self.addMenuItem(self.selectMenu, 'Show/Hide Mask', self.toggle_mask,
-            #icon=str(respath / 'icons' / 'px16' / 'mask.png'),
+        self.addMenuItem(self.selectMenu, 'Show/Hide Mask Layer', self.toggle_mask,
             checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
             statusTip="Show or hide the mask layer")
+        
+        self.addMenuItem(self.selectMenu, 'Show/Hide Roi Mask', self.toggle_roi_mask,
+            checkcall = lambda: self.imviewer.imgdata.roi_mask_visible,
+            statusTip="Show or hide the mask layer")        
             
         self.selectMenu.addSeparator()
         
@@ -1525,6 +1528,12 @@ class ImageViewerBase(BasePanel):
             imgdata.hide_layer('mask')
         else:
             imgdata.show_layer('mask')
+        self.imviewer.refresh()
+
+
+    def toggle_roi_mask(self):
+        imgdata = self.imviewer.imgdata
+        imgdata.roi_mask_visible = not imgdata.roi_mask_visible
         self.imviewer.refresh()
 
 
