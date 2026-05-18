@@ -515,7 +515,8 @@ class ImageViewerWidget(QWidget):
             self._scaledImage = qimg.scaledToWidth(int(qimg.width() * self.zoomDisplay), Qt.SmoothTransformation)
         return self._scaledImage
 
-    def paintImage(self, qp, position=None, zoom=None, show_masks=True):
+    def paintImage(self, qp, position=None, zoom=None):        
+
         if position is None:
             sx = self.dispOffsetX
             sy = self.dispOffsetY
@@ -560,14 +561,14 @@ class ImageViewerWidget(QWidget):
                 if not chanstat.mask_qimg is None:
                     qp.resetTransform()
                     qp.scale(zoom, zoom)
-                    qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)      
-                    #sy, sx = chanstat.mask_crop_offset_y, chanstat.mask_crop_offset_x
+                    qp.translate(-sx + chanstat.mask_crop_offset_x, -sy + chanstat.mask_crop_offset_y)
                     qp.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                     qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
-        qp.resetTransform()    
-        qp.setOpacity(1.0)                    
+        qp.resetTransform()
+        qp.setOpacity(1.0)
 
+        show_masks=True
         if show_masks:         
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
@@ -620,6 +621,8 @@ class ImageViewerWidget(QWidget):
             
             qp.setFont(font)
             qp.setCompositionMode(QtGui.QPainter.RasterOp_SourceXorDestination)
+            font_metrics = QFontMetrics(font)
+            line_height = font_metrics.height()
             
             x, y, w, h = self.visibleRegion()
             mh, mw = self.imgdata.statarr.shape[:2]
@@ -628,20 +631,22 @@ class ImageViewerWidget(QWidget):
         
             for sx in range(startx, endx):
                 for sy in range(starty, endy):     
-                    xpos = round((sx + 0.05 - self.dispOffsetX) * zoom)
-                    ypos = round((sy + 0.95 - self.dispOffsetY) * zoom)
+                    px0 = round((sx - self.dispOffsetX) * zoom)
+                    py0 = round((sy - self.dispOffsetY) * zoom)
+                    cell_size = max(1, round(zoom))
+                    pixel_rect = QtCore.QRectF(px0, py0, cell_size, cell_size)
                     
                     val = self.imgdata.statarr[sy, sx]                                        
                     
                     if isinstance(val, Iterable):
                         values = list(val)
-                        ypos -= (len(values) - 1) * (fontSize + 1)
+                        lines = []
                         for i, v in enumerate(values):
                             try:
                                 label = fmt.format(v)
                             except:
                                 label = 'invalid'
-                            qp.drawText(xpos, ypos + i * (fontSize + 1), f'{channels[i]}: {label}')    
+                            lines.append(f'{channels[i]}: {label}')
                     else:
                         try:
                             label = fmt.format(val)
@@ -649,13 +654,17 @@ class ImageViewerWidget(QWidget):
                             label = 'invalid'
                             
                         roi_names = self.imgdata.find_chanstat_for_pixel(sx, sy, active_only=True)
-                        ypos -= (len(roi_names)) * (fontSize + 1)
-                        
-                        for roi_name in roi_names:
-                            qp.drawText(xpos, ypos, roi_name)
-                            ypos += fontSize + 1
-                        
-                        qp.drawText(xpos, ypos, label)        
+                        lines = list(roi_names)
+                        lines.append(label)
+
+                    line_count = len(lines)
+                    block_height = line_count * line_height
+                    first_baseline = pixel_rect.top() + (pixel_rect.height() - block_height) / 2 + font_metrics.ascent()
+
+                    for i, line in enumerate(lines):
+                        line_rect_top = first_baseline - font_metrics.ascent() + i * line_height
+                        line_rect = QtCore.QRectF(pixel_rect.left(), line_rect_top, pixel_rect.width(), line_height)
+                        qp.drawText(line_rect, Qt.AlignHCenter | Qt.AlignVCenter, line)
                         
 
 
