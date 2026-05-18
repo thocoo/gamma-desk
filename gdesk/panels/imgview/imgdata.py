@@ -527,6 +527,7 @@ class ImageData:
         self.qimg = None
         self.map8 = None
         self.array = None
+        self.roi_mask_visible = True
         self.imghist = ArrayHistory(config['image'].get("history_size", 500e6))
         
         arr = np.array([[0, 128], [128, 255]], 'uint8')
@@ -907,9 +908,13 @@ class ImageData:
             
     def hide_layer(self, layer='mask'):
         if layer in self.layers:
-            self.layers[layer]['visible'] = False                    
-            
+            self.layers[layer]['visible'] = False  
+
+
+    def show_roi_mask(self, visible):
+        self.roi_mask_visible = visible
     
+
     def is_layer_visible(self, layer='mask'):
         if layer in self.layers and self.layers[layer]['visible']:
             return True

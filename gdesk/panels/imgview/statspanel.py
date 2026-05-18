@@ -342,6 +342,7 @@ class VisibilityToolBar(QtWidgets.QToolBar):
     addMask = QtCore.Signal()
     editMask = QtCore.Signal()
     showMask = QtCore.Signal(bool)
+    showRoiMask = QtCore.Signal(bool)
     removeMask = QtCore.Signal()
     moveItem = QtCore.Signal(str)
     maskPreset = QtCore.Signal(str)
@@ -377,14 +378,33 @@ class VisibilityToolBar(QtWidgets.QToolBar):
             
         self.maskBtn.setToolTip('Show/Hide Mask')
         self.maskBtn.clicked.connect(self.toggleShowMask)
-        self.addWidget(self.maskBtn)        
+        self.addWidget(self.maskBtn)      
+
+        self.roiMaskBtn = QtWidgets.QToolButton(self)
+        #self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        self.roiMaskBtn.setText('Roi Mask')
+        self.roiMaskBtn.setCheckable(True)
+
+        if self.parent().imgdata.roi_mask_visible:
+            self.roiMaskBtn.setChecked(True)
+        else:
+            self.roiMaskBtn.setChecked(False)        
         
+        self.roiMaskBtn.setToolTip('Show/Hide Roi Mask')
+        self.roiMaskBtn.clicked.connect(self.toggleShowRoiMask)
+        self.addWidget(self.roiMaskBtn)
         
     def toggleShowMask(self):
         if self.maskBtn.isChecked():
             self.showMask.emit(True)
         else:
             self.showMask.emit(False)
+
+    def toggleShowRoiMask(self):
+        if self.roiMaskBtn.isChecked():
+            self.showRoiMask.emit(True)
+        else:
+            self.showRoiMask.emit(False)            
 
 
 class VisibilityDialog(QtWidgets.QDialog): 
@@ -412,6 +432,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.toolbar.removeMask.connect(self.removeMask)
         self.toolbar.maskPreset.connect(self.maskPreset)
         self.toolbar.showMask.connect(self.showMask)
+        self.toolbar.showRoiMask.connect(self.showRoiMask)
         
         self.vbox.addWidget(self.toolbar)
         self.table = QtWidgets.QTableWidget()       
@@ -519,6 +540,13 @@ class VisibilityDialog(QtWidgets.QDialog):
             self.imgdata.show_layer('mask')
         else:
             self.imgdata.hide_layer('mask')
+
+
+    def showRoiMask(self, visible):
+        if visible:
+            self.imgdata.show_roi_mask(True)
+        else:
+            self.imgdata.show_roi_mask(False)
 
         
     def changeCheck(self, row, column, checked): 

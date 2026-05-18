@@ -547,7 +547,7 @@ class ImageViewerWidget(QWidget):
             qp.setCompositionMode(layer['composition'])
             qp.drawImage(0, 0, layer['qimage'], 0, 0, -1, -1)            
 
-        if show_masks:
+        if self.vd.roi_mask_visible:
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
