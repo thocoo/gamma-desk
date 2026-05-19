@@ -693,6 +693,10 @@ class ImageData:
             chanstat = self.chanstats.get(edit_roi_name)
             pos = self.chanstats.get_position(edit_roi_name)
             
+            # mask_not_cropped = chanstat.mask_not_cropped
+            # mask_zero_origin = chanstat.zero_origin
+            # mask_alpha = chanstat.alpha
+            
             title='Edit Roi Statistics'
             
             form = [('Name',  edit_roi_name),
@@ -714,18 +718,20 @@ class ImageData:
         color = QtGui.QColor(r[1])
         h_slice = slice(r[2], r[3], r[4])
         v_slice = slice(r[5], r[6], r[7])
-
-        if not pos is None:
-            self.chanstats.pop(edit_roi_name)
-            
+        
+        chanstat = self.chanstats.pop(edit_roi_name) if not pos is None else None
+        
         self.addMaskStatistics(name, (v_slice, h_slice), color)        
         
         if not pos is None:
             self.chanstats.move_to_position(name, pos) 
 
-        if len(r) == 9 and r[8]:
+        if chanstat is None and len(r) == 9 and r[8]:
             ma = self.layers['mask']['array']                           
             self.chanstats[name].set_mask(ma, zero_origin=True)
+            
+        elif not chanstat is None:
+            self.chanstats[name].set_mask(chanstat.mask_not_cropped, chanstat.mask_zero_origin, chanstat.mask_alpha)
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True):
