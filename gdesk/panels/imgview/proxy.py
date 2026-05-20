@@ -722,6 +722,21 @@ class ImageGuiProxy(GuiProxyBase):
             
             
     @StaticGuiCall
+    def get_roi_pattern(name=None):
+        """
+        Get the current region of interest as a tupple of slice objects
+        """
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return
+        
+        chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
+        if chanstat is None:
+            raise KeyError(f'{name} not found')
+        
+        return chanstat.mask_not_cropped             
+            
+            
+    @StaticGuiCall
     def get_roi_bmask(name=None, full=False):
         """
         Get the current region of interest as a tupple of slice objects
@@ -773,6 +788,21 @@ class ImageGuiProxy(GuiProxyBase):
             raise KeyError(f'{name} not found')
             
         return chanstat.roi            
+        
+        
+    @StaticGuiCall
+    def get_roi_zero_origin(name=None):
+        """
+        Get the current region of interest as a tupple of slice objects
+        """
+        panel = gui.qapp.panels.selected('image')
+        if panel is None: return
+        
+        chanstat = panel.imviewer.imgdata.chanstats.get(name, None)
+        if chanstat is None:
+            raise KeyError(f'{name} not found')
+
+        return chanstat.mask_zero_origin
             
             
     @StaticGuiCall
@@ -806,9 +836,10 @@ class ImageGuiProxy(GuiProxyBase):
             return x0, y0, width, height
             
         slices = ImageGuiProxy.get_roi_slices(name)
-        bmask = ImageGuiProxy.get_roi_bmask(name)
-        color = ImageGuiProxy.get_roi_color(name)      
-        roi = {'slices': slices, 'mask': bmask, 'zero_origin': False, 'color': color}   
+        pattern = ImageGuiProxy.get_roi_pattern(name)
+        color = ImageGuiProxy.get_roi_color(name)
+        zero_origin = ImageGuiProxy.get_roi_zero_origin(name)
+        roi = {'slices': slices, 'mask': pattern, 'zero_origin': zero_origin, 'color': color}
 
         return roi        
         

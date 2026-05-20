@@ -2010,6 +2010,7 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
         self.statsToolbar.toggleMask.connect(self.toggleMask)
+        self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
         self.statsToolbar.maskPreset.connect(self.selectMasks)
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
@@ -2061,6 +2062,10 @@ class ImageProfileWidget(QWidget):
         
     def toggleMask(self):
         self.parent().toggle_mask()
+
+
+    def toggleRoiMask(self):
+        self.parent().toggle_roi_mask()
         
         
     def selectRoi(self, option):

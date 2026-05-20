@@ -303,6 +303,7 @@ class TitleToolBar(QtWidgets.QToolBar):
     toggleDock = Signal()
     selectRoi = Signal(str)
     toggleMask = Signal()
+    toggleRoiMask = Signal()
     maskPreset = Signal(str)
 
     def __init__(self, *args, **kwargs):
@@ -322,18 +323,26 @@ class TitleToolBar(QtWidgets.QToolBar):
         self.addWidget(self.masksPresetBtn)  
         
         self.maskBtn = QtWidgets.QToolButton(self)
-        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
-        #self.maskBtn.setCheckable(True)
-            
-        self.maskBtn.setToolTip('Show/Hide Mask')
+        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_mask.png')))            
+        self.maskBtn.setToolTip('Show/Hide Mask Layer')
         self.maskBtn.clicked.connect(self.toggleShowMask)
-        self.addWidget(self.maskBtn)                   
+        self.addWidget(self.maskBtn)
+
+        self.roiMaskBtn = QtWidgets.QToolButton(self)
+        self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')))
+        self.roiMaskBtn.setToolTip('Show/Hide Roi Mask')
+        self.roiMaskBtn.clicked.connect(self.toggleShowRoiMask)
+        self.addWidget(self.roiMaskBtn)
         
         self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_double.png')), 'Dock/Undock', lambda: self.toggleDock.emit())
 
 
     def toggleShowMask(self):
-        self.toggleMask.emit()        
+        self.toggleMask.emit()    
+
+
+    def toggleShowRoiMask(self):
+        self.toggleRoiMask.emit()
 
 
 class VisibilityToolBar(QtWidgets.QToolBar):

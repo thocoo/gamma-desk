@@ -1,3 +1,4 @@
+import sys
 import pathlib
 import collections
 import threading
@@ -273,6 +274,7 @@ class ImageStatistics(object):
             
             
     def update_cropped_mask(self):
+        print('update_cropped_mask')
         if self.slices is None: return
                        
         height, width = self.full_array.shape[:2]
@@ -290,14 +292,22 @@ class ImageStatistics(object):
                 self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
                 
             else:
-                self.mask_crop = self.mask_not_cropped[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+                # The mask_not_cropped is a repeated pattern starting from 0,0
+                my, mx = self.mask_not_cropped.shape[:2]
+                ry = int(np.ceil(stop_y / my))
+                rx = int(np.ceil(stop_x / mx))
+                if ry > 1 or rx > 1:
+                    print('Tilling bmask')
+                    mask_extend = np.tile(self.mask_not_cropped, (ry, rx))
+                else:
+                    mask_extend = self.mask_not_cropped
+                self.mask_crop = mask_extend[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
             
         self.mask_crop_offset_y = start_y
         self.mask_crop_offset_x = start_x                
         
         # TO DO
-        # There is issue when the bmask is combined with slices with stepping            
-        
+        # There is issue when the bmask is combined with slices with stepping
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
@@ -785,7 +795,8 @@ class ImageData:
                 'B':  {'slices': (slice(None), slice(None), slice(2, 3)), 'color': QtGui.QColor(0, 0, 255, 255), 'roi.color': QtGui.QColor(64, 0, 128, 255)}
                 }
                 
-        elif mode in ['bg', 'gb', 'rg', 'gr']:
+        elif mode in ['bg', 'gb', 'rg', 'gr']:            
+            
             c00 = (slice(0, None, 2), slice(0, None, 2))            
             c01 = (slice(0, None, 2), slice(1, None, 2))
             c10 = (slice(1, None, 2), slice(0, None, 2))        
