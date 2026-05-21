@@ -246,7 +246,7 @@ class ImageStatistics(object):
             
         else:
             array = self.full_array            
-            return array[self.slices[:min_ndim]]
+            return array[tuple(self.slices[:min_ndim])]
             
             
     def contains(self, y, x, height, width):
