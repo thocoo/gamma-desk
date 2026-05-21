@@ -982,6 +982,9 @@ class ImageData:
                 new_slice = move_slices(old_slice, new_pos_slice)
                 new_slices.append(new_slice)
 
+            if len(old_slices) == 3:
+                new_slices.append(old_slices[2])
+
             chanstat.attach_full_array(tuple(new_slices))
             chanstat.active = True
             
