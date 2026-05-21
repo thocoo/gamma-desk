@@ -425,7 +425,7 @@ class ImageViewerBase(BasePanel):
             checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
             statusTip="Show or hide the mask layer")
         
-        self.addMenuItem(self.selectMenu, 'Show/Hide Roi Mask', self.toggle_roi_mask,
+        self.addMenuItem(self.selectMenu, 'Show/Hide Roi Pattern', self.toggle_roi_mask,
             checkcall = lambda: self.imviewer.imgdata.roi_mask_visible,
             statusTip="Show or hide the mask layer")        
             
