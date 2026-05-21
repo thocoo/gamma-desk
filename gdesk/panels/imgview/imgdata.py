@@ -51,6 +51,32 @@ def get_next_color_tuple():
     plot_color = tuple([int(round(ch)) for ch in PLOT_COLORS[0]])
     PLOT_COLORS[:] = np.roll(PLOT_COLORS, 1, axis=0)
     return plot_color
+
+
+def move_slices(stepped_slice: slice, new_position_slice: slice) -> slice:
+    '''Move a slice with stepping to a new position while keeping the same stepping pattern.
+    The new position is defined by the new_position_slice but the start of the new slice is
+    adjusted to keep the same stepping pattern as the original slice.
+    The stop of the new slice is also adjusted to keep the same stepping pattern if it is
+    defined in the new_position_slice.'''
+    
+    source_start = 0 if stepped_slice.start is None else stepped_slice.start
+    step = 1 if stepped_slice.step is None else stepped_slice.step    
+    target_start = 0 if new_position_slice.start is None else new_position_slice.start
+    target_stop = new_position_slice.stop
+    
+    source_phase = source_start % step
+    target_start_phase = target_start % step
+    start_phase_shift = (source_phase - target_start_phase) % step
+
+    if not target_stop is None:
+        target_stop_phase = target_stop % step        
+        stop_phase_shift = ((target_stop_phase-1) - source_phase) % step 
+        new_stop = target_stop - stop_phase_shift
+    else:
+        new_stop = None
+    
+    return slice(target_start + start_phase_shift, new_stop, step)
     
     
 class MaskPresetButton(QtWidgets.QToolButton):
@@ -588,7 +614,6 @@ class ImageData:
                 for name, stat in self.chanstats.items():
                     stat.clear()
             
-        #for selection in [self.selroi] + list(self.custom_selroi.values()):
         for selection in [self.selroi]:
             if selection.isfullrange():
                 selection.xr.maxstop = self.width
@@ -619,8 +644,7 @@ class ImageData:
         # It is not always needed to redefine masks and chanstats
         # masks and chanstats that are still valid should be kept
         
-        self.defineModeMasks(mode)
-                 
+        self.defineModeMasks(mode)                 
             
         for mask in list(self.chanstats.keys()):            
             chanstat = self.chanstats[mask]
@@ -641,10 +665,11 @@ class ImageData:
             else:
                 chanstat.clear()
             
-        for mask, mask_props in self.pre_def_masks.items():
-            if not mask in self.chanstats:
-                self.addMaskStatistics(mask, mask_props['slices'], mask_props['color'])
-                self.chanstats[f'roi.{mask}'] = ImageStatistics(self, mask_props['roi.color'])
+        for mask_name, mask_props in self.pre_def_masks.items():
+            if not mask_name in self.chanstats:
+                self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'])
+                #self.chanstats[f'roi.{mask_name}'] = ImageStatistics(self, mask_props['roi.color'])
+                self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'])
             
             
     def selectRoiOption(self, option: str):        
@@ -932,8 +957,8 @@ class ImageData:
         self.roi_mask_visible = visible
 
         for mask_name, chanstat in self.chanstats.items():
-            if mask_name.startswith('roi.'): continue
-            chanstat.update_cropped_mask()
+            if mask_name.startswith('roi.'): continue            
+            chanstat.update_cropped_mask()            
     
 
     def is_layer_visible(self, layer='mask'):
@@ -948,22 +973,24 @@ class ImageData:
         
         for mask_name, chanstat in list(self.chanstats.items()):  
         
-            if mask_name.startswith('roi.'): 
-                mask_name = mask_name[4:]
-                
-            else:
-                continue
+            if not mask_name.startswith('roi.'): continue
             
-            large_slices = self.pre_def_masks[mask_name]['slices']            
-            merged_slices = apply_roi_slice(large_slices, roi_slices)            
-            chanstat.attach_full_array(merged_slices)  
+            old_slices = chanstat.slices
+            new_slices = []
+
+            for old_slice, new_pos_slice in zip(old_slices, roi_slices):
+                new_slice = move_slices(old_slice, new_pos_slice)
+                new_slices.append(new_slice)
+
+            chanstat.attach_full_array(tuple(new_slices))
+            chanstat.active = True
             
 
     def disable_roi_statistics(self):
     
         for mask_name, chanstat in list(self.chanstats.items()):          
             if not mask_name.startswith('roi.'): continue
-            chanstat.attach_full_array(None)
+            chanstat.active = False
             
 
     def update_array8bit_by_slices(self, slices):

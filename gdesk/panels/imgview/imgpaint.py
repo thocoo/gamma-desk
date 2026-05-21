@@ -566,7 +566,6 @@ class ImageViewerWidget(QWidget):
 
                     #The next will colorize the grey image with the colors of the chanstat
                     #qp.setCompositionMode(QtGui.QPainter.CompositionMode_Multiply) 
-
                     qp.drawImage(0, 0, chanstat.mask_qimg, 0, 0, -1, -1)                
 
         qp.resetTransform()
