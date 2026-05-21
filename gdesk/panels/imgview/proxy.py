@@ -635,10 +635,9 @@ class ImageGuiProxy(GuiProxyBase):
                 color = panel.imviewer.imgdata.chanstats[name].plot_color
             
         if name in panel.imviewer.imgdata.pre_def_masks:
-            raise KeyError(f'ROI name {name} is reserved')
-            
-        else:
-            panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
+            logger.warning(f'Overwriting reserved ROI name {name}')            
+
+        panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
             
 
     @StaticGuiCall
