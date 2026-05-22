@@ -576,18 +576,20 @@ class ImageViewerWidget(QWidget):
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
-                if mask_name in PRE_DEF_MASK_NAMES: continue
                 if mask_name.startswith('roi.'): continue
                 if not (chanstat.active and chanstat.mask_visible): continue
+                
+                y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
+                y0, y1, y_step = y_slice.indices(self.imgdata.height)
+                x0, x1, x_step = x_slice.indices(self.imgdata.width)
+
+                if (y1 - y0) > self.imgdata.height - y_step and (x1 - x0) > self.imgdata.width - x_step:
+                    continue
 
                 if chanstat.dim:
                     qp.setOpacity(0.25)
                 else:
-                    qp.setOpacity(1.0)            
-                
-                y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
-                y0, y1, _ = y_slice.indices(self.imgdata.height)
-                x0, x1, _ = x_slice.indices(self.imgdata.width)            
+                    qp.setOpacity(1.0)                
                 
                 x0 = round((x0 - sx) * zoom)
                 x1 = round((x1 - sx) * zoom - 1)

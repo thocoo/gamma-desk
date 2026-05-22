@@ -13,11 +13,10 @@ from qtpy.QtCore import Qt, Signal, QUrl
 from gdesk import gui
 
 
-
 RESPATH = Path(config['respath'])
 
-RESERVED_MASK_FULL = ['K', 'B', 'G', 'Gb', 'Gr', 'R']
-RESERVED_MASK_ROI = ['roi.B', 'roi.K', 'roi.G', 'roi.Gb', 'roi.Gr', 'roi.R']
+RESERVED_MASK_FULL = []
+RESERVED_MASK_ROI = []
 
 FUNCMAP = {
     'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},

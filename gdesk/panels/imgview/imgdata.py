@@ -200,7 +200,8 @@ class ImageStatistics(object):
     def __init__(self, imgdata, plot_color=None):
         self.imgdata = imgdata
         self._cache = dict()
-        self.slices = None        
+        self.relative_slices = None  
+        self.origin = 'tl'
         self.set_mask(None)
         
         if plot_color is None:
@@ -219,18 +220,34 @@ class ImageStatistics(object):
         self.hist_visible = True
 
         
-    def attach_full_array(self, slices):
-        self.slices = slices
+    def attach_full_array(self, slices, origin='tl'):
+        self.relative_slices = slices
+        self.origin = origin if not origin is None else 'tl'
         self.clear()
         
+    @property
+    def slices(self):
+        if self.origin.lower() == 'tl':
+            return self.relative_slices
+            
+        else:
+            height, width = self.full_array.shape[:2]
+            offset_y = height // 2
+            offset_x = width // 2
+            slice_y, slice_x, *others = self.relative_slices
+            slice_y = slice(slice_y.start + offset_y, slice_y.stop + offset_y, slice_y.step)
+            slice_x = slice(slice_x.start + offset_x, slice_x.stop + offset_x, slice_x.step)
+            return (slice_y, slice_x, *others)
+            
         
     def slices_repr(self):
         if self.slices is None:
             return ''
+            
         height, width = self.full_array.shape[:2]
         start_y, stop_y, step_y = self.slices[0].indices(height)
         start_x, stop_x, step_x = self.slices[1].indices(width)         
-        #return ','.join([f'{int_none_repr(slc.start)}:{int_none_repr(slc.stop)}:{int_none_repr(slc.step)}' for slc in self.slices])
+               
         return f'{start_y}:{stop_y}:{step_y},{start_x}:{stop_x}:{step_x}'
         
         
@@ -242,7 +259,7 @@ class ImageStatistics(object):
     def set_mask(self, mask: np.ndarray, zero_origin: bool=False, alpha=128):
         """
         Args:
-            origin: 'slices' or 'global'            
+            zero_origin: 
         """
         
         if not mask is None:
@@ -769,9 +786,9 @@ class ImageData:
             self.chanstats[name].set_mask(chanstat.mask_not_cropped, chanstat.mask_zero_origin, chanstat.mask_alpha)
 
 
-    def addMaskStatistics(self, name, slices, color=None, active=True):
+    def addMaskStatistics(self, name, slices, color=None, active=True, origin='tl'):
         self.chanstats[name] = ImageStatistics(self, color)
-        self.chanstats[name].attach_full_array(slices)
+        self.chanstats[name].attach_full_array(slices, origin)
         self.chanstats[name].active = active
         
         

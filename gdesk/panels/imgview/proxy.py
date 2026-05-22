@@ -622,7 +622,7 @@ class ImageGuiProxy(GuiProxyBase):
         
 
     @StaticGuiCall
-    def add_roi_slices(name, slices, color=None, active=True):
+    def add_roi_slices(name, slices, color=None, active=True, origin='tl'):
         """
         Add the region of interest on the current viewport.        
         
@@ -637,16 +637,16 @@ class ImageGuiProxy(GuiProxyBase):
         if name in panel.imviewer.imgdata.pre_def_masks:
             logger.warning(f'Overwriting reserved ROI name {name}')            
 
-        panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active) 
+        panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active, origin) 
             
 
     @StaticGuiCall
-    def add_roi(name, slices=None, mask=None, color=None, active=True, zero_origin=True, alpha=128):
+    def add_roi(name, slices=None, mask=None, color=None, active=True, zero_origin=True, alpha=128, origin='tl'):
         
         if slices is None:
             slices = slice(None), slice(None)
             
-        ImageGuiProxy.add_roi_slices(name, slices, color, active)
+        ImageGuiProxy.add_roi_slices(name, slices, color, active, origin)
         
         if not mask is None:
             ImageGuiProxy.set_roi_mask(name, mask, zero_origin, alpha)            
