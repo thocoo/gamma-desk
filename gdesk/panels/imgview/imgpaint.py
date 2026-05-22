@@ -515,7 +515,7 @@ class ImageViewerWidget(QWidget):
             self._scaledImage = qimg.scaledToWidth(int(qimg.width() * self.zoomDisplay), Qt.SmoothTransformation)
         return self._scaledImage
 
-    def paintImage(self, qp, position=None, zoom=None):        
+    def paintImage(self, qp, position=None, zoom=None, show_masks=True):        
 
         if position is None:
             sx = self.dispOffsetX
@@ -570,8 +570,7 @@ class ImageViewerWidget(QWidget):
 
         qp.resetTransform()
         qp.setOpacity(1.0)
-
-        show_masks=True
+        
         if show_masks:         
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
