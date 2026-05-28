@@ -211,22 +211,18 @@ class LevelPlot(QtWidgets.QWidget):
             ind.updates_ylabels()
         
     def zoomFull(self, enforce_ymin=None):
-        self.xmin = self.xmax = None
-        self.ymin = self.ymax = None
         
-        for curve in self.curves.values():
-            xmin_cand = min(curve.xvector)
-            xmax_cand = max(curve.xvector)
-            ymin_cand = min(curve.yvector)
-            ymax_cand = max(curve.yvector)            
-            if (self.xmin is None) or (xmin_cand < self.xmin):
-                self.xmin = xmin_cand            
-            if (self.xmax is None) or (xmax_cand > self.xmax):
-                self.xmax = xmax_cand
-            if (self.ymin is None) or (ymin_cand < self.ymin):
-                self.ymin = ymin_cand            
-            if (self.ymax is None) or (ymax_cand > self.ymax):
-                self.ymax = ymax_cand
+        if len(self.curves) > 0:
+            self.xmin = min(min(curve.xvector) for curve in self.curves.values())
+            self.xmax = max(max(curve.xvector) for curve in self.curves.values())
+            self.ymin = min(min(curve.yvector) for curve in self.curves.values())
+            self.ymax = max(max(curve.yvector) for curve in self.curves.values())
+
+        else:
+            self.xmin = 0
+            self.xmax = 1
+            self.ymin = 0
+            self.ymax = 1
                         
         self.ymin = enforce_ymin if not enforce_ymin is None else self.ymin
         
