@@ -3,6 +3,7 @@ import pathlib
 import collections
 import threading
 import math
+import logging
 from collections import UserDict
 
 from qtpy import QtGui, QtCore, QtWidgets
@@ -25,6 +26,9 @@ from ...dialogs.formlayout import fedit
 here = pathlib.Path(__file__).absolute().parent
 
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb
@@ -197,11 +201,17 @@ class OrderedStats(UserDict):
         
 class ImageStatistics(object):
 
-    def __init__(self, imgdata, plot_color=None):
+    def __init__(self, imgdata, name, plot_color=None):
         self.imgdata = imgdata
+        self.name = name
         self._cache = dict()
         self.relative_slices = None  
         self.origin = 'tl'
+
+        self.mask_crop = None
+        self.bmask = None 
+        self.mask_qimg = None      
+        #         
         self.set_mask(None)
         
         if plot_color is None:
@@ -277,14 +287,14 @@ class ImageStatistics(object):
         
         
     @property
-    def roi(self):             
+    def roi(self):
+        # If roi is accessed after a clear, update              
         min_ndim = min(len(self.slices), self.full_array.ndim)
+
+        if self.mask_qimg is None:
+            self.update_cropped_mask()
         
         if not self.mask_not_cropped is None:
-            
-            if self.mask_crop is None:
-                self.update_cropped_mask()
-                
             return np.ma.masked_array(self.full_array[self.yx_step1_slices], self.bmask)[::self.yx_steps[0], ::self.yx_steps[1]]
             
         else:
@@ -317,7 +327,7 @@ class ImageStatistics(object):
             
             
     def update_cropped_mask(self):
-        print('update_cropped_mask')
+        logger.debug(f'Updating cropped mask for {self.name}')
         if self.slices is None: return
                        
         height, width = self.full_array.shape[:2]
@@ -356,23 +366,17 @@ class ImageStatistics(object):
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
         
         self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
-        #self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, 255, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
         
         yx_slices = self.slices[:min_ndim]
         self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])
         self.yx_steps = [s.step for s in yx_slices]
+
         if self.bmask is None or self.full_array.shape != self.bmask.shape:  
             
             array_cropped = self.full_array[self.yx_step1_slices]
-            bmask = np.zeros(array_cropped.shape, dtype=bool)
+            bmask = np.zeros(array_cropped.shape[:2], dtype=bool)
             slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
-            
-            if self.full_array.ndim == 2:
-                bmask[slices] = self.mask_crop[slices]
-            else:
-                for i in range(self.full_array.ndim):
-                    bmask[slices[0], slices[1], i] = self.mask_crop[slices]
-                
+            bmask[slices] = self.mask_crop[slices]
             self.bmask = bmask     
         
         
@@ -391,9 +395,13 @@ class ImageStatistics(object):
         
         
     def clear(self):
-        self.mask_crop = None
-        self.bmask = None 
-        self.mask_qimg = None        
+        logger.debug(f'Clearing statistics cache for {self.name}')
+
+        if self.name.startswith('roi.'):
+            self.mask_crop = None
+            self.bmask = None
+            self.mask_qimg = None
+
         self._cache.clear()
         
         
@@ -586,14 +594,17 @@ class ImageData:
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         
         self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
-        #self.custom_selroi = {}
         
         self.pre_def_masks = dict()
         self.chanstats = OrderedStats()
-        self.cfa = 'mono'
-        
+        self.cfa = 'mono'        
+
         self.show_array(arr)        
         self.layers = collections.OrderedDict()
+
+        self.roi_pattern_visible_changed = None
+
+        self.init_channel_statistics()
         
         
     def add_custom_selection(self, name):
@@ -624,12 +635,8 @@ class ImageData:
             
             self.array = array                
             
-            if not skip_init:
-                self.init_channel_statistics(overwrite=False)
-                
-            else:
-                for name, stat in self.chanstats.items():
-                    stat.clear()
+            for name, stat in self.chanstats.items():
+                stat.clear()
             
         for selection in [self.selroi]:
             if selection.isfullrange():
@@ -685,8 +692,7 @@ class ImageData:
         for mask_name, mask_props in self.pre_def_masks.items():
             if not mask_name in self.chanstats:
                 self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'])
-                #self.chanstats[f'roi.{mask_name}'] = ImageStatistics(self, mask_props['roi.color'])
-                self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'])
+                self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'], active=False)
             
             
     def selectRoiOption(self, option: str):        
@@ -787,7 +793,7 @@ class ImageData:
 
 
     def addMaskStatistics(self, name, slices, color=None, active=True, origin='tl'):
-        self.chanstats[name] = ImageStatistics(self, color)
+        self.chanstats[name] = ImageStatistics(self, name, color)
         self.chanstats[name].attach_full_array(slices, origin)
         self.chanstats[name].active = active
         
@@ -803,11 +809,10 @@ class ImageData:
         for name, chanstat in self.chanstats.items():
             if active_only and not chanstat.active: continue          
             if name in PRE_DEF_MASK_NAMES: continue
-            if name.startswith('roi.'): continue
+            #if name.startswith('roi.'): continue
             
             if chanstat.contains(y, x, self.height, self.width):
-                found.append(name)
-            
+                found.append(name)            
                 
         for name in PRE_DEF_MASK_NAMES:
             if not name in self.chanstats: continue
@@ -818,6 +823,7 @@ class ImageData:
                 found.append(name)
                 
         return found
+    
                     
     def defineModeMasks(self, mode='mono'):
         self.pre_def_masks.clear()
@@ -972,6 +978,9 @@ class ImageData:
 
     def show_roi_mask(self, visible):
         self.roi_mask_visible = visible
+
+        if not self.roi_pattern_visible_changed is None:
+            self.roi_pattern_visible_changed(visible)
 
         for mask_name, chanstat in self.chanstats.items():
             if mask_name.startswith('roi.'): continue            

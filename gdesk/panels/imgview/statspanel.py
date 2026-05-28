@@ -329,6 +329,7 @@ class TitleToolBar(QtWidgets.QToolBar):
 
         self.roiMaskBtn = QtWidgets.QToolButton(self)
         self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')))
+        self.roiMaskBtn.setCheckable(True)
         self.roiMaskBtn.setToolTip('Show/Hide Roi Pattern')
         self.roiMaskBtn.clicked.connect(self.toggleShowRoiMask)
         self.addWidget(self.roiMaskBtn)
@@ -337,7 +338,14 @@ class TitleToolBar(QtWidgets.QToolBar):
 
 
     def toggleShowMask(self):
-        self.toggleMask.emit()    
+        self.toggleMask.emit()
+
+
+    def setRoiMaskVisible(self, visible):
+        if visible:
+            self.roiMaskBtn.setChecked(True)
+        else:
+            self.roiMaskBtn.setChecked(False)
 
 
     def toggleShowRoiMask(self):

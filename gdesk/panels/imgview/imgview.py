@@ -2012,6 +2012,7 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar.toggleMask.connect(self.toggleMask)
         self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
         self.statsToolbar.maskPreset.connect(self.selectMasks)
+        self.imviewer.imgdata.roi_pattern_visible_changed = self.statsToolbar.setRoiMaskVisible
         
         self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         self.statsDock.setTitleBarWidget(self.statsToolbar)
@@ -2027,7 +2028,8 @@ class ImageProfileWidget(QWidget):
         self.gridsplit = GridSplitter(None)
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
-        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)          
+        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)      
+        #
 
         self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
@@ -2237,7 +2239,8 @@ class ImageProfilePanel(ImageViewerBase):
         self.imviewer.zoomChanged.connect(self.statuspanel.set_zoom)
         self.imviewer.zoomPanChanged.connect(self.emitVisibleRegionChanged)
         self.imviewer.roi.roiChanged.connect(self.passRoiChanged)
-        self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)
+        self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)   
+        #self.imviewer.imgdata.roi_pattern_visible_changed.connect(self.imgprof.statsToolbar.setRoiMaskVisible)
         
         self.imviewer.roi.get_context_menu = self.get_select_menu
         self.imviewer.contextMenuRequest.connect(self.exec_select_menu)
