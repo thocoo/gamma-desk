@@ -350,7 +350,6 @@ class ImageStatistics(object):
                 ry = int(np.ceil(stop_y / my))
                 rx = int(np.ceil(stop_x / mx))
                 if ry > 1 or rx > 1:
-                    print('Tilling bmask')
                     mask_extend = np.tile(self.mask_not_cropped, (ry, rx))
                 else:
                     mask_extend = self.mask_not_cropped
@@ -373,10 +372,21 @@ class ImageStatistics(object):
 
         if self.bmask is None or self.full_array.shape != self.bmask.shape:  
             
+            # array_cropped = self.full_array[self.yx_step1_slices]
+            # bmask = np.zeros(array_cropped.shape[:2], dtype=bool)
+            # slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
+            # bmask[slices] = self.mask_crop[slices]
+            
             array_cropped = self.full_array[self.yx_step1_slices]
-            bmask = np.zeros(array_cropped.shape[:2], dtype=bool)
+            bmask = np.zeros(array_cropped.shape, dtype=bool)
             slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
-            bmask[slices] = self.mask_crop[slices]
+            
+            if self.full_array.ndim == 2:
+                bmask[slices] = self.mask_crop[slices]
+            else:
+                for i in range(self.full_array.ndim):
+                    bmask[slices[0], slices[1], i] = self.mask_crop[slices]                
+            
             self.bmask = bmask     
         
         
@@ -397,10 +407,10 @@ class ImageStatistics(object):
     def clear(self):
         logger.debug(f'Clearing statistics cache for {self.name}')
 
-        if self.name.startswith('roi.'):
+        if self.name.startswith('roi.') or (not self.bmask is None and self.bmask.ndim != self.full_array.ndim):
             self.mask_crop = None
             self.bmask = None
-            self.mask_qimg = None
+            self.mask_qimg = None                                
 
         self._cache.clear()
         
