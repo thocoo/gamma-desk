@@ -28,7 +28,7 @@ here = pathlib.Path(__file__).absolute().parent
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb
@@ -295,7 +295,7 @@ class ImageStatistics(object):
             self.update_cropped_mask()
         
         if not self.mask_not_cropped is None:
-            return np.ma.masked_array(self.full_array[self.yx_step1_slices], self.bmask)[::self.yx_steps[0], ::self.yx_steps[1]]
+            return np.ma.masked_array(self.full_array[self.limits], self.bmask)[::self.steps[0], ::self.steps[1]]
             
         else:
             array = self.full_array            
@@ -331,8 +331,6 @@ class ImageStatistics(object):
         if self.slices is None: return
                        
         height, width = self.full_array.shape[:2]
-        min_ndim = min(len(self.slices), self.full_array.ndim)
-
         start_y, stop_y, step_y = self.slices[0].indices(height)
         start_x, stop_x, step_x = self.slices[1].indices(width)
 
@@ -364,31 +362,35 @@ class ImageStatistics(object):
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
         
-        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue()), invert=True))
-        
-        yx_slices = self.slices[:min_ndim]
-        self.yx_step1_slices = tuple([slice(s.start, s.stop) for s in yx_slices])
-        self.yx_steps = [s.step for s in yx_slices]
+        color = (self.plot_color.red(), self.plot_color.green(), self.plot_color.blue())
+        self.mask_qimg.setColorTable(imconvert.make_color_table(cmap, self.mask_alpha, color, invert=True))
 
-        if self.bmask is None or self.full_array.shape != self.bmask.shape:  
+        self.limits, self.steps = self.get_limits_and_steps()
+
+        if self.bmask is None or self.full_array.shape != self.bmask.shape:
             
-            # array_cropped = self.full_array[self.yx_step1_slices]
-            # bmask = np.zeros(array_cropped.shape[:2], dtype=bool)
-            # slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
-            # bmask[slices] = self.mask_crop[slices]
-            
-            array_cropped = self.full_array[self.yx_step1_slices]
+            array_cropped = self.full_array[self.limits]
             bmask = np.zeros(array_cropped.shape, dtype=bool)
             slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
-            
+
             if self.full_array.ndim == 2:
                 bmask[slices] = self.mask_crop[slices]
-            else:
-                for i in range(self.full_array.ndim):
+
+            elif self.full_array.ndim == 3:
+                for i in range(bmask.shape[2]):
                     bmask[slices[0], slices[1], i] = self.mask_crop[slices]                
-            
-            self.bmask = bmask     
+
+            self.bmask = bmask
         
+
+    def get_limits_and_steps(self):        
+        min_ndim = min(len(self.slices), self.full_array.ndim)        
+        yx_slices = self.slices[:min_ndim]
+        indices = [slc.indices(size) for slc, size in zip(yx_slices, self.full_array.shape)]
+        limits = tuple(slice(ind[0], ind[1]) for ind in indices)
+        steps = [ind[2]  for ind in indices]
+        return limits, steps
+    
         
     @property
     def dtype(self):
@@ -407,10 +409,12 @@ class ImageStatistics(object):
     def clear(self):
         logger.debug(f'Clearing statistics cache for {self.name}')
 
-        if self.name.startswith('roi.') or (not self.bmask is None and self.bmask.ndim != self.full_array.ndim):
-            self.mask_crop = None
-            self.bmask = None
-            self.mask_qimg = None                                
+        if not self.bmask is None:
+            current_limits, current_steps = self.get_limits_and_steps()
+            if self.limits != current_limits or self.bmask.ndim != self.full_array.ndim:
+                self.mask_crop = None
+                self.bmask = None
+                self.mask_qimg = None                                
 
         self._cache.clear()
         

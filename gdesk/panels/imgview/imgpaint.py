@@ -582,8 +582,8 @@ class ImageViewerWidget(QWidget):
                 y0, y1, y_step = y_slice.indices(self.imgdata.height)
                 x0, x1, x_step = x_slice.indices(self.imgdata.width)
 
-                if (y1 - y0) > self.imgdata.height - y_step and (x1 - x0) > self.imgdata.width - x_step:
-                    continue
+                # if (y1 - y0) > self.imgdata.height - y_step and (x1 - x0) > self.imgdata.width - x_step:
+                #     continue
 
                 if chanstat.dim:
                     qp.setOpacity(0.25)
