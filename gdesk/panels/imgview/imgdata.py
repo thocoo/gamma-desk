@@ -201,7 +201,7 @@ class OrderedStats(UserDict):
         
 class ImageStatistics(object):
 
-    def __init__(self, imgdata, name, plot_color=None):
+    def __init__(self, imgdata, name, plot_color=None, visible=True):
         self.imgdata = imgdata
         self.name = name
         self._cache = dict()
@@ -225,7 +225,7 @@ class ImageStatistics(object):
         
         self.dim = False
         self.active = True
-        self.mask_visible = True
+        self.mask_visible = visible
         self.plot_visible = True
         self.hist_visible = True
 
@@ -705,7 +705,7 @@ class ImageData:
             
         for mask_name, mask_props in self.pre_def_masks.items():
             if not mask_name in self.chanstats:
-                self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'])
+                self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'], visible=False)
                 self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'], active=False)
             
             
@@ -806,8 +806,8 @@ class ImageData:
             self.chanstats[name].set_mask(chanstat.mask_not_cropped, chanstat.mask_zero_origin, chanstat.mask_alpha)
 
 
-    def addMaskStatistics(self, name, slices, color=None, active=True, origin='tl'):
-        self.chanstats[name] = ImageStatistics(self, name, color)
+    def addMaskStatistics(self, name, slices, color=None, active=True, origin='tl', visible=True):
+        self.chanstats[name] = ImageStatistics(self, name, color, visible)
         self.chanstats[name].attach_full_array(slices, origin)
         self.chanstats[name].active = active
         
