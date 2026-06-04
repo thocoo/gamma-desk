@@ -103,6 +103,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         
     def initUi(self):        
         self.table = QtWidgets.QTableWidget()                
+        self.table.viewport().installEventFilter(self)
         
         headers = self.table.horizontalHeader()
         headers.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -132,12 +133,37 @@ class StatisticsPanel(QtWidgets.QWidget):
         act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
         act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_restangular.png')))
         self.contextMenu.addAction(act)
-        act = QtWidgets.QAction('Show Bmask', self, triggered=self.setImviewBmask)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        
+        # act = QtWidgets.QAction('Show Bmask', self, triggered=self.setImviewBmask)
+        # act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
+        # self.contextMenu.addAction(act)
+
+        act = QtWidgets.QAction('Show/Hide Levels', self, triggered=self.showHideLevels)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))
+        self.contextMenu.addAction(act)        
+
+        act = QtWidgets.QAction('Show/Hide Profiles', self, triggered=self.showHideProfiles)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')))
         self.contextMenu.addAction(act)
+
+        act = QtWidgets.QAction('Show/Hide Image Viewer', self, triggered=self.showHideViewer)
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'picture.png')))
+        self.contextMenu.addAction(act)        
+
         act = QtWidgets.QAction('Copy', self, triggered=self.copyTableToClipboard)
         act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
         self.contextMenu.addAction(act)        
+
+
+    def eventFilter(self, obj, event):
+        if obj is self.table.viewport() and event.type() == QtCore.QEvent.MouseButtonPress:
+            if event.button() == Qt.LeftButton and event.modifiers() == Qt.NoModifier:
+                index = self.table.indexAt(event.pos())
+                if index.isValid() and self.table.selectionModel().isRowSelected(index.row(), index.parent()):
+                    self.table.clearSelection()
+                    return True
+
+        return super().eventFilter(obj, event)
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
@@ -185,6 +211,36 @@ class StatisticsPanel(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.setSelection.emit(roi_name)
+
+
+    def showHideLevels(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats[roi_name].hist_visible = not self.imviewer.imgdata.chanstats[roi_name].hist_visible
+            self.maskSelected.emit(roi_name)
+
+
+    def showHideProfiles(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats[roi_name].plot_visible = not self.imviewer.imgdata.chanstats[roi_name].plot_visible
+            self.maskSelected.emit(roi_name)
+
+
+    def showHideViewer(self):
+        selection = self.table.selectionModel().selectedRows()
+        
+        for index in selection:
+            nameCell = self.table.item(index.row(), 0)
+            roi_name = nameCell.text()
+            self.imviewer.imgdata.chanstats[roi_name].mask_visible = not self.imviewer.imgdata.chanstats[roi_name].mask_visible
+            self.maskSelected.emit(roi_name)
             
 
     def setImviewBmask(self):
