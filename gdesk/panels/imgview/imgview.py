@@ -2058,7 +2058,7 @@ class ImageProfileWidget(QWidget):
             
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
-        self.statsPanel.formatTable()
+        #self.statsPanel.formatTable()
         self.refresh()
         
         
@@ -2184,6 +2184,7 @@ class ImageProfileWidget(QWidget):
         if visible:
             self.profBtn1.hide()
             self.showProfiles()
+            self.statsPanel.formatTable()
             self.statsPanel.updateStatistics()
             
         else:
@@ -2213,6 +2214,7 @@ class ImageProfileWidget(QWidget):
         parent.refresh_profiles_and_stats()
         
         self.imviewer.refresh()
+        self.statsPanel.formatTable()
                
         
     @property
@@ -2331,6 +2333,12 @@ class ImageProfilePanel(ImageViewerBase):
     @property
     def imviewer(self):
         return self.imgprof.imviewer
+    
+
+    def refresh(self):
+        self.imviewer.refresh()
+        self.imgprof.statsPanel.formatTable()
+        self.refresh_profiles_and_stats()
 
 
     def showHideProfiles(self):

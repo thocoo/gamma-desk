@@ -638,6 +638,7 @@ class ImageGuiProxy(GuiProxyBase):
             logger.warning(f'Overwriting reserved ROI name {name}')            
 
         panel.imviewer.imgdata.addMaskStatistics(name, slices, color, active, origin, visible=visible) 
+        panel.refresh()
             
 
     @StaticGuiCall
