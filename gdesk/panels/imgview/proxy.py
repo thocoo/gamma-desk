@@ -365,21 +365,21 @@ class ImageGuiProxy(GuiProxyBase):
         else:
             panel = gui.qapp.panels.selected('image')
             panel.imviewer.imgdata.show_layer('mask')    
-            panel.imviewer.refresh()
+            panel.refresh()
         
         
     @StaticGuiCall
     def set_mask(array=None, composition='sourceover', cmap=None, alpha=192):
         panel = gui.qapp.panels.selected('image')       
         panel.imviewer.imgdata.set_mask(array, composition, cmap, alpha)
-        panel.imviewer.refresh()
+        panel.refresh()
         
         
     @StaticGuiCall
     def hide_mask():
         panel = gui.qapp.panels.selected('image')
         panel.imviewer.imgdata.hide_layer('mask')        
-        panel.imviewer.refresh()
+        panel.refresh()
         
     
     @StaticGuiCall
@@ -598,14 +598,14 @@ class ImageGuiProxy(GuiProxyBase):
     def delete_all_rois():        
         panel = gui.qapp.panels.selected('image')
         panel.imviewer.imgdata.chanstats.clear()
-        panel.imviewer.refresh()
+        panel.refresh()
         
         
     @StaticGuiCall
     def delete_roi(roi_name):        
         panel = gui.qapp.panels.selected('image')
         panel.imviewer.imgdata.chanstats.pop(roi_name)
-        panel.imviewer.refresh()
+        panel.refresh()
         
         
     @StaticGuiCall
@@ -615,7 +615,7 @@ class ImageGuiProxy(GuiProxyBase):
         if name in panel.imviewer.imgdata.chanstats:
             stats = panel.imviewer.imgdata.chanstats[name]
             stats.set_mask(bmask, zero_origin, alpha)
-            panel.imviewer.refresh()
+            panel.refresh()
             
         else:
             raise KeyError(f'ROI name {name} not found')            
@@ -658,7 +658,7 @@ class ImageGuiProxy(GuiProxyBase):
         
         if name in panel.imviewer.imgdata.chanstats:
             panel.imviewer.imgdata.chanstats.pop(name)   
-            panel.imviewer.refresh()
+            panel.refresh()
         
         
     @StaticGuiCall
