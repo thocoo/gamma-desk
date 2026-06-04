@@ -231,6 +231,16 @@ class ImageStatistics(object):
 
         
     def attach_full_array(self, slices, origin='tl'):
+        
+        # Validate the slices
+        # Are the parameters integers?
+        for slc in slices:
+            try:
+                slc.indices(100_000)
+            except:
+                self.active = False
+                raise
+                
         self.relative_slices = slices
         self.origin = origin if not origin is None else 'tl'
         self.clear()
@@ -705,6 +715,7 @@ class ImageData:
             
         for mask_name, mask_props in self.pre_def_masks.items():
             if not mask_name in self.chanstats:
+                #print(mask_name, mask_props)
                 self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'], visible=False)
                 self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'], active=False)
             
