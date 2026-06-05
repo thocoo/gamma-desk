@@ -765,6 +765,7 @@ class ImageData:
 
             form = [('Name',  f'custom{i}'),
                     ('Color',  color_str),
+                    ('From Center', False),
                     ('x start', selroi.xr.start),
                     ('x stop', selroi.xr.stop),
                     ('x step', selroi.xr.step),
@@ -781,35 +782,38 @@ class ImageData:
             # mask_alpha = chanstat.alpha
             
             title='Edit Roi Statistics'
+
+            slices = chanstat.relative_slices
             
             form = [('Name',  edit_roi_name),
                     ('Color',  chanstat.plot_color.name()),
-                    ('x start', chanstat.slices[1].start),
-                    ('x stop', chanstat.slices[1].stop),
-                    ('x step', chanstat.slices[1].step),
-                    ('y start', chanstat.slices[0].start),
-                    ('y stop',chanstat.slices[0].stop),
-                    ('y step', chanstat.slices[0].step)]            
+                    ('From Center', chanstat.origin == 'center'),
+                    ('x start', slices[1].start),
+                    ('x stop', slices[1].stop),
+                    ('x step', slices[1].step),
+                    ('y start', slices[0].start),
+                    ('y stop',slices[0].stop),
+                    ('y step', slices[0].step)]            
                 
         if 'mask' in self.layers and not self.layers['mask']['array'] is None:
             form.append(('Mask', False))
 
-        r = fedit(form, title=title)
+        r = fedit(form, title=title, result='dict')
         if r is None: return
 
-        name = r[0]                
-        color = QtGui.QColor(r[1])
-        h_slice = slice(r[2], r[3], r[4])
-        v_slice = slice(r[5], r[6], r[7])
+        name = r['Name']
+        color = QtGui.QColor(r['Color'])
+        h_slice = slice(r['x start'], r['x stop'], r['x step'])
+        v_slice = slice(r['y start'], r['y stop'], r['y step'])
         
         chanstat = self.chanstats.pop(edit_roi_name) if not pos is None else None
         
-        self.addMaskStatistics(name, (v_slice, h_slice), color)        
+        self.addMaskStatistics(name, (v_slice, h_slice), color, origin = 'center' if r['From Center'] else 'tl', visible=True)        
         
         if not pos is None:
             self.chanstats.move_to_position(name, pos) 
 
-        if chanstat is None and len(r) == 9 and r[8]:
+        if chanstat is None and r.get('Mask', False):
             ma = self.layers['mask']['array']                           
             self.chanstats[name].set_mask(ma, zero_origin=True)
             
