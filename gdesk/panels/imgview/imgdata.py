@@ -28,7 +28,7 @@ here = pathlib.Path(__file__).absolute().parent
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 try:
     from .numba_func import map_values_mono, map_values_rgbswap, map_values_rgb
