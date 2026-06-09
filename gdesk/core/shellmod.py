@@ -25,7 +25,7 @@ from .history import LogDir
 from ..utils.names import DictStruct 
 from ..rectable import RecordTable
 from ..live import use, manager
-from ..live.manage import LiveScriptModuleReference
+from ..live.manage import LiveScriptModuleReference, LiveScriptTree
 
 from rlcompleter import Completer
 from ..live.completer import Completer as LiveCompleter
@@ -205,15 +205,17 @@ class Shell(object):
             self.edit_dbase(object.fullpath)
             return
                     
-        (filename, lineno) = self.getcodefile(object)
+        (filename, lineno, is_dir) = self.getcodefile(object)
         
-        print(f'File "{filename}", line {lineno}')
+        if is_dir:
+            subprocess.Popen(rf'explorer "{filename}"')                
         
-        if not filename is None:
+        elif not filename is None:
+            print(f'File "{filename}", line {lineno}')
             self.edit_file(filename, lineno)
             
         else:
-            logger.warn('Could not find the file for object')
+            logger.warn('Could not find the file or dir for object')
                 
     def getcodefile(self, object):
         """
@@ -225,7 +227,11 @@ class Shell(object):
         
         if isinstance(object, LiveScriptModuleReference):
             fi = object.__file__
-            return (fi, lineno)
+            return (fi, lineno, False)
+            
+        if isinstance(object, LiveScriptTree):
+            d = object.__paths__[0]            
+            return (d, None, True)
                     
         if hasattr(object, '__wrapped__'):
             #Maybe wrapped by the functools.wraps decorator
@@ -263,7 +269,7 @@ class Shell(object):
                 except AttributeError:
                     lineno = 1
                 
-        return (fi, lineno)                
+        return (fi, lineno, False)                
                     
     @staticmethod
     def new_interactive_thread(cqs, guiproxy=None, client=True, console_id=None):
@@ -421,7 +427,7 @@ class Shell(object):
             print(tbl)            
             
             
-    def tree(self, dir_path: Path, level: int=-1, limit_to_directories: bool=False,
+    def tree(self, dir_path: Path='.', level: int=-1, limit_to_directories: bool=False,
              length_limit: int=1000):
         """Given a directory Path object print a visual tree structure"""
         space =  '    '
