@@ -191,14 +191,34 @@ class Shell(object):
         """
         executable = config['dbbrowser']
         os.spawnl(os.P_NOWAIT, executable, '"' + executable + '"', '"{0}"'.format(filename))        
+
+
+    def explore(self, path=None):
+        """
+        Open the file explorer in the given folder (current working folder by default).
+        """
+        folder = Path('.').resolve() if path is None else Path(path).resolve()
+
+        if sys.platform.startswith('win'):
+            os.startfile(str(folder))
+        elif sys.platform == 'darwin':
+            subprocess.Popen(['open', str(folder)])
+        else:
+            subprocess.Popen(['xdg-open', str(folder)])
+            
         
-    def edit(self, object):
+    def edit(self, object=None):
         """
         Edit source file of object with external editor
         
         :param objects: object from which the source code will be opened in an editor
         :return: None
         """
+
+        if object is None:
+             self.explore()
+             return
+             
         object_type_name = type(object).__name__
         
         if object_type_name == 'ImageDataManager':
@@ -208,14 +228,14 @@ class Shell(object):
         (filename, lineno, is_dir) = self.getcodefile(object)
         
         if is_dir:
-            subprocess.Popen(rf'explorer "{filename}"')                
+            self.explore(filename)                
         
         elif not filename is None:
             print(f'File "{filename}", line {lineno}')
             self.edit_file(filename, lineno)
             
         else:
-            logger.warn('Could not find the file or dir for object')
+            logger.warning('Could not find the file or dir for object')
                 
     def getcodefile(self, object):
         """
@@ -413,7 +433,10 @@ class Shell(object):
             
         elif cmd in ['ls', 'dir']:
             self.popen('dir')
-            
+
+        elif cmd == 'explore':
+            self.explore(args[0] if args else None)
+
         elif cmd == 'tb':
             traceback.print_last()
             
