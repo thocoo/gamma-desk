@@ -25,7 +25,7 @@ from .history import LogDir
 from ..utils.names import DictStruct 
 from ..rectable import RecordTable
 from ..live import use, manager
-from ..live.manage import LiveScriptModuleReference, LiveScriptTree
+from ..live.manage import LiveScriptModuleReference, LiveScriptTree, LiveScriptScan
 
 from rlcompleter import Completer
 from ..live.completer import Completer as LiveCompleter
@@ -228,9 +228,13 @@ class Shell(object):
         if isinstance(object, LiveScriptModuleReference):
             fi = object.__file__
             return (fi, lineno, False)
-            
+                    
         if isinstance(object, LiveScriptTree):
-            d = object.__paths__[0]            
+            d = object.__paths__[0]                        
+            return (d, None, True)
+        
+        elif isinstance(object, LiveScriptScan):
+            d = object.__script_manager__.path[0]                        
             return (d, None, True)
                     
         if hasattr(object, '__wrapped__'):

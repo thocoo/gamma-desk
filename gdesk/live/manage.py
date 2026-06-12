@@ -398,7 +398,10 @@ class LiveScriptScan(object):
 
             
     def __repr__(self):
-        return f"<LiveScriptScan '{self.__script_manager__.path}'>"
+        s = ['<LiveScriptScan>']
+        for branch in self.__script_manager__.path:
+            s.append(str(branch))
+        return '\n'.join(s)            
 
         
 class LiveScriptManager(object):
