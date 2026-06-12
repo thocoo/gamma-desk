@@ -5,7 +5,8 @@ from pathlib import Path
 
 from qtpy import QtCore, QtGui, QtWidgets
     
-from gdesk.utils.qt import using_pyside, using_pyqt    
+from gdesk.utils.qt import using_pyside, using_pyqt
+from gdesk import config
 
 LASTMAP = None
 
@@ -77,30 +78,31 @@ def getFile(filter='*.*', title='open', defaultFile=None, hideFilterDetails=Fals
     #Maybe QT returns a buggy string as selectedFilter?
 
     if using_pyside():
-        if not hideFilterDetails:
-            fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileName(
-                caption = title,
-                dir=defaultDir,
-                filter=filter)
-        else:
-            fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileName(
-                caption = title,
-                dir=defaultDir,
-                filter=filter,
-                options=QtWidgets.QFileDialog.HideNameFilterDetails)
+        kwargs = dict(
+            caption=title,
+            dir=defaultDir,
+            filter=filter,
+        )
+
+        if hideFilterDetails:
+            kwargs['options'] = QtWidgets.QFileDialog.HideNameFilterDetails
+
+        elif not config.get('use_native_dialog', True):
+            kwargs['options'] = QtWidgets.QFileDialog.Option.DontUseNativeDialog
+
+        fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileName(**kwargs)
                 
     elif using_pyqt():
-        if not hideFilterDetails:
-            fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileNameAndFilter(
-                caption = title,
-                directory=defaultDir,
-                filter=filter)
-        else:
-            fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileNameAndFilter(
-                caption = title,
-                directory=defaultDir,
-                filter=filter,
-                options=QtWidgets.QFileDialog.HideNameFilterDetails)
+        kwargs = dict(
+            caption=title,
+            directory=defaultDir,
+            filter=filter,
+        )
+
+        if hideFilterDetails:
+            kwargs['options'] = QtWidgets.QFileDialog.HideNameFilterDetails
+
+        fileName, selectedFilter = QtWidgets.QFileDialog.getOpenFileNameAndFilter(**kwargs)
 
     LASTMAP = str(Path(fileName).parent)
     return fileName, selectedFilter
@@ -120,17 +122,20 @@ def getFiles(filter='*.*', title='open', defaultFile=None, hideFilterDetails=Fal
     #Maybe QT returns a buggy string as selectedFilter?
 
     if using_pyside():
-        if not hideFilterDetails:
-            fileNames, selectedFilter = QtWidgets.QFileDialog.getOpenFileNames(
-                caption = title,
-                dir=defaultDir,
-                filter=filter)
-        else:
-            fileNames, selectedFilter = QtWidgets.QFileDialog.getOpenFileNames(
-                caption = title,
-                dir=defaultDir,
-                filter=filter,
-                options=QtWidgets.QFileDialog.HideNameFilterDetails)
+        kwargs = dict(
+            caption=title,
+            dir=defaultDir,
+            filter=filter,
+        )
+        
+        if hideFilterDetails:
+            kwargs['options'] = QtWidgets.QFileDialog.HideNameFilterDetails
+            
+        elif not config.get('use_native_dialog', True):
+            kwargs['options'] = QtWidgets.QFileDialog.Option.DontUseNativeDialog            
+                
+        fileNames, selectedFilter = QtWidgets.QFileDialog.getOpenFileNames(**kwargs)
+        
     elif using_pyqt():
         if not hideFilterDetails:
             fileNames, selectedFilter = QtWidgets.QFileDialog.getOpenFileNamesAndFilter(
@@ -156,11 +161,19 @@ def putFile(filter='*.*', title='save', defaultFile=None, defaultFilter=''):
         defaultDir = LASTMAP
 
     if using_pyside():
-        fileName, selectedFilter = QtWidgets.QFileDialog.getSaveFileName(
+        
+        kwargs = dict(
             caption = title,
             filter = filter,
             dir = defaultDir,
-            selectedFilter = defaultFilter)
+            selectedFilter = defaultFilter        
+            )
+            
+        if not config.get('use_native_dialog', True):
+            kwargs['options'] = QtWidgets.QFileDialog.Option.DontUseNativeDialog 
+            
+        fileName, selectedFilter = QtWidgets.QFileDialog.getSaveFileName(**kwargs)
+        
     elif using_pyqt():
         fileName, selectedFilter = QtWidgets.QFileDialog.getSaveFileName(
             parent=None,
@@ -176,10 +189,17 @@ def putFile(filter='*.*', title='save', defaultFile=None, defaultFilter=''):
 def getMap(startPath=None, title='select a Directory'):
     global LASTMAP
     startPath = startPath or LASTMAP
+    
     if using_pyside():
-        path = QtWidgets.QFileDialog.getExistingDirectory(
+        kwargs = dict(
             caption=title,
             dir=startPath)
+            
+        if not config.get('use_native_dialog', True):
+            kwargs['options'] = QtWidgets.QFileDialog.Option.DontUseNativeDialog            
+        
+        path = QtWidgets.QFileDialog.getExistingDirectory(**kwargs)
+            
     elif using_pyqt():
             path = QtWidgets.QFileDialog.getExistingDirectory(
             caption=title,
