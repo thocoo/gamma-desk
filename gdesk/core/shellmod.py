@@ -640,12 +640,10 @@ class Shell(object):
         
     @staticmethod
     def get_live_paths():
-        #from ..live import manager
         return manager.path.copy()
         
     @staticmethod
-    def set_live_paths(new_live_paths):
-        #from ..live import manager     
+    def set_live_paths(new_live_paths):    
         manager.path.clear()
         manager.path.extend(new_live_paths)
         print(f'The new live paths are {manager.path}')
