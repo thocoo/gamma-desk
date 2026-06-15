@@ -36,6 +36,10 @@ class EditPaths(QtWidgets.QDialog):
         self.editPathBtn.clicked.connect(self.edit)
         self.delPathBtn = QtWidgets.QPushButton('Delete', self)
         self.delPathBtn.clicked.connect(self.delete)
+        self.upBtn = QtWidgets.QPushButton('Up', self)
+        self.upBtn.clicked.connect(self.move_up)
+        self.downBtn = QtWidgets.QPushButton('Down', self)
+        self.downBtn.clicked.connect(self.move_down)
         
         self.okBtn = QtWidgets.QPushButton('Ok', self)
         self.okBtn.clicked.connect(self.ok)
@@ -48,6 +52,8 @@ class EditPaths(QtWidgets.QDialog):
         hlayout.addWidget(self.addPathBtn)
         hlayout.addWidget(self.editPathBtn)
         hlayout.addWidget(self.delPathBtn)
+        hlayout.addWidget(self.upBtn)
+        hlayout.addWidget(self.downBtn)
         layout.addLayout(hlayout)            
         
         hlayout = QtWidgets.QHBoxLayout()
@@ -76,6 +82,24 @@ class EditPaths(QtWidgets.QDialog):
     def delete(self):
         for item in self.selectionlist.selectedItems():        
             self.selectionlist.takeItem(self.selectionlist.row(item))
+
+    def move_up(self):
+        rows = sorted(self.selectionlist.row(item) for item in self.selectionlist.selectedItems())
+        if not rows or rows[0] == 0:
+            return
+        for row in rows:
+            item = self.selectionlist.takeItem(row)
+            self.selectionlist.insertItem(row - 1, item)
+            item.setSelected(True)
+
+    def move_down(self):
+        rows = sorted((self.selectionlist.row(item) for item in self.selectionlist.selectedItems()), reverse=True)
+        if not rows or rows[0] == self.selectionlist.count() - 1:
+            return
+        for row in rows:
+            item = self.selectionlist.takeItem(row)
+            self.selectionlist.insertItem(row + 1, item)
+            item.setSelected(True)
             
     def ok(self):
         self.updatePaths()
