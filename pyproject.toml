@@ -44,7 +44,7 @@ dependencies = [
     "numba; python_version < '3.15'",
     "matplotlib != 3.5.2",
     "legacy-cgi; python_version > '3.12'",
-    "pywinpty<2.0.15; sys_platform=='win32' and python_version<='3.8'",
+    "pywinpty<2.0.14; sys_platform=='win32' and python_version<='3.8'",
     "pywinpty; sys_platform=='win32' and python_version>'3.8'",
     "numpy<2; python_version<'3.12'",
     "numpy>=2; python_version>='3.12'",
