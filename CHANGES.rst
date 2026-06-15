@@ -2,6 +2,8 @@
 1.11.0
 ------
 
+date: 2026-06-15
+
 - Dependencies: Add dependency group (aka 'extra') named `default` (either PySide6 or PySide2).
 - Dependencies: On Python >=3.12, install `pyside6-essentials` instead of the full `pyside6`.
 - Feature: Allow to run as 'gamma-desk' executable.
@@ -64,7 +66,7 @@
 - Tryout of non native file dialogs. The native dialogs can not by controlled with QTest
 - Open first script folder on use??
 - ?? will open the fileexplorer in current work folder
-- Add up and down button on the paths dialogs
+- Add up and down button on the search paths dialogs
 
 
 1.10.0.dev0
