@@ -1,10 +1,70 @@
 
-1.10.0
+1.11.0
 ------
 
 - Dependencies: Add dependency group (aka 'extra') named `default` (either PySide6 or PySide2).
 - Dependencies: On Python >=3.12, install `pyside6-essentials` instead of the full `pyside6`.
 - Feature: Allow to run as 'gamma-desk' executable.
+- dev: Move Qt dependencies to optional
+- dev: Make the package also executable using its package name
+- doc: Describe pyside6/pyside2/default dependencies
+- doc: Mention how to run with uvx
+- Add comment on how Sphinx crashes on formlayout
+- Add get_roi_color
+- Show also invalid mask in statspanel and add column to indicate valid masks
+- return a extended roi description for get_roi(name)
+- Add option to skip reserved mask names in get_roi_names
+- Fix customizable order of roi's
+- Add Show/Hide Mask to selection menu
+- Clean up the use of the name mask, which are actual roi's which can have a mask
+- Add Configure Roi to select menu
+- Add dialog to change mask color
+- Add MaskEditor as instance for gui.img.mask
+- Add dtype and ndim to MaskEditor
+- use not checkable button for show mask and replace it to toggle mask
+- MaskEditor: add offset_x and offset_y to tile, add clear()
+- Make the Y-axis labels more visible (with white background in Light mode)
+- Add delete_all_rois and delete_roi
+- Add connect_by_logdir and auto wait when ready
+- Fix the use(arg) with arg being only dots
+- Add connect_by_logdir and auto wait when ready
+- Add the mask names to the pixel labels
+- Add option to draw masked roi inverted
+- Add contains()
+- Add option to show of hide the roi masks (but keep showing the slices)
+- Place the pixel labels in the center of the pixel
+- Add menu item to toggle SHow/Hide Roi Mask
+- Also show a mask for roiu which are only defined by slices
+- Add icons
+- Fix preserve of current bmask of roi when modifying
+- Auto tile the mask if not large enough
+- Assert slices are a tuple
+- Fix compatibility with numpy >= 2
+- Rename the Roi Mask to Roi Pattern
+- Allow overwrite of predfined roi's
+- All masks that start with roi. will have their slices updates by the roi widget
+- Replaced the showEvent overwrite by self.aboutToShow.connect...
+- Swap shortcuts for Show/Hide Roi Mask and Show/Hide Mask Pattern
+- Fix wrong roi slices on RGB image
+- Add origin to the mask arguments
+- Fix broken Image Viewer >Edit > Copy
+- Fix None typed xmin ... ymax
+- Fix when update_cropped_mask() should be called
+- Fix the roi with a boolean mask on RGB color image
+- Improve update conditions for mask_qimg
+- Don't show the standard mask definitions
+- Validate new slice defs before use
+- Add option to hide the roi in the viewer after defining
+- Refresh both the profiles and imageviewer after a roi change
+- Update context menu of StatisticsPanel
+- Add imgprof.statsPanel.formatTable() on refresh
+- Set imgdata logger level from DEBUG to WARNING
+- Add the option for origin of the slices to the roi dialog
+- Recognize LiveScriptTree object and open explorer on ??
+- Tryout of non native file dialogs. The native dialogs can not by controlled with QTest
+- Open first script folder on use??
+- ?? will open the fileexplorer in current work folder
+- Add up and down button on the paths dialogs
 
 
 1.10.0.dev0
