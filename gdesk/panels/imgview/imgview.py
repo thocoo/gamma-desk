@@ -32,7 +32,7 @@ except:
 
 from ... import config, gui
 
-if has_imafio:
+if False and has_imafio:
     if not config.get("path_imageio_freeimage_lib", None) is None:
         if os.getenv("IMAGEIO_FREEIMAGE_LIB", None) is None:
             os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
@@ -47,6 +47,7 @@ if has_imafio:
         
     try:
         imageio.plugins.freeimage.download()
+        pass
         
     except Exception as ex:
         logger.warning('Downloading imageio dll failed')
@@ -158,7 +159,7 @@ class selectNamedMask():
         
     def __call__(self):
         self.imgpanel.imgprof.selectMask(self.roiName)                     
-        self.imgpanel.imgprof.setSelection(self.roiName)               
+        self.imgpanel.imgprof.setSelection(self.roiName, modify=True)               
     
 
 class CustomMaskMenu(QMenu):
@@ -573,7 +574,7 @@ class ImageViewerBase(BasePanel):
     def selectNamedMask(self, i):
         maskName = self.searchForRoiSlots[i].text()
         self.imgprof.selectMask(maskName)
-        self.imgprof.setSelection(maskName)
+        self.imgprof.setSelection(maskName, modify=True)
     
 
     def addBindingTo(self, category, panid):
@@ -2174,10 +2175,10 @@ class ImageProfileWidget(QWidget):
         self.imviewer.refresh()  
         
         
-    def drawRoiProfile(self):                     
+    def drawRoiProfile(self, rois=None):                     
         slices = self.roi_slices        
-        self.rowPanel.drawMaskProfiles(roi_only=True)
-        self.colPanel.drawMaskProfiles(roi_only=True)            
+        self.rowPanel.drawMaskProfiles(roi_only=True, rois=rois)
+        self.colPanel.drawMaskProfiles(roi_only=True, rois=rois)            
         
 
     def set_profiles_visible(self, visible):
@@ -2290,7 +2291,7 @@ class ImageProfilePanel(ImageViewerBase):
     def passRoiChanged(self):
         imgdata = self.imviewer.imgdata
         selroi = imgdata.selroi
-        print(f'{self.imgprof.selected_mask=} {selroi}')
+        #print(f'{self.imgprof.selected_mask=} {selroi}')
         
         if not self.imgprof.selected_mask is None:
             if self.imgprof.selected_mask in imgdata.chanstats:
@@ -2302,7 +2303,7 @@ class ImageProfilePanel(ImageViewerBase):
         
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
-        self.imgprof.drawRoiProfile()
+        self.imgprof.drawRoiProfile([self.imgprof.selected_mask])
         self.imgprof.refresh_profile_views()
         
         

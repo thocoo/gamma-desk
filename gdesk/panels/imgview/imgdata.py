@@ -828,7 +828,8 @@ class ImageData:
         
         
     def customMaskNames(self):
-        return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in PRE_DEF_MASK_NAMES)]
+        #return [mask for mask in self.chanstats if (not mask.startswith('roi.')) and (not mask in PRE_DEF_MASK_NAMES)]
+        return [mask for mask in self.chanstats if (not mask.startswith('roi.'))]
         
         
     def find_chanstat_for_pixel(self, x, y, active_only=False):
