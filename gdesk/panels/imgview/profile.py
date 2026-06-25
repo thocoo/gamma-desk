@@ -249,12 +249,8 @@ class ProfilerPanel(QtWidgets.QWidget):
             self.view.setYPosScale(y, scale)
 
     
-    def drawMaskProfiles(self, roi_only=False):
-    
-        #hide_full_image = not self.fullImageVisible.isChecked()
-        hide_full_image = False
-        
-        self.removeMaskProfiles(roi_only and not hide_full_image)
+    def drawMaskProfiles(self, roi_only=False, rois=None):        
+        self.removeMaskProfiles(roi_only, rois)
             
         if self.direction == 0:
             axis = 0
@@ -262,10 +258,10 @@ class ProfilerPanel(QtWidgets.QWidget):
             axis = 1
             
         for mask_name, chanstat in self.chanstats.items():
-            if not mask_name.startswith('roi.'):
-                if roi_only: continue
-                if hide_full_image: continue
-            
+            if roi_only and not \
+                (mask_name.startswith('roi.') or (not rois is None and mask_name in rois)):
+                continue        
+
             if not (chanstat.is_valid() and chanstat.active and chanstat.plot_visible): continue
             
             x, y = chanstat.profile(axis)
@@ -293,11 +289,13 @@ class ProfilerPanel(QtWidgets.QWidget):
         self.view.refresh()
             
             
-    def removeMaskProfiles(self, roi_only=False):
+    def removeMaskProfiles(self, roi_only=False, rois=None):
         profile_names = list(self.profiles)
         
         for mask_name in profile_names:
-            if roi_only and not mask_name.startswith('roi.'): continue
+            if roi_only and not \
+                (mask_name.startswith('roi.') or (not rois is None and mask_name in rois)):
+                continue
             profile = self.profiles[mask_name]
             self.scene.removeItem(profile)   
             self.profiles.pop(mask_name)
