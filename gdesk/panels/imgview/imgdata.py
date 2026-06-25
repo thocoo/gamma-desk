@@ -622,7 +622,7 @@ class ImageData:
         
         arr = np.array([[0, 128], [128, 255]], 'uint8')
         
-        self.selroi = SelectRoi(1, 1, self.update_roi_statistics)
+        self.selroi = SelectRoi(1, 1, None)
         
         self.pre_def_masks = dict()
         self.chanstats = OrderedStats()
@@ -1029,12 +1029,20 @@ class ImageData:
             return False
         
         
-    def update_roi_statistics(self):
+    def update_roi_statistics(self, extra_rois=[]):
         roi_slices = self.selroi.getslices()
         
         for mask_name, chanstat in list(self.chanstats.items()):  
         
-            if not mask_name.startswith('roi.'): continue
+            if len(extra_rois) > 0:
+                if mask_name in extra_rois:
+                    pass
+                else:
+                    continue
+            elif mask_name.startswith('roi.'):
+                pass
+            else:
+                continue
             
             old_slices = chanstat.slices
             new_slices = []

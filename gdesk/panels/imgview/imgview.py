@@ -2003,7 +2003,7 @@ class ImageProfileWidget(QWidget):
         self.statsPanel = StatisticsPanel()
         self.statsPanel.maskSelected.connect(self.selectMask)
         self.statsPanel.activesChanged.connect(self.refresh)                        
-        self.statsPanel.setSelection.connect(self.setSelection)                       
+        self.statsPanel.setSelection.connect(lambda mask: self.setSelection(mask, True))                       
         self.statsPanel.showBmask.connect(self.showBmask)                
         
         self.statsToolbar = TitleToolBar()
@@ -2040,7 +2040,7 @@ class ImageProfileWidget(QWidget):
         self.setLayout(self.gridsplit)
 
         self.profilesVisible = False
-        self.selected_mask = None
+        self.selected_masks = []
 
 
     def toggleProfileVisible(self):
@@ -2125,7 +2125,7 @@ class ImageProfileWidget(QWidget):
 
         gui.qapp.processEvents()
         self.refresh_profile_views()
-        
+
         
     def drawMaskProfiles(self):         
         self.rowPanel.drawMaskProfiles()
@@ -2144,8 +2144,10 @@ class ImageProfileWidget(QWidget):
         self.refresh()
         
         
-    def setSelection(self, mask, modify=False):
+    def setSelection(self, mask, modify=False):        
         roi = self.imviewer.roi
+
+        print(f"setSelection: mask={mask}, modify={modify}")
         
         if not (mask == ''):
             chanstats = self.imviewer.imgdata.chanstats[mask]            
@@ -2156,7 +2158,7 @@ class ImageProfileWidget(QWidget):
             if modify:
                 color = chanstats.plot_color            
                 roi.initUI(color)
-                self.selected_mask = mask
+                self.selected_masks = [mask]
                 
             roi.clip()
             roi.show()
@@ -2164,7 +2166,7 @@ class ImageProfileWidget(QWidget):
             self.statsPanel.formatTable()   
 
         else:
-            self.selected_mask = None
+            self.selected_masks.clear()
             roi.initUI()
             
             
@@ -2290,25 +2292,19 @@ class ImageProfilePanel(ImageViewerBase):
 
     def passRoiChanged(self):
         imgdata = self.imviewer.imgdata
-        selroi = imgdata.selroi
-        #print(f'{self.imgprof.selected_mask=} {selroi}')
+        selroi = imgdata.selroi            
+
+        #print(f"passRoiChanged: selected_mask={self.imgprof.selected_mask}")
         
-        if not self.imgprof.selected_mask is None:
-            if self.imgprof.selected_mask in imgdata.chanstats:
-                h_slice = slice(selroi.xr.start, selroi.xr.stop, selroi.xr.step)
-                v_slice = slice(selroi.yr.start, selroi.yr.stop, selroi.yr.step)
-                stats = imgdata.chanstats[self.imgprof.selected_mask]
-                stats.attach_full_array((v_slice, h_slice))
-                self.imviewer.refresh()
-        
+        self.imviewer.imgdata.update_roi_statistics(extra_rois=self.imgprof.selected_masks)
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
-        self.imgprof.drawRoiProfile([self.imgprof.selected_mask])
+        self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
         self.imgprof.refresh_profile_views()
         
         
     def removeRoiProfile(self):
-        self.imgprof.selected_mask = None
+        self.imgprof.selected_masks.clear()
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()
