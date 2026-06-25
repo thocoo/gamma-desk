@@ -79,8 +79,13 @@ def move_slices(stepped_slice: slice, new_position_slice: slice) -> slice:
         new_stop = target_stop - stop_phase_shift
     else:
         new_stop = None
-    
-    return slice(target_start + start_phase_shift, new_stop, step)
+
+    new_start = target_start + start_phase_shift
+
+    if not new_stop is None and new_stop <= new_start:
+        new_stop = new_start + step
+
+    return slice(new_start, new_stop, step)
     
     
 class MaskPresetButton(QtWidgets.QToolButton):
@@ -1039,6 +1044,8 @@ class ImageData:
 
             if len(old_slices) == 3:
                 new_slices.append(old_slices[2])
+                
+            print(f'{new_slices=}')
 
             chanstat.attach_full_array(tuple(new_slices))
             chanstat.active = True
