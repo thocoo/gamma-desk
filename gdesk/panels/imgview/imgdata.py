@@ -354,8 +354,10 @@ class ImageStatistics(object):
             self.mask_crop[::step_y, ::step_x] = False 
             
         else:
+            # the mask_crop need to be C-continuous
+            # And there should always be a Python object reference to it as long mask_qimg exists
             if not self.mask_zero_origin:             
-                self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    #need to be C-continuous
+                self.mask_crop = self.mask_not_cropped[:stop_y-start_y, :stop_x-start_x].copy()    
                 
             else:
                 # The mask_not_cropped is a repeated pattern starting from 0,0
@@ -366,13 +368,11 @@ class ImageStatistics(object):
                     mask_extend = np.tile(self.mask_not_cropped, (ry, rx))
                 else:
                     mask_extend = self.mask_not_cropped
-                self.mask_crop = mask_extend[start_y:stop_y, start_x:stop_x].copy()    #need to be C-continuous
+                self.mask_crop = mask_extend[start_y:stop_y, start_x:stop_x].copy()
             
         self.mask_crop_offset_y = start_y
         self.mask_crop_offset_x = start_x                
         
-        # TO DO
-        # There is issue when the bmask is combined with slices with stepping
         h, w = self.mask_crop.shape            
         self.mask_qimg = QImage(memoryview(self.mask_crop), w, h, w, QImage.Format_Indexed8)      
         cmap = 'bmask' if self.mask_crop.dtype == 'bool' else 'mask'
