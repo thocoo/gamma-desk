@@ -2296,7 +2296,8 @@ class ImageProfilePanel(ImageViewerBase):
 
         #print(f"passRoiChanged: selected_mask={self.imgprof.selected_mask}")
         
-        self.imviewer.imgdata.update_roi_statistics(extra_rois=self.imgprof.selected_masks)
+        #self.imviewer.imgdata.update_roi_statistics(extra_rois=self.imgprof.selected_masks)
+        
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile(self.imgprof.selected_masks)

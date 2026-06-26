@@ -495,11 +495,13 @@ class ImageViewerWidget(QWidget):
         self.setCursor(self.pickCursor)
 
     def refresh(self):
-        self._scaledImage = None
-        self.repaint()
+        self._scaledImage = None        
         
         if self.roi.isVisible():
-            self.imgdata.update_roi_statistics()        
+            self.imgdata.update_roi_statistics(extra_rois=self.parent().selected_masks)        
+            
+        self.repaint()
+        
 
     def paintEvent(self, event):
         try:

@@ -1054,7 +1054,7 @@ class ImageData:
             if len(old_slices) == 3:
                 new_slices.append(old_slices[2])
                 
-            print(f'{new_slices=}')
+            print(f'{mask_name=} {new_slices=}')
 
             chanstat.attach_full_array(tuple(new_slices))
             chanstat.active = True
