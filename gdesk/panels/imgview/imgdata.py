@@ -722,7 +722,7 @@ class ImageData:
             if not mask_name in self.chanstats:
                 #print(mask_name, mask_props)
                 self.addMaskStatistics(mask_name, mask_props['slices'], mask_props['color'], visible=False)
-                self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'], active=False)
+                self.addMaskStatistics(f'roi.{mask_name}', mask_props['slices'], mask_props['roi.color'], visible=False, active=False)
             
             
     def selectRoiOption(self, option: str):        
