@@ -2300,7 +2300,8 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
         self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
-        self.imgprof.refresh_profile_views()
+        #self.imgprof.refresh_profile_views()
+        self.refresh()
         
         
     def removeRoiProfile(self):
