@@ -382,20 +382,18 @@ class ImageStatistics(object):
 
         self.limits, self.steps = self.get_limits_and_steps()
 
-        if self.bmask is None or self.full_array.shape != self.bmask.shape:
-            
-            array_cropped = self.full_array[self.limits]
-            bmask = np.zeros(array_cropped.shape, dtype=bool)
-            slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
+        array_cropped = self.full_array[self.limits]
+        bmask = np.zeros(array_cropped.shape, dtype=bool)
+        slices = tuple([slice(0, min(a_dim, b_dim)) for (a_dim, b_dim) in zip(array_cropped.shape, self.mask_crop.shape)])                    
 
-            if self.full_array.ndim == 2:
-                bmask[slices] = self.mask_crop[slices]
+        if self.full_array.ndim == 2:
+            bmask[slices] = self.mask_crop[slices]
 
-            elif self.full_array.ndim == 3:
-                for i in range(bmask.shape[2]):
-                    bmask[slices[0], slices[1], i] = self.mask_crop[slices]                
+        elif self.full_array.ndim == 3:
+            for i in range(bmask.shape[2]):
+                bmask[slices[0], slices[1], i] = self.mask_crop[slices]                
 
-            self.bmask = bmask
+        self.bmask = bmask
         
 
     def get_limits_and_steps(self):        
