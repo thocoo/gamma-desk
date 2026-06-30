@@ -163,7 +163,7 @@ class selectNamedMask():
 
 class CustomMaskMenu(QMenu):
     def __init__(self, parent=None):
-        super().__init__('Select Custom Roi', parent)
+        super().__init__('Select Roi', parent)
         self.imgpanel = self.parent()
         self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
 
