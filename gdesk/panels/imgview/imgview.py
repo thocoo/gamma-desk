@@ -164,7 +164,7 @@ class selectNamedMask():
 
 class CustomMaskMenu(QMenu):
     def __init__(self, parent=None):
-        super().__init__('Custom Roi', parent)
+        super().__init__('Select Custom Roi', parent)
         self.imgpanel = self.parent()
         self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
 
@@ -409,7 +409,7 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, "Configure Roi's...", self.configureRois,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layers_map.png')))
                     
-        dataSplitMenu = QMenu('Default Roi')
+        dataSplitMenu = QMenu("Create Roi's")
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(respath / 'icons' / 'px16' / 'color_gradient.png'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(respath / 'icons' / 'px16' / 'color.png'))            
