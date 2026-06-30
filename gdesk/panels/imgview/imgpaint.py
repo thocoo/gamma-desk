@@ -577,7 +577,7 @@ class ImageViewerWidget(QWidget):
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
-                if mask_name.startswith('roi.'): continue
+                #if mask_name.startswith('roi.'): continue
                 if not (chanstat.active and chanstat.mask_visible): continue
                 
                 y_slice, x_slice = chanstat.slices[0], chanstat.slices[1]            
