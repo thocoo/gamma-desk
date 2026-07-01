@@ -63,7 +63,7 @@ class MaskEditor():
         old_mask = self._mask.copy()        
         new_mask = self.parent.init_mask()
         common_shape = [min(a, b) for a, b in zip(new_mask.shape, old_mask.shape)]
-        new_mask[:common_shape[0], :common_shape[1]] = old_mask
+        new_mask[:common_shape[0], :common_shape[1]] = old_mask[:common_shape[0], :common_shape[1]]
         self.parent.refresh()
         
         
