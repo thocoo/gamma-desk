@@ -304,9 +304,14 @@ class ImageViewerBase(BasePanel):
         zoomMenu = QMenu('Zoom')
         zoomMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom.png')))
         self.viewMenu.addMenu(zoomMenu)
+        
         self.addMenuItem(zoomMenu, 'Zoom 100%', self.setZoom100,
             statusTip="Zoom to a actual size (100%)",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_actual.png')))
+        self.addMenuItem(zoomMenu, 'Zoom 800%', lambda: self.imviewer.setZoom(8),
+            statusTip="Zoom to 800%")
+        self.addMenuItem(zoomMenu, 'Zoom 12500%', lambda: self.imviewer.setZoom(125),
+            statusTip="Zoom to 12500%")                        
         self.addMenuItem(zoomMenu, 'Zoom Fit'     , self.zoomFit,
             statusTip="Zoom to fit the image in the image viewer, snap on predefined zoom value",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'zoom_fit.png')))
@@ -325,8 +330,14 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.viewMenu, 'Default Offset && Gain', self.defaultOffsetGain,
             statusTip="Apply default offset, gain and gamma",
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'unmark_to_download.png')))
-        self.addMenuItem(self.viewMenu, 'Set Current as Default', self.setCurrentOffsetGainAsDefault,
-            statusTip="Set the current offset, gain and gamma as default")
+            
+        self.defaultGainMenu = QMenu('Set Default Gain')
+        self.viewMenu.addMenu(self.defaultGainMenu)
+        self.addMenuItem(self.defaultGainMenu, 'Set Current as Default', self.setCurrentOffsetGainAsDefault,
+            statusTip="Set the current offset, gain and gamma as default")            
+        self.addMenuItem(self.defaultGainMenu, 'Increase Default Gain', lambda: self.modifyDefaultGain(1))            
+        self.addMenuItem(self.defaultGainMenu, 'Decrease Default Gain', lambda: self.modifyDefaultGain(-1))            
+            
         self.addMenuItem(self.viewMenu, 'Offset && Gain...', self.offsetGainDialog,
             statusTip="Set offset and gain",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'weather_cloudy.png')))
@@ -1062,7 +1073,18 @@ class ImageViewerBase(BasePanel):
         self.defaults['offset'] = self.offset
         self.defaults['gain'] = self.gain
         self.defaults['gamma'] = self.gamma
-
+        
+        
+    def modifyDefaultGain(self, step=1):
+        
+        if step > 0:
+            new_default = 2 ** np.floor(np.log2(self.gain) + step)
+        else:
+            new_default = 2 ** np.ceil(np.log2(self.gain) + step)
+            
+        self.defaults['gain'] = new_default
+        self.defaultOffsetGain()
+            
 
     def defaultOffsetGain(self):
         offset = self.defaults['offset']
@@ -1234,7 +1256,7 @@ class ImageViewerBase(BasePanel):
         self.imviewer.zoomOut()
 
     def setZoom100(self):
-        self.imviewer.setZoom(1)
+        self.imviewer.setZoom(1)        
 
     def setZoom(self):
         with ActionArguments(self) as args:
