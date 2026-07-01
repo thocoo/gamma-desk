@@ -754,7 +754,7 @@ class ImageData:
     def addMaskStatsDialog(self, edit_roi_name=None):
         
         
-        color = get_next_color_tuple()        
+        color = tuple([int(round(ch)) for ch in PLOT_COLORS[0]])
         color_str = '#' + ''.join(f'{v:02X}' for v in color[:3])
         
         if edit_roi_name is None:
@@ -764,7 +764,7 @@ class ImageData:
                     
             selroi = self.selroi
             pos = None            
-            title='Add Mask Statistics'
+            title='Add Roi Statistics'
 
             form = [('Name',  f'custom{i}'),
                     ('Color',  color_str),
@@ -799,7 +799,7 @@ class ImageData:
                     ('y step', slices[0].step)]            
                 
         if 'mask' in self.layers and not self.layers['mask']['array'] is None:
-            form.append(('Mask', False))
+            form.append(('Global Mask', False))
 
         r = fedit(form, title=title, result='dict')
         if r is None: return
@@ -811,12 +811,13 @@ class ImageData:
         
         chanstat = self.chanstats.pop(edit_roi_name) if not pos is None else None
         
-        self.addMaskStatistics(name, (v_slice, h_slice), color, origin = 'center' if r['From Center'] else 'tl', visible=True)        
+        self.addMaskStatistics(name, (v_slice, h_slice), color, origin = 'center' if r['From Center'] else 'tl', visible=True)     
+        PLOT_COLORS[:] = np.roll(PLOT_COLORS, 1, axis=0)
         
         if not pos is None:
             self.chanstats.move_to_position(name, pos) 
 
-        if chanstat is None and r.get('Mask', False):
+        if chanstat is None and r.get('Global Mask', False):
             ma = self.layers['mask']['array']                           
             self.chanstats[name].set_mask(ma, zero_origin=True)
             
@@ -980,7 +981,7 @@ class ImageData:
             compmode = composition
 
         qimage = QImage(memoryview(array), width, height, width, QImage.Format_Indexed8)
-        qimage.setColorTable(imconvert.make_color_table(cmap, alpha, color))
+        qimage.setColorTable(imconvert.make_color_table(cmap, alpha, color, invert=True))
         self.layers[name] = {'array': array, 'qimage': qimage, 'composition': compmode, 'cmap': cmap, 'alpha': alpha, 'color': color, 'visible': True}
 
 
