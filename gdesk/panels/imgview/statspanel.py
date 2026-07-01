@@ -511,7 +511,7 @@ class VisibilityDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()       
         self.vbox.addWidget(self.table)
         
-        headers = ['Name', 'Stats', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices', 'Mask', 'Valid']
+        headers = ['Name', 'Active', 'Viewer', 'Profile', 'Levels', 'Dim', 'Slices', 'Mask', 'Valid']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.verticalHeader().hide()
