@@ -1,3 +1,27 @@
+1.11.1
+------
+
+date: 2026-07-02
+
+- dev: Add support to select the ndim panel id in the proxy methods
+- dev: Add support to select the ndim panel id in the proxy methods (#70)
+- Drag the custom roi's by attached a custom roi to the walking ants widget
+- Fixing situation of negative slices when smaller then the step size
+- update the selected roi, the walking if nothing selected
+- Add ing important comment on keeping a Python reference of mask_qimg
+- Full refresh after roi changed
+- Fixing roi update and paint order
+- By default, disable the visible flag of the auto created 'roi.'
+- Also show roi. named roi's if not hidden
+- Rename Select menu items Custom Roi -> Select Roi, Default Roi' -> Create Roi's
+- Remove condition on bmask is None or self.full_array.shape != self.bmask.shape
+- Rename the Stats column in the VisibilityDialog to Active
+- Fix missing range limit on the old_mask in mask.fit()
+- Show the global mask inverted
+- Fix the autozoom call from the image menu
+- Add more option to set the image gain
+- Add more shortcuts for zoom and gain
+
 
 1.11.0
 ------
