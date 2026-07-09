@@ -204,6 +204,20 @@ class ConsoleGuiProxy(GuiProxyBase):
         
         
     @StaticGuiCall    
+    def thread_exec(func, *args, **kwargs):     
+        new_panel = gui.qapp.panels.select_or_new('console', None, 'thread')
+        new_panel.task.wait_process_ready()        
+        
+        mptask = MpTask(new_panel.panid)  
+        mptask.lock.acquire()        
+            
+        new_panel.task.call_func_ext(func, args=args, kwargs=kwargs,
+            callback=mptask._accept_result, errhandler=mptask._accept_error)
+            
+        return mptask         
+        
+        
+    @StaticGuiCall    
     def child_exec(func, *args, **kwargs):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
