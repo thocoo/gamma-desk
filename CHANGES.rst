@@ -4,7 +4,6 @@
 date: 2026-07-02
 
 - dev: Add support to select the ndim panel id in the proxy methods
-- dev: Add support to select the ndim panel id in the proxy methods (#70)
 - Drag the custom roi's by attached a custom roi to the walking ants widget
 - Fixing situation of negative slices when smaller then the step size
 - update the selected roi, the walking if nothing selected
