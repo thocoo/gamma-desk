@@ -32,51 +32,55 @@ except:
 
 from ... import config, gui
 
-if False and has_imafio:
-    if not config.get("path_imageio_freeimage_lib", None) is None:
-        if os.getenv("IMAGEIO_FREEIMAGE_LIB", None) is None:
-            os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
-
+if has_imafio:
     try:
-        import imageio.plugins.freeimage
-        imageio.plugins._freeimage.get_freeimage_lib()
+        if not config.get("path_imageio_freeimage_lib", None) is None:
+            if os.getenv("IMAGEIO_FREEIMAGE_LIB", None) is None:
+                os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
+
+        try:
+            import imageio.plugins.freeimage
+            imageio.plugins._freeimage.get_freeimage_lib()
+
+        except Exception as ex:
+            logger.warning('Could not load freeimage dll')
+            logger.warning(str(ex))
+
+        try:
+            imageio.plugins.freeimage.download()
+
+        except Exception as ex:
+            logger.warning('Downloading imageio dll failed')
+            logger.warning(str(ex))
+            logger.warning('Automatic download can be a problem when using VPN')
+            logger.warning("Download the dll's from https://github.com/imageio/imageio-binaries/tree/master/freeimage/")
+            logger.warning(f'And place it in {imageio.core.appdata_dir("imageio")}/freeimage')
+
+            #You can also use a system environmental variable
+            #IMAGEIO_FREEIMAGE_LIB=<the location>\FreeImage-3.18.0-win64.dll
+
+        #The effective dll is refered at
+        #imageio.plugins.freeimage.fi.lib
+
+        #Prefer freeimage above pil
+        #Freeimage seems to be a lot faster then pil
+        imageio.formats.sort('-FI', '-PIL')
+
+        FILTERS_NAMES = collections.OrderedDict()
+        FILTERS_NAMES['All Formats (*)'] = None
+
+        for fmt in imageio.formats:
+            filter = f'{fmt.name} - {fmt.description} (' + ' '.join(f'*{fmt}' for fmt in fmt.extensions) + ')'
+            FILTERS_NAMES[filter] = fmt.name
+
+        IMAFIO_QT_READ_FILTERS = ';;'.join(FILTERS_NAMES.keys())
+        IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())
+        IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
 
     except Exception as ex:
-        logger.warning('Could not load freeimage dll')
+        logger.warning('Could not initialize imageio format filters, falling back to PIL save/open dialogs')
         logger.warning(str(ex))
-        
-    try:
-        imageio.plugins.freeimage.download()
-        pass
-        
-    except Exception as ex:
-        logger.warning('Downloading imageio dll failed')
-        logger.warning(str(ex))
-        logger.warning('Automatic download can be a problem when using VPN')
-        logger.warning("Download the dll's from https://github.com/imageio/imageio-binaries/tree/master/freeimage/")
-        logger.warning(f'And place it in {imageio.core.appdata_dir("imageio")}/freeimage')
-
-        #You can also use a system environmental variable
-        #IMAGEIO_FREEIMAGE_LIB=<the location>\FreeImage-3.18.0-win64.dll
-
-    #The effective dll is refered at
-    #imageio.plugins.freeimage.fi.lib
-
-    #Prefer freeimage above pil
-    #Freeimage seems to be a lot faster then pil
-    imageio.formats.sort('-FI', '-PIL')
-
-    FILTERS_NAMES = collections.OrderedDict()
-    FILTERS_NAMES['All Formats (*)'] = None
-
-    #for fmt in imageio.formats._formats_sorted:
-    for fmt in imageio.formats:
-        filter = f'{fmt.name} - {fmt.description} (' + ' '.join(f'*{fmt}' for fmt in fmt.extensions) + ')'
-        FILTERS_NAMES[filter] = fmt.name
-
-    IMAFIO_QT_READ_FILTERS = ';;'.join(FILTERS_NAMES.keys())
-    IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())    
-    IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
+        has_imafio = False
 
 
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
