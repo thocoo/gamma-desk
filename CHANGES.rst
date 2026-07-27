@@ -3,9 +3,8 @@
 
 date: 2026-07-27
 
-Bufix release
-
 - fix: Loading and saving images with GUI
+- feature: Add gui.console.thread_exec()
 
 
 1.11.1
