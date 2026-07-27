@@ -1,3 +1,13 @@
+1.11.2
+------
+
+date: 2026-07-27
+
+Bufix release
+
+- fix: Loading and saving images with GUI
+
+
 1.11.1
 ------
 
