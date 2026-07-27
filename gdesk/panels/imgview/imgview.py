@@ -2136,6 +2136,9 @@ class ImageProfileWidget(QWidget):
         self.colPanel.show()
         self.colPanel.setMinimumWidth(20)
         self.colPanel.setMaximumWidth(500)
+        
+        self.parent().parent().parent().setTabBarAutoHide(False)
+        self.parent().statusBar().show()
 
         strow = self.gridsplit.getRowStretches()
         stcol = self.gridsplit.getColumnStretches()
@@ -2161,6 +2164,10 @@ class ImageProfileWidget(QWidget):
         
         for splitter in self.gridsplit.splitters:
             splitter.hide()
+        
+        #Hide tab and layout button also
+        self.parent().parent().parent().setTabBarAutoHide(True)
+        self.parent().statusBar().hide()
             
         self.gridsplit.setColumnStretches([0, 1])
         self.gridsplit.setRowStretches([0, 1])
@@ -2294,7 +2301,7 @@ class ImageProfilePanel(ImageViewerBase):
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')),
             statusTip="Show or Hide the image column and row profiles")
             
-        self.addMenuItem(self.viewMenu, 'Hide Rulers', self.imgprof.hideRulers)
+        self.addMenuItem(self.viewMenu, 'Show Only Image', self.imgprof.hideRulers)
             
         if not kwargs.get('empty', True): self.openTestImage()
         
