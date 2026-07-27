@@ -2126,13 +2126,14 @@ class ImageProfileWidget(QWidget):
     def showProfiles(self):
 
         self.statsDock.show()
-        #self.corner.setMinimumHeight(20)
+        self.corner.show()
         self.corner.setMaximumHeight(500)
-        #self.corner.setMinimumWidth(20)
         self.corner.setMaximumWidth(500)        
         
+        self.rowPanel.show()
         self.rowPanel.setMinimumHeight(20)
-        self.rowPanel.setMaximumHeight(500)
+        self.rowPanel.setMaximumHeight(500)        
+        self.colPanel.show()
         self.colPanel.setMinimumWidth(20)
         self.colPanel.setMaximumWidth(500)
 
@@ -2151,6 +2152,18 @@ class ImageProfileWidget(QWidget):
 
         gui.qapp.processEvents()
         self.refresh_profile_views()
+        
+    
+    def hideRulers(self):        
+        self.corner.hide()
+        self.rowPanel.hide()
+        self.colPanel.hide()                
+        
+        for splitter in self.gridsplit.splitters:
+            splitter.hide()
+            
+        self.gridsplit.setColumnStretches([0, 1])
+        self.gridsplit.setRowStretches([0, 1])
 
         
     def drawMaskProfiles(self):         
@@ -2280,6 +2293,8 @@ class ImageProfilePanel(ImageViewerBase):
             checkcall = lambda: self.imgprof.profilesVisible,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')),
             statusTip="Show or Hide the image column and row profiles")
+            
+        self.addMenuItem(self.viewMenu, 'Hide Rulers', self.imgprof.hideRulers)
             
         if not kwargs.get('empty', True): self.openTestImage()
         
