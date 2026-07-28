@@ -1,7 +1,7 @@
 1.11.2
 ------
 
-date: 2026-07-27
+date: 2026-07-28
 
 - fix: Loading and saving images with GUI
 - feature: Add gui.console.thread_exec()
