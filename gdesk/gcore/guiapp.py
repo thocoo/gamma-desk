@@ -1,5 +1,4 @@
 import sys, os
-import ctypes
 import logging
 import psutil
 from pathlib import Path
@@ -47,6 +46,30 @@ from ..dialogs.main import MainDialog
 here = Path(__file__).parent
 respath = Path(config['respath'])
 logger = logging.getLogger(__name__)
+
+
+def build_app_icon():
+    """
+    Build a multi-resolution QIcon from all the bundled logo sizes.
+
+    A QIcon backed by a single small pixmap gets rescaled by the OS to
+    whatever size it needs (taskbar, Alt-Tab, title bar, high-DPI...).
+    On Windows that rescale sometimes fails silently and the shell falls
+    back to the generic default icon, so register every available size
+    and let the OS pick the closest match instead of scaling one up.
+    """
+    icon = QIcon()
+    logo_dir = respath / 'logo'
+
+    for px in (16, 32, 48, 64, 96, 128):
+        logo_file = logo_dir / f'logo_{px}px.png'
+        if logo_file.exists():
+            icon.addFile(str(logo_file), QtCore.QSize(px, px))
+
+    if icon.isNull():
+        logger.warning(f'No app icon found in {logo_dir}')
+
+    return icon
 
 
 if using_pyqt():
@@ -106,8 +129,7 @@ class GuiApplication(QApplication):
         self.windows = dict()
         self.unnamed_windows = []
         self.panels = Panels(self)
-        self.panelsDialog = MainDialog(self.panels)
-        self.appIcon = QIcon(str(respath / 'logo' / 'logo_32px.png'))
+        self.appIcon = build_app_icon()
         self.setWindowIcon(self.appIcon)
         self.handover = HandOver(self)
                 
@@ -115,11 +137,6 @@ class GuiApplication(QApplication):
 
         #self.setFont(QtGui.QFont(config['console']['font'], pointSize=config['console']['fontsize']))
         self.setFont(QtGui.QFont('MS Shell Dlg 2', pointSize=config['console']['fontsize']))
-
-        if os.name == 'nt':
-            # This is needed to display the app icon on the taskbar on Windows 7
-            myappid = f'{PROGNAME}' # arbitrary string
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)    
             
         self.gc = QGarbageCollector(self)
         self.gc.enable()
@@ -139,8 +156,13 @@ class GuiApplication(QApplication):
         
         self.menuCallShortCuts = dict()
         self.menuCallShortCuts['main'] = dict()
-        
-        self.panelsDialog.showMinimized()        
+
+        # Must be created after appIcon exists (set above) - a window
+        # constructed before the app has an icon can end up with no taskbar
+        # icon at all even after setWindowIcon() is called on it later.
+        self.panelsDialog = MainDialog(self.panels)
+        self.panelsDialog.setWindowIcon(self.appIcon)
+        self.panelsDialog.showMinimized()
         
         
     def screenInfo(self):
@@ -277,8 +299,9 @@ class GuiApplication(QApplication):
             keys = [eval(k.split(' ')[1]) for k in self.windows.keys() if k.startswith('window ')]            
             key = new_id_using_keys(keys)
             name = f'window {key}'
-        self.windows[name] = window = MainWindow(self, name, parentName)        
-        return window  
+        self.windows[name] = window = MainWindow(self, name, parentName)
+        window.setWindowIcon(self.appIcon)
+        return window
         
     def getActiveWindow(self):
         for winname, window in self.windows.items():
@@ -399,7 +422,7 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     # To run in a new thread but on the same gui process
     # panid = qapp.mainWindow.newThread()
     qapp.mainWindow.show()
-            
+
     if API_NAME in ['PySide6', 'PyQt6']:
         desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
         qapp.color_scheme = QGuiApplication.styleHints().colorScheme()
