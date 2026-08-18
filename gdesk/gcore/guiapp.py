@@ -2,6 +2,7 @@ import sys, os
 import logging
 import psutil
 from pathlib import Path
+import ctypes
 
 try:
     import qdarktheme
@@ -129,14 +130,21 @@ class GuiApplication(QApplication):
         self.windows = dict()
         self.unnamed_windows = []
         self.panels = Panels(self)
+        
         self.appIcon = build_app_icon()
+        
         self.setWindowIcon(self.appIcon)
         self.handover = HandOver(self)
                 
         self.history = History(self.shell.logdir.logpath)
 
         #self.setFont(QtGui.QFont(config['console']['font'], pointSize=config['console']['fontsize']))
-        self.setFont(QtGui.QFont('MS Shell Dlg 2', pointSize=config['console']['fontsize']))
+        self.setFont(QtGui.QFont('MS Shell Dlg 2', pointSize=config['console']['fontsize']))        
+
+        if os.name == 'nt':
+            # This is needed to display the app icon on the taskbar on Windows 7
+            myappid = f'{PROGNAME}' # arbitrary string
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)           
             
         self.gc = QGarbageCollector(self)
         self.gc.enable()
