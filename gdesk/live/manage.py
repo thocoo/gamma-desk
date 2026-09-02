@@ -456,7 +456,7 @@ class LiveScriptManager(object):
         for path in paths:        
             path_shown = False
             for p in Path(path).rglob('*.py'):
-                if part in str(p):
+                if part.lower() in str(p).lower():
                     if dir_listing and not path_shown:
                         print()
                         print(path)
@@ -639,11 +639,11 @@ class LiveScriptManager(object):
         for path, stype in path_and_stypes:
                 
             if stype == 'file':
-                if modstr in self.modules.keys() and self.modules[modstr].path == path:
-                    return LiveScriptModuleReference(self, modstr, mp=mp)
+                # If a directory was find first, prefer the LiveScriptTree above LiveScriptModuleReference
+                if len(paths) == 0:                    
+                    if not (modstr in self.modules.keys() and self.modules[modstr].path == path):
+                        loaderror = self.load_module(path, modstr)
                     
-                else:
-                    loaderror = self.load_module(path, modstr)
                     return LiveScriptModuleReference(self, modstr, mp=mp)
                 
             elif stype == 'dir':
