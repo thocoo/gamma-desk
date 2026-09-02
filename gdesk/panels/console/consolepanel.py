@@ -885,7 +885,7 @@ class Console(BasePanel):
             messageBox('No traceback found', 'Info', 'Info')
             return
         
-        cmd = """import pdb;pdb.pm()"""
+        cmd = """import pdb;pdb.pm()\n#h help, q quit"""
         self.exec_cmd(cmd)      
 
     def checkAlive(self):
