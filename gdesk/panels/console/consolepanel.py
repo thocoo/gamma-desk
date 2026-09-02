@@ -839,6 +839,10 @@ class Console(BasePanel):
         self.postMortemBtn = QtWidgets.QToolButton()
         self.postMortemBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'error.png')))
         self.postMortemBtn.clicked.connect(self.startPostMortem)
+        
+        self.searchBtn = QtWidgets.QToolButton()
+        self.searchBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))
+        self.searchBtn.clicked.connect(self.search)        
 
         self.tasktype = QLabel('')
         self.pid = QLabel('Pid:0')
@@ -847,6 +851,7 @@ class Console(BasePanel):
         self.pmem = QLabel('Mem:')
         
         self.statusBar().addWidget(self.tasktype,1)
+        self.statusBar().addWidget(self.searchBtn, 0)
         self.statusBar().addWidget(self.postMortemBtn, 0)
         self.statusBar().addWidget(self.pid,1)
         self.statusBar().addWidget(self.pname,1)
