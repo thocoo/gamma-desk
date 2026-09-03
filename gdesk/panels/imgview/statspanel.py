@@ -17,15 +17,6 @@ RESPATH = Path(config['respath'])
 
 RESERVED_MASK_FULL = []
 RESERVED_MASK_ROI = []
-
-FUNCMAP = {
-    'Slices': {'fmt': '{0:s}', 'attr': 'slices_repr'},
-    'Mean':   {'fmt': '{0:.6g}', 'attr': 'mean'},
-    'Std':    {'fmt': '{0:.6g}', 'attr': 'std'},
-    'Min':    {'fmt': '{0:.6g}', 'attr': 'min'},
-    'Max':    {'fmt': '{0:.6g}', 'attr': 'max'},
-    'N':      {'fmt': '{0:d}', 'attr': 'n'},
-    'Sum':    {'fmt': '{0:.6g}', 'attr': 'sum'}}
     
 if API_NAME == 'PySide6' and hasattr(QtGui, "QAbstractItemView"):
     NOEDITTRIGGERS = QtGui.QAbstractItemView.NoEditTriggers
@@ -282,19 +273,7 @@ class StatisticsPanel(QtWidgets.QWidget):
             self.table.setItem(i, 0, item_name)            
                         
             for j, column in enumerate(self.columns[1:]):
-            
-                if stats.active:
-                    attr = FUNCMAP[column]['attr']
-                    fmt = FUNCMAP[column]['fmt']
-                    value = getattr(stats, attr)()                    
-                    if isinstance(value, str):
-                        text = value
-                    else:
-                        text = fmt.format(value)
-                else:
-                    text = ''
-                    
-                item = QtWidgets.QTableWidgetItem(text)                                        
+                item = QtWidgets.QTableWidgetItem('')
                 self.table.setItem(i, 1 + j, item)
             
             self.table.setRowHeight(i, 20)      
@@ -316,10 +295,10 @@ class StatisticsPanel(QtWidgets.QWidget):
                         
             for j, column in enumerate(self.columns[1:]):
             
-                if stats.active:
-                    attr = FUNCMAP[column]['attr']
-                    fmt = FUNCMAP[column]['fmt']
-                    value = getattr(stats, attr)()                    
+                if stats.active and column in stats.report_items:
+                    value = stats.report_items[column]['func']()
+                    fmt = stats.report_items[column]['fmt']
+
                     if isinstance(value, str):
                         text = value
                     else:
@@ -332,10 +311,17 @@ class StatisticsPanel(QtWidgets.QWidget):
             
             
     def handleHeaderMenu(self, pos):
+        
+        chanstats = self.imviewer.imgdata.chanstats  
+        
+        all_items = set()
+        
+        for channel_name, imgstat in chanstats.items():
+            all_items = all_items.union(set(imgstat.report_items.keys()))        
     
         form = []
         
-        for stat in FUNCMAP.keys():
+        for stat in all_items:
             form.append((stat, stat in self.columns))
             
         r = fedit(form, title='Choose Items')

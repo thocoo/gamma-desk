@@ -233,6 +233,15 @@ class ImageStatistics(object):
         self.mask_visible = visible
         self.plot_visible = True
         self.hist_visible = True
+        
+        self.report_items = {
+            'Slices': {'fmt': '{0:s}', 'func': self.slices_repr},
+            'Mean':   {'fmt': '{0:.6g}', 'func': self.mean},
+            'Std':    {'fmt': '{0:.6g}', 'func': self.std},
+            'Min':    {'fmt': '{0:.6g}', 'func': self.min},
+            'Max':    {'fmt': '{0:.6g}', 'func': self.max},
+            'N':      {'fmt': '{0:d}', 'func': self.n},
+            'Sum':    {'fmt': '{0:.6g}', 'func': self.sum}}
 
         
     def attach_full_array(self, slices, origin='tl'):
