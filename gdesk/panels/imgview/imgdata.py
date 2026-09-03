@@ -27,6 +27,7 @@ from ...dialogs.formlayout import fedit
 here = pathlib.Path(__file__).absolute().parent
 
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
+AGG_CLASS = HistAgg
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -200,7 +201,7 @@ class OrderedStats(UserDict):
             
         else:        
             self.order.remove(key)
-            self.order.insert(0, key)
+            self.order.insert(0, key)                        
                             
         
 class ImageStatistics(object):
@@ -230,17 +231,14 @@ class ImageStatistics(object):
         self.plot_visible = True
         self.hist_visible = True
         
-        self.agg = HistAgg(self)
+        self.agg = AGG_CLASS(self)
         self.set_mask(None)
         
         self.report_items = {
             'Slices': {'fmt': '{0:s}', 'func': self.slices_repr},
-            'Npix':      {'fmt': '{0:d}', 'func': self.n},
-            'Mean':   {'fmt': '{0:.6g}', 'func': self.agg.mean},
-            'Std':    {'fmt': '{0:.6g}', 'func': self.agg.std},
-            'Min':    {'fmt': '{0:.6g}', 'func': self.agg.min},
-            'Max':    {'fmt': '{0:.6g}', 'func': self.agg.max},            
-            'Sum':    {'fmt': '{0:.6g}', 'func': self.agg.sum}}
+            'Npix':      {'fmt': '{0:d}', 'func': self.n}}
+            
+        self.report_items.update(self.agg.report_items_props())
 
         
     def attach_full_array(self, slices, origin='tl'):
@@ -430,10 +428,9 @@ class ImageStatistics(object):
     def n(self):
         """Return the number of sample values to calculate statistics on."""
         if isinstance(self.roi, np.ma.MaskedArray):
-            #return np.prod(self.roi.shape) - self.roi.mask.sum()
             return np.ma.count(self.roi)
         else:
-            return np.prod(self.roi.shape)              
+            return np.prod(self.roi.shape)
             
             
     def profile(self, axis=0):        

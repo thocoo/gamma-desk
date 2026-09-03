@@ -12,6 +12,17 @@ class HistAgg(object):
         self._cache = {}
         
         
+    def report_items_props(self):
+        report_items = {
+            'Mean':   {'fmt': '{0:.6g}', 'func': self.mean},
+            'Std':    {'fmt': '{0:.6g}', 'func': self.std},
+            'Min':    {'fmt': '{0:.6g}', 'func': self.min},
+            'Max':    {'fmt': '{0:.6g}', 'func': self.max},
+            'Sum':    {'fmt': '{0:.6g}', 'func': self.sum}}
+            
+        return report_items
+        
+        
     def clear(self):
         self._cache.clear()                            
 
