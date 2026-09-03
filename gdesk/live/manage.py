@@ -633,21 +633,26 @@ class LiveScriptManager(object):
 
 
     def using_path(self, path_and_stypes, modstr=None, mp=False):
-
             
         paths = []
         for path, stype in path_and_stypes:
+            
+            if stype == 'dir':
+                # Note on dir vs file priority
+                # A directory should always be prefered on a file
+                # Otherwise for example if both otp.py and otp/main.py exists
+                # a direct call by ex:  
+                #   use('func.digital.otp.main') -> Module otp.main OK
+                #   use.func.digital.otp.main -> Links to main function in Module otp
+                paths.append(path)
                 
-            if stype == 'file':
+            elif stype == 'file':
                 # If a directory was find first, prefer the LiveScriptTree above LiveScriptModuleReference
                 if len(paths) == 0:                    
                     if not (modstr in self.modules.keys() and self.modules[modstr].path == path):
                         loaderror = self.load_module(path, modstr)
                     
-                    return LiveScriptModuleReference(self, modstr, mp=mp)
-                
-            elif stype == 'dir':
-                paths.append(path)
+                    return LiveScriptModuleReference(self, modstr, mp=mp)                           
                 
             else:
                 raise ValueError(f'{path} {stype=}')
