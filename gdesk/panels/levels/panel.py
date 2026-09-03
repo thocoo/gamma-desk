@@ -387,14 +387,12 @@ class Levels(QtWidgets.QWidget):
             chanstat = chanstats[clr]        
             
             color = chanstat.plot_color
-            dim = chanstat.dim
+            dim = chanstat.dim          
             
-            if len(chanstat._cache.keys()) == 0:
-                chanstat.calc_histogram()            
-            
-            if bins is None:                
-                stepmult = round(step / chanstat._cache['stepsize'])
-                stepmult = max(1, stepmult)                
+            if bins is None:           
+                chanstat.histogram()                
+                stepmult = round(step / chanstat.stepsize(1))
+                stepmult = max(1, stepmult)      
             else:
                 stepmult = chanstat.step_for_bins(bins)
                                       
