@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
 
 from qtpy.QtCore import Qt
@@ -101,7 +103,8 @@ class Statistics(QtWidgets.QWidget):
     def copyTableToClipboard(self):
         selection = self.table.selectionModel().selectedRows()
         
-        text = ''
+        text = '\t'.join(self.columns) + '\n'
+        
         for index in selection:
             row = index.row()
             rowText = []
@@ -195,18 +198,26 @@ class Statistics(QtWidgets.QWidget):
 
     def formatTable(self):    
     
-        chanstats = self.imviewer.imgdata.chanstats
-        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active]
+        chanstats = self.imviewer.imgdata.chanstats        
+        valid_stats_names = [name for name, stats in chanstats.items() if stats.is_valid() and stats.active] 
+        
+        if len(valid_stats_names) > 1: 
+            valid_stats_names = valid_stats_names + ['avg']
         
         self.table.setRowCount(len(valid_stats_names))
         
         for i, name in enumerate(valid_stats_names):
-            stats = chanstats[name]       
+            item_label = QtWidgets.QTableWidgetItem(name)
             
-            item_name = QtWidgets.QTableWidgetItem(name)
-            R, G, B, A = stats.plot_color.getRgb()
-            item_name.setBackground(QtGui.QColor(R, G, B, 128))            
-            self.table.setItem(i, 0, item_name)            
+            if name == 'avg':
+                pass
+                
+            else:
+                stats = chanstats[name]                               
+                R, G, B, A = stats.plot_color.getRgb()            
+                item_label.setBackground(QtGui.QColor(R, G, B, 128))            
+                
+            self.table.setItem(i, 0, item_label)            
                         
             for j, column in enumerate(self.columns[1:]):
                 item = QtWidgets.QTableWidgetItem('')
@@ -221,32 +232,50 @@ class Statistics(QtWidgets.QWidget):
     
         chanstats = self.imviewer.imgdata.chanstats        
         
-        for i in range(self.table.rowCount()):
-            item = self.table.item(i, 0)
-            name = item.text()
-            if not name in chanstats: continue
-            if not chanstats[name].is_valid(): continue
+        for j, column in enumerate(self.columns[1:]):
+                     
+            values = []
             
-            stats = chanstats[name] 
-                        
-            for j, column in enumerate(self.columns[1:]):
+            for i in range(self.table.rowCount()):
+                item = self.table.item(i, 0)                
+                name = item.text()                                
+                
+                if name == 'avg':
+                    value = np.mean(values)
+                    text = f'{value:.3g}'
+                    item = self.table.item(i, j+1)
+                    item.setText(text)
+                    continue
+                
+                if not name in chanstats: continue
+                if not chanstats[name].is_valid(): continue
+                
+                stats = chanstats[name]                                     
             
                 if stats.active and column in stats.report_items:
-                    value = stats.report_items[column]['func']()
+                    value = stats.report_items[column]['func']()                    
                     
-                    if value is None: continue
+                    if value is None:
+                        values.append(np.nan)
+                        continue
+                    
+                    else:
+                        values.append(value)
                     
                     fmt = stats.report_items[column]['fmt']
 
                     if isinstance(value, str):
                         text = value
                     else:
-                        text = fmt.format(value)
+                        text = fmt.format(value)                        
+                        
                 else:
                     text = ''
                     
                 item = self.table.item(i, j+1)
-                item.setText(text)     
+                item.setText(text)  
+
+            
             
             
     def handleHeaderMenu(self, pos):
@@ -290,12 +319,19 @@ class StatisticsPanel(BasePanel):
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
             statusTip = "Close this panel",
             icon = 'cross.png')                
+            
+        self.editMenu = CheckMenu("Edit", self.menuBar())
+        self.addMenuItem(self.editMenu, "Fit Content", self.fitContent)
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
         self.addMenuItem(self.statsMenu, "Update", self.updateStatistics)
             
         self.addBaseMenu(['image'])
         self.statusBar().hide()
+        
+        
+    def fitContent(self):
+        self.statistics.table.resizeColumnsToContents()
         
         
     def updateStatistics(self):
