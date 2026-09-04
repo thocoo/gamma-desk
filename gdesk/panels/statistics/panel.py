@@ -38,9 +38,7 @@ class Statistics(QtWidgets.QWidget):
         headers = self.table.horizontalHeader()
         headers.setContextMenuPolicy(Qt.CustomContextMenu)
         headers.customContextMenuRequested.connect(self.handleHeaderMenu)        
-        headers.setMinimumSectionSize(20)
-        
-        self.setActiveColumns(["Mean", "Std", "Min", "Max"])
+        headers.setMinimumSectionSize(20)        
         
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)               
         self.table.setEditTriggers(NOEDITTRIGGERS)
@@ -96,6 +94,8 @@ class Statistics(QtWidgets.QWidget):
         self.columns = ["Name"] + columns
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)        
+        self.formatTable()
+        self.updateStatistics()        
 
 
     def copyTableToClipboard(self):
@@ -269,8 +269,6 @@ class Statistics(QtWidgets.QWidget):
         actives = [form[i][0] for i in range(len(form)) if r[i]]
         
         self.setActiveColumns(actives)
-        self.formatTable()
-        self.updateStatistics()
         
         
     def handleContextMenu(self, pos):      
@@ -302,6 +300,10 @@ class StatisticsPanel(BasePanel):
         
     def updateStatistics(self):
         self.statistics.updateStatistics()
+        
+        
+    def setActiveColumns(self, actives):
+        self.statistics.setActiveColumns(actives)
         
         
     # def addBindingTo(self, category, panid):

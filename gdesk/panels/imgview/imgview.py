@@ -530,10 +530,11 @@ class ImageViewerBase(BasePanel):
             statusTip="Make a thumbnail (8x smaller) with blowup high frequencies",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'map_blue.png')))
         
+        #Analyse
         vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
-
-        #Analyse                    
-        self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel)
+        
+        self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel,
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'table_sum.png')))
         
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
@@ -1962,14 +1963,16 @@ class ImageViewerBase(BasePanel):
     def showStatisticPanel(self):        
         
         if not self.bindedPanel('statistics') is None:
-            self.bindedPanel('statistics').show()
+            self.bindedPanel('statistics').show_me()
             return
 
         imgpanel = gui.qapp.panels['image'][self.panid]
         statpanel =  gui.qapp.panels.new('statistics')
-
+        
         imgpanel.addBindingTo('statistics', statpanel.panid)
-        statpanel.addBindingTo('image', self.panid)        
+        statpanel.addBindingTo('image', self.panid)
+        
+        statpanel.setActiveColumns(["Mean", "Std", "Min", "Max"])
     
 
     def horizontalSpectrogram(self):
