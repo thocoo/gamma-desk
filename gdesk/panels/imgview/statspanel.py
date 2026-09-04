@@ -341,7 +341,7 @@ class StatisticsPanel(QtWidgets.QWidget):
         self.contextMenu.exec_(QtGui.QCursor().pos())
         
         
-class TitleToolBar(QtWidgets.QToolBar): 
+class StatisticsToolBar(QtWidgets.QToolBar): 
     
     toggleProfile = Signal()
     toggleDock = Signal()

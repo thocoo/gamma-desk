@@ -109,7 +109,7 @@ from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel, TitleToolBar, VisibilityDialog
+from .statspanel import StatisticsPanel, StatisticsToolBar, VisibilityDialog
 
 
 here = Path(__file__).parent.absolute()
@@ -2032,7 +2032,7 @@ class ImageProfileWidget(QWidget):
         self.statsPanel.setSelection.connect(lambda mask: self.setSelection(mask, True))                       
         self.statsPanel.showBmask.connect(self.showBmask)                
         
-        self.statsToolbar = TitleToolBar()
+        self.statsToolbar = StatisticsToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
         self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
