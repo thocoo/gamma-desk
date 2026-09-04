@@ -297,6 +297,9 @@ class StatisticsPanel(QtWidgets.QWidget):
             
                 if stats.active and column in stats.report_items:
                     value = stats.report_items[column]['func']()
+                    
+                    if value is None: continue
+                    
                     fmt = stats.report_items[column]['fmt']
 
                     if isinstance(value, str):
