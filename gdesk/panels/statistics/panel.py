@@ -41,6 +41,7 @@ class Statistics(QtWidgets.QWidget):
         headers.setContextMenuPolicy(Qt.CustomContextMenu)
         headers.customContextMenuRequested.connect(self.handleHeaderMenu)        
         headers.setMinimumSectionSize(20)        
+        headers.setSectionsMovable(True)        
         
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)               
         self.table.setEditTriggers(NOEDITTRIGGERS)
@@ -103,12 +104,15 @@ class Statistics(QtWidgets.QWidget):
     def copyTableToClipboard(self):
         selection = self.table.selectionModel().selectedRows()
         
-        text = '\t'.join(self.columns) + '\n'
+        header = self.table.horizontalHeader()
+        columnOrder = [header.logicalIndex(visual) for visual in range(self.table.columnCount())]
+        
+        text = '\t'.join(self.columns[col] for col in columnOrder) + '\n'
         
         for index in selection:
             row = index.row()
             rowText = []
-            for col in range(self.table.columnCount()):
+            for col in columnOrder:
                 cell = self.table.item(row, col)
                 if cell is not None:
                     rowText.append(cell.text())
