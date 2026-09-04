@@ -109,7 +109,10 @@ from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel, StatisticsToolBar, VisibilityDialog
+from .statspanel import StatisticsPanel, StatisticsToolBar
+from .regoi import RoiConfigDialog
+
+import gdesk.panels.statistics
 
 
 here = Path(__file__).parent.absolute()
@@ -530,6 +533,8 @@ class ImageViewerBase(BasePanel):
         vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
 
         #Analyse                    
+        self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel)
+        
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
             statusTip="Horizontal Spectrogram")
@@ -540,7 +545,7 @@ class ImageViewerBase(BasePanel):
             statusTip="Measure Distance",
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'geolocation_sight.png')))
 
-        self.addBaseMenu(['levels', 'values', 'image'])                                
+        self.addBaseMenu(['levels', 'values', 'image', 'statistics'])                                
         
         
     def get_select_menu(self):
@@ -595,26 +600,41 @@ class ImageViewerBase(BasePanel):
     def addBindingTo(self, category, panid):
         targetPanel = super().addBindingTo(category, panid)
         if targetPanel is None: return None
+        
         if targetPanel.category == 'image':
             self.visibleRegionChanged.connect(targetPanel.changeVisibleRegion)
+            
         elif targetPanel.category == 'levels':
             self.contentChanged.connect(targetPanel.imageContentChanged)
             self.roiChanged.connect(targetPanel.roiChanged)
             self.gainChanged.connect(targetPanel.imageGainChanged)
+            
+        elif targetPanel.category == 'statistics':
+            self.contentChanged.connect(targetPanel.updateStatistics)
+            
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.connect(targetPanel.pick)
+            
         return targetPanel
+        
 
     def removeBindingTo(self, category, panid):
         targetPanel = super().removeBindingTo(category, panid)
         if targetPanel is None: return None
+        
         if targetPanel.category == 'image':
             self.visibleRegionChanged.disconnect(targetPanel.changeVisibleRegion)
+            
         elif targetPanel.category == 'levels':
             self.contentChanged.disconnect(targetPanel.imageContentChanged)
             self.gainChanged.disconnect(targetPanel.imageGainChanged)
+            
+        elif targetPanel.category == 'statistics':
+            self.contentChanged.disconnect(targetPanel.updateStatistics)            
+            
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.disconnect(targetPanel.pick)
+            
         return targetPanel
 
     def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit, zoomValue):
@@ -1543,7 +1563,7 @@ class ImageViewerBase(BasePanel):
         self.imviewer.refresh()
 
     def configureRois(self):
-        dialog = VisibilityDialog(self.imviewer.imgdata)
+        dialog = RoiConfigDialog(self.imviewer.imgdata)
         dialog.exec_()        
         self.imgprof.statsPanel.formatTable()
         self.refresh()
@@ -1938,6 +1958,19 @@ class ImageViewerBase(BasePanel):
 
     ############################
     # Analyse Menu Connections
+    
+    def showStatisticPanel(self):        
+        
+        if not self.bindedPanel('statistics') is None:
+            self.bindedPanel('statistics').show()
+            return
+
+        imgpanel = gui.qapp.panels['image'][self.panid]
+        statpanel =  gui.qapp.panels.new('statistics')
+
+        imgpanel.addBindingTo('statistics', statpanel.panid)
+        statpanel.addBindingTo('image', self.panid)        
+    
 
     def horizontalSpectrogram(self):
         panel = gui.qapp.panels.selected('console')
