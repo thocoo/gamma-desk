@@ -325,6 +325,7 @@ class StatisticsPanel(BasePanel):
             icon = 'cross.png')                
             
         self.editMenu = CheckMenu("Edit", self.menuBar())
+        self.addMenuItem(self.editMenu, "Copy", self.copyContent)
         self.addMenuItem(self.editMenu, "Fit Content", self.fitContent)
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
@@ -332,6 +333,10 @@ class StatisticsPanel(BasePanel):
             
         self.addBaseMenu(['image'])
         self.statusBar().hide()
+        
+    
+    def copyContent(self):    
+        self.statistics.copyTableToClipboard()
         
         
     def fitContent(self):
