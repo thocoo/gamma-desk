@@ -8,6 +8,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QWindow
 from qtpy.QtCore import Qt, Signal
 
+from gdesk import gui
 from ..base import BasePanel, CheckMenu
 from ... import config
 from ...dialogs.formlayout import fedit
@@ -243,12 +244,42 @@ class Statistics(QtWidgets.QWidget):
             self.table.setItem(i, 0, item_label)            
                         
             for j, column in enumerate(self.columns[1:]):
-                item = QtWidgets.QTableWidgetItem('')
+                props = stats.report_items[column]
+                
+                if props.get('fmt') == 'image':
+                    panid = gui.img.new()
+                    item = QtWidgets.QTableWidgetItem('')
+                    item.setText(f'{panid}')
+                    self.table.setItem(i, 1 + j, item)    
+                
+                else:
+                    item = QtWidgets.QTableWidgetItem('')
+                    
                 self.table.setItem(i, 1 + j, item)
             
         self.updateRowHeights()
-
         self.table.resizeColumnsToContents()
+        
+        
+    def clearStatistics(self):    
+    
+        chanstats = self.imviewer.imgdata.chanstats        
+       
+        for i in range(self.table.rowCount()):
+            item = self.table.item(i, 0)                
+            name = item.text()                                
+                
+            if name == 'avg':
+                continue
+                
+            if not name in chanstats: continue
+                
+            stats = chanstats[name]          
+            stats.agg.clear_buffs()
+            
+            for j, column in enumerate(self.columns[1:]):
+                item = self.table.item(i, j+1)
+                item.setText('')
 
         
     def updateStatistics(self):    
@@ -278,14 +309,23 @@ class Statistics(QtWidgets.QWidget):
                 if stats.active and column in stats.report_items:
                     value = stats.report_items[column]['func']()                    
                     
-                    if value is None:
-                        values.append(np.nan)
-                        continue
-                    
-                    else:
-                        values.append(value)
-                    
                     fmt = stats.report_items[column]['fmt']
+                    
+                    if fmt == 'image':
+                        item = self.table.item(i, j+1)
+                        panid = int(item.text())
+                        current = gui.img.selected()
+                        gui.show(value, select=[panid])
+                        gui.img.select(current)
+                        continue
+                        
+                    else:         
+                        if value is None:
+                            values.append(np.nan)
+                            continue
+                    
+                        else:
+                            values.append(value)                                        
 
                     if isinstance(value, str):
                         text = value
@@ -296,9 +336,7 @@ class Statistics(QtWidgets.QWidget):
                     text = ''
                     
                 item = self.table.item(i, j+1)
-                item.setText(text)  
-
-            
+                item.setText(text)
             
             
     def handleHeaderMenu(self, pos):
@@ -317,9 +355,8 @@ class Statistics(QtWidgets.QWidget):
             
         r = fedit(form, title='Choose Items')
         if r is None: return
-
-        actives = [form[i][0] for i in range(len(form)) if r[i]]
         
+        actives = [form[i][0] for i in range(len(form)) if r[i]]        
         self.setActiveColumns(actives)
         
         
@@ -342,6 +379,7 @@ class StatisticsPanel(BasePanel):
         self.toolbar = StatisticsToolBar(self)
         self.toolbar.copy.connect(self.copyContent)
         self.toolbar.fitContent.connect(self.fitContent)
+        self.toolbar.clearStats.connect(self.clearStatistics)
         self.addToolBar(self.toolbar)
         
         self.fileMenu = CheckMenu("File", self.menuBar())
@@ -356,7 +394,8 @@ class StatisticsPanel(BasePanel):
         self.addMenuItem(self.editMenu, "Fit Content", self.fitContent)
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
-        self.addMenuItem(self.statsMenu, "Update", self.updateStatistics)
+        self.addMenuItem(self.statsMenu, "Clear", self.clearStatistics,
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))
             
         self.addBaseMenu(['image'])
         self.statusBar().hide()
@@ -368,6 +407,10 @@ class StatisticsPanel(BasePanel):
         
     def fitContent(self):
         self.statistics.table.resizeColumnsToContents()
+        
+        
+    def clearStatistics(self):
+        self.statistics.clearStatistics()
         
         
     def updateStatistics(self):
@@ -382,12 +425,19 @@ class StatisticsPanel(BasePanel):
         # targetPanel = super().addBindingTo(category, panid)
         # if targetPanel is None: return None
         # return targetPanel
+        
+        
+    # def removeBindingTo(self, category, panid):
+        # targetPanel = super().removeBindingTo(category, panid)
+        # if targetPanel is None: return None
+        # return targetPanel           
 
 
 class StatisticsToolBar(QtWidgets.QToolBar):
 
     copy = Signal()
     fitContent = Signal()
+    clearStats = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -403,8 +453,10 @@ class StatisticsToolBar(QtWidgets.QToolBar):
             self.fitContent.emit,
         )
         
+        # self.addAction(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png'),
+            # 'Clear',
+            # self.clearStats.emit,
+        # )        
         
-    # def removeBindingTo(self, category, panid):
-        # targetPanel = super().removeBindingTo(category, panid)
-        # if targetPanel is None: return None
-        # return targetPanel                
+        
+                     

@@ -1989,12 +1989,12 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain(array, log=log, skip_init=skip_init)                   
         self.contentChanged.emit(self.panid, zoomFitHist)
 
-    def select(self):
-        was_selected = super().select()
-        if not was_selected:
-            self.gainChanged.emit(self.panid, False)
-            self.contentChanged.emit(self.panid, False)
-        return was_selected
+    # def select(self):
+        # was_selected = super().select()
+        # if not was_selected:
+            # self.gainChanged.emit(self.panid, False)
+            # self.contentChanged.emit(self.panid, False)
+        # return was_selected
 
     def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True, skip_init=False):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log, skip_init)
