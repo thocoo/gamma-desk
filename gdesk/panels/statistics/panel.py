@@ -312,6 +312,7 @@ class StatisticsPanel(BasePanel):
     
     panelCategory = 'statistics'
     panelShortName = 'basic'
+    classIconFile = str(RESPATH / 'icons' / 'px16' / 'table_sum.png')
 
     def __init__(self, parent, panid):
         super().__init__(parent, panid, type(self).panelCategory)
@@ -325,7 +326,9 @@ class StatisticsPanel(BasePanel):
             icon = 'cross.png')                
             
         self.editMenu = CheckMenu("Edit", self.menuBar())
-        self.addMenuItem(self.editMenu, "Copy", self.copyContent)
+        self.addMenuItem(self.editMenu, "Copy", self.copyContent,
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
+        
         self.addMenuItem(self.editMenu, "Fit Content", self.fitContent)
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
