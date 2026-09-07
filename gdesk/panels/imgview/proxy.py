@@ -331,7 +331,7 @@ class ImageGuiProxy(GuiProxyBase):
 
 
     @staticmethod
-    def show_array_cont(array=None, cmap=None, log=True, skip_init=False):                    
+    def show_array_cont(array=None, cmap=None, log=True, skip_init=False, panid=None):
         
         retries = 0
         
@@ -346,7 +346,10 @@ class ImageGuiProxy(GuiProxyBase):
             retries += 1
         
         def _gui_show(array, cmap):
-            panel = gui.qapp.panels.selected('image')
+            if panid is None:
+                panel = gui.qapp.panels.selected('image')
+            else:
+                panel = gui.qapp.panels['image'][panid]
 
             if not cmap is None:
                 panel.colormap = cmap        
