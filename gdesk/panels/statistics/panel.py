@@ -20,6 +20,14 @@ if API_NAME == 'PySide6' and hasattr(QtGui, "QAbstractItemView"):
 else:
     NOEDITTRIGGERS = QtWidgets.QTableWidget.NoEditTriggers
     
+    
+class ImageItem(QtWidgets.QTableWidgetItem):
+    
+    def __init__(self, panid=0):
+        super().__init__()
+        self.panid = panid
+        self.setText(f'image#{self.panid}')
+    
 
 class Statistics(QtWidgets.QWidget):    
     
@@ -246,10 +254,9 @@ class Statistics(QtWidgets.QWidget):
             for j, column in enumerate(self.columns[1:]):
                 props = stats.report_items[column]
                 
-                if props.get('fmt') == 'image':
+                if props.get('rtype') == np.ndarray and not name == 'avg':
                     panid = gui.img.new()
-                    item = QtWidgets.QTableWidgetItem('')
-                    item.setText(f'{panid}')
+                    item = ImageItem(panid)                    
                     self.table.setItem(i, 1 + j, item)    
                 
                 else:
@@ -279,7 +286,8 @@ class Statistics(QtWidgets.QWidget):
             
             for j, column in enumerate(self.columns[1:]):
                 item = self.table.item(i, j+1)
-                item.setText('')
+                if not isinstance(item, ImageItem):
+                    item.setText('')
 
         
     def updateStatistics(self):    
@@ -307,13 +315,13 @@ class Statistics(QtWidgets.QWidget):
                 stats = chanstats[name]                                     
             
                 if stats.active and column in stats.report_items:
+                    item = self.table.item(i, j+1)                    
                     value = stats.report_items[column]['func']()                    
                     
                     fmt = stats.report_items[column]['fmt']
                     
-                    if fmt == 'image':
-                        item = self.table.item(i, j+1)
-                        panid = int(item.text())
+                    if isinstance(item, ImageItem):                        
+                        panid = item.panid
                         current = gui.img.selected()
                         gui.show(value, select=[panid])
                         gui.img.select(current)
@@ -350,7 +358,7 @@ class Statistics(QtWidgets.QWidget):
     
         form = []
         
-        for stat in all_items:
+        for stat in sorted(all_items):
             form.append((stat, stat in self.columns))
             
         r = fedit(form, title='Choose Items')
@@ -453,10 +461,9 @@ class StatisticsToolBar(QtWidgets.QToolBar):
             self.fitContent.emit,
         )
         
-        # self.addAction(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png'),
-            # 'Clear',
-            # self.clearStats.emit,
-        # )        
-        
-        
-                     
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')),
+            'Clear',
+            self.clearStats.emit,
+        )
+
