@@ -256,7 +256,13 @@ class Statistics(QtWidgets.QWidget):
                 
                 if props.get('rtype') == np.ndarray and not name == 'avg':
                     panid = gui.img.new()
-                    item = ImageItem(panid)                    
+                    
+                    fmt = props.get('fmt', {})
+                    
+                    if 'colormap' in fmt:
+                        gui.qapp.panels['image'][panid].colormap = fmt['colormap']
+                    
+                    item = ImageItem(panid)
                     self.table.setItem(i, 1 + j, item)    
                 
                 else:
@@ -322,8 +328,22 @@ class Statistics(QtWidgets.QWidget):
                     
                     if isinstance(item, ImageItem):                        
                         panid = item.panid
+                        
                         current = gui.img.selected()
                         gui.show(value, select=[panid])
+                        
+                        gain = fmt.get('gain')
+                       
+                        if gain is None:
+                            pass
+                        
+                        elif gain == 'min-max':
+                            gui.qapp.panels['image'][panid].gainToMinMax()
+                            
+                        elif gain.startswith('sigma'):
+                            factor = int(gain[5:])
+                            gui.qapp.panels['image'][panid].gainToSigma(factor)
+                        
                         gui.img.select(current)
                         continue
                         
