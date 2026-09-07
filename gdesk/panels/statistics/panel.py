@@ -319,6 +319,11 @@ class StatisticsPanel(BasePanel):
 
         self.statistics = Statistics()                
         self.setCentralWidget(self.statistics)        
+
+        self.toolbar = StatisticsToolBar(self)
+        self.toolbar.copy.connect(self.copyContent)
+        self.toolbar.fitContent.connect(self.fitContent)
+        self.addToolBar(self.toolbar)
         
         self.fileMenu = CheckMenu("File", self.menuBar())
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
@@ -358,6 +363,26 @@ class StatisticsPanel(BasePanel):
         # targetPanel = super().addBindingTo(category, panid)
         # if targetPanel is None: return None
         # return targetPanel
+
+
+class StatisticsToolBar(QtWidgets.QToolBar):
+
+    copy = Signal()
+    fitContent = Signal()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')),
+            'Copy',
+            self.copy.emit,
+        )
+
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_width.png')),
+            'Fit Content',
+            self.fitContent.emit,
+        )
         
         
     # def removeBindingTo(self, category, panid):
