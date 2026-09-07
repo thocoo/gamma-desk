@@ -35,6 +35,9 @@ class Statistics(QtWidgets.QWidget):
         
     def initUi(self):        
         self.table = QtWidgets.QTableWidget()                
+        table_font = self.table.font()
+        table_font.setFamily('Consolas')
+        self.table.setFont(table_font)
         self.table.viewport().installEventFilter(self)
         
         headers = self.table.horizontalHeader()
@@ -90,7 +93,23 @@ class Statistics(QtWidgets.QWidget):
                     self.table.clearSelection()
                     return True
 
+        if obj is self.table.viewport() and event.type() == QtCore.QEvent.Wheel:
+            if event.modifiers() & Qt.ControlModifier:
+                font = self.table.font()
+                delta = event.angleDelta().y()
+                point_size = max(1, font.pointSize() + (1 if delta > 0 else -1))
+                font.setPointSize(point_size)
+                self.table.setFont(font)
+                self.updateRowHeights()
+                return True
+
         return super().eventFilter(obj, event)
+
+
+    def updateRowHeights(self):
+        row_height = QtGui.QFontMetrics(self.table.font()).lineSpacing() + 4
+        for row in range(self.table.rowCount()):
+            self.table.setRowHeight(row, row_height)
         
         
     def setActiveColumns(self, columns=["Mean", "Std"]):
@@ -227,7 +246,7 @@ class Statistics(QtWidgets.QWidget):
                 item = QtWidgets.QTableWidgetItem('')
                 self.table.setItem(i, 1 + j, item)
             
-            self.table.setRowHeight(i, 20)      
+        self.updateRowHeights()
 
         self.table.resizeColumnsToContents()
 
