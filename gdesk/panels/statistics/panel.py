@@ -131,6 +131,8 @@ class Statistics(QtWidgets.QWidget):
 
     def copyTableToClipboard(self):
         selection = self.table.selectionModel().selectedRows()
+        if not selection:
+            selection = [self.table.model().index(row, 0) for row in range(self.table.rowCount())]
         
         header = self.table.horizontalHeader()
         columnOrder = [header.logicalIndex(visual) for visual in range(self.table.columnCount())]
