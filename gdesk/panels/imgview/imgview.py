@@ -109,7 +109,7 @@ from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsToolBar
+from .corner import StatisticsToolBar
 from .regoi import RoiConfigDialog
 
 from gdesk.panels.statistics.panel import Statistics
