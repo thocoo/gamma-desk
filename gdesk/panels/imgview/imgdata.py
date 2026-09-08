@@ -106,10 +106,9 @@ class MaskPresetButton(QtWidgets.QToolButton):
         self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
         
         self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
-        self.setToolTip("Default Roi's")
+        self.setToolTip("Roi Presets")
         self.setMenu(self.masksSelectMenu)
-        self.setPopupMode(QtWidgets.QToolButton.InstantPopup)            
-    
+        self.setPopupMode(QtWidgets.QToolButton.InstantPopup)                
             
     
 class SelectRoi(DimRanges):
