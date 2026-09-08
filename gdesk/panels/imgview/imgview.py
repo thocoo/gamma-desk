@@ -1432,12 +1432,12 @@ class ImageViewerBase(BasePanel):
 
     def reselect(self):
         self.imviewer.roi.showRoi()
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         
 
     def selectNone(self):
         self.imviewer.roi.hideRoi()
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         
 
     def setRoi(self):
@@ -1462,13 +1462,13 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         
 
     def addMaskStatistics(self):
         self.imviewer.imgdata.addMaskStatsDialog()        
         self.imviewer.roi.hideRoi()
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         self.refresh()
 
         
@@ -1566,7 +1566,7 @@ class ImageViewerBase(BasePanel):
     def configureRois(self):
         dialog = RoiConfigDialog(self.imviewer.imgdata)
         dialog.exec_()        
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         self.refresh()
         
         
@@ -1587,7 +1587,7 @@ class ImageViewerBase(BasePanel):
 
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
-        self.imgprof.statsPanel.formatTable()
+        #self.imgprof.statsPanel.formatTable()
         self.refresh()
         
 
@@ -2053,14 +2053,14 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer = ImageViewerWidget(self)
 
-        self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')), None, self)
-        self.profBtn1.setToolTip('Show/Hide row and column profiles')
-        self.profBtn1.setFixedHeight(20)
-        self.profBtn1.setFixedWidth(20)
-        self.profBtn1.clicked.connect(self.toggleProfileVisible)       
+        # self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')), None, self)
+        # self.profBtn1.setToolTip('Show/Hide row and column profiles')
+        # self.profBtn1.setFixedHeight(20)
+        # self.profBtn1.setFixedWidth(20)
+        # self.profBtn1.clicked.connect(self.toggleProfileVisible)       
         
         self.corner = QtWidgets.QMainWindow()        
-        self.corner.setCentralWidget(self.profBtn1)        
+        #self.corner.setCentralWidget(self.profBtn1)        
         
         # self.statsPanel = StatisticsPanel()
         # self.statsPanel.maskSelected.connect(self.selectMask)
@@ -2076,6 +2076,8 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
         self.statsToolbar.maskPreset.connect(self.selectMasks)
         self.imviewer.imgdata.roi_pattern_visible_changed = self.statsToolbar.setRoiMaskVisible
+
+        self.corner.addToolBar(self.statsToolbar)
         
         # self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
         # self.statsDock.setTitleBarWidget(self.statsToolbar)
@@ -2302,7 +2304,7 @@ class ImageProfileWidget(QWidget):
         parent.refresh_profiles_and_stats()
         
         self.imviewer.refresh()
-        self.statsPanel.formatTable()
+        #self.statsPanel.formatTable()
                
         
     @property
@@ -2397,7 +2399,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()
-        self.imgprof.statsPanel.updateStatistics()  
+        #self.imgprof.statsPanel.updateStatistics()  
         self.roiChanged.emit(self.panid)
         
     
