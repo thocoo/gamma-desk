@@ -109,7 +109,7 @@ from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .dialogs import RawImportDialog
-from .statspanel import StatisticsPanel, StatisticsToolBar
+from .statspanel import StatisticsToolBar
 from .regoi import RoiConfigDialog
 
 import gdesk.panels.statistics
@@ -2062,28 +2062,28 @@ class ImageProfileWidget(QWidget):
         self.corner = QtWidgets.QMainWindow()        
         self.corner.setCentralWidget(self.profBtn1)        
         
-        self.statsPanel = StatisticsPanel()
-        self.statsPanel.maskSelected.connect(self.selectMask)
-        self.statsPanel.activesChanged.connect(self.refresh)                        
-        self.statsPanel.setSelection.connect(lambda mask: self.setSelection(mask, True))                       
-        self.statsPanel.showBmask.connect(self.showBmask)                
+        # self.statsPanel = StatisticsPanel()
+        # self.statsPanel.maskSelected.connect(self.selectMask)
+        # self.statsPanel.activesChanged.connect(self.refresh)                        
+        # self.statsPanel.setSelection.connect(lambda mask: self.setSelection(mask, True))                       
+        # self.statsPanel.showBmask.connect(self.showBmask)                
         
         self.statsToolbar = StatisticsToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
+        #self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
         self.statsToolbar.toggleMask.connect(self.toggleMask)
         self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
         self.statsToolbar.maskPreset.connect(self.selectMasks)
         self.imviewer.imgdata.roi_pattern_visible_changed = self.statsToolbar.setRoiMaskVisible
         
-        self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
-        self.statsDock.setTitleBarWidget(self.statsToolbar)
-        self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
-        self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
-        self.statsDock.setWidget(self.statsPanel)            
+        # self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
+        # self.statsDock.setTitleBarWidget(self.statsToolbar)
+        # self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
+        # self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
+        # self.statsDock.setWidget(self.statsPanel)            
         
-        self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
+        # self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
@@ -2092,7 +2092,7 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
         self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)      
-        #
+        
 
         self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
@@ -2104,19 +2104,22 @@ class ImageProfileWidget(QWidget):
         self.profilesVisible = False
         self.selected_masks = []
 
+        # Commenting out statsDock related attributes since the dock is not used
+        # self.statsDock = None
+
 
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
         
-    def toggleStatsDockFloating(self):    
-        if self.statsDock.isFloating():
-            self.statsDock.setFloating(False)
-            
-            if self.profBtn1.isVisible():
-                # Docking while profiles are not visible
-                self.statsDock.hide()
-        else:
-            self.statsDock.setFloating(True)
+    # def toggleStatsDockFloating(self):    
+    #     if self.statsDock.isFloating():
+    #         self.statsDock.setFloating(False)
+    #         
+    #         if self.profBtn1.isVisible():
+    #             # Docking while profiles are not visible
+    #             self.statsDock.hide()
+    #     else:
+    #         self.statsDock.setFloating(True)
             
             
     def selectMasks(self, masks):
@@ -2145,9 +2148,9 @@ class ImageProfileWidget(QWidget):
         
 
     def showOnlyRuler(self):
-    
-        if not self.statsDock.isFloating():
-            self.statsDock.hide()
+
+        # if not self.statsDock.isFloating():
+        #     self.statsDock.hide()
             
         self.corner.setFixedWidth(20)
         self.corner.setFixedHeight(20)
@@ -2161,7 +2164,7 @@ class ImageProfileWidget(QWidget):
 
     def showProfiles(self):
 
-        self.statsDock.show()
+        # self.statsDock.show()
         self.corner.show()
         self.corner.setMaximumHeight(500)
         self.corner.setMaximumWidth(500)        
@@ -2267,13 +2270,13 @@ class ImageProfileWidget(QWidget):
 
     def set_profiles_visible(self, visible):
         if visible:
-            self.profBtn1.hide()
+            #self.profBtn1.hide()
             self.showProfiles()
-            self.statsPanel.formatTable()
-            self.statsPanel.updateStatistics()
+            # self.statsPanel.formatTable()
+            # self.statsPanel.updateStatistics()
             
         else:
-            self.profBtn1.show()
+            #self.profBtn1.show()
             self.showOnlyRuler()
 
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
@@ -2346,8 +2349,8 @@ class ImageProfilePanel(ImageViewerBase):
         targetPanel = super().addBindingTo(category, panid)    
         if targetPanel is None: return None        
         
-        if targetPanel.category == 'levels':
-            self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMasks)
+        # if targetPanel.category == 'levels':
+        #     self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMasks)
 
         return targetPanel
         
@@ -2400,8 +2403,8 @@ class ImageProfilePanel(ImageViewerBase):
     
     def refresh_profiles_and_stats(self):  
     
-        if self.imgprof.statsPanel.isVisible():        
-            self.imgprof.statsPanel.updateStatistics()    
+        # if self.imgprof.statsPanel.isVisible():        
+        #     self.imgprof.statsPanel.updateStatistics()    
         
         if self.imgprof.profilesVisible:
             self.imgprof.drawMaskProfiles()
