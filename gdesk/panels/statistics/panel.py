@@ -29,6 +29,68 @@ class ImageItem(QtWidgets.QTableWidgetItem):
         self.setText(f'image#{self.panid}')
     
 
+class StatisticsItemDialog(QtWidgets.QDialog):
+
+    def __init__(self, items, active_items=None, parent=None):
+        super().__init__(parent)
+        self.items = items
+        self.active_items = set(active_items or [])
+        self.initUi()
+
+    def initUi(self):
+        self.setWindowTitle('Choose Statistics')
+        self.resize(700, 420)
+
+        self.table = QtWidgets.QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['', 'Name', 'Label', 'Doc', 'Type'])
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.table.verticalHeader().hide()
+        self.table.setAlternatingRowColors(True)
+        for row in range(self.table.rowCount()):
+            self.table.setRowHeight(row, 20)
+
+        for row, (name, props) in enumerate(self.items):
+            self.table.insertRow(row)
+
+            checkbox = QtWidgets.QCheckBox()
+            checkbox.setChecked(name in self.active_items)
+            self.table.setCellWidget(row, 0, checkbox)
+
+            self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(name)))
+            self.table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(props.get('label', name))))
+            self.table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(props.get('doc', ''))))
+            self.table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(props.get('rtype', ''))))
+
+        self.table.resizeColumnsToContents()
+        self.table.horizontalHeader().setStretchLastSection(True)
+        for row in range(self.table.rowCount()):
+            self.table.setRowHeight(row, 20)
+
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
+            QtCore.Qt.Horizontal,
+            self,
+        )
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.table)
+        layout.addWidget(self.button_box)
+
+    def selected_items(self):
+        selected = []
+        for row in range(self.table.rowCount()):
+            checkbox = self.table.cellWidget(row, 0)
+            if checkbox is not None and checkbox.isChecked():
+                name_item = self.table.item(row, 1)
+                if name_item is not None:
+                    selected.append(name_item.text())
+        return selected
+
+
 class Statistics(QtWidgets.QWidget):    
     
     maskSelected = Signal(str)
@@ -129,7 +191,6 @@ class Statistics(QtWidgets.QWidget):
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)        
         self.formatTable()
-        self.updateStatistics()        
 
 
     def copyTableToClipboard(self):
@@ -383,23 +444,26 @@ class Statistics(QtWidgets.QWidget):
         
         
     def chooseStatistics(self):
-        chanstats = self.imviewer.imgdata.chanstats  
-        
-        all_items = set()
-        
-        for channel_name, imgstat in chanstats.items():
-            all_items = all_items.union(set(imgstat.report_items.keys()))        
-    
-        form = []
-        
-        for stat in sorted(all_items):
-            form.append((stat, stat in self.columns))
-            
-        r = fedit(form, title='Choose Items')
-        if r is None: return
-        
-        actives = [form[i][0] for i in range(len(form)) if r[i]]        
-        self.setActiveColumns(actives)
+        chanstats = self.imviewer.imgdata.chanstats
+        if not chanstats:
+            return
+
+        report_items = {}
+        for imgstat in chanstats.values():
+            for name, props in imgstat.report_items.items():
+                if name not in report_items:
+                    report_items[name] = props
+
+        active_items = set(self.columns[1:]) if hasattr(self, 'columns') else set()
+        items = sorted(report_items.items(), key=lambda pair: str(pair[0]).upper())
+
+        dialog = StatisticsItemDialog(items, active_items, self)
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+
+        selected = dialog.selected_items()
+        self.setActiveColumns(selected)
+        self.clearStatistics()
         
         
     def handleContextMenu(self, pos):      
