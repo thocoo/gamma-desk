@@ -112,7 +112,7 @@ from .dialogs import RawImportDialog
 from .statspanel import StatisticsToolBar
 from .regoi import RoiConfigDialog
 
-import gdesk.panels.statistics
+from gdesk.panels.statistics.panel import Statistics
 
 
 here = Path(__file__).parent.absolute()
@@ -2046,9 +2046,12 @@ class ImageProfileWidget(QWidget):
         super().__init__(parent=parent)
 
         self.imviewer = ImageViewerWidget(self)
-        
-        self.corner = QtWidgets.QMainWindow()             
-        
+
+        self.corner = QtWidgets.QWidget()
+        self.cornerLayout = QtWidgets.QVBoxLayout(self.corner)
+        self.cornerLayout.setContentsMargins(0, 0, 0, 0)
+        self.cornerLayout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
         self.statsToolbar = StatisticsToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
@@ -2057,8 +2060,13 @@ class ImageProfileWidget(QWidget):
         self.statsToolbar.maskPreset.connect(self.selectMasks)
         self.imviewer.imgdata.roi_pattern_visible_changed = self.statsToolbar.setRoiMaskVisible
 
-        self.corner.addToolBar(self.statsToolbar)
-        
+        self.statistics = Statistics(imviewer=self.imviewer)
+        self.parent().contentChanged.connect(self.statistics.updateStatistics)
+        self.statsToolbar.showPanel.connect(self.parent().showStatisticPanel) 
+        self.statistics.setActiveColumns(['Mean', 'Npix', 'Std'])
+
+        self.cornerLayout.addWidget(self.statsToolbar)        
+        self.cornerLayout.addWidget(self.statistics)
         
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
@@ -2066,10 +2074,9 @@ class ImageProfileWidget(QWidget):
         self.gridsplit = GridSplitter(None)
 
         self.imviewer.zoomPanChanged.connect(self.colPanel.zoomToImage)
-        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)      
-        
+        self.imviewer.zoomPanChanged.connect(self.rowPanel.zoomToImage)
 
-        self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignRight | Qt.AlignBottom)
+        self.gridsplit.addWidget(self.corner, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
         self.gridsplit.addWidget(self.rowPanel, 0, 1)
         self.gridsplit.addWidget(self.colPanel, 1, 0)
         self.gridsplit.addWidget(self.imviewer, 1, 1)
@@ -2109,9 +2116,6 @@ class ImageProfileWidget(QWidget):
         
 
     def showOnlyRuler(self):
-
-        # if not self.statsDock.isFloating():
-        #     self.statsDock.hide()
             
         self.corner.setFixedWidth(20)
         self.corner.setFixedHeight(20)
@@ -2125,7 +2129,6 @@ class ImageProfileWidget(QWidget):
 
     def showProfiles(self):
 
-        # self.statsDock.show()
         self.corner.show()
         self.corner.setMaximumHeight(500)
         self.corner.setMaximumWidth(500)        
@@ -2230,11 +2233,11 @@ class ImageProfileWidget(QWidget):
 
     def set_profiles_visible(self, visible):
         if visible:
-            #self.profBtn1.hide()
+            self.statistics.show()
             self.showProfiles()
             
         else:
-            #self.profBtn1.show()
+            self.statistics.hide()
             self.showOnlyRuler()
 
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)
@@ -2286,8 +2289,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.imviewer.zoomChanged.connect(self.statuspanel.set_zoom)
         self.imviewer.zoomPanChanged.connect(self.emitVisibleRegionChanged)
         self.imviewer.roi.roiChanged.connect(self.passRoiChanged)
-        self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)   
-        #self.imviewer.imgdata.roi_pattern_visible_changed.connect(self.imgprof.statsToolbar.setRoiMaskVisible)
+        self.imviewer.roi.roiRemoved.connect(self.removeRoiProfile)
         
         self.imviewer.roi.get_context_menu = self.get_select_menu
         self.imviewer.contextMenuRequest.connect(self.exec_select_menu)

@@ -37,10 +37,13 @@ class Statistics(QtWidgets.QWidget):
     setSelection = Signal(str)
     showBmask = Signal(str)
     hideMask = Signal(str)
+
     
-    def __init__(self, *args, **kwargs):    
-        super().__init__(*args, **kwargs) 
+    def __init__(self, imviewer=None):
+        self._imviewer = imviewer
+        super().__init__() 
         self.initUi()
+
         
     def initUi(self):        
         self.table = QtWidgets.QTableWidget()                
@@ -156,6 +159,8 @@ class Statistics(QtWidgets.QWidget):
     
     @property
     def imviewer(self):
+        if self._imviewer is not None:
+            return self._imviewer
         panel = self.parent().bindedPanel('image')        
         return panel.imviewer
         
