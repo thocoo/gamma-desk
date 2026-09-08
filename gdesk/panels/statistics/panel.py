@@ -368,7 +368,10 @@ class Statistics(QtWidgets.QWidget):
             
             
     def handleHeaderMenu(self, pos):
+        self.chooseStatistics()        
         
+        
+    def chooseStatistics(self):
         chanstats = self.imviewer.imgdata.chanstats  
         
         all_items = set()
@@ -408,6 +411,9 @@ class StatisticsPanel(BasePanel):
         self.toolbar.copy.connect(self.copyContent)
         self.toolbar.fitContent.connect(self.fitContent)
         self.toolbar.clearStats.connect(self.clearStatistics)
+        self.toolbar.chooseStatistics.connect(self.chooseStatistics)
+        self.toolbar.configureRois.connect(self.configureRois)
+        
         self.addToolBar(self.toolbar)
         
         self.fileMenu = CheckMenu("File", self.menuBar())
@@ -416,14 +422,20 @@ class StatisticsPanel(BasePanel):
             icon = 'cross.png')                
             
         self.editMenu = CheckMenu("Edit", self.menuBar())
+        
         self.addMenuItem(self.editMenu, "Copy", self.copyContent,
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
         
-        self.addMenuItem(self.editMenu, "Fit Content", self.fitContent)
+        self.addMenuItem(self.editMenu, "Fit Content", self.fitContent,
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_width.png')))
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
+        
         self.addMenuItem(self.statsMenu, "Clear", self.clearStatistics,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))            
+            
+        self.addMenuItem(self.statsMenu, "Choose Statistics", self.chooseStatistics,            
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')))
             
         self.addBaseMenu(['image'])
         self.statusBar().hide()
@@ -439,6 +451,14 @@ class StatisticsPanel(BasePanel):
         
     def clearStatistics(self):
         self.statistics.clearStatistics()
+        
+        
+    def chooseStatistics(self):
+        self.statistics.chooseStatistics()
+        
+        
+    def configureRois(self):
+        self.bindedPanel('image').imgprof.selectRoi('custom visibility')
         
         
     def updateStatistics(self):
@@ -466,9 +486,18 @@ class StatisticsToolBar(QtWidgets.QToolBar):
     copy = Signal()
     fitContent = Signal()
     clearStats = Signal()
+    configureRois = Signal()
+    chooseStatistics = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')),
+            "Configure Roi's",
+            self.configureRois.emit,
+        )  
+        
         self.addAction(
             QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')),
             'Copy',
@@ -485,5 +514,11 @@ class StatisticsToolBar(QtWidgets.QToolBar):
             QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')),
             'Clear',
             self.clearStats.emit,
-        )
+        )             
+
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')),
+            "Choose Statstics",
+            self.chooseStatistics.emit,
+        )         
 
