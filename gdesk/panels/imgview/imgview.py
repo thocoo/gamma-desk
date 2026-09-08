@@ -109,10 +109,8 @@ from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .dialogs import RawImportDialog
-from .corner import StatisticsToolBar
+from .corner import CornerWidget
 from .regoi import RoiConfigDialog
-
-from gdesk.panels.statistics.panel import Statistics
 
 
 here = Path(__file__).parent.absolute()
@@ -2047,26 +2045,9 @@ class ImageProfileWidget(QWidget):
 
         self.imviewer = ImageViewerWidget(self)
 
-        self.corner = QtWidgets.QWidget()
-        self.cornerLayout = QtWidgets.QVBoxLayout(self.corner)
-        self.cornerLayout.setContentsMargins(0, 0, 0, 0)
-        self.cornerLayout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.corner = CornerWidget(self)
 
-        self.statsToolbar = StatisticsToolBar()
-        self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        self.statsToolbar.selectRoi.connect(self.selectRoi)
-        self.statsToolbar.toggleMask.connect(self.toggleMask)
-        self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
-        self.statsToolbar.maskPreset.connect(self.selectMasks)
-        self.imviewer.imgdata.roi_pattern_visible_changed = self.statsToolbar.setRoiMaskVisible
-
-        self.statistics = Statistics(imviewer=self.imviewer)
-        self.parent().contentChanged.connect(self.statistics.updateStatistics)
-        self.statsToolbar.showPanel.connect(self.parent().showStatisticPanel) 
-        self.statistics.setActiveColumns(['Mean', 'Npix', 'Std'])
-
-        self.cornerLayout.addWidget(self.statsToolbar)        
-        self.cornerLayout.addWidget(self.statistics)
+        self.imviewer.imgdata.roi_pattern_visible_changed = self.corner.cornerMenu.setRoiMaskVisible
         
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
@@ -2233,11 +2214,11 @@ class ImageProfileWidget(QWidget):
 
     def set_profiles_visible(self, visible):
         if visible:
-            self.statistics.show()
+            self.corner.setNormalLayout()
             self.showProfiles()
             
         else:
-            self.statistics.hide()
+            self.corner.setMiniLayout()
             self.showOnlyRuler()
 
     profilesVisible = property(lambda self: self._profilesVisible, set_profiles_visible)

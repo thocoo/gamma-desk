@@ -9,11 +9,66 @@ from .imgdata import MaskPresetButton
 from qtpy.QtCore import Qt, Signal, QUrl
 from gdesk import gui
 
+from gdesk.panels.statistics.panel import Statistics, StatisticsToolBar
+
 
 RESPATH = Path(config['respath'])        
+
+
+class CornerWidget(QtWidgets.QWidget):
+
+    def __init__(self, imviewer):
+        super().__init__(imviewer)
+        self.imviewer = imviewer
+
+        self.cornerMenu = CornerToolBar()
+        self.cornerMenu.toggleProfile.connect(self.imviewer.toggleProfileVisible)
+        self.cornerMenu.selectRoi.connect(self.imviewer.selectRoi)
+        self.cornerMenu.toggleMask.connect(self.imviewer.toggleMask)
+        self.cornerMenu.toggleRoiMask.connect(self.imviewer.toggleRoiMask)
+        self.cornerMenu.maskPreset.connect(self.imviewer.selectMasks)
+        self.cornerMenu.showPanel.connect(self.imviewer.parent().showStatisticPanel)
+
+        self.toolbar = StatisticsToolBar()
+
+        self.statistics = Statistics(imviewer=self.imviewer.imviewer)
+        self.imviewer.parent().contentChanged.connect(self.statistics.updateStatistics)         
+        self.statistics.setActiveColumns(['Mean', 'Npix', 'Std'])        
+
+        self.toolbar.copy.connect(self.statistics.copyTableToClipboard)
+        self.toolbar.fitContent.connect(self.statistics.fitContent)
+        self.toolbar.clearStats.connect(self.statistics.clearStatistics)
+        self.toolbar.chooseStatistics.connect(self.statistics.chooseStatistics)        
+
+        self.hlayout = QtWidgets.QHBoxLayout()
+        self.hlayout.setContentsMargins(0, 0, 0, 0)
+        self.hlayout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.hlayout.setSpacing(0)
+        
+        self.cornerLayout = QtWidgets.QVBoxLayout(self)        
+        self.cornerLayout.setContentsMargins(0, 0, 0, 0)
+        self.cornerLayout.setSpacing(0)
+        self.cornerLayout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.cornerLayout.addLayout(self.hlayout)
+
+        self.hlayout.addWidget(self.cornerMenu)
+        self.hlayout.addWidget(self.toolbar)
+
+        self.cornerLayout.addWidget(self.statistics)
+
+
+    def setMiniLayout(self):
+        self.toolbar.hide()
+        self.statistics.hide()
+
+
+    def setNormalLayout(self):
+        self.toolbar.show()
+        self.statistics.show()
+    
         
         
-class StatisticsToolBar(QtWidgets.QToolButton): 
+class CornerToolBar(QtWidgets.QToolButton): 
     
     toggleProfile = Signal()
     toggleDock = Signal()

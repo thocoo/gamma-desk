@@ -235,6 +235,10 @@ class Statistics(QtWidgets.QWidget):
             self.maskSelected.emit(','.join(maskNames))
 
 
+    def fitContent(self):
+        self.table.resizeColumnsToContents()            
+
+
     def formatTable(self):    
     
         chanstats = self.imviewer.imgdata.chanstats        
@@ -415,10 +419,10 @@ class StatisticsPanel(BasePanel):
         self.setCentralWidget(self.statistics)        
 
         self.toolbar = StatisticsToolBar(self)
-        self.toolbar.copy.connect(self.copyContent)
-        self.toolbar.fitContent.connect(self.fitContent)
-        self.toolbar.clearStats.connect(self.clearStatistics)
-        self.toolbar.chooseStatistics.connect(self.chooseStatistics)
+        self.toolbar.copy.connect(self.statistics.copyTableToClipboard)
+        self.toolbar.fitContent.connect(self.statistics.fitContent)
+        self.toolbar.clearStats.connect(self.statistics.clearStatistics)
+        self.toolbar.chooseStatistics.connect(self.statistics.chooseStatistics)
         self.toolbar.configureRois.connect(self.configureRois)
         
         self.addToolBar(self.toolbar)
@@ -430,38 +434,22 @@ class StatisticsPanel(BasePanel):
             
         self.editMenu = CheckMenu("Edit", self.menuBar())
         
-        self.addMenuItem(self.editMenu, "Copy", self.copyContent,
+        self.addMenuItem(self.editMenu, "Copy", self.statistics.copyTableToClipboard,
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
         
-        self.addMenuItem(self.editMenu, "Fit Content", self.fitContent,
+        self.addMenuItem(self.editMenu, "Fit Content", self.statistics.fitContent,
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_width.png')))
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
         
-        self.addMenuItem(self.statsMenu, "Clear", self.clearStatistics,
+        self.addMenuItem(self.statsMenu, "Clear", self.statistics.clearStatistics,
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))            
             
-        self.addMenuItem(self.statsMenu, "Choose Statistics", self.chooseStatistics,            
+        self.addMenuItem(self.statsMenu, "Choose Statistics", self.statistics.chooseStatistics,            
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')))
             
         self.addBaseMenu(['image'])
-        self.statusBar().hide()
-        
-    
-    def copyContent(self):    
-        self.statistics.copyTableToClipboard()
-        
-        
-    def fitContent(self):
-        self.statistics.table.resizeColumnsToContents()
-        
-        
-    def clearStatistics(self):
-        self.statistics.clearStatistics()
-        
-        
-    def chooseStatistics(self):
-        self.statistics.chooseStatistics()
+        self.statusBar().hide()                
         
         
     def configureRois(self):
