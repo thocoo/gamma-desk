@@ -419,10 +419,7 @@ class StatisticsPanel(BasePanel):
         self.setCentralWidget(self.statistics)        
 
         self.toolbar = StatisticsToolBar(self)
-        self.toolbar.copy.connect(self.statistics.copyTableToClipboard)
-        self.toolbar.fitContent.connect(self.statistics.fitContent)
-        self.toolbar.clearStats.connect(self.statistics.clearStatistics)
-        self.toolbar.chooseStatistics.connect(self.statistics.chooseStatistics)
+        self.toolbar.connectButtons(self.statistics)                
         self.toolbar.configureRois.connect(self.configureRois)
         
         self.addToolBar(self.toolbar)
@@ -479,6 +476,7 @@ class StatisticsPanel(BasePanel):
 class StatisticsToolBar(QtWidgets.QToolBar):
 
     copy = Signal()
+    refresh = Signal()
     fitContent = Signal()
     clearStats = Signal()
     configureRois = Signal()
@@ -486,6 +484,11 @@ class StatisticsToolBar(QtWidgets.QToolBar):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.addAction(
+            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')),
+            'Refresh',
+            self.refresh.emit)        
         
         self.addAction(
             QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')),
@@ -517,3 +520,10 @@ class StatisticsToolBar(QtWidgets.QToolBar):
             self.chooseStatistics.emit,
         )         
 
+
+    def connectButtons(self, statistics):
+        self.refresh.connect(statistics.updateStatistics)
+        self.copy.connect(statistics.copyTableToClipboard)
+        self.fitContent.connect(statistics.fitContent)
+        self.clearStats.connect(statistics.clearStatistics)
+        self.chooseStatistics.connect(statistics.chooseStatistics)  

@@ -466,7 +466,6 @@ class ImageViewerWidget(QWidget):
             self.roi.setStartEndPoints(self.roiDragStartX, self.roiDragStartY, \
                 self.roiDragEndX - 1, self.roiDragEndY - 1)
             self.roi.show()
-            self.parent().statsPanel.formatTable()
 
         self.pickerPositionChanged.emit(*self.getImageCoordOfMouseEvent(event))
 

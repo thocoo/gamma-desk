@@ -28,17 +28,13 @@ class CornerWidget(QtWidgets.QWidget):
         self.cornerMenu.toggleRoiMask.connect(self.imviewer.toggleRoiMask)
         self.cornerMenu.maskPreset.connect(self.imviewer.selectMasks)
         self.cornerMenu.showPanel.connect(self.imviewer.parent().showStatisticPanel)
-
-        self.toolbar = StatisticsToolBar()
-
+                
         self.statistics = Statistics(imviewer=self.imviewer.imviewer)
         self.imviewer.parent().contentChanged.connect(self.statistics.updateStatistics)         
-        self.statistics.setActiveColumns(['Mean', 'Npix', 'Std'])        
-
-        self.toolbar.copy.connect(self.statistics.copyTableToClipboard)
-        self.toolbar.fitContent.connect(self.statistics.fitContent)
-        self.toolbar.clearStats.connect(self.statistics.clearStatistics)
-        self.toolbar.chooseStatistics.connect(self.statistics.chooseStatistics)        
+        self.statistics.setActiveColumns(['Mean', 'Npix', 'Std'])
+        
+        self.toolbar = StatisticsToolBar()
+        self.toolbar.connectButtons(self.statistics)   
 
         self.hlayout = QtWidgets.QHBoxLayout()
         self.hlayout.setContentsMargins(0, 0, 0, 0)
