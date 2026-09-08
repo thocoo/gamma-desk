@@ -755,7 +755,6 @@ class LevelsPanel(BasePanel):
         
         self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
-        #self.addMenuItem(self.modeMenu, 'Roi', self.toggle_roi, checkcall=lambda: self.roi)
         self.addMenuItem(self.modeMenu, 'Log', self.toggle_log, checkcall=lambda: self.log)
         self.addMenuItem(self.modeMenu, 'Normalize', self.toggle_log, checkcall=lambda: self.normalize)
         self.addMenuItem(self.modeMenu, 'Cummulative', self.toggle_cumm, checkcall=lambda: self.cummulative)
@@ -781,8 +780,6 @@ class LevelsPanel(BasePanel):
         self.offsetGainChanged.connect(targetPanel.changeOffsetGain)
         self.blackWhiteChanged.connect(targetPanel.changeBlackWhite)
         
-        #selectMasks = QtCore.Signal(str)
-        #selectRoi = QtCore.Signal(str) 
         self.toolbar.selectMasks.connect(targetPanel.imgprof.selectMasks)
         self.toolbar.selectRoi.connect(targetPanel.imgprof.selectRoi)
         

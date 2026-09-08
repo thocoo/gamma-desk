@@ -820,7 +820,7 @@ class ImageGuiProxy(GuiProxyBase):
             raise KeyError(f'{name} not found')
             
         chanstat.active = active
-        panel.imgprof.statsPanel.formatTable()   
+        panel.roiConfigChanged.emit()
 
         
     @StaticGuiCall

@@ -203,6 +203,7 @@ class ImageViewerBase(BasePanel):
     gainChanged = Signal(int, bool)
     visibleRegionChanged = Signal(float, float, float, float, bool, bool, float)
     roiChanged = Signal(int)
+    roiConfigChanged = Signal()
 
     classIconFile = str(respath / 'icons' / 'px16' / 'picture.png')
 
@@ -425,7 +426,7 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.selectMenu, "Configure Roi's...", self.configureRois,
             icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layers_map.png')))
                     
-        dataSplitMenu = QMenu("Create Roi's")
+        dataSplitMenu = QMenu("Roi Presets")
         dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
         self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(respath / 'icons' / 'px16' / 'color_gradient.png'))
         self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(respath / 'icons' / 'px16' / 'color.png'))            
@@ -1557,9 +1558,11 @@ class ImageViewerBase(BasePanel):
         self.imviewer.imgdata.set_mask(mask)
         self.imviewer.refresh()
 
+
     def configureRois(self):
         dialog = RoiConfigDialog(self.imviewer.imgdata)
-        dialog.exec_()        
+        dialog.exec_()
+        self.roiConfigChanged.emit()
         self.refresh()
         
         
@@ -1965,6 +1968,7 @@ class ImageViewerBase(BasePanel):
         statpanel.addBindingTo('image', self.panid)
         
         statpanel.setActiveColumns(["Mean", "Std", "Min", "Max"])
+        self.roiConfigChanged.connect(statpanel.statistics.formatTable)
     
 
     def horizontalSpectrogram(self):
@@ -2046,6 +2050,7 @@ class ImageProfileWidget(QWidget):
         self.imviewer = ImageViewerWidget(self)
 
         self.corner = CornerWidget(self)
+        self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)
 
         self.imviewer.imgdata.roi_pattern_visible_changed = self.corner.cornerMenu.setRoiMaskVisible
         
@@ -2074,6 +2079,7 @@ class ImageProfileWidget(QWidget):
             
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
+        self.parent().roiConfigChanged.emit()
         self.refresh()
         
         
