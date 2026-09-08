@@ -25,6 +25,10 @@ class HistAgg(object):
         
     def clear(self):
         self._cache.clear()                            
+        
+
+    def clear_buff(self):
+        self.clear()                                            
 
 
     @property

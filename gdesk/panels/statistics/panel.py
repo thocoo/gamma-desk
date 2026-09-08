@@ -104,7 +104,10 @@ class Statistics(QtWidgets.QWidget):
     def __init__(self, imviewer=None):
         self._imviewer = imviewer
         super().__init__() 
+        
         self.initUi()
+        self.feed_rate = 1
+        self.feed_counter = 0        
 
         
     def initUi(self):        
@@ -368,7 +371,18 @@ class Statistics(QtWidgets.QWidget):
                     item.setText('')
 
         
-    def updateStatistics(self):    
+    def updateStatistics(self):
+        
+        if not self.isVisible(): return
+        
+        self.feed_counter += 1
+        
+        if self.feed_counter >= self.feed_rate:
+            self.feed_counter = 0
+            
+        else:
+            return
+            
     
         chanstats = self.imviewer.imgdata.chanstats        
         
@@ -508,6 +522,8 @@ class StatisticsPanel(BasePanel):
             
         self.addMenuItem(self.statsMenu, "Choose Statistics", self.statistics.chooseStatistics,            
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')))
+                        
+        self.addMenuItem(self.statsMenu, "Image Feed Rate", self.setImageFeedRate)            
             
         self.addBaseMenu(['image'])
         self.statusBar().hide()                
@@ -523,6 +539,11 @@ class StatisticsPanel(BasePanel):
         
     def setActiveColumns(self, actives):
         self.statistics.setActiveColumns(actives)
+        
+        
+    def setImageFeedRate(self):
+        rate = int(gui.dialog.getstring('Set Image Feed Rate'))
+        self.statistics.feed_rate = rate        
         
         
     # def addBindingTo(self, category, panid):
