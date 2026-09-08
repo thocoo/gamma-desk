@@ -1432,12 +1432,10 @@ class ImageViewerBase(BasePanel):
 
     def reselect(self):
         self.imviewer.roi.showRoi()
-        #self.imgprof.statsPanel.formatTable()
         
 
     def selectNone(self):
         self.imviewer.roi.hideRoi()
-        #self.imgprof.statsPanel.formatTable()
         
 
     def setRoi(self):
@@ -1462,13 +1460,11 @@ class ImageViewerBase(BasePanel):
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
-        #self.imgprof.statsPanel.formatTable()
         
 
     def addMaskStatistics(self):
         self.imviewer.imgdata.addMaskStatsDialog()        
         self.imviewer.roi.hideRoi()
-        #self.imgprof.statsPanel.formatTable()
         self.refresh()
 
         
@@ -1566,7 +1562,6 @@ class ImageViewerBase(BasePanel):
     def configureRois(self):
         dialog = RoiConfigDialog(self.imviewer.imgdata)
         dialog.exec_()        
-        #self.imgprof.statsPanel.formatTable()
         self.refresh()
         
         
@@ -1587,7 +1582,6 @@ class ImageViewerBase(BasePanel):
 
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
-        #self.imgprof.statsPanel.formatTable()
         self.refresh()
         
 
@@ -2052,25 +2046,11 @@ class ImageProfileWidget(QWidget):
         super().__init__(parent=parent)
 
         self.imviewer = ImageViewerWidget(self)
-
-        # self.profBtn1 = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')), None, self)
-        # self.profBtn1.setToolTip('Show/Hide row and column profiles')
-        # self.profBtn1.setFixedHeight(20)
-        # self.profBtn1.setFixedWidth(20)
-        # self.profBtn1.clicked.connect(self.toggleProfileVisible)       
         
-        self.corner = QtWidgets.QMainWindow()        
-        #self.corner.setCentralWidget(self.profBtn1)        
-        
-        # self.statsPanel = StatisticsPanel()
-        # self.statsPanel.maskSelected.connect(self.selectMask)
-        # self.statsPanel.activesChanged.connect(self.refresh)                        
-        # self.statsPanel.setSelection.connect(lambda mask: self.setSelection(mask, True))                       
-        # self.statsPanel.showBmask.connect(self.showBmask)                
+        self.corner = QtWidgets.QMainWindow()             
         
         self.statsToolbar = StatisticsToolBar()
         self.statsToolbar.toggleProfile.connect(self.toggleProfileVisible)
-        #self.statsToolbar.toggleDock.connect(self.toggleStatsDockFloating)
         self.statsToolbar.selectRoi.connect(self.selectRoi)
         self.statsToolbar.toggleMask.connect(self.toggleMask)
         self.statsToolbar.toggleRoiMask.connect(self.toggleRoiMask)
@@ -2079,13 +2059,6 @@ class ImageProfileWidget(QWidget):
 
         self.corner.addToolBar(self.statsToolbar)
         
-        # self.statsDock = QtWidgets.QDockWidget("Statistics", self.corner)
-        # self.statsDock.setTitleBarWidget(self.statsToolbar)
-        # self.statsDock.setAllowedAreas(Qt.BottomDockWidgetArea)
-        # self.statsDock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable)
-        # self.statsDock.setWidget(self.statsPanel)            
-        
-        # self.corner.addDockWidget(Qt.BottomDockWidgetArea, self.statsDock)
         
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
@@ -2106,27 +2079,13 @@ class ImageProfileWidget(QWidget):
         self.profilesVisible = False
         self.selected_masks = []
 
-        # Commenting out statsDock related attributes since the dock is not used
-        # self.statsDock = None
-
 
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
-        
-    # def toggleStatsDockFloating(self):    
-    #     if self.statsDock.isFloating():
-    #         self.statsDock.setFloating(False)
-    #         
-    #         if self.profBtn1.isVisible():
-    #             # Docking while profiles are not visible
-    #             self.statsDock.hide()
-    #     else:
-    #         self.statsDock.setFloating(True)
-            
+
             
     def selectMasks(self, masks):
         self.imviewer.imgdata.init_channel_statistics(masks)
-        #self.statsPanel.formatTable()
         self.refresh()
         
         
@@ -2250,7 +2209,6 @@ class ImageProfileWidget(QWidget):
             roi.clip()
             roi.show()
             roi.roiChanged.emit()
-            self.statsPanel.formatTable()   
 
         else:
             self.selected_masks.clear()
@@ -2274,8 +2232,6 @@ class ImageProfileWidget(QWidget):
         if visible:
             #self.profBtn1.hide()
             self.showProfiles()
-            # self.statsPanel.formatTable()
-            # self.statsPanel.updateStatistics()
             
         else:
             #self.profBtn1.show()
@@ -2304,7 +2260,6 @@ class ImageProfileWidget(QWidget):
         parent.refresh_profiles_and_stats()
         
         self.imviewer.refresh()
-        #self.statsPanel.formatTable()
                
         
     @property
@@ -2349,10 +2304,7 @@ class ImageProfilePanel(ImageViewerBase):
         
     def addBindingTo(self, category, panid):            
         targetPanel = super().addBindingTo(category, panid)    
-        if targetPanel is None: return None        
-        
-        # if targetPanel.category == 'levels':
-        #     self.imgprof.statsPanel.maskSelected.connect(targetPanel.selectMasks)
+        if targetPanel is None: return None                
 
         return targetPanel
         
@@ -2382,13 +2334,8 @@ class ImageProfilePanel(ImageViewerBase):
     def passRoiChanged(self):
         imgdata = self.imviewer.imgdata
         selroi = imgdata.selroi            
-
-        #print(f"passRoiChanged: selected_mask={self.imgprof.selected_mask}")
-        
-        #self.imviewer.imgdata.update_roi_statistics(extra_rois=self.imgprof.selected_masks)
         
         self.roiChanged.emit(self.panid)
-        self.imgprof.statsPanel.updateStatistics()
         self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
         #self.imgprof.refresh_profile_views()
         self.refresh()
@@ -2399,14 +2346,10 @@ class ImageProfilePanel(ImageViewerBase):
         self.imgprof.imviewer.imgdata.disable_roi_statistics()
         self.imgprof.drawMaskProfiles()
         self.imgprof.refresh_profile_views()
-        #self.imgprof.statsPanel.updateStatistics()  
         self.roiChanged.emit(self.panid)
         
     
-    def refresh_profiles_and_stats(self):  
-    
-        # if self.imgprof.statsPanel.isVisible():        
-        #     self.imgprof.statsPanel.updateStatistics()    
+    def refresh_profiles_and_stats(self):     
         
         if self.imgprof.profilesVisible:
             self.imgprof.drawMaskProfiles()
@@ -2425,7 +2368,6 @@ class ImageProfilePanel(ImageViewerBase):
 
     def refresh(self):
         self.imviewer.refresh()
-        self.imgprof.statsPanel.formatTable()
         self.refresh_profiles_and_stats()
 
 
