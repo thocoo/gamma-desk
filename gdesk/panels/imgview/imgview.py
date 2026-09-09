@@ -533,7 +533,10 @@ class ImageViewerBase(BasePanel):
         vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
         
         self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'table_sum.png')))
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'table_sum.png')))            
+            
+        self.addMenuItem(self.analyseMenu, 'Levels', self.showLevelsPanel,
+            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))
         
         self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
             icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
@@ -1969,6 +1972,19 @@ class ImageViewerBase(BasePanel):
         
         statpanel.setActiveColumns(["Mean", "Std", "Min", "Max"])
         self.roiConfigChanged.connect(statpanel.statistics.formatTable)
+        
+        
+    def showLevelsPanel(self):        
+        
+        if not self.bindedPanel('levels') is None:
+            self.bindedPanel('levels').show_me()
+            return
+
+        imgpanel = gui.qapp.panels['image'][self.panid]
+        levelspanel =  gui.qapp.panels.new('levels')
+        
+        imgpanel.addBindingTo('levels', levelspanel.panid)
+        levelspanel.addBindingTo('image', self.panid)      
     
 
     def horizontalSpectrogram(self):
