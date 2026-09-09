@@ -35,6 +35,7 @@ class CornerWidget(QtWidgets.QWidget):
         
         self.toolbar = StatisticsToolBar()
         self.toolbar.connectButtons(self.statistics)   
+        self.toolbar.configureRois.connect(self.configureRois)
 
         self.hlayout = QtWidgets.QHBoxLayout()
         self.hlayout.setContentsMargins(0, 0, 0, 0)
@@ -52,6 +53,10 @@ class CornerWidget(QtWidgets.QWidget):
 
         self.cornerLayout.addWidget(self.statistics)
 
+
+    def configureRois(self):
+        self.imviewer.parent().imgprof.selectRoi('custom visibility')
+        
 
     def setMiniLayout(self):
         self.toolbar.hide()
