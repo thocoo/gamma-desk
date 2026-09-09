@@ -34,7 +34,7 @@ class StatisticsItemDialog(QtWidgets.QDialog):
     def __init__(self, items, active_items=None, parent=None):
         super().__init__(parent)
         self.items = items
-        self.active_items = set(active_items or [])
+        self.active_items = active_items or []
         self.initUi()
 
     def initUi(self):
@@ -88,6 +88,10 @@ class StatisticsItemDialog(QtWidgets.QDialog):
                 name_item = self.table.item(row, 1)
                 if name_item is not None:
                     selected.append(name_item.text())
+              
+        # keep the previous order, additional items to the end
+        selected = sorted(selected, key= lambda item: self.active_items.index(item) if item in self.active_items else 1000)
+        
         return selected
 
 
@@ -108,6 +112,8 @@ class Statistics(QtWidgets.QWidget):
         self.initUi()
         self.feed_rate = 1
         self.feed_counter = 0        
+        self.ref_metric = None
+        self.columns = ["Name"]
 
         
     def initUi(self):        
@@ -310,26 +316,29 @@ class Statistics(QtWidgets.QWidget):
         
         if len(valid_stats_names) > 1: 
             valid_stats_names = valid_stats_names + ['avg']
+            
+        if not self.ref_metric is None:
+            valid_stats_names = valid_stats_names + [f'{self.ref_metric}/xx']            
         
         self.table.setRowCount(len(valid_stats_names))
         
         for i, name in enumerate(valid_stats_names):
             item_label = QtWidgets.QTableWidgetItem(name)
             
-            if name == 'avg':
+            if name in ['avg', f'{self.ref_metric}/xx']:
                 pass
                 
             else:
                 stats = chanstats[name]                               
                 R, G, B, A = stats.plot_color.getRgb()            
-                item_label.setBackground(QtGui.QColor(R, G, B, 128))            
+                item_label.setBackground(QtGui.QColor(R, G, B, 128))                                        
                 
-            self.table.setItem(i, 0, item_label)            
+            self.table.setItem(i, 0, item_label)
                         
             for j, column in enumerate(self.columns[1:]):
                 props = stats.report_items[column]
                 
-                if props.get('rtype') == np.ndarray and not name == 'avg':
+                if props.get('rtype') == np.ndarray and not name in ['avg', f'{self.ref_metric}/xx']:
                     panid = gui.img.new()
                     
                     fmt = props.get('fmt', {})
@@ -384,9 +393,18 @@ class Statistics(QtWidgets.QWidget):
             return
             
     
-        chanstats = self.imviewer.imgdata.chanstats        
+        chanstats = self.imviewer.imgdata.chanstats 
+
+        colindnames = list(enumerate(self.columns[1:]))
         
-        for j, column in enumerate(self.columns[1:]):
+        if not self.ref_metric is None:
+            found_at = [i for i, (col, name) in enumerate(colindnames) if name == self.ref_metric]
+            poped = colindnames.pop(found_at[0])
+            colindnames = [poped] + colindnames
+
+        ref_value = None
+        
+        for j, column in colindnames:
                      
             values = []
             
@@ -399,7 +417,22 @@ class Statistics(QtWidgets.QWidget):
                     text = f'{value:.3g}'
                     item = self.table.item(i, j+1)
                     item.setText(text)
+                    
+                    if column == self.ref_metric:
+                        ref_value = value
+                    
                     continue
+                    
+                elif name == f'{self.ref_metric}/xx':
+                    if not ref_value is None and not value is None:
+                        ratio = ref_value / value
+                        
+                        text = f'{ratio:.3g}'
+                        item = self.table.item(i, j+1)
+                        item.setText(text)                    
+                    
+                    continue
+                    
                 
                 if not name in chanstats: continue
                 if not chanstats[name].is_valid(): continue
@@ -408,7 +441,7 @@ class Statistics(QtWidgets.QWidget):
             
                 if stats.active and column in stats.report_items:
                     item = self.table.item(i, j+1)                    
-                    value = stats.report_items[column]['func']()                    
+                    value = stats.report_items[column]['func']()                  
                     
                     fmt = stats.report_items[column]['fmt']
                     
@@ -416,7 +449,8 @@ class Statistics(QtWidgets.QWidget):
                         panid = item.panid
                         
                         current = gui.img.selected()
-                        gui.show(value, select=[panid])
+                        gui.show(value, select=[panid])                        
+                        value = None
                         
                         gain = fmt.get('gain')
                        
@@ -439,7 +473,10 @@ class Statistics(QtWidgets.QWidget):
                             continue
                     
                         else:
-                            values.append(value)                                        
+                            values.append(value)
+
+                    if column == self.ref_metric:
+                        ref_value = value                                
 
                     if isinstance(value, str):
                         text = value
@@ -468,7 +505,7 @@ class Statistics(QtWidgets.QWidget):
                 if name not in report_items:
                     report_items[name] = props
 
-        active_items = set(self.columns[1:]) if hasattr(self, 'columns') else set()
+        active_items = self.columns[1:]
         items = sorted(report_items.items(), key=lambda pair: str(pair[0]).upper())
 
         dialog = StatisticsItemDialog(items, active_items, self)
