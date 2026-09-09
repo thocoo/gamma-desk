@@ -41,7 +41,7 @@ class HistAgg(object):
         return self.roi.dtype
         
         
-    def n(self):
+    def npix(self):
         return self.channel.npix()
         
         
