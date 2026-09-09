@@ -235,7 +235,7 @@ class ImageStatistics(object):
         
         self.report_items = {
             'Slices': {'fmt': '{0:s}', 'func': self.slices_repr},
-            'Npix':  {'fmt': '{0:d}', 'func': self.n}}
+            'Npix':  {'fmt': '{0:d}', 'func': self.npix}}
             
         self.report_items.update(self.agg.report_items_props())
 
