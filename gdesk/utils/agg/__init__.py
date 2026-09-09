@@ -42,7 +42,7 @@ class HistAgg(object):
         
         
     def n(self):
-        return self.channel.n()
+        return self.channel.npix()
         
         
     def isCleared(self):
@@ -123,7 +123,7 @@ class HistAgg(object):
         
         
     def mean(self):
-        n = self.n()
+        n = self.npix()
         if n == 0:
             return np.nan
         return self.sum() / n
@@ -151,7 +151,7 @@ class HistAgg(object):
             
         
     def std(self):
-        n = self.n()
+        n = self.npix()
         
         if n >= 2:
             result = ((self.sumsq() - ((self.sum() * 1.0) ** 2) / n) / (n - 1))

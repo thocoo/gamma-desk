@@ -235,7 +235,7 @@ class ImageStatistics(object):
         
         self.report_items = {
             'Slices': {'fmt': '{0:s}', 'func': self.slices_repr},
-            'Npix':      {'fmt': '{0:d}', 'func': self.n}}
+            'Npix':  {'fmt': '{0:d}', 'func': self.n}}
             
         self.report_items.update(self.agg.report_items_props())
 
@@ -424,7 +424,7 @@ class ImageStatistics(object):
             return False
             
             
-    def n(self):
+    def npix(self):
         """Return the number of sample values to calculate statistics on."""
         if isinstance(self.roi, np.ma.MaskedArray):
             return np.ma.count(self.roi)
