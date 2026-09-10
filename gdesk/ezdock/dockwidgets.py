@@ -179,20 +179,21 @@ class DockTabBase(DockBase, QTabWidget):
         panel = self.currentWidget()
         newpanel = panel.duplicate()
         newpanel.show_me()
+        return newpanel.panid
         
     def splitHorizontal(self):
         panel = self.currentWidget()    
         container = panel.get_container()        
         newpanel = panel.duplicate(floating=True)        
         container.insert((newpanel.category, newpanel.panid), 'right', (panel.category, panel.panid))                
-        return panel.panid
+        return newpanel.panid
         
     def splitVertical(self):
         panel = self.currentWidget()
         container = panel.get_container()
         newpanel = panel.duplicate(floating=True)
         container.insert((newpanel.category, newpanel.panid), 'bottom', (panel.category, panel.panid))        
-        return panel.panid
+        return newpanel.panid
         
     def moveToOtherArea(self):
         self.get_dock_box().moveToOtherArea(self)
