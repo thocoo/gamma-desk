@@ -157,11 +157,15 @@ class ConsoleGuiProxy(GuiProxyBase):
         console.stdio.stdInputPanel.execute_commands(code_string)        
 
 
-    def execute_file(self, filepath, panid=None):
+    def execute_file(self, filepath, panid=None, local=True):
         shell = Shell.instance
         this_panid = shell.this_interpreter().console_id        
         if panid is None or this_panid == panid:
-            shell.execfile(filepath, shell.wsdict)
+            if local:
+                shell.execfile(filepath, shell.wsdict)                
+            else:
+                shell.execfile(filepath, shell.wsdict, shell.wsdict)
+                
         else:
             ConsoleGuiProxy._gui_execute_file(filepath)
 

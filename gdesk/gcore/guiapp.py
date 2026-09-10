@@ -460,7 +460,8 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     qapp.cmdserver = CommandServer(shell)
     
     if not init_file is None:
-        cmd = {'cmd': 'execute_file', 'args': (init_file, console_id)}
+        local = True
+        cmd = {'cmd': 'execute_file', 'args': (init_file, console_id, local)}
         qapp.cmdserver.cmd_queue.put(cmd)
         
     if not init_code is None:

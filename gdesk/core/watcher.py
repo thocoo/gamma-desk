@@ -120,8 +120,8 @@ class CommandServer(object):
         return json.dumps(d)
         
     @staticmethod        
-    def execute_file(init_file, console_id):                
-        gui.console.execute_file(init_file, console_id)     
+    def execute_file(init_file, console_id, local=True):
+        gui.console.execute_file(init_file, console_id, local)     
 
     @staticmethod        
     def execute_code(init_code, console_id):        
