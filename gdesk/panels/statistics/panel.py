@@ -371,8 +371,10 @@ class Statistics(QtWidgets.QWidget):
                 
             if not name in chanstats: continue
                 
-            stats = chanstats[name]          
-            stats.agg.clear_buffs()
+            stats = chanstats[name]
+            
+            for agg in stats.aggs:
+                agg.clear_buffs()
             
             for j, column in enumerate(self.columns[1:]):
                 item = self.table.item(i, j+1)
@@ -425,11 +427,15 @@ class Statistics(QtWidgets.QWidget):
                     
                 elif name == f'{self.ref_metric}/xx':
                     if not ref_value is None and not value is None:
-                        ratio = ref_value / value
-                        
-                        text = f'{ratio:.3g}'
                         item = self.table.item(i, j+1)
-                        item.setText(text)                    
+                        
+                        if value == 0:
+                            item.setText('inf')
+                            
+                        else:
+                            ratio = ref_value / value                        
+                            text = f'{ratio:.3g}'
+                            item.setText(text)      
                     
                     continue
                     
