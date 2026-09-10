@@ -400,9 +400,12 @@ class Statistics(QtWidgets.QWidget):
         colindnames = list(enumerate(self.columns[1:]))
         
         if not self.ref_metric is None:
-            found_at = [i for i, (col, name) in enumerate(colindnames) if name == self.ref_metric]
-            poped = colindnames.pop(found_at[0])
-            colindnames = [poped] + colindnames
+            # Make sure the reference metric is calculated first
+            for i, (col, name) in enumerate(colindnames):
+                if name == self.ref_metric:                     
+                    poped = colindnames.pop(i)
+                    colindnames = [poped] + colindnames
+                    break
 
         ref_value = None
         
