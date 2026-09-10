@@ -27,7 +27,7 @@ from ...dialogs.formlayout import fedit
 here = pathlib.Path(__file__).absolute().parent
 
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
-AGG_CLASS = HistAgg
+AGGS_FACTORY = None 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -230,14 +230,24 @@ class ImageStatistics(object):
         self.plot_visible = True
         self.hist_visible = True
         
-        self.agg = AGG_CLASS(self)
+        self.aggs = [HistAgg(self)]
+        
         self.set_mask(None)
+        
+        if not AGGS_FACTORY is None:
+            self.aggs.extend(AGGS_FACTORY(self))
         
         self.report_items = {
             'Slices': {'fmt': '{0:s}', 'func': self.slices_repr},
             'Npix':  {'fmt': '{0:d}', 'func': self.npix}}
             
-        self.report_items.update(self.agg.report_items_props())
+        for agg in self.aggs:
+            self.report_items.update(agg.report_items_props())
+        
+        
+    @property
+    def agg(self):
+        return self.aggs[0]
 
         
     def attach_full_array(self, slices, origin='tl'):
@@ -466,7 +476,8 @@ class ImageStatistics(object):
                 self.bmask = None
                 self.mask_qimg = None                                
 
-        self.agg.clear()                                                         
+        for agg in self.aggs:
+            agg.clear()                                                         
                   
 
     ##############################
