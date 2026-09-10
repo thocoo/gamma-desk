@@ -27,7 +27,7 @@ class HistAgg(object):
         self._cache.clear()                            
         
 
-    def clear_buff(self):
+    def clear_buffs(self):
         self.clear()                                            
 
 
