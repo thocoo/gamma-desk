@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 import numpy as np
 
 from ... import gui, config
+from ...gcore.utils import ActionArguments
 from .dialogs import RawImportDialog
 
 try:
@@ -70,6 +71,58 @@ if HAS_IMAFIO:
         logger.warning('Could not initialize imageio format filters, falling back to PIL save/open dialogs')
         logger.warning(str(ex))
         HAS_IMAFIO = False
+        
+        
+def open_image_dialog(imgpanel):
+    filepath = HERE / 'images' / 'default.png'
+
+    with ActionArguments(imgpanel) as args:
+        args['filepath'] = HERE / 'images' / 'default.png'
+        args['format'] = None
+
+    if args.isNotSet():
+        if HAS_IMAFIO:
+            args['filepath'], filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(args['filepath']))
+            if args['filepath'] == '': return
+            args['format'] = FILTERS_NAMES[filter]
+
+        else:
+            args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
+            args['format'] = None
+            if args['filepath'] == '': return
+
+    open_image_and_show(imgpanel, args['filepath'], args['format'])
+
+
+def open_image_and_show(imgpanel, filepath, format=None, zoom='full'):
+    
+    if not Path(filepath).exists():
+        gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
+        return            
+        
+    image = open_image(filepath, format)
+    
+    if image is None: return
+
+    gui.qapp.history.storepath(str(filepath))
+    
+    if image.dtype == 'uint8':                
+        imgpanel.offset = 0
+        imgpanel.white = 1 << 8
+        imgpanel.gamma = 1
+        
+    elif image.dtype == 'uint16':
+        imgpanel.offset = 0
+        imgpanel.white = 1 << 16
+        imgpanel.gamma = 1
+        
+    imgpanel.show_array(image, zoomFitHist=True)
+    
+    if zoom == 'full':
+        imgpanel.zoomFull()
+        
+    else:
+        imgpanel.setZoomValue(zoom)              
 
 
 def open_image(filepath, format=None):

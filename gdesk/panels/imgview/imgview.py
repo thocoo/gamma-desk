@@ -46,7 +46,7 @@ from .spectrogram import spectr_hori, spectr_vert
 from .corner import CornerWidget
 from .regoi import RoiConfigDialog
 
-from .fileio import import_raw_image, open_image, save_image_dialog
+from .fileio import import_raw_image, open_image, save_image_dialog, open_image_dialog, open_image_and_show
 from .view_widgets import StatusPanel
 
 from .canvas import CanvasMenu
@@ -558,55 +558,11 @@ class ImageViewerBase(BasePanel):
         
 
     def openImageDialog(self):
-        filepath = here / 'images' / 'default.png'
-
-        with ActionArguments(self) as args:
-            args['filepath'] = here / 'images' / 'default.png'
-            args['format'] = None
-
-        if args.isNotSet():
-            if has_imafio:
-                args['filepath'], filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(args['filepath']))
-                if args['filepath'] == '': return
-                args['format'] = FILTERS_NAMES[filter]
-
-            else:
-                args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
-                args['format'] = None
-                if args['filepath'] == '': return
-
-        self.openImage(args['filepath'], args['format'])
+        open_image_dialog(self)
 
 
-    def openImage(self, filepath, format=None, zoom='full'):
-        
-        if not Path(filepath).exists():
-            gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
-            return            
-            
-        image = open_image(filepath, format)
-        
-        if image is None: return
-
-        gui.qapp.history.storepath(str(filepath))
-        
-        if image.dtype == 'uint8':                
-            self.offset = 0
-            self.white = 1 << 8
-            self.gamma = 1
-            
-        elif image.dtype == 'uint16':
-            self.offset = 0
-            self.white = 1 << 16
-            self.gamma = 1
-            
-        self.show_array(image, zoomFitHist=True)
-        
-        if zoom == 'full':
-            self.zoomFull()
-            
-        else:
-            self.setZoomValue(zoom)                
+    def openImage(self, filepath, format=None, zoom='full'):       
+        open_image_and_show(self, filepath, format, zoom)                          
     
 
     def importRawImage(self):
