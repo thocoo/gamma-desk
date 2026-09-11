@@ -3,6 +3,7 @@ from collections.abc import Iterable
 from queue import Queue
 
 import logging
+from turtle import left
 
 logger = logging.getLogger(__name__)
 
@@ -571,7 +572,8 @@ class ImageViewerWidget(QWidget):
         qp.resetTransform()
         qp.setOpacity(1.0)
         
-        if show_masks:         
+        if show_masks:
+            placed_labels = []
             for mask_name in reversed(self.vd.chanstats.order):
                 chanstat = self.vd.chanstats[mask_name]
                 if not chanstat.is_valid(): continue
@@ -602,13 +604,28 @@ class ImageViewerWidget(QWidget):
                 polygon << QtCore.QPoint(x0, y0) << QtCore.QPoint(x1, y0)\
                     << QtCore.QPoint(x1, y1) << QtCore.QPoint(x0, y1) << QtCore.QPoint(x0, y0)
                 qp.drawPolyline(polygon)
-                
-                labelWidth = self.fontmetric.width(mask_name)
-                labelHeight = self.fontmetric.height()
-                
-                qp.fillRect(x0, y0-labelHeight+1, labelWidth, labelHeight-1, chanstat.plot_color)
+
+                labelWidth = max(self.fontmetric.width(mask_name), 18)
+                labelHeight = max(self.fontmetric.height(), 12)
+
+                label_candidates = []
+
+                for i in range(7):
+                    left, top = (x0, y1 - (i + 1) * labelHeight)
+                    rect = QtCore.QRect(left,  max(0, top),  labelWidth, labelHeight)
+                    label_candidates.append(rect)
+
+                for i in range(7):
+                    left, top = (x0, y1 - (i + 1) * labelHeight)
+                    label_rect = QtCore.QRect(left,  max(0, top),  labelWidth, labelHeight)
+
+                    if not any(label_rect.intersects(other_rect) for other_rect in placed_labels):
+                        break
+
+                placed_labels.append(label_rect)
+                qp.fillRect(label_rect, chanstat.plot_color)
                 qp.setPen(self.pentext)
-                qp.drawText(x0, y0, mask_name)               
+                qp.drawText(label_rect, Qt.AlignLeft | Qt.AlignVCenter, mask_name)
             
         if config['image'].get('pixel_labels', True) and zoom >= 125:
             qp.setPen(QColor(128,128,128))
