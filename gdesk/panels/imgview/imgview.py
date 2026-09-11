@@ -109,9 +109,10 @@ from .blueprint import make_thumbnail
 from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
-from .dialogs import RawImportDialog
 from .corner import CornerWidget
 from .regoi import RoiConfigDialog
+
+from .fileio import import_raw_image, save_image_imafio
 
 
 here = Path(__file__).parent.absolute()
@@ -756,56 +757,11 @@ class ImageViewerBase(BasePanel):
         return arr
     
 
-    def importRawImage(self):        
-
-        filepath = here / 'images' / 'default.png'
-        filepath = gui.getfile(file=str(filepath))[0]
-        if filepath == '': return
-
-        fp = open(filepath, 'br')
-        data = fp.read()
-        fp.close()
-
-        #somehwhere in the header, there is the resolution
-        #image studio: 128 bytes header, 4 bytes=width, 4 bytes=height, 120 bytes=???
-        header = 128
-        dtype = 'uint16'
-        width = struct.unpack('<I', data[0:4])[0]
-        height = struct.unpack('<I', data[4:8])[0]
-        
-        print(f'Width x Height: {width} x {height}')
-                
-        dialog = RawImportDialog(data)
-        dialog.form.offset.setText(str(header))
-        dialog.form.dtype.setText(dtype)
-        dialog.form.width.setText(str(width))
-        dialog.form.height.setText(str(height))
-        dialog.exec_()
-        
-        offset = int(dialog.form.offset.text())
-        dtype = dialog.form.dtype.text()
-        byteorder = dialog.form.byteorder.currentText()
-        width = int(dialog.form.width.text())
-        height = int(dialog.form.height.text())
-
-
-        with gui.qapp.waitCursor():
-            dtype = np.dtype(dtype)
-
-            leftover = len(data) - (width * height  * dtype.itemsize + offset)
-
-            if leftover > 0:
-                print('Too much data found (%d bytes too many)' % leftover)
-
-            elif leftover < 0:
-                print('Not enough data found (missing %d bytes)' % (-leftover))
-
-            arr = np.ndarray(shape=(height, width), dtype=dtype, buffer=data[offset:])
-            if byteorder == 'big endian':
-                arr = arr.byteswap()
-            self.show_array(arr, zoomFitHist=True)
-            self.zoomFull()
-            gui.qapp.history.storepath(str(filepath))
+    def importRawImage(self):
+        arr = import_raw_image()
+        self.show_array(arr, zoomFitHist=True)
+        self.zoomFull()
+            
 
     def saveImageDialog(self):
         if has_imafio:
@@ -818,6 +774,7 @@ class ImageViewerBase(BasePanel):
             filepath, filter = gui.putfile(title='Save Image using PIL')
             if filepath == '': return
             self.saveImage(filepath)
+            
 
     def saveImage(self, filepath, format=None):
         if has_imafio:
@@ -826,6 +783,7 @@ class ImageViewerBase(BasePanel):
             self.saveImagePIL(filepath)
 
         gui.qapp.history.storepath(str(filepath))
+        
 
     def saveImagePIL(self, filepath):
         with gui.qapp.waitCursor():
@@ -833,62 +791,12 @@ class ImageViewerBase(BasePanel):
 
             image = Image.fromarray(self.ndarray)
             image.save(str(filepath))
+            
 
     def saveImageImafio(self, filepath, format):
-        if format is None:
-            from imageio.core import Request
-            format = imageio.formats.search_write_format(Request(filepath, 'wi')).name
-
-        if format == 'JPEG-FI':
-            (quality, progressive, optimize, baseline) = gui.fedit([('quality', 90), ('progressive', False), ('optimize', False), ('baseline', False)], title='JPEG Options')
-
-            with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format,
-                    quality=quality, progressive=progressive,
-                    optimize=optimize, baseline=baseline)
-
-        elif format == 'TIFF-FI':
-            compression_options = {
-                'none': imageio.plugins.freeimage.IO_FLAGS.TIFF_NONE,
-                'default': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFAULT,
-                'packbits': imageio.plugins.freeimage.IO_FLAGS.TIFF_PACKBITS,
-                'adobe': imageio.plugins.freeimage.IO_FLAGS.TIFF_ADOBE_DEFLATE,
-                'lzw': imageio.plugins.freeimage.IO_FLAGS.TIFF_LZW,
-                'deflate': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFLATE,
-                'logluv': imageio.plugins.freeimage.IO_FLAGS.TIFF_LOGLUV}
-            (compression_index,) = gui.fedit([('compression', [2] + list(compression_options.keys()))], title='TIFF Options')
-            compression = list(compression_options.keys())[compression_index-1]
-            compression_flag = compression_options[compression]
-
-            with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format, flags=compression_flag)
-
-        elif format == 'PNG-FI':
-            compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-            (compression_index, quantize, interlaced) = gui.fedit([('compression', [2] + [item[0] for item in compression_options]), ('quantize', 0), ('interlaced', True)], title='PNG Options')
-            compression = compression_options[compression_index-1][1]
-
-            print(f'compression: {compression}')
-
-            with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format, compression=compression, quantize=quantize, interlaced=interlaced)
-
-        elif format == 'PNG-PIL':
-            compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-            (compression_index, quantize, optimize) = gui.fedit([('compression', [4] + [item[0] for item in compression_options]), ('quantize', 0), ('optimize', True)], title='PNG Options')
-            compression = compression_options[compression_index-1][1]
-            if quantize == 0: quantize = None
-
-            print(f'compression: {compression}')
-
-            with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format, compression=compression,
-                    quantize=quantize, optimize=optimize, prefer_uint8=False)
-
-        else:
-            with gui.qapp.waitCursor(f'Saving to {filepath}'):
-                imageio.imwrite(filepath, self.ndarray, format)
-                
+        save_image_imafio(self.ndarray, filepath, format)
+        
+        
                 
     def send_array_to_gdesk(self):
         port = gui._qapp.cmdserver.port
@@ -903,6 +811,7 @@ class ImageViewerBase(BasePanel):
         new = results[2]
         
         client.send_array_to_gui(self.ndarray, port, hostname, new)
+        
 
     def close_panel(self):
         super().close_panel()
@@ -1028,6 +937,7 @@ class ImageViewerBase(BasePanel):
         arr = gui.get_clipboard_image()
         self.show_array(arr)
         
+        
     def grabDesktop(self):       
         screens = self.qapp.screens()    
         screen_names = [1] + [sc.name() for sc in screens]
@@ -1059,10 +969,12 @@ class ImageViewerBase(BasePanel):
     def refresh(self):
         self.show_array(None)
         
+        
     def get_gain(self):
         natrange = self.imviewer.imgdata.get_natural_range()
         gain = natrange / (self.white - self.offset)
         return gain
+        
         
     def set_gain(self, gain):
         natrange = self.imviewer.imgdata.get_natural_range()
@@ -1144,6 +1056,7 @@ class ImageViewerBase(BasePanel):
         if not gain is None: self.gain = gain
         if not gamma is None: self.gamma = gamma
         self.refresh_offset_gain(zoomFitHist=reset_levels)
+        
 
     def blackWhiteDialog(self):
 
@@ -1173,6 +1086,7 @@ class ImageViewerBase(BasePanel):
             self.colormap  = args['cmap']
 
         self.changeBlackWhite(black, white)
+        
 
     def changeBlackWhite(self, black, white):
         if isinstance(black, str):
@@ -1198,6 +1112,7 @@ class ImageViewerBase(BasePanel):
             self.gain = gain1_range / (white - self.offset)
 
         self.refresh_offset_gain()
+        
 
     def changeGreyGainDialog(self):
 
@@ -1228,29 +1143,35 @@ class ImageViewerBase(BasePanel):
             self.colormap = args['cmap']
 
         self.changeMidGrey(grey, gain)
+        
 
     def changeMidGrey(self, midgrey, gain=None):
         if not gain is None: self.gain = gain
         gain1_range = self.imviewer.imgdata.get_natural_range()
         self.offset = midgrey - gain1_range / self.gain / 2
         self.refresh_offset_gain()
+        
 
     def gainToMinMax(self):
         black = self.ndarray.min()
         white = self.ndarray.max()
         self.changeBlackWhite(black, white)
+        
 
     def gainToSigma1(self):
         with gui.qapp.waitCursor('Gain 1 sigma'):
             self.gainToSigma(1)
+            
 
     def gainToSigma2(self):
         with gui.qapp.waitCursor('Gain 2 sigma'):
             self.gainToSigma(2)
+            
 
     def gainToSigma3(self):
         with gui.qapp.waitCursor('Gain 3 sigma'):
             self.gainToSigma(3)
+            
 
     def gainToSigma(self, sigma=3, roi=None):
         chanstats = self.imviewer.imgdata.chanstats        
@@ -1278,15 +1199,19 @@ class ImageViewerBase(BasePanel):
                 white += 1
 
         self.changeBlackWhite(black, white)
+        
 
     def zoomIn(self):
         self.imviewer.zoomIn()
+        
 
     def zoomOut(self):
         self.imviewer.zoomOut()
+        
 
     def setZoom100(self):
         self.imviewer.setZoom(1)        
+        
 
     def setZoom(self):
         with ActionArguments(self) as args:
@@ -1298,24 +1223,31 @@ class ImageViewerBase(BasePanel):
             args['zoom'] = results[0]
 
         self.imviewer.setZoom(args['zoom'] / 100)
+        
 
     def setZoomValue(self, value):
         self.imviewer.setZoom(value)
+        
 
     def zoomFit(self):
         self.imviewer.zoomFit()
+        
 
     def zoomFull(self):
         self.imviewer.zoomFull()
+        
 
     def zoomAuto(self):
         self.imviewer.zoomAuto()
+        
 
     def zoomToRoi(self):
         self.imviewer.zoomToRoi()        
         
+        
     def zoomToRegion(self, x, y, width, height):        
         self.imviewer.zoomToRegion(x, y, width, height)
+        
 
     def setColorMap(self):
         with ActionArguments(self) as args:
@@ -1330,13 +1262,16 @@ class ImageViewerBase(BasePanel):
             self.colormap = args['cmap']
 
         self.refresh_offset_gain()
+        
 
     def toggle_hq(self):
         self.imviewer.hqzoomout = not self.imviewer.hqzoomout
         self.show_array(None)
+        
 
     def toggle_zoombind(self):
         self.imviewer.zoombind = not self.imviewer.zoombind
+        
         
     def bindImageViewers(self):
         for src_panid, src_panel in gui.qapp.panels['image'].items():
@@ -1344,11 +1279,13 @@ class ImageViewerBase(BasePanel):
                 if src_panid == tgt_panid: continue
                 src_panel.addBindingTo('image', tgt_panid)
                 
+                
     def unbindImageViewers(self):
         for src_panid, src_panel in gui.qapp.panels['image'].items():
             for tgt_panid, tgt_panel in gui.qapp.panels['image'].items():            
                 if src_panid == tgt_panid: continue
                 src_panel.removeBindingTo('image', tgt_panid)                
+                
 
     def setBackground(self):
         old_color = self.imviewer.palette().window().color()
@@ -1895,7 +1832,6 @@ class ImageViewerBase(BasePanel):
 
     def measureDistance(self):
         panel = gui.qapp.panels.selected('console')
-        #panel.task.wait_process_ready()
 
         from .proxy import ImageGuiProxy
 
@@ -1903,6 +1839,7 @@ class ImageViewerBase(BasePanel):
             pass
 
         panel.task.call_func(ImageGuiProxy.get_distance, callback=stage1_done)
+        
 
     ############################
     # Analyse Menu Connections
