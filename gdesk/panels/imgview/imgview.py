@@ -27,10 +27,9 @@ except:
 from ... import config, gui
 
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
-from qtpy.QtCore import Qt, Signal, QUrl
-from qtpy.QtGui import QFont, QTextCursor, QPainter, QPixmap, QCursor, QPalette, QColor, QKeySequence
-from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, QSplitter, QVBoxLayout, QHBoxLayout, QSplitterHandle,
-    QMessageBox, QTextEdit, QLabel, QWidget, QStyle, QStyleFactory, QLineEdit, QShortcut, QMenu, QStatusBar, QColorDialog)
+from qtpy.QtCore import Qt, Signal
+from qtpy.QtGui import QFont, QPainter, QCursor, QColor
+from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QWidget, QMenu, QColorDialog)
 
 from ...panels import BasePanel, CheckMenu
 from ...dialogs.formlayout import fedit
@@ -41,14 +40,7 @@ from ...utils import imconvert
 from ...gcore.utils import ActionArguments
 from ...external import client
 
-if has_cv2:
-    from .opencv import OpenCvMenu
-
-from .operation import OperationMenu       
-
 from .profile import ProfilerPanel
-from .blueprint import make_thumbnail
-from .demosaic import bayer_split
 from .quantiles import get_sigma_range_for_hist
 from .spectrogram import spectr_hori, spectr_vert
 from .corner import CornerWidget
@@ -56,8 +48,14 @@ from .regoi import RoiConfigDialog
 
 from .fileio import import_raw_image, open_image, save_image_dialog
 from .view_widgets import StatusPanel
+
 from .canvas import CanvasMenu
 from .imgedit import ImageEditMenu
+from .imgprocess import ProcessMenu
+from .operation import OperationMenu
+
+if has_cv2:
+    from .opencv import OpenCvMenu
 
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
@@ -180,7 +178,7 @@ class ImageViewerBase(BasePanel):
         self.canvasMenu = CanvasMenu("&Canvas", self.menuBar(), self)
         self.imageMenu = ImageEditMenu("&Image", self.menuBar(), self)
         
-        self.processMenu = self.menuBar().addMenu("&Process")
+        self.processMenu = ProcessMenu("&Process", self.menuBar(), self)
         self.analyseMenu = self.menuBar().addMenu("&Analyse")
         
         if has_cv2:
@@ -225,7 +223,6 @@ class ImageViewerBase(BasePanel):
 
         self.editMenu.addSeparator()
 
-
         self.addMenuItem(self.editMenu, 'Copy Scaled Selection', self.placeViewerOnClipboard,
             icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
             
@@ -236,6 +233,7 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",
             icon = 'picture_clipboard.png')
+            
         self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
             icon = 'lcd_tv_image.png')
 
@@ -400,20 +398,7 @@ class ImageViewerBase(BasePanel):
             action = QAction(f"Custom Mask {i}", self, triggered=wrap(self.selectNamedMask, i))
             action.setVisible(False)
             self.searchForRoiSlots.append(action)
-            self.selectMenu.addAction(action)
-                                                      
-
-        #Process
-        self.addMenuItem(self.processMenu, 'Bayer Split', self.bayer_split_tiles,
-            statusTip="Split to 4 images based on the Bayer kernel",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'pictures_thumbs.png')))
-        self.addMenuItem(self.processMenu, 'Colored Bayer', self.colored_bayer)
-        self.addMenuItem(self.processMenu, 'Demosaic', self.demosaic, enabled=has_scipy,
-            statusTip="Demosaic",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'things_digital.png')))
-        self.addMenuItem(self.processMenu, 'Make Blueprint', self.makeBlueprint,
-            statusTip="Make a thumbnail (8x smaller) with blowup high frequencies",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'map_blue.png')))
+            self.selectMenu.addAction(action)                                                      
         
         #Analyse
         vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
@@ -1171,7 +1156,7 @@ class ImageViewerBase(BasePanel):
             self.imviewer.imgdata.change_layer_appearance('mask', color=rgb)
 
         config['mask color'] = list(rgb)
-        self.refresh
+        self.refresh()
 
 
     def setRoiColor(self):
@@ -1212,6 +1197,7 @@ class ImageViewerBase(BasePanel):
     def togglePixelLabels(self):
         v = config['image'].get('pixel_labels', False)
         config['image']['pixel_labels'] = not v
+        
 
     ############################
     # Select Menu Connections
@@ -1316,71 +1302,8 @@ class ImageViewerBase(BasePanel):
 
     def setStatMasks(self, mode):
         self.imviewer.imgdata.init_channel_statistics(mode)
-        self.refresh()
-        
+        self.refresh()        
 
-    ##############################
-    # Process
-    
-
-    def bayer_split_tiles(self):
-        arr = self.ndarray
-        blocks = []
-        for y, x in [(0,0),(0,1),(1,0),(1,1)]:
-            blocks.append(arr[y::2, x::2, ...])
-        split = np.concatenate([
-            np.concatenate([blocks[0], blocks[1]], axis=1),
-            np.concatenate([blocks[2], blocks[3]], axis=1)])
-        self.show_array(split)
-
-
-    def colored_bayer(self):
-        baypatns = ['RGGB', 'BGGR', 'GRBG', 'GBRG']
-        form = [('Bayer Pattern', [1] + baypatns)]
-        ind = fedit(form, title='Demosaic')[0]
-        baypatn = baypatns[ind-1]
-
-        procarr = bayer_split(self.ndarray, baypatn)
-        self.show_array(procarr)
-
-
-    def demosaic(self):
-        baypatns = ['RGGB', 'BGGR', 'GRBG', 'GBRG']
-        form = [('Bayer Pattern', [1] + baypatns)]
-        ind = fedit(form, title='Demosaic')[0]
-        baypatn = baypatns[ind-1]
-
-        code = f"""\
-        from gdesk.panels.imgview.demosaic import demosaicing_CFA_Bayer_bilinear
-        procarr = demosaicing_CFA_Bayer_bilinear(gui.vs, '{baypatn}')
-        gui.show(procarr)"""
-
-        panel = gui.qapp.panels.selected('console')
-        panel.exec_cmd(code)
-
-
-    def makeBlueprint(self):
-        with gui.qapp.waitCursor('making blueprint'):
-            arr = self.ndarray
-
-            if arr.ndim == 3:
-                dtype = arr.dtype
-                arr = arr.mean(2).astype(dtype)
-
-            blueprint = make_thumbnail(arr)
-            gui.img.new()
-            gui.img.show(blueprint)
-
-
-    def measureDistance(self):
-        panel = gui.qapp.panels.selected('console')
-
-        from .proxy import ImageGuiProxy
-
-        def stage1_done(mode, error_code, result):
-            pass
-
-        panel.task.call_func(ImageGuiProxy.get_distance, callback=stage1_done)
         
 
     ############################
@@ -1423,6 +1346,17 @@ class ImageViewerBase(BasePanel):
     def verticalSpectrogram(self):
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(spectr_vert, args=(gui.vs,))
+        
+        
+    def measureDistance(self):
+        panel = gui.qapp.panels.selected('console')
+
+        from .proxy import ImageGuiProxy
+
+        def stage1_done(mode, error_code, result):
+            pass
+
+        panel.task.call_func(ImageGuiProxy.get_distance, callback=stage1_done)        
         
 
     #############################
