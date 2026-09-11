@@ -34,6 +34,16 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.initProps()
         self.initUI(color)
         self.hide()
+
+        self.label_top_left = QtWidgets.QLabel(self)
+        self.label_bottom_right = QtWidgets.QLabel(self)
+        self.label_center = QtWidgets.QLabel(self)
+        self.label_top_left.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.label_bottom_right.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.label_center.setAlignment(Qt.AlignCenter)
+        for label in (self.label_top_left, self.label_bottom_right, self.label_center):
+            label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+            label.setStyleSheet(f"color: #FFFFFF;")
         
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.newPhase)
@@ -132,6 +142,11 @@ class SelRoiWidget(QtWidgets.QWidget):
         self.selroi.ensure_rising()
         self.selroi.clip()
         self.selroi.update_statistics()
+        self.label_top_left.setText(f'Y{self.selroi.yr.start} X{self.selroi.xr.start}')
+        self.label_bottom_right.setText(f'Y{self.selroi.yr.stop} X{self.selroi.xr.stop}')
+        width = self.selroi.xr.stop - self.selroi.xr.start
+        height = self.selroi.yr.stop - self.selroi.yr.start
+        self.label_center.setText(f'{height} * {width}')
         self.recalcGeometry()
 
 
@@ -149,6 +164,19 @@ class SelRoiWidget(QtWidgets.QWidget):
         height = max(abs(y1 - y0),1)
 
         self.setGeometry(min(x0,x1)-self.overscan, min(y0,y1)-self.overscan, width+2*self.overscan, height+2*self.overscan)
+
+        self.label_top_left.adjustSize()
+        self.label_bottom_right.adjustSize()
+        self.label_center.adjustSize()
+        self.label_top_left.move(self.overscan + 2, self.overscan + 2)
+        self.label_bottom_right.move(
+            self.width() - self.label_bottom_right.width() - self.overscan - 2,
+            self.height() - self.label_bottom_right.height() - self.overscan - 2,
+        )
+        self.label_center.move(
+            (self.width() - self.label_center.width()) // 2,
+            (self.height() - self.label_center.height()) // 2,
+        )
 
 
     def mousePressEvent(self, event):
