@@ -1,10 +1,4 @@
-import os
-import time
-import collections
 from pathlib import Path
-import types
-from collections.abc import Iterable
-import queue
 import logging
 
 import numpy as np
@@ -51,6 +45,7 @@ class OpenCvMenu(CheckMenu):
         basePanel.addMenuItem(self, 'Demosaic', self.demosaic,
             statusTip="Demosaicing using bilinear interpolation", icon='things_digital.png')              
 
+
     def image_resize(self):
         interpoloptions = {
             "Nearest": cv2.INTER_NEAREST,
@@ -73,6 +68,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(width, height, interpol))
+
         
     def box_blur(self):
         form = [("Kernel Size", 15)]
@@ -86,6 +82,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ksize,))
+
         
     def gaussian_blur(self):
         form = [("Kernel Size", 15)]
@@ -99,6 +96,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ksize,))
+
         
     def median_blur(self):
         form = [("Kernel Size", 15)]
@@ -112,6 +110,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ksize,))  
+
         
     def bilateral(self):
         borders = {
@@ -144,6 +143,7 @@ class OpenCvMenu(CheckMenu):
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(d, sigma_color, sigma_space, border)) 
                 
+                
     def laplacian(self):
         borders = {
             'Reflect 101': cv2.BORDER_REFLECT_101,
@@ -174,6 +174,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ddepth, ksize, scale, delta, border))         
+
         
     def box(self):
         borders = {
@@ -204,6 +205,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ddepth, ksize, normalize, border))          
+
                 
     def sqrbox(self):
         borders = {
@@ -234,6 +236,7 @@ class OpenCvMenu(CheckMenu):
             
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(console_run,  args=(ddepth, ksize, normalize, border))         
+
 
     def demosaic(self):
         bayerconfigs = {
