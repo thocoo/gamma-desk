@@ -35,7 +35,6 @@ from ...panels import BasePanel, CheckMenu
 from ...dialogs.formlayout import fedit
 from ...dialogs.colormap import ColorMapDialog
 from ...widgets.grid import GridSplitter
-from ...utils import clip_array
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
 from ...external import client
@@ -59,7 +58,6 @@ if has_cv2:
 
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
-
 channels = ['R', 'G', 'B', 'A']
     
 
