@@ -29,7 +29,7 @@ class ImageItem(QtWidgets.QTableWidgetItem):
         self.setText(f'image#{self.panid}')
     
 
-class StatisticsItemDialog(QtWidgets.QDialog):
+class ChooseMetricDialog(QtWidgets.QDialog):
 
     def __init__(self, items, active_items=None, parent=None):
         super().__init__(parent)
@@ -97,7 +97,7 @@ class StatisticsItemDialog(QtWidgets.QDialog):
 
 class Statistics(QtWidgets.QWidget):    
     
-    maskSelected = Signal(str)
+    roiSelected = Signal(str)
     activesChanged = Signal()
     
     setSelection = Signal(str)
@@ -240,7 +240,7 @@ class Statistics(QtWidgets.QWidget):
         selectedRow = self.table.item(row, 0)
         if selectedRow is None: return
         maskName = selectedRow.text()
-        self.maskSelected.emit(maskName)
+        self.roiSelected.emit(maskName)
         
         
     def setImviewSelection(self):
@@ -259,7 +259,7 @@ class Statistics(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats[roi_name].hist_visible = not self.imviewer.imgdata.chanstats[roi_name].hist_visible
-            self.maskSelected.emit(roi_name)
+            self.roiSelected.emit(roi_name)
 
 
     def showHideProfiles(self):
@@ -269,7 +269,7 @@ class Statistics(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats[roi_name].plot_visible = not self.imviewer.imgdata.chanstats[roi_name].plot_visible
-            self.maskSelected.emit(roi_name)
+            self.roiSelected.emit(roi_name)
 
 
     def showHideViewer(self):
@@ -279,7 +279,7 @@ class Statistics(QtWidgets.QWidget):
             nameCell = self.table.item(index.row(), 0)
             roi_name = nameCell.text()
             self.imviewer.imgdata.chanstats[roi_name].mask_visible = not self.imviewer.imgdata.chanstats[roi_name].mask_visible
-            self.maskSelected.emit(roi_name)
+            self.roiSelected.emit(roi_name)
             
 
     def setImviewBmask(self):
@@ -293,7 +293,7 @@ class Statistics(QtWidgets.QWidget):
         
     def selectionChanged(self, selected, deselected):
         if selected.count() == 0:
-            self.maskSelected.emit('')
+            self.roiSelected.emit('')
             
         else:
             indices = self.table.selectionModel().selectedRows()
@@ -302,7 +302,7 @@ class Statistics(QtWidgets.QWidget):
                 row = index.row()
                 maskName = self.table.item(row, 0).text()
                 maskNames.append(maskName)
-            self.maskSelected.emit(','.join(maskNames))
+            self.roiSelected.emit(','.join(maskNames))
 
 
     def fitContent(self):
@@ -517,7 +517,7 @@ class Statistics(QtWidgets.QWidget):
         active_items = self.columns[1:]
         items = sorted(report_items.items(), key=lambda pair: str(pair[0]).upper())
 
-        dialog = StatisticsItemDialog(items, active_items, self)
+        dialog = ChooseMetricDialog(items, active_items, self)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
 

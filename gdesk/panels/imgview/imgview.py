@@ -1418,7 +1418,14 @@ class ImageViewerBase(BasePanel):
             rgb = (args['r'], args['g'], args['b'])                
             
         config['roi color'] = list(rgb)
-        self.imviewer.roi.initUI()          
+        self.imviewer.roi.initUI()        
+
+
+    def roiSelected(self, roi_name):
+        # roi_names = roi_name.split(',')
+        # self.imviewer.imgdata.highLightRois(roi_names)
+        # self.refresh()
+        self.imgprof.selectMask(roi_name)
         
         
     def copySliceToClipboard(self):
@@ -2068,7 +2075,8 @@ class ImageProfileWidget(QWidget):
         self.imviewer = ImageViewerWidget(self)
 
         self.corner = CornerWidget(self)
-        self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)
+        self.corner.statistics.roiSelected.connect(self.parent().roiSelected)
+        self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)        
 
         self.imviewer.imgdata.roi_pattern_visible_changed = self.corner.cornerMenu.setRoiMaskVisible
         
@@ -2093,13 +2101,7 @@ class ImageProfileWidget(QWidget):
 
     def toggleProfileVisible(self):
         self.profilesVisible = not self.profilesVisible
-
-            
-    def selectMasks(self, masks):
-        self.imviewer.imgdata.init_channel_statistics(masks)
-        self.parent().roiConfigChanged.emit()
-        self.refresh()
-        
+                
         
     def toggleMask(self):
         self.parent().toggle_mask()
@@ -2184,15 +2186,23 @@ class ImageProfileWidget(QWidget):
     def drawMaskProfiles(self):         
         self.rowPanel.drawMaskProfiles()
         self.colPanel.drawMaskProfiles()                           
-        
+
+
+    def selectMasks(self, masks):
+        # This a selection of one of the roi presets (Mono, BG, ...)
+        self.imviewer.imgdata.init_channel_statistics(masks)
+        self.parent().roiConfigChanged.emit()
+        self.refresh()
+
     
     def selectMask(self, mask):
+        # This is a selection of one or more of the existing roi's
         if mask == '':
             masks = []
         else:
             masks = mask.split(',')            
             
-        self.imviewer.imgdata.selectChannelStat(masks)
+        self.imviewer.imgdata.highLightRois(masks)
         self.rowPanel.selectProfiles(masks)
         self.colPanel.selectProfiles(masks)
         self.refresh()

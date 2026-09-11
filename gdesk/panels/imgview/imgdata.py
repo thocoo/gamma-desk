@@ -1011,12 +1011,12 @@ class ImageData:
             
         for thread in threads:
             thread.join()       
-            
-            
-    def selectChannelStat(self, statsNames):
+
+
+    def highLightRois(self, roi_names):        
     
         for name, chanstat in self.chanstats.items():
-            if len(statsNames) == 0 or name in statsNames:
+            if len(roi_names) == 0 or name in roi_names:
                 chanstat.dim = False  
             else:
                 chanstat.dim = True        
