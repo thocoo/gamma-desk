@@ -16,13 +16,6 @@ try:
 
 except:
     has_scipy = False
-
-try:
-    import imageio
-    has_imafio= True
-
-except:
-    has_imafio = False
     
 try:
     import cv2
@@ -32,56 +25,6 @@ except:
     has_cv2 = False    
 
 from ... import config, gui
-
-if has_imafio:
-    try:
-        if not config.get("path_imageio_freeimage_lib", None) is None:
-            if os.getenv("IMAGEIO_FREEIMAGE_LIB", None) is None:
-                os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
-
-        try:
-            import imageio.plugins.freeimage
-            imageio.plugins._freeimage.get_freeimage_lib()
-
-        except Exception as ex:
-            logger.warning('Could not load freeimage dll')
-            logger.warning(str(ex))
-
-        try:
-            imageio.plugins.freeimage.download()
-
-        except Exception as ex:
-            logger.warning('Downloading imageio dll failed')
-            logger.warning(str(ex))
-            logger.warning('Automatic download can be a problem when using VPN')
-            logger.warning("Download the dll's from https://github.com/imageio/imageio-binaries/tree/master/freeimage/")
-            logger.warning(f'And place it in {imageio.core.appdata_dir("imageio")}/freeimage')
-
-            #You can also use a system environmental variable
-            #IMAGEIO_FREEIMAGE_LIB=<the location>\FreeImage-3.18.0-win64.dll
-
-        #The effective dll is refered at
-        #imageio.plugins.freeimage.fi.lib
-
-        #Prefer freeimage above pil
-        #Freeimage seems to be a lot faster then pil
-        imageio.formats.sort('-FI', '-PIL')
-
-        FILTERS_NAMES = collections.OrderedDict()
-        FILTERS_NAMES['All Formats (*)'] = None
-
-        for fmt in imageio.formats:
-            filter = f'{fmt.name} - {fmt.description} (' + ' '.join(f'*{fmt}' for fmt in fmt.extensions) + ')'
-            FILTERS_NAMES[filter] = fmt.name
-
-        IMAFIO_QT_READ_FILTERS = ';;'.join(FILTERS_NAMES.keys())
-        IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())
-        IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
-
-    except Exception as ex:
-        logger.warning('Could not initialize imageio format filters, falling back to PIL save/open dialogs')
-        logger.warning(str(ex))
-        has_imafio = False
 
 
 from qtpy import QtCore, QtGui, QtWidgets, API_NAME
@@ -112,15 +55,13 @@ from .spectrogram import spectr_hori, spectr_vert
 from .corner import CornerWidget
 from .regoi import RoiConfigDialog
 
-from .fileio import import_raw_image, save_image_imafio
-
+from .fileio import import_raw_image, open_image, save_image_dialog
+from .view_widgets import StatusPanel
 
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
 
 channels = ['R', 'G', 'B', 'A']
-
-from .view_widgets import StatusPanel     
     
 
 class OpenImage(object):
@@ -130,6 +71,7 @@ class OpenImage(object):
 
     def __call__(self):
         self.imgpanel.openImage(self.path)
+        
 
 class RecentMenu(QMenu):
     def __init__(self, parent=None):
@@ -712,49 +654,31 @@ class ImageViewerBase(BasePanel):
         
         if not Path(filepath).exists():
             gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
-            return
+            return            
             
-            
-        if has_imafio:
-            arr = self.openImageImafio(filepath, format)
-        else:
-            arr = self.openImagePIL(filepath)
-
-        if not arr is None:
-            #self.long_title = str(filepath)
-            gui.qapp.history.storepath(str(filepath))            
-            
-            if arr.dtype == 'uint8':                
-                self.offset = 0
-                self.white = 1 << 8
-                self.gamma = 1
-                
-            elif arr.dtype == 'uint16':
-                self.offset = 0
-                self.white = 1 << 16
-                self.gamma = 1
-                
-            self.show_array(arr, zoomFitHist=True)
-            if zoom == 'full':
-                self.zoomFull()
-            else:
-                self.setZoomValue(zoom)
-                
-
-    def openImagePIL(self, filepath):
-        with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):
-            from PIL import Image
-            logger.info(f'Using PIL library')
-            image = Image.open(str(filepath))
-            arr = np.array(image)
-        return arr
+        image = open_image(filepath, format)
         
+        if image is None: return
 
-    def openImageImafio(self, filepath, format=None):
-        with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
-            logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
-            arr = imageio.imread(str(filepath), format=format)
-        return arr
+        gui.qapp.history.storepath(str(filepath))
+        
+        if image.dtype == 'uint8':                
+            self.offset = 0
+            self.white = 1 << 8
+            self.gamma = 1
+            
+        elif image.dtype == 'uint16':
+            self.offset = 0
+            self.white = 1 << 16
+            self.gamma = 1
+            
+        self.show_array(image, zoomFitHist=True)
+        
+        if zoom == 'full':
+            self.zoomFull()
+            
+        else:
+            self.setZoomValue(zoom)                
     
 
     def importRawImage(self):
@@ -764,39 +688,8 @@ class ImageViewerBase(BasePanel):
             
 
     def saveImageDialog(self):
-        if has_imafio:
-            filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',
-                                    defaultfilter=IMAFIO_QT_WRITE_FILTER_DEFAULT)
-            if filepath == '': return
-            format = FILTERS_NAMES[filter]
-            self.saveImage(filepath, format)
-        else:
-            filepath, filter = gui.putfile(title='Save Image using PIL')
-            if filepath == '': return
-            self.saveImage(filepath)
-            
-
-    def saveImage(self, filepath, format=None):
-        if has_imafio:
-            self.saveImageImafio(filepath, format)
-        else:
-            self.saveImagePIL(filepath)
-
-        gui.qapp.history.storepath(str(filepath))
-        
-
-    def saveImagePIL(self, filepath):
-        with gui.qapp.waitCursor():
-            from PIL import Image
-
-            image = Image.fromarray(self.ndarray)
-            image.save(str(filepath))
-            
-
-    def saveImageImafio(self, filepath, format):
-        save_image_imafio(self.ndarray, filepath, format)
-        
-        
+        save_image_dialog()
+                
                 
     def send_array_to_gdesk(self):
         port = gui._qapp.cmdserver.port

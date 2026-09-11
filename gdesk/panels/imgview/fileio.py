@@ -1,9 +1,13 @@
+import logging
+import collections
 import struct
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 import numpy as np
 
-from ... import gui
+from ... import gui, config
 from .dialogs import RawImportDialog
 
 try:
@@ -12,8 +16,94 @@ try:
 
 except:
     HAS_IMAFIO = False
+    
+from PIL import Image as PilImage
 
 HERE = Path(__file__).parent.absolute()
+
+if HAS_IMAFIO:
+    try:
+        if not config.get("path_imageio_freeimage_lib", None) is None:
+            if os.getenv("IMAGEIO_FREEIMAGE_LIB", None) is None:
+                os.environ["IMAGEIO_FREEIMAGE_LIB"] = config.get("path_imageio_freeimage_lib")
+
+        try:
+            import imageio.plugins.freeimage
+            imageio.plugins._freeimage.get_freeimage_lib()
+
+        except Exception as ex:
+            logger.warning('Could not load freeimage dll')
+            logger.warning(str(ex))
+
+        try:
+            imageio.plugins.freeimage.download()
+
+        except Exception as ex:
+            logger.warning('Downloading imageio dll failed')
+            logger.warning(str(ex))
+            logger.warning('Automatic download can be a problem when using VPN')
+            logger.warning("Download the dll's from https://github.com/imageio/imageio-binaries/tree/master/freeimage/")
+            logger.warning(f'And place it in {imageio.core.appdata_dir("imageio")}/freeimage')
+
+            #You can also use a system environmental variable
+            #IMAGEIO_FREEIMAGE_LIB=<the location>\FreeImage-3.18.0-win64.dll
+
+        #The effective dll is refered at
+        #imageio.plugins.freeimage.fi.lib
+
+        #Prefer freeimage above pil
+        #Freeimage seems to be a lot faster then pil
+        imageio.formats.sort('-FI', '-PIL')
+
+        FILTERS_NAMES = collections.OrderedDict()
+        FILTERS_NAMES['All Formats (*)'] = None
+
+        for fmt in imageio.formats:
+            filter = f'{fmt.name} - {fmt.description} (' + ' '.join(f'*{fmt}' for fmt in fmt.extensions) + ')'
+            FILTERS_NAMES[filter] = fmt.name
+
+        IMAFIO_QT_READ_FILTERS = ';;'.join(FILTERS_NAMES.keys())
+        IMAFIO_QT_WRITE_FILTERS = ';;'.join(FILTERS_NAMES.keys())
+        IMAFIO_QT_WRITE_FILTER_DEFAULT = "TIFF-FI - Tagged Image File Format (*.tif *.tiff)"
+
+    except Exception as ex:
+        logger.warning('Could not initialize imageio format filters, falling back to PIL save/open dialogs')
+        logger.warning(str(ex))
+        HAS_IMAFIO = False
+
+
+def open_image(filepath, format=None):
+    
+    if not Path(filepath).exists():
+        gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
+        return        
+        
+    if HAS_IMAFIO:
+        arr = open_image_imafio(filepath, format)
+        
+    else:        
+        arr = open_image_pil(filepath)
+
+    return arr    
+    
+
+def open_image_imafio(filepath, format=None):
+    
+    with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
+        logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
+        arr = imageio.imread(str(filepath), format=format)
+        
+    return arr
+    
+    
+def open_image_pil(filepath):
+    
+    with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):        
+        logger.info(f'Using PIL library')
+        image = PilImage.open(str(filepath))
+        arr = np.array(image)
+        
+    return arr    
 
 
 def import_raw_image():        
@@ -48,7 +138,6 @@ def import_raw_image():
     width = int(dialog.form.width.text())
     height = int(dialog.form.height.text())
 
-
     with gui.qapp.waitCursor():
         dtype = np.dtype(dtype)
 
@@ -68,6 +157,32 @@ def import_raw_image():
         gui.qapp.history.storepath(str(filepath))
         
     return arr
+    
+    
+def save_image_dialog(self):
+    
+    if HAS_IMAFIO:
+        filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',
+                                defaultfilter=IMAFIO_QT_WRITE_FILTER_DEFAULT)
+        if filepath == '': return
+        format = FILTERS_NAMES[filter]
+        save_image(filepath, format)
+        
+    else:
+        filepath, filter = gui.putfile(title='Save Image using PIL')
+        if filepath == '': return
+        save_image(filepath)
+        
+
+def save_image(self, filepath, format=None):
+    
+    if HAS_IMAFIO:
+        save_image_imafio(self.ndarray, filepath, format)
+        
+    else:
+        save_image_pil(self.ndarray,  filepath)
+
+    gui.qapp.history.storepath(str(filepath))    
     
     
 def save_image_imafio(image, filepath, format):
@@ -124,4 +239,12 @@ def save_image_imafio(image, filepath, format):
 
     else:
         with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format)    
+            imageio.imwrite(filepath, image, format)  
+
+
+def save_image_pil(image, filepath):
+    
+    with gui.qapp.waitCursor():
+        
+        image = PilImage.fromarray(self.ndarray)
+        image.save(str(filepath))                 
