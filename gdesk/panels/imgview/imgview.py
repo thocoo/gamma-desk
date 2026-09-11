@@ -3,6 +3,7 @@ import collections
 from pathlib import Path
 from itertools import zip_longest
 import logging
+import struct
 
 import numpy as np
 
@@ -115,7 +116,6 @@ from .regoi import RoiConfigDialog
 
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
-#sck = config['shortcuts']
 
 channels = ['R', 'G', 'B', 'A']
 
@@ -639,6 +639,7 @@ class ImageViewerBase(BasePanel):
             self.imviewer.pixelSelected.disconnect(targetPanel.pick)
             
         return targetPanel
+    
 
     def changeVisibleRegion(self, x, y, w, h, zoomSnap, emit, zoomValue):
         self.imviewer.zoomNormalized(x, y, w, h, zoomSnap, emit, zoomValue)
@@ -753,9 +754,9 @@ class ImageViewerBase(BasePanel):
             logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
             arr = imageio.imread(str(filepath), format=format)
         return arr
+    
 
-    def importRawImage(self):
-        import struct
+    def importRawImage(self):        
 
         filepath = here / 'images' / 'default.png'
         filepath = gui.getfile(file=str(filepath))[0]
@@ -1500,6 +1501,7 @@ class ImageViewerBase(BasePanel):
         if results is None: return
         x, y = results
         self.jumpTo(x, y)
+        
 
     def jumpTo(self, x, y):
         selroi = self.imviewer.imgdata.selroi
@@ -1514,61 +1516,6 @@ class ImageViewerBase(BasePanel):
         self.imviewer.roi.show()
         self.imviewer.zoomToRoi()
         self.roiChanged.emit(self.panid)
-
-    def maskValue(self):
-        array = self.ndarray
-        evalOptions = ['Equal', 'Smaller', 'Larger']
-
-        if array.ndim == 2:
-            form = [('Evaluate', [1] + evalOptions),
-                    ('Value', 0)]
-        elif array.ndim == 3:
-            form = [('Evaluate', [1] + evalOptions),
-                ('Red', 0),
-                ('Green', 0),
-                ('Blue', 0)]
-
-        result = fedit(form, title='Mask')
-
-        if result is None:
-            self.imviewer.imgdata.set_mask(None)
-            self.imviewer.refresh()
-            return
-
-        evalind, *values = result
-
-        if evalind == 1:
-            if array.ndim == 2:
-                mask = (array == values[0])
-
-            elif array.ndim == 3:
-                mask0 = (array[:,:,0] == values[0])
-                mask1 = (array[:,:,1] == values[1])
-                mask2 = (array[:,:,2] == values[2])
-                mask = mask0 & mask1 & mask2
-
-        elif evalind == 2:
-            if array.ndim == 2:
-                mask = (array < values[0])
-
-            elif array.ndim == 3:
-                mask0 = (array[:,:,0] < values[0])
-                mask1 = (array[:,:,1] < values[1])
-                mask2 = (array[:,:,2] < values[2])
-                mask = mask0 & mask1 & mask2
-
-        elif evalind == 3:
-            if array.ndim == 2:
-                mask = (array > values[0])
-
-            elif array.ndim == 3:
-                mask0 = (array[:,:,0] > values[0])
-                mask1 = (array[:,:,1] > values[1])
-                mask2 = (array[:,:,2] > values[2])
-                mask = mask0 & mask1 & mask2
-
-        self.imviewer.imgdata.set_mask(mask)
-        self.imviewer.refresh()
 
 
     def configureRois(self):
@@ -2010,12 +1957,6 @@ class ImageViewerBase(BasePanel):
         self.refresh_offset_gain(array, log=log, skip_init=skip_init)                   
         self.contentChanged.emit(self.panid, zoomFitHist)
 
-    # def select(self):
-        # was_selected = super().select()
-        # if not was_selected:
-            # self.gainChanged.emit(self.panid, False)
-            # self.contentChanged.emit(self.panid, False)
-        # return was_selected
 
     def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True, skip_init=False):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log, skip_init)
@@ -2210,8 +2151,6 @@ class ImageProfileWidget(QWidget):
         
     def setSelection(self, mask, modify=False):        
         roi = self.imviewer.roi
-
-        print(f"setSelection: mask={mask}, modify={modify}")
         
         if not (mask == ''):
             chanstats = self.imviewer.imgdata.chanstats[mask]            
