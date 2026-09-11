@@ -38,7 +38,7 @@ class StatisticsItemDialog(QtWidgets.QDialog):
         self.initUi()
 
     def initUi(self):
-        self.setWindowTitle('Choose Statistics')
+        self.setWindowTitle('Choose Metrics')
         self.resize(700, 420)
 
         self.table = QtWidgets.QTableWidget()
@@ -566,7 +566,7 @@ class StatisticsPanel(BasePanel):
         self.addMenuItem(self.statsMenu, "Clear", self.statistics.clearStatistics,
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))            
             
-        self.addMenuItem(self.statsMenu, "Choose Statistics", self.statistics.chooseStatistics,            
+        self.addMenuItem(self.statsMenu, "Choose Metrics", self.statistics.chooseStatistics,            
             icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')))
                         
         self.addMenuItem(self.statsMenu, "Image Feed Rate", self.setImageFeedRate)            

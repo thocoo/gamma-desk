@@ -281,10 +281,10 @@ class ImageViewerBase(BasePanel):
         self.editMenu.addSeparator()
 
 
-        self.addMenuItem(self.editMenu, 'Copy', self.placeViewerOnClipboard,
+        self.addMenuItem(self.editMenu, 'Copy Scaled Selection', self.placeViewerOnClipboard,
             icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
             
-        self.addMenuItem(self.editMenu, 'Copy 100%, gain 1', self.placeRawOnClipboard,
+        self.addMenuItem(self.editMenu, 'Copy 100% Zoom', self.placeQimgOnClipboard,
             statusTip="Place the 8bit image on clipboard, offset and gain applied",
             icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))            
             
@@ -925,11 +925,11 @@ class ImageViewerBase(BasePanel):
 
     #---------------------------
 
-    def placeRawOnClipboard(self):
-        clipboard = self.qapp.clipboard()
-        array = self.ndarray
-        qimg = imconvert.process_ndarray_to_qimage_8bit(array, 0, 1)
-        clipboard.setImage(qimg)
+    # def placeRawOnClipboard(self):
+        # clipboard = self.qapp.clipboard()
+        # array = self.ndarray
+        # qimg = imconvert.process_ndarray_to_qimage_8bit(array, 0, 1)
+        # clipboard.setImage(qimg)
 
 
     def placeQimgOnClipboard(self):
@@ -1006,13 +1006,15 @@ class ImageViewerBase(BasePanel):
         if self.gamma != 1:
             lines.append(f'Gamma: {self.gamma:.2f}')        
 
-        for i, (name, stat) in enumerate(self.imviewer.imgdata.chanstats.items()):
-            if not name.startswith('roi.'): continue
-            if not stat.is_valid(): continue
-            lines.append(f'{name} {stat.slices_repr()}: {stat.mean():.1f} ± {stat.std():.1f}')                 
+        # Statistics can be copy to clipboard from the statistcs table
+        # for i, (name, stat) in enumerate(self.imviewer.imgdata.chanstats.items()):
+            # if not name.startswith('roi.'): continue
+            # if not stat.is_valid(): continue
+            # lines.append(f'{name} {stat.slices_repr()}: {stat.Mean():.1f} ± {stat.Std():.1f}')                 
 
         props = {}
-        props['memo'] = '\n'.join(lines)
+        
+        props['memo'] = '\n'.join(lines)        
         props['start_y'] = start_y
         props['stop_y'] = stop_y
         props['start_x'] = start_x
