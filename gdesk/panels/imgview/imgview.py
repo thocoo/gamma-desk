@@ -1688,9 +1688,11 @@ class ImageViewerBase(BasePanel):
         panel = gui.qapp.panels.selected('console')
         panel.task.call_func(run_in_console, args=(std,))
 
+
     def invert(self):
         procarr =  ~self.ndarray
         self.show_array(procarr)
+        
 
     def swapRGB(self):
         if not self.ndarray.ndim >= 3:
@@ -1725,19 +1727,24 @@ class ImageViewerBase(BasePanel):
         procarr = clip_array(mono, array.dtype)
         self.show_array(procarr)
         
+        
     def is8bit(self):
         return self.ndarray.dtype in ['uint8', 'int8']
+        
     
     def is16bit(self):
         return self.ndarray.dtype in ['uint16', 'int16']
+        
         
     def to8bit(self):
         if not self.is16bit(): return
         self.show_array((self.ndarray >> 8).astype('uint8'))
         
+        
     def to16bit(self):
         if not self.is8bit(): return
         self.show_array(self.ndarray.astype('uint16') << 8)
+        
         
     def to_dtype(self):
         dtypes = ['uint8', 'uint16', 'double']
@@ -1777,8 +1784,10 @@ class ImageViewerBase(BasePanel):
             
         gui.show(array)
         
+        
     def swapbytes(self):
         gui.show(gui.vs.byteswap())
+        
 
     def adjustLighting(self):
         """
@@ -1882,22 +1891,6 @@ class ImageViewerBase(BasePanel):
             blueprint = make_thumbnail(arr)
             gui.img.new()
             gui.img.show(blueprint)
-
-
-    def externalProcessDemo(self):
-        panel = gui.qapp.panels.select_or_new('console', None, 'child')
-        panel.task.wait_process_ready()
-
-        from .proxy import ImageGuiProxy
-
-        def stage1_done(mode, error_code, result):
-            gui.msgbox('Mirroring done')
-            panel.task.call_func(ImageGuiProxy.high_pass_current_image, callback=stage2_done)
-
-        def stage2_done(mode, error_code, result):
-            gui.msgbox('Highpass filter done')
-
-        panel.task.call_func(ImageGuiProxy.mirror_x, callback=stage1_done)
 
 
     def measureDistance(self):
