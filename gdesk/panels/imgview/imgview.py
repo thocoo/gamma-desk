@@ -56,6 +56,7 @@ from .regoi import RoiConfigDialog
 
 from .fileio import import_raw_image, open_image, save_image_dialog
 from .view_widgets import StatusPanel
+from .canvas import CanvasMenu
 from .imgedit import ImageEditMenu
 
 here = Path(__file__).parent.absolute()
@@ -168,16 +169,15 @@ class ImageViewerBase(BasePanel):
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
-        #self.editMenu = self.menuBar().addMenu("&Edit")
+        
         self.editMenu = CheckMenu("&Edit", self.menuBar())
         self.menuBar().addMenu(self.editMenu)
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
-        #self.selectMenu = self.menuBar().addMenu("&Select")
+
         self.selectMenu = CheckMenu("&Select", self.menuBar())
-        self.canvasMenu = self.menuBar().addMenu("&Canvas")
         
-        #self.imageMenu = CheckMenu("&Image", self.menuBar())
+        self.canvasMenu = CanvasMenu("&Canvas", self.menuBar(), self)
         self.imageMenu = ImageEditMenu("&Image", self.menuBar(), self)
         
         self.processMenu = self.menuBar().addMenu("&Process")
@@ -402,33 +402,6 @@ class ImageViewerBase(BasePanel):
             self.searchForRoiSlots.append(action)
             self.selectMenu.addAction(action)
                                                       
-
-        ### Canvas
-        self.addMenuItem(self.canvasMenu, 'Flip Horizontal', self.flipHorizontal,
-            statusTip="Flip the image Horizontal",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'shape_flip_horizontal.png')))
-        self.addMenuItem(self.canvasMenu, 'Flip Vertical'  , self.flipVertical,
-            statusTip="Flip the image Vertical",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'shape_flip_vertical.png')))
-        self.addMenuItem(self.canvasMenu, 'Rotate Left 90' , self.rotate90,
-            statusTip="Rotate the image 90 degree anti clockwise",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'shape_rotate_anticlockwise.png')))
-        self.addMenuItem(self.canvasMenu, 'Rotate Right 90', self.rotate270,
-            statusTip="Rotate the image 90 degree clockwise",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'shape_rotate_clockwise.png')))
-        self.addMenuItem(self.canvasMenu, 'Rotate 180'     , self.rotate180,
-            statusTip="Rotate the image 180 degree")
-        self.addMenuItem(self.canvasMenu, 'Rotate any Angle...', triggered=self.rotateAny, enabled=has_scipy,
-            statusTip="Rotate any angle")
-        self.addMenuItem(self.canvasMenu, 'Crop on Selection', self.crop,
-            statusTip="Crop the image on the current rectangle selection",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'transform_crop.png')))
-        self.addMenuItem(self.canvasMenu, 'Resize Canvas...', self.canvasResize,
-            statusTip="Add or remove borders",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas_size.png')))
-        self.addMenuItem(self.canvasMenu, 'Resize Image', triggered=self.resize, enabled=has_scipy,
-            statusTip="Resize the image by resampling",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'scale_image.png')))
 
         #Process
         self.addMenuItem(self.processMenu, 'Bayer Split', self.bayer_split_tiles,
@@ -1346,118 +1319,9 @@ class ImageViewerBase(BasePanel):
         self.refresh()
         
 
-    ############################
-    # Canvas Menu Connections
-
-    def flipHorizontal(self):
-        self.show_array(self.ndarray[:, ::-1])
-
-
-    def flipVertical(self):
-        self.show_array(self.ndarray[::-1, :])
-
-
-    def rotate90(self):
-        rotated = np.rot90(self.ndarray, 1).copy()
-        self.show_array(rotated)
-
-
-    def rotate180(self):
-        self.show_array(self.ndarray[::-1, ::-1])
-
-
-    def rotate270(self):
-        rotated = np.rot90(self.ndarray, 3).copy()
-        self.show_array(rotated)
-
-
-    def rotateAny(self):
-        with ActionArguments(self) as args:
-            args['angle'] = 0.0
-
-        if args.isNotSet():
-            form = [('Angle', args['angle'])]
-            results = fedit(form, title='Rotate')
-            if results is None: return
-            args['angle'] = results[0]
-
-        with gui.qapp.waitCursor(f'Rotating {args["angle"]} degree'):
-            procarr = scipy.ndimage.rotate(self.ndarray, args['angle'], reshape=True)
-            self.show_array(procarr)
-
-
-    def crop(self):
-        self.select()
-        croped_array = gui.vr.copy()
-        gui.img.show(croped_array)
-        self.selectNone()
-
-
-    def canvasResize(self):
-        old_height, old_width = self.ndarray.shape[:2]
-
-        with ActionArguments(self) as args:
-            args['width'], args['height'] = old_width, old_height
-
-        channels = self.ndarray.shape[2] if self.ndarray.ndim == 3 else 1
-
-        if args.isNotSet():
-
-            form = [('Width', args['width']), ('Height', args['height'])]
-            results = fedit(form, title='Canvas Resize')
-            if results is None: return
-            args['width'], args['height'] = results
-
-        new_width = args['width']
-        new_height = args['height']
-
-        if channels == 1:
-            procarr = np.ndarray((new_height, new_width), dtype=self.ndarray.dtype)
-        else:
-            procarr = np.ndarray((new_height, new_width, channels), dtype=self.ndarray.dtype)
-
-        #What with the alpha channel?
-        procarr[:] = 0
-
-        width = min(old_width, new_width)
-        height = min(old_height, new_height)
-        ofow = (old_width - width) // 2
-        ofnw = (new_width - width) // 2
-        ofoh = (old_height - height) // 2
-        ofnh = (new_height - height) // 2
-        procarr[ofnh:ofnh+height, ofnw:ofnw+width, ...] = self.ndarray[ofoh:ofoh+height, ofow:ofow+width, ...]
-        self.show_array(procarr)
-
-
-    def resize(self):
-        source = self.ndarray
-        shape = self.ndarray.shape
-
-        form = [("width", shape[1]), ("height", shape[0]), ("order", 1)]
-        results = fedit(form, title = 'Image Resize')
-        if results is None: return
-        width, height, order = results
-
-        factorx = width / shape[1]
-        factory = height / shape[0]
-
-        if source.ndim == 2:
-            scaled = scipy.ndimage.zoom(source, (factory, factorx), order=order, mode="nearest")
-
-        elif source.ndim == 3:
-            #some bug here
-            scaled = scipy.ndimage.zoom(source, (factory, factorx, 1.0), order=order, mode="nearest")
-            #returned array dimensions are not on the expected index
-
-        self.show_array(scaled)
-
-
-    ############################
-    # Image Menu Connections               
-        
-
-    ############################
-    # Process Menu Connections
+    ##############################
+    # Process
+    
 
     def bayer_split_tiles(self):
         arr = self.ndarray

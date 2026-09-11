@@ -74,7 +74,11 @@ class ImageEditMenu(CheckMenu):
 
     @property
     def gain(self):
-        return self.basePanel.gain                    
+        return self.basePanel.gain     
+
+
+    def show_array(self, array):
+        self.basePanel.show_array(array)           
         
         
     def is8bit(self):
@@ -83,12 +87,7 @@ class ImageEditMenu(CheckMenu):
     
     def is16bit(self):
         return self.basePanel.ndarray.dtype in ['uint16', 'int16']        
-        
-        
-    def show_array(self, array):
-        self.basePanel.show_array(array)        
-        
-        
+                                     
 
     def fillValue(self):
         """
