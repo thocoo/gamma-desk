@@ -32,8 +32,19 @@ def wrap(func, *args, **kwargs):
         
     return wrapper
     
+    
+class selectNamedMask():
+    def __init__(self, imgpanel, roiName):
+        self.imgpanel = imgpanel
+        self.roiName = roiName
+        
+    def __call__(self):
+        self.imgpanel.imgprof.selectMask(self.roiName)                     
+        self.imgpanel.imgprof.setSelection(self.roiName, modify=True)      
+    
 
 class CustomMaskMenu(QMenu):
+    
     def __init__(self, parent=None):
         super().__init__('Select Roi', parent)
         self.imgpanel = self.parent()
@@ -127,6 +138,11 @@ class SelectMenu(CheckMenu):
     @property
     def imviewer(self):
         return self.basePanel.imviewer
+        
+    
+    @property    
+    def imgprof(self):
+        return self.basePanel.imgprof
         
         
     def refresh(self):
@@ -242,6 +258,6 @@ class SelectMenu(CheckMenu):
     def selectNamedMask(self, i):
         # TO DO: check this !
         
-        maskName = self.searchForRoiSlots[i].text()
+        maskName = self.basePanel.searchForRoiSlots[i].text()
         self.imgprof.selectMask(maskName)
         self.imgprof.setSelection(maskName, modify=True)        

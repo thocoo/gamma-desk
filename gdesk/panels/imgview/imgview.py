@@ -48,6 +48,8 @@ from .regoi import RoiConfigDialog
 from .fileio import import_raw_image, open_image, save_image_dialog, open_image_dialog, open_image_and_show
 from .view_widgets import StatusPanel
 
+
+from .select import SelectMenu
 from .canvas import CanvasMenu
 from .imgedit import ImageEditMenu
 from .imgprocess import ProcessMenu
@@ -171,8 +173,7 @@ class ImageViewerBase(BasePanel):
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
 
-        self.selectMenu = CheckMenu("&Select", self.menuBar())
-        
+        self.selectMenu = SelectMenu("&Select", self.menuBar(), self)        
         self.canvasMenu = CanvasMenu("&Canvas", self.menuBar(), self)
         self.imageMenu = ImageEditMenu("&Image", self.menuBar(), self)
         
@@ -338,67 +339,10 @@ class ImageViewerBase(BasePanel):
         self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.statuspanel.set_val_format('bin')))
         self.chooseValFormat.addAction(QAction("Pixel Labels", self, triggered=self.togglePixelLabels))
         self.viewMenu.addMenu(self.chooseValFormat)
-
-        ####################
-        ### Select
-        
-        self.addMenuItem(self.selectMenu, 'Reselect', self.reselect,
-            statusTip="Select or reselect a region of interest",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_restangular.png')))
-            
-        self.addMenuItem(self.selectMenu, 'Deselect', self.selectNone,
-            statusTip="Deselect, select nothing")
-            
-        self.addMenuItem(self.selectMenu, 'Select Dialog...', self.setRoi,
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layer_select.png')),
-            statusTip="Select with input numbers dialog")
-            
-        self.addMenuItem(self.selectMenu, 'Select 1 Pixel...'   , self.jumpToDialog,
-            statusTip="Select 1 pixel and zoom to it",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'canvas.png')))
-        
-        self.selectMenu.addSeparator()
-            
-        self.addMenuItem(self.selectMenu, 'Add Roi Statistics...', self.addMaskStatistics,
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'create_from_selection.png')))
-            
-        self.addMenuItem(self.selectMenu, 'Remove Roi Statistics...', self.removeMaskStatistics)            
                     
-        self.addMenuItem(self.selectMenu, "Configure Roi's...", self.configureRois,
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layers_map.png')))
                     
-        dataSplitMenu = QMenu("Roi Presets")
-        dataSplitMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'select_by_color.png')))        
-        self.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(respath / 'icons' / 'px16' / 'color_gradient.png'))
-        self.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(respath / 'icons' / 'px16' / 'color.png'))            
-        self.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon=str(respath / 'icons' / 'px16' / 'cfa_bg.png'))
-        self.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon=str(respath / 'icons' / 'px16' / 'cfa_gb.png'))
-        self.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon=str(respath / 'icons' / 'px16' / 'cfa_rg.png'))
-        self.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon=str(respath / 'icons' / 'px16' / 'cfa_gr.png'))
-                
-        
-        self.selectMenu.addMenu(dataSplitMenu)                                            
-        self.selectMenu.addMenu(CustomMaskMenu(self))
-
-        self.addMenuItem(self.selectMenu, 'Show/Hide Mask Layer', self.toggle_mask,
-            checkcall = lambda: self.imviewer.imgdata.layers.get('mask', {}).get('visible', False),
-            statusTip="Show or hide the mask layer")
-        
-        self.addMenuItem(self.selectMenu, 'Show/Hide Roi Pattern', self.toggle_roi_mask,
-            checkcall = lambda: self.imviewer.imgdata.roi_mask_visible,
-            statusTip="Show or hide the mask layer")        
-            
-        self.selectMenu.addSeparator()
-        
-        self.searchForRoiSlots = []
-        
-        for i in range(4):
-            action = QAction(f"Custom Mask {i}", self, triggered=wrap(self.selectNamedMask, i))
-            action.setVisible(False)
-            self.searchForRoiSlots.append(action)
-            self.selectMenu.addAction(action)                                                      
-        
-        #Analyse
+        ############
+        # Analyse
         vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
         
         self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel,
@@ -1156,107 +1100,107 @@ class ImageViewerBase(BasePanel):
     ############################
     # Select Menu Connections
 
-    def reselect(self):
-        self.imviewer.roi.showRoi()
+    # def reselect(self):
+        # self.imviewer.roi.showRoi()
         
 
-    def selectNone(self):
-        self.imviewer.roi.hideRoi()
+    # def selectNone(self):
+        # self.imviewer.roi.hideRoi()
         
 
-    def setRoi(self):
-        selroi = self.imviewer.imgdata.selroi
+    # def setRoi(self):
+        # selroi = self.imviewer.imgdata.selroi
 
-        form = [('x start', selroi.xr.start),
-                ('x stop', selroi.xr.stop),
-                ('x step', selroi.xr.step),
-                ('y start', selroi.yr.start),
-                ('y stop', selroi.yr.stop),
-                ('y step', selroi.yr.step)]
+        # form = [('x start', selroi.xr.start),
+                # ('x stop', selroi.xr.stop),
+                # ('x step', selroi.xr.step),
+                # ('y start', selroi.yr.start),
+                # ('y stop', selroi.yr.stop),
+                # ('y step', selroi.yr.step)]
 
-        r = fedit(form, title='Select')
-        if r is None: return
+        # r = fedit(form, title='Select')
+        # if r is None: return
 
-        selroi.xr.start = r[0]
-        selroi.xr.stop = r[1]
-        selroi.xr.step = r[2]
-        selroi.yr.start = r[3]
-        selroi.yr.stop = r[4]
-        selroi.yr.step = r[5]
+        # selroi.xr.start = r[0]
+        # selroi.xr.stop = r[1]
+        # selroi.xr.step = r[2]
+        # selroi.yr.start = r[3]
+        # selroi.yr.stop = r[4]
+        # selroi.yr.step = r[5]
 
-        self.imviewer.roi.clip()
-        self.imviewer.roi.show()
+        # self.imviewer.roi.clip()
+        # self.imviewer.roi.show()
         
 
-    def addMaskStatistics(self):
-        self.imviewer.imgdata.addMaskStatsDialog()        
-        self.imviewer.roi.hideRoi()
-        self.refresh()
+    # def addMaskStatistics(self):
+        # self.imviewer.imgdata.addMaskStatsDialog()        
+        # self.imviewer.roi.hideRoi()
+        # self.refresh()
 
         
-    def removeMaskStatistics(self):
-        masks = self.imviewer.imgdata.customMaskNames()                
+    # def removeMaskStatistics(self):
+        # masks = self.imviewer.imgdata.customMaskNames()                
         
-        if len(masks) < 1: return
+        # if len(masks) < 1: return
         
-        form = [('Mask', [1] + masks)]
-        result = fedit(form, title='Removing Mask')
-        mask = masks[result[0] - 1]
-        self.imviewer.imgdata.chanstats.pop(mask)
-        
-
-    def jumpToDialog(self):
-        selroi = self.imviewer.imgdata.selroi
-
-        form = [('x', selroi.xr.start),
-                ('y', selroi.yr.start)]
-
-        results = fedit(form, title='Position')
-        if results is None: return
-        x, y = results
-        self.jumpTo(x, y)
+        # form = [('Mask', [1] + masks)]
+        # result = fedit(form, title='Removing Mask')
+        # mask = masks[result[0] - 1]
+        # self.imviewer.imgdata.chanstats.pop(mask)
         
 
-    def jumpTo(self, x, y):
-        selroi = self.imviewer.imgdata.selroi
+    # def jumpToDialog(self):
+        # selroi = self.imviewer.imgdata.selroi
 
-        selroi.xr.start, selroi.yr.start = x, y
-        selroi.xr.stop = selroi.xr.start + 1
-        selroi.xr.step = 1
-        selroi.yr.stop = selroi.yr.start + 1
-        selroi.yr.step = 1
+        # form = [('x', selroi.xr.start),
+                # ('y', selroi.yr.start)]
 
-        self.imviewer.roi.clip()
-        self.imviewer.roi.show()
-        self.imviewer.zoomToRoi()
-        self.roiChanged.emit(self.panid)
+        # results = fedit(form, title='Position')
+        # if results is None: return
+        # x, y = results
+        # self.jumpTo(x, y)
+        
+
+    # def jumpTo(self, x, y):
+        # selroi = self.imviewer.imgdata.selroi
+
+        # selroi.xr.start, selroi.yr.start = x, y
+        # selroi.xr.stop = selroi.xr.start + 1
+        # selroi.xr.step = 1
+        # selroi.yr.stop = selroi.yr.start + 1
+        # selroi.yr.step = 1
+
+        # self.imviewer.roi.clip()
+        # self.imviewer.roi.show()
+        # self.imviewer.zoomToRoi()
+        # self.roiChanged.emit(self.panid)
 
 
-    def configureRois(self):
-        dialog = RoiConfigDialog(self.imviewer.imgdata)
-        dialog.exec_()
-        self.roiConfigChanged.emit()
-        self.refresh()
+    # def configureRois(self):
+        # dialog = RoiConfigDialog(self.imviewer.imgdata)
+        # dialog.exec_()
+        # self.roiConfigChanged.emit()
+        # self.refresh()
         
         
-    def toggle_mask(self):
-        imgdata = self.imviewer.imgdata
-        if imgdata.layers.get('mask', {}).get('visible', False):
-            imgdata.hide_layer('mask')
-        else:
-            imgdata.show_layer('mask')
-        self.imviewer.refresh()
+    # def toggle_mask(self):
+        # imgdata = self.imviewer.imgdata
+        # if imgdata.layers.get('mask', {}).get('visible', False):
+            # imgdata.hide_layer('mask')
+        # else:
+            # imgdata.show_layer('mask')
+        # self.imviewer.refresh()
 
 
-    def toggle_roi_mask(self):
-        imgdata = self.imviewer.imgdata
-        imgdata.show_roi_mask(not imgdata.roi_mask_visible)
-        self.imviewer.refresh()
+    # def toggle_roi_mask(self):
+        # imgdata = self.imviewer.imgdata
+        # imgdata.show_roi_mask(not imgdata.roi_mask_visible)
+        # self.imviewer.refresh()
 
 
-    def setStatMasks(self, mode):
-        self.imviewer.imgdata.init_channel_statistics(mode)
-        self.refresh()        
+    # def setStatMasks(self, mode):
+        # self.imviewer.imgdata.init_channel_statistics(mode)
+        # self.refresh()        
 
         
 
