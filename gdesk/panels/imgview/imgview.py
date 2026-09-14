@@ -49,6 +49,7 @@ from .fileio import import_raw_image, open_image, save_image_dialog, open_image_
 from .view_widgets import StatusPanel
 
 
+from .edit import EditMenu
 from .select import SelectMenu
 from .canvas import CanvasMenu
 from .imgedit import ImageEditMenu
@@ -99,39 +100,15 @@ def wrap(func, *args, **kwargs):
     return wrapper
     
 
-class selectNamedMask():
-    def __init__(self, imgpanel, roiName):
-        self.imgpanel = imgpanel
-        self.roiName = roiName
+# class selectNamedMask():
+    # def __init__(self, imgpanel, roiName):
+        # self.imgpanel = imgpanel
+        # self.roiName = roiName
         
-    def __call__(self):
-        self.imgpanel.imgprof.selectMask(self.roiName)                     
-        self.imgpanel.imgprof.setSelection(self.roiName, modify=True)               
+    # def __call__(self):
+        # self.imgpanel.imgprof.selectMask(self.roiName)                     
+        # self.imgpanel.imgprof.setSelection(self.roiName, modify=True)               
     
-
-class CustomMaskMenu(QMenu):
-    def __init__(self, parent=None):
-        super().__init__('Select Roi', parent)
-        self.imgpanel = self.parent()
-        self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'selection_pane.png')))
-
-    def showEvent(self, event):
-        self.initactions()
-
-    def initactions(self):
-        self.clear()
-        self.actions = []
-        
-        try:
-            roiNames = self.imgpanel.imviewer.imgdata.customMaskNames()
-        except:
-            roiNames = []
-                
-        for roiName in roiNames:
-            action = QAction(roiName, self)
-            action.triggered.connect(selectNamedMask(self.imgpanel, roiName))
-            self.addAction(action)
-            self.actions.append(action)
 
 from .imgpaint import ImageViewerWidget
 
@@ -168,8 +145,11 @@ class ImageViewerBase(BasePanel):
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
         
-        self.editMenu = CheckMenu("&Edit", self.menuBar())
-        self.menuBar().addMenu(self.editMenu)
+        # self.editMenu = CheckMenu("&Edit", self.menuBar())
+        # self.menuBar().addMenu(self.editMenu)
+        
+        self.editMenu = EditMenu("&Edit", self.menuBar(), self)
+        
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
 
@@ -211,30 +191,31 @@ class ImageViewerBase(BasePanel):
 
         ### Edit
 
-        self.addMenuItem(self.editMenu, 'Show Prior Image', self.piorImage,
-            enablecall = lambda: self.imviewer.imgdata.imghist.prior_length() > 0,
-            statusTip="Get the prior image from the history stack and show it",
-            icon = 'undo.png')
-        self.addMenuItem(self.editMenu, 'Show Next Image', self.nextImage,
-            enablecall = lambda: self.imviewer.imgdata.imghist.next_length() > 0,
-            statusTip="Get the next image from the history stack and show it",
-            icon = 'redo.png')
+        # self.addMenuItem(self.editMenu, 'Show Prior Image', self.piorImage,
+            # enablecall = lambda: self.imviewer.imgdata.imghist.prior_length() > 0,
+            # statusTip="Get the prior image from the history stack and show it",
+            # icon = 'undo.png')
+            
+        # self.addMenuItem(self.editMenu, 'Show Next Image', self.nextImage,
+            # enablecall = lambda: self.imviewer.imgdata.imghist.next_length() > 0,
+            # statusTip="Get the next image from the history stack and show it",
+            # icon = 'redo.png')
 
-        self.editMenu.addSeparator()
+        # self.editMenu.addSeparator()
 
-        self.addMenuItem(self.editMenu, 'Copy Scaled Selection', self.placeViewerOnClipboard,
-            icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
+        # self.addMenuItem(self.editMenu, 'Copy Scaled Selection', self.placeViewerOnClipboard,
+            # icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
             
-        self.addMenuItem(self.editMenu, 'Copy 100% Zoom', self.placeQimgOnClipboard,
-            statusTip="Place the 8bit image on clipboard, offset and gain applied",
-            icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))            
+        # self.addMenuItem(self.editMenu, 'Copy 100% Zoom', self.placeQimgOnClipboard,
+            # statusTip="Place the 8bit image on clipboard, offset and gain applied",
+            # icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))            
             
-        self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
-            statusTip="Paste content of clipboard in this image viewer",
-            icon = 'picture_clipboard.png')
+        # self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
+            # statusTip="Paste content of clipboard in this image viewer",
+            # icon = 'picture_clipboard.png')
             
-        self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
-            icon = 'lcd_tv_image.png')
+        # self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
+            # icon = 'lcd_tv_image.png')
 
         self.editMenu.addSeparator()
 
@@ -407,10 +388,10 @@ class ImageViewerBase(BasePanel):
         self.statuspanel.set_xy_val(x, y, val)
         
         
-    def selectNamedMask(self, i):
-        maskName = self.searchForRoiSlots[i].text()
-        self.imgprof.selectMask(maskName)
-        self.imgprof.setSelection(maskName, modify=True)
+    # def selectNamedMask(self, i):
+        # maskName = self.searchForRoiSlots[i].text()
+        # self.imgprof.selectMask(maskName)
+        # self.imgprof.setSelection(maskName, modify=True)
     
 
     def addBindingTo(self, category, panid):
@@ -562,19 +543,17 @@ class ImageViewerBase(BasePanel):
         # clipboard.setImage(qimg)
 
 
-    def placeQimgOnClipboard(self):
+    # def placeQimgOnClipboard(self):
 
-        clipboard = self.qapp.clipboard()
-        #If qimg is not copied, GH crashes on paste after the qimg instance has been garbaged!
-        #Clipboard can only take ownership if the object is a local?
-        qimg = self.imviewer.imgdata.qimg.copy()
-        clipboard.setImage(qimg)
+        # clipboard = self.qapp.clipboard()
+        # qimg = self.imviewer.imgdata.qimg.copy()
+        # clipboard.setImage(qimg)
         
         
-    def placeViewerOnClipboard(self):
-        qimg, props = self.getViewerQImage()        
-        clipboard = self.qapp.clipboard()
-        clipboard.setImage(qimg.copy())        
+    # def placeViewerOnClipboard(self):
+        # qimg, props = self.getViewerQImage()        
+        # clipboard = self.qapp.clipboard()
+        # clipboard.setImage(qimg.copy())        
 
 
     def placeViewerWithMemoOnClipboard(self):
@@ -653,35 +632,35 @@ class ImageViewerBase(BasePanel):
         return qimg, props
 
 
-    def showFromClipboard(self):
-        arr = gui.get_clipboard_image()
-        self.show_array(arr)
+    # def showFromClipboard(self):
+        # arr = gui.get_clipboard_image()
+        # self.show_array(arr)
         
         
-    def grabDesktop(self):       
-        screens = self.qapp.screens()    
-        screen_names = [1] + [sc.name() for sc in screens]
-        form = [
-            ('Screen', screen_names),
-            ('Delay', 1.0)]
+    # def grabDesktop(self):       
+        # screens = self.qapp.screens()    
+        # screen_names = [1] + [sc.name() for sc in screens]
+        # form = [
+            # ('Screen', screen_names),
+            # ('Delay', 1.0)]
         
-        results = fedit(form, title='Screenshot')
+        # results = fedit(form, title='Screenshot')
         
-        if results is None: return
+        # if results is None: return
         
-        screen_index, delay = results
-        screen_name = screen_names[screen_index]
+        # screen_index, delay = results
+        # screen_name = screen_names[screen_index]
         
-        screen = [sc for sc in screens if sc.name() == screen_name][0]        
+        # screen = [sc for sc in screens if sc.name() == screen_name][0]        
         
-        def screenGrab():
-            pixmap = screen.grabWindow(0)
+        # def screenGrab():
+            # pixmap = screen.grabWindow(0)
             
-            qimage = pixmap.toImage()
-            arr = imconvert.qimage_to_ndarray(qimage)
-            self.show_array(arr)
+            # qimage = pixmap.toImage()
+            # arr = imconvert.qimage_to_ndarray(qimage)
+            # self.show_array(arr)
         
-        QtCore.QTimer.singleShot(delay * 1000, screenGrab)               
+        # QtCore.QTimer.singleShot(delay * 1000, screenGrab)               
 
     ############################
     # View Menu Connections
@@ -1176,11 +1155,12 @@ class ImageViewerBase(BasePanel):
         # self.roiChanged.emit(self.panid)
 
 
-    # def configureRois(self):
-        # dialog = RoiConfigDialog(self.imviewer.imgdata)
-        # dialog.exec_()
-        # self.roiConfigChanged.emit()
-        # self.refresh()
+    def configureRois(self):
+        self.selectMenu.configureRois()
+        dialog = RoiConfigDialog(self.imviewer.imgdata)
+        dialog.exec_()
+        self.roiConfigChanged.emit()
+        self.refresh()
         
         
     # def toggle_mask(self):
