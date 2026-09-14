@@ -27,7 +27,7 @@ class CornerWidget(QtWidgets.QWidget):
         self.cornerMenu.toggleMask.connect(self.imviewer.toggleMask)
         self.cornerMenu.toggleRoiMask.connect(self.imviewer.toggleRoiMask)
         self.cornerMenu.maskPreset.connect(self.imviewer.selectMasks)
-        self.cornerMenu.showPanel.connect(self.imviewer.parent().showStatisticPanel)
+        self.cornerMenu.showPanel.connect(self.imviewer.parent().analyseMenu.showStatisticPanel)
                 
         self.statistics = Statistics(imviewer=self.imviewer.imviewer)
         self.imviewer.parent().contentChanged.connect(self.statistics.updateStatistics)         

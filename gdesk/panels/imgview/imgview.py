@@ -39,7 +39,7 @@ from ...gcore.utils import ActionArguments
 from ...external import client
 
 from .profile import ProfilerPanel
-from .spectrogram import spectr_hori, spectr_vert
+
 from .corner import CornerWidget
 from .regoi import RoiConfigDialog
 
@@ -52,6 +52,7 @@ from .select import SelectMenu
 from .canvas import CanvasMenu
 from .imgedit import ImageEditMenu
 from .imgprocess import ProcessMenu
+from .analyse import AnalyseMenu
 from .operation import OperationMenu
 
 if has_cv2:
@@ -131,24 +132,15 @@ class ImageViewerBase(BasePanel):
         self.createStatusBar()
 
     def createMenus(self):
-        self.fileMenu = self.menuBar().addMenu("&File")
-        
-        # self.editMenu = CheckMenu("&Edit", self.menuBar())
-        # self.menuBar().addMenu(self.editMenu)
+        self.fileMenu = self.menuBar().addMenu("&File")        
         
         self.editMenu = EditMenu("&Edit", self.menuBar(), self)
-        
-        # self.viewMenu = CheckMenu("&View", self.menuBar())
-        # self.menuBar().addMenu(self.viewMenu)
-        
         self.viewMenu = ViewMenu("&View", self.menuBar(), self)
-
         self.selectMenu = SelectMenu("&Select", self.menuBar(), self)        
         self.canvasMenu = CanvasMenu("&Canvas", self.menuBar(), self)
-        self.imageMenu = ImageEditMenu("&Image", self.menuBar(), self)
-        
+        self.imageMenu = ImageEditMenu("&Image", self.menuBar(), self)        
         self.processMenu = ProcessMenu("&Process", self.menuBar(), self)
-        self.analyseMenu = self.menuBar().addMenu("&Analyse")
+        self.analyseMenu = AnalyseMenu("&Analyse", self.menuBar(), self)
         
         if has_cv2:
             self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
@@ -179,27 +171,6 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
             statusTip="Close this image panel",
             icon = 'cross.png')
-
-  
-        ############
-        # Analyse
-        vertical_spectr_icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm_90.png'))
-        
-        self.addMenuItem(self.analyseMenu, 'Statistics', self.showStatisticPanel,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'table_sum.png')))            
-            
-        self.addMenuItem(self.analyseMenu, 'Levels', self.showLevelsPanel,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'color_adjustment.png')))
-        
-        self.addMenuItem(self.analyseMenu, 'Horizontal Spectrogram', self.horizontalSpectrogram,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'diagramm.png')),
-            statusTip="Horizontal Spectrogram")
-        self.addMenuItem(self.analyseMenu, 'Vertical Spectrogram', self.verticalSpectrogram,
-            icon=vertical_spectr_icon,
-            statusTip="Vertical Spectrogram")
-        self.addMenuItem(self.analyseMenu, 'Measure Distance', self.measureDistance,
-            statusTip="Measure Distance",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'geolocation_sight.png')))
 
         self.addBaseMenu(['levels', 'values', 'image', 'statistics'])                                
         
@@ -462,59 +433,6 @@ class ImageViewerBase(BasePanel):
         dialog.exec_()
         self.roiConfigChanged.emit()
         self.refresh()                
-
-
-    ############################
-    # Analyse Menu Connections
-    
-    def showStatisticPanel(self):        
-        
-        if not self.bindedPanel('statistics') is None:
-            self.bindedPanel('statistics').show_me()
-            return
-
-        imgpanel = gui.qapp.panels['image'][self.panid]
-        statpanel =  gui.qapp.panels.new('statistics')
-        
-        imgpanel.addBindingTo('statistics', statpanel.panid)
-        statpanel.addBindingTo('image', self.panid)
-        
-        statpanel.setActiveColumns(["Mean", "Std", "Min", "Max"])
-        self.roiConfigChanged.connect(statpanel.statistics.formatTable)
-        
-        
-    def showLevelsPanel(self):        
-        
-        if not self.bindedPanel('levels') is None:
-            self.bindedPanel('levels').show_me()
-            return
-
-        imgpanel = gui.qapp.panels['image'][self.panid]
-        levelspanel =  gui.qapp.panels.new('levels')
-        
-        imgpanel.addBindingTo('levels', levelspanel.panid)
-        levelspanel.addBindingTo('image', self.panid)      
-    
-
-    def horizontalSpectrogram(self):
-        panel = gui.qapp.panels.selected('console')
-        panel.task.call_func(spectr_hori, args=(gui.vs,))
-        
-
-    def verticalSpectrogram(self):
-        panel = gui.qapp.panels.selected('console')
-        panel.task.call_func(spectr_vert, args=(gui.vs,))
-        
-        
-    def measureDistance(self):
-        panel = gui.qapp.panels.selected('console')
-
-        from .proxy import ImageGuiProxy
-
-        def stage1_done(mode, error_code, result):
-            pass
-
-        panel.task.call_func(ImageGuiProxy.get_distance, callback=stage1_done)        
         
 
     #############################

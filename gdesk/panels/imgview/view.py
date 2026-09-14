@@ -21,13 +21,6 @@ from ... import config, gui
 RESPATH = Path(config['respath'])
 
 
-def wrap(func, *args, **kwargs):
-    def wrapper():
-        func(*args, **kwargs)
-        
-    return wrapper    
-
-
 class ViewMenu(CheckMenu):
     
     def __init__(self, name, parentMenu=None, basePanel=None):
