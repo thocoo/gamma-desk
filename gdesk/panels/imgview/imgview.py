@@ -46,6 +46,7 @@ from .regoi import RoiConfigDialog
 from .fileio import import_raw_image, open_image, save_image_dialog, open_image_dialog, open_image_and_show
 from .view_widgets import StatusPanel
 
+from .fileio import FileMenu
 from .edit import EditMenu
 from .view import ViewMenu
 from .select import SelectMenu
@@ -63,33 +64,33 @@ respath = Path(config['respath'])
 channels = ['R', 'G', 'B', 'A']
     
 
-class OpenImage(object):
-    def __init__(self, imgpanel, path):
-        self.imgpanel = imgpanel
-        self.path = path
+# class OpenImage(object):
+    # def __init__(self, imgpanel, path):
+        # self.imgpanel = imgpanel
+        # self.path = path
 
-    def __call__(self):
-        self.imgpanel.openImage(self.path)
+    # def __call__(self):
+        # self.imgpanel.openImage(self.path)
         
 
-class RecentMenu(QMenu):
-    def __init__(self, parent=None):
-        super().__init__('Recent', parent)
-        self.imgpanel = self.parent()
-        self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'images.png')))
+# class RecentMenu(QMenu):
+    # def __init__(self, parent=None):
+        # super().__init__('Recent', parent)
+        # self.imgpanel = self.parent()
+        # self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'images.png')))
 
-    def showEvent(self, event):
-        self.initactions()
+    # def showEvent(self, event):
+        # self.initactions()
 
-    def initactions(self):
-        self.clear()
-        self.actions = []
+    # def initactions(self):
+        # self.clear()
+        # self.actions = []
 
-        for rowid, timestamp, path in gui.qapp.history.yield_recent_paths():
-            action = QAction(path, self)
-            action.triggered.connect(OpenImage(self.imgpanel, path))
-            self.addAction(action)
-            self.actions.append(action)
+        # for rowid, timestamp, path in gui.qapp.history.yield_recent_paths():
+            # action = QAction(path, self)
+            # action.triggered.connect(OpenImage(self.imgpanel, path))
+            # self.addAction(action)
+            # self.actions.append(action)
 
 
 def wrap(func, *args, **kwargs):
@@ -132,8 +133,7 @@ class ImageViewerBase(BasePanel):
         self.createStatusBar()
 
     def createMenus(self):
-        self.fileMenu = self.menuBar().addMenu("&File")        
-        
+        self.fileMenu = FileMenu("&File", self.menuBar(), self)          
         self.editMenu = EditMenu("&Edit", self.menuBar(), self)
         self.viewMenu = ViewMenu("&View", self.menuBar(), self)
         self.selectMenu = SelectMenu("&Select", self.menuBar(), self)        
@@ -149,28 +149,28 @@ class ImageViewerBase(BasePanel):
 
         ############
         # File
-        self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,
-            statusTip="Make a new image in this image viewer",
-            icon = 'picture_empty.png')
-        self.addMenuItem(self.fileMenu, 'Duplicate'         , self.duplicate,
-            statusTip="Duplicate the image to a new image viewer",
-            icon = 'application_double.png')
-        self.addMenuItem(self.fileMenu, 'Open Image...' , self.openImageDialog,
-            statusTip="Open an image",
-            icon = 'folder_image.png')
-        self.addMenuItem(self.fileMenu, 'Import Raw Image...', self.importRawImage,
-            statusTip="Import Raw Image",
-            icon = 'picture_go.png')
-        self.fileMenu.addMenu(RecentMenu(self))
-        self.addMenuItem(self.fileMenu, 'Save Image...' , self.saveImageDialog,
-            statusTip="Save the image",
-            icon = 'picture_save.png')
+        # self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,
+            # statusTip="Make a new image in this image viewer",
+            # icon = 'picture_empty.png')
+        # self.addMenuItem(self.fileMenu, 'Duplicate'         , self.duplicate,
+            # statusTip="Duplicate the image to a new image viewer",
+            # icon = 'application_double.png')
+        # self.addMenuItem(self.fileMenu, 'Open Image...' , self.openImageDialog,
+            # statusTip="Open an image",
+            # icon = 'folder_image.png')
+        # self.addMenuItem(self.fileMenu, 'Import Raw Image...', self.importRawImage,
+            # statusTip="Import Raw Image",
+            # icon = 'picture_go.png')
+        # self.fileMenu.addMenu(RecentMenu(self))
+        # self.addMenuItem(self.fileMenu, 'Save Image...' , self.saveImageDialog,
+            # statusTip="Save the image",
+            # icon = 'picture_save.png')
             
-        self.addMenuItem(self.fileMenu, 'Send to other GDesk' , self.send_array_to_gdesk)
+        # self.addMenuItem(self.fileMenu, 'Send to other GDesk' , self.send_array_to_gdesk)
             
-        self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
-            statusTip="Close this image panel",
-            icon = 'cross.png')
+        # self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
+            # statusTip="Close this image panel",
+            # icon = 'cross.png')
 
         self.addBaseMenu(['levels', 'values', 'image', 'statistics'])                                
         
@@ -266,36 +266,36 @@ class ImageViewerBase(BasePanel):
 
     ############################
     # File Menu Connections
-    def newImage(self):
+    # def newImage(self):
 
-        with ActionArguments(self) as args:
-            args['width'] = 1920*2
-            args['height'] = 1080*2
-            args['channels'] = 1
-            args['dtype'] = 'uint8'
-            args['mean'] = 128
+        # with ActionArguments(self) as args:
+            # args['width'] = 1920*2
+            # args['height'] = 1080*2
+            # args['channels'] = 1
+            # args['dtype'] = 'uint8'
+            # args['mean'] = 128
 
-        if args.isNotSet():
-            dtypes = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
+        # if args.isNotSet():
+            # dtypes = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
 
-            options_form = [('Width', args['width']),
-                       ('Height', args['height']),
-                       ('Channels', args['channels']),
-                       ('dtype', [1] + dtypes),
-                       ('mean', args['mean'])]
+            # options_form = [('Width', args['width']),
+                       # ('Height', args['height']),
+                       # ('Channels', args['channels']),
+                       # ('dtype', [1] + dtypes),
+                       # ('mean', args['mean'])]
 
-            result = fedit(options_form, title='New Image')
-            if result is None: return
-            args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
-            args['dtype'] = dtypes[dtype_ind-1]
+            # result = fedit(options_form, title='New Image')
+            # if result is None: return
+            # args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
+            # args['dtype'] = dtypes[dtype_ind-1]
 
-        shape = [args['height'], args['width']]
-        if args['channels'] > 1: shape = shape + [args['channels']]
+        # shape = [args['height'], args['width']]
+        # if args['channels'] > 1: shape = shape + [args['channels']]
 
-        arr = np.ndarray(shape, args['dtype'])
-        arr[:] = args['mean']
+        # arr = np.ndarray(shape, args['dtype'])
+        # arr[:] = args['mean']
 
-        self.show_array(arr, zoomFitHist=True)
+        # self.show_array(arr, zoomFitHist=True)
         
 
     def duplicate(self, floating=False):
@@ -304,37 +304,37 @@ class ImageViewerBase(BasePanel):
         return newPanel
         
 
-    def openImageDialog(self):
-        open_image_dialog(self)
+    # def openImageDialog(self):
+        # open_image_dialog(self)
 
 
-    def openImage(self, filepath, format=None, zoom='full'):       
-        open_image_and_show(self, filepath, format, zoom)                          
+    # def openImage(self, filepath, format=None, zoom='full'):       
+        # open_image_and_show(self, filepath, format, zoom)                          
     
 
-    def importRawImage(self):
-        arr = import_raw_image()
-        self.show_array(arr, zoomFitHist=True)
-        self.zoomFull()
+    # def importRawImage(self):
+        # arr = import_raw_image()
+        # self.show_array(arr, zoomFitHist=True)
+        # self.zoomFull()
             
 
-    def saveImageDialog(self):
-        save_image_dialog()
+    # def saveImageDialog(self):
+        # save_image_dialog()
                 
                 
-    def send_array_to_gdesk(self):
-        port = gui._qapp.cmdserver.port
-        hostname = 'localhost'
+    # def send_array_to_gdesk(self):
+        # port = gui._qapp.cmdserver.port
+        # hostname = 'localhost'
         
-        form = [('port', port), ('host', hostname), ('new panel', False)]
-        results = fedit(form, title='Send Array to Host')
-        if results is None: return
+        # form = [('port', port), ('host', hostname), ('new panel', False)]
+        # results = fedit(form, title='Send Array to Host')
+        # if results is None: return
         
-        port = results[0]        
-        hostname = results[1]
-        new = results[2]
+        # port = results[0]        
+        # hostname = results[1]
+        # new = results[2]
         
-        client.send_array_to_gui(self.ndarray, port, hostname, new)
+        # client.send_array_to_gui(self.ndarray, port, hostname, new)
         
 
     def close_panel(self):
@@ -752,7 +752,7 @@ class ImageProfilePanel(ImageViewerBase):
         
             
     def openTestImage(self):        
-        self.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)
+        self.fileMenu.openImage(respath / 'images' / 'gamma_test_22.png', zoom=1)
 
 
     def emitVisibleRegionChanged(self):

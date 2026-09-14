@@ -11,6 +11,17 @@ from ... import gui, config
 from ...gcore.utils import ActionArguments
 from .dialogs import RawImportDialog
 
+from qtpy import QtCore, QtGui
+from qtpy.QtWidgets import QAction, QMenu, QColorDialog, QApplication
+
+from ...panels import CheckMenu
+from ...dialogs.formlayout import fedit
+
+from ... import config, gui
+
+RESPATH = Path(config['respath'])
+
+
 try:
     import imageio
     HAS_IMAFIO = True
@@ -122,7 +133,7 @@ def open_image_and_show(imgpanel, filepath, format=None, zoom='full'):
         imgpanel.zoomFull()
         
     else:
-        imgpanel.viewMenu.setZoomValue(zoom)              
+        imgpanel.setZoomValue(zoom)              
 
 
 def open_image(filepath, format=None):
@@ -301,3 +312,133 @@ def save_image_pil(image, filepath):
         
         image = PilImage.fromarray(self.ndarray)
         image.save(str(filepath))                 
+
+
+class OpenImage(object):
+    def __init__(self, imgpanel, path):
+        self.imgpanel = imgpanel
+        self.path = path
+
+    def __call__(self):
+        self.imgpanel.openImage(self.path)
+        
+
+class RecentMenu(QMenu):
+    def __init__(self, parent=None):
+        super().__init__('Recent', parent)
+        self.imgpanel = self.parent()
+        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'images.png')))
+        self.aboutToShow.connect(self.initactions)
+
+
+    def initactions(self):
+        self.clear()
+        self.actions = []
+
+        for rowid, timestamp, path in gui.qapp.history.yield_recent_paths():
+            action = QAction(path, self)
+            action.triggered.connect(OpenImage(self.imgpanel, path))
+            self.addAction(action)
+            self.actions.append(action)
+            
+
+class FileMenu(CheckMenu):
+    
+    def __init__(self, name, parentMenu=None, basePanel=None):
+        super().__init__(name, parentMenu)    
+        
+        self.basePanel = basePanel
+        
+        basePanel.addMenuItem(self, 'New...'            , self.newImage,
+            statusTip="Make a new image in this image viewer",
+            icon = 'picture_empty.png')
+        basePanel.addMenuItem(self, 'Duplicate'         , self.basePanel.duplicate,
+            statusTip="Duplicate the image to a new image viewer",
+            icon = 'application_double.png')
+        basePanel.addMenuItem(self, 'Open Image...' , self.openImageDialog,
+            statusTip="Open an image",
+            icon = 'folder_image.png')
+        basePanel.addMenuItem(self, 'Import Raw Image...', self.importRawImage,
+            statusTip="Import Raw Image",
+            icon = 'picture_go.png')
+            
+        self.addMenu(RecentMenu(self))
+        
+        basePanel.addMenuItem(self, 'Save Image...' , self.saveImageDialog,
+            statusTip="Save the image",
+            icon = 'picture_save.png')
+            
+        basePanel.addMenuItem(self, 'Send to other GDesk' , self.send_array_to_gdesk)
+            
+        basePanel.addMenuItem(self, 'Close' , self.basePanel.close_panel,
+            statusTip="Close this image panel",
+            icon = 'cross.png') 
+
+
+    def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
+        self.basePanel.show_array(array, zoomFitHist, log, skip_init)        
+            
+            
+    def newImage(self):
+
+        with ActionArguments(self) as args:
+            args['width'] = 1920*2
+            args['height'] = 1080*2
+            args['channels'] = 1
+            args['dtype'] = 'uint8'
+            args['mean'] = 128
+
+        if args.isNotSet():
+            dtypes = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
+
+            options_form = [('Width', args['width']),
+                       ('Height', args['height']),
+                       ('Channels', args['channels']),
+                       ('dtype', [1] + dtypes),
+                       ('mean', args['mean'])]
+
+            result = fedit(options_form, title='New Image')
+            if result is None: return
+            args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
+            args['dtype'] = dtypes[dtype_ind-1]
+
+        shape = [args['height'], args['width']]
+        if args['channels'] > 1: shape = shape + [args['channels']]
+
+        arr = np.ndarray(shape, args['dtype'])
+        arr[:] = args['mean']
+
+        self.show_array(arr, zoomFitHist=True)
+        
+
+    def openImageDialog(self):
+        open_image_dialog(self)
+
+
+    def openImage(self, filepath, format=None, zoom='full'):       
+        open_image_and_show(self.basePanel.viewMenu, filepath, format, zoom)                          
+    
+
+    def importRawImage(self):
+        arr = import_raw_image()
+        self.show_array(arr, zoomFitHist=True)
+        self.basePanel.viewMenu.zoomFull()
+            
+
+    def saveImageDialog(self):
+        save_image_dialog()            
+        
+        
+    def send_array_to_gdesk(self):
+        port = gui._qapp.cmdserver.port
+        hostname = 'localhost'
+        
+        form = [('port', port), ('host', hostname), ('new panel', False)]
+        results = fedit(form, title='Send Array to Host')
+        if results is None: return
+        
+        port = results[0]        
+        hostname = results[1]
+        new = results[2]
+        
+        client.send_array_to_gui(self.basePanel.ndarray, port, hostname, new)        
