@@ -97,17 +97,7 @@ def wrap(func, *args, **kwargs):
     def wrapper():
         func(*args, **kwargs)
         
-    return wrapper
-    
-
-# class selectNamedMask():
-    # def __init__(self, imgpanel, roiName):
-        # self.imgpanel = imgpanel
-        # self.roiName = roiName
-        
-    # def __call__(self):
-        # self.imgpanel.imgprof.selectMask(self.roiName)                     
-        # self.imgpanel.imgprof.setSelection(self.roiName, modify=True)               
+    return wrapper              
     
 
 from .imgpaint import ImageViewerWidget
@@ -188,34 +178,6 @@ class ImageViewerBase(BasePanel):
         self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
             statusTip="Close this image panel",
             icon = 'cross.png')
-
-        ### Edit
-
-        # self.addMenuItem(self.editMenu, 'Show Prior Image', self.piorImage,
-            # enablecall = lambda: self.imviewer.imgdata.imghist.prior_length() > 0,
-            # statusTip="Get the prior image from the history stack and show it",
-            # icon = 'undo.png')
-            
-        # self.addMenuItem(self.editMenu, 'Show Next Image', self.nextImage,
-            # enablecall = lambda: self.imviewer.imgdata.imghist.next_length() > 0,
-            # statusTip="Get the next image from the history stack and show it",
-            # icon = 'redo.png')
-
-        # self.editMenu.addSeparator()
-
-        # self.addMenuItem(self.editMenu, 'Copy Scaled Selection', self.placeViewerOnClipboard,
-            # icon = str(respath / 'icons' / 'px16' /'resize_picture.png'))
-            
-        # self.addMenuItem(self.editMenu, 'Copy 100% Zoom', self.placeQimgOnClipboard,
-            # statusTip="Place the 8bit image on clipboard, offset and gain applied",
-            # icon = str(respath / 'icons' / 'px16' / 'two_pictures.png'))            
-            
-        # self.addMenuItem(self.editMenu, 'Paste', self.showFromClipboard,
-            # statusTip="Paste content of clipboard in this image viewer",
-            # icon = 'picture_clipboard.png')
-            
-        # self.addMenuItem(self.editMenu, 'Grab Desktop', self.grabDesktop,
-            # icon = 'lcd_tv_image.png')
 
         self.editMenu.addSeparator()
 
@@ -385,13 +347,7 @@ class ImageViewerBase(BasePanel):
         except:
             val = None
                     
-        self.statuspanel.set_xy_val(x, y, val)
-        
-        
-    # def selectNamedMask(self, i):
-        # maskName = self.searchForRoiSlots[i].text()
-        # self.imgprof.selectMask(maskName)
-        # self.imgprof.setSelection(maskName, modify=True)
+        self.statuspanel.set_xy_val(x, y, val)        
     
 
     def addBindingTo(self, category, panid):
@@ -520,42 +476,6 @@ class ImageViewerBase(BasePanel):
         del self.imviewer.imgdata
 
 
-    ############################
-    # Edit Menu Connections
-
-    def piorImage(self):
-        if self.imviewer.imgdata.imghist.prior_length() > 0:
-            arr = self.imviewer.imgdata.imghist.prior(self.ndarray)
-            self.show_array(arr, log=False)
-            
-
-    def nextImage(self):
-        if self.imviewer.imgdata.imghist.next_length() > 0:
-            arr = self.imviewer.imgdata.imghist.next(self.ndarray)
-            self.show_array(arr, log=False)
-
-    #---------------------------
-
-    # def placeRawOnClipboard(self):
-        # clipboard = self.qapp.clipboard()
-        # array = self.ndarray
-        # qimg = imconvert.process_ndarray_to_qimage_8bit(array, 0, 1)
-        # clipboard.setImage(qimg)
-
-
-    # def placeQimgOnClipboard(self):
-
-        # clipboard = self.qapp.clipboard()
-        # qimg = self.imviewer.imgdata.qimg.copy()
-        # clipboard.setImage(qimg)
-        
-        
-    # def placeViewerOnClipboard(self):
-        # qimg, props = self.getViewerQImage()        
-        # clipboard = self.qapp.clipboard()
-        # clipboard.setImage(qimg.copy())        
-
-
     def placeViewerWithMemoOnClipboard(self):
         qimg, props = self.getViewerQImage()
         memo = props.get('memo', '')
@@ -630,37 +550,7 @@ class ImageViewerBase(BasePanel):
         props['stop_x'] = stop_x
         
         return qimg, props
-
-
-    # def showFromClipboard(self):
-        # arr = gui.get_clipboard_image()
-        # self.show_array(arr)
-        
-        
-    # def grabDesktop(self):       
-        # screens = self.qapp.screens()    
-        # screen_names = [1] + [sc.name() for sc in screens]
-        # form = [
-            # ('Screen', screen_names),
-            # ('Delay', 1.0)]
-        
-        # results = fedit(form, title='Screenshot')
-        
-        # if results is None: return
-        
-        # screen_index, delay = results
-        # screen_name = screen_names[screen_index]
-        
-        # screen = [sc for sc in screens if sc.name() == screen_name][0]        
-        
-        # def screenGrab():
-            # pixmap = screen.grabWindow(0)
-            
-            # qimage = pixmap.toImage()
-            # arr = imconvert.qimage_to_ndarray(qimage)
-            # self.show_array(arr)
-        
-        # QtCore.QTimer.singleShot(delay * 1000, screenGrab)               
+             
 
     ############################
     # View Menu Connections
@@ -1073,86 +963,7 @@ class ImageViewerBase(BasePanel):
         
     def togglePixelLabels(self):
         v = config['image'].get('pixel_labels', False)
-        config['image']['pixel_labels'] = not v
-        
-
-    ############################
-    # Select Menu Connections
-
-    # def reselect(self):
-        # self.imviewer.roi.showRoi()
-        
-
-    # def selectNone(self):
-        # self.imviewer.roi.hideRoi()
-        
-
-    # def setRoi(self):
-        # selroi = self.imviewer.imgdata.selroi
-
-        # form = [('x start', selroi.xr.start),
-                # ('x stop', selroi.xr.stop),
-                # ('x step', selroi.xr.step),
-                # ('y start', selroi.yr.start),
-                # ('y stop', selroi.yr.stop),
-                # ('y step', selroi.yr.step)]
-
-        # r = fedit(form, title='Select')
-        # if r is None: return
-
-        # selroi.xr.start = r[0]
-        # selroi.xr.stop = r[1]
-        # selroi.xr.step = r[2]
-        # selroi.yr.start = r[3]
-        # selroi.yr.stop = r[4]
-        # selroi.yr.step = r[5]
-
-        # self.imviewer.roi.clip()
-        # self.imviewer.roi.show()
-        
-
-    # def addMaskStatistics(self):
-        # self.imviewer.imgdata.addMaskStatsDialog()        
-        # self.imviewer.roi.hideRoi()
-        # self.refresh()
-
-        
-    # def removeMaskStatistics(self):
-        # masks = self.imviewer.imgdata.customMaskNames()                
-        
-        # if len(masks) < 1: return
-        
-        # form = [('Mask', [1] + masks)]
-        # result = fedit(form, title='Removing Mask')
-        # mask = masks[result[0] - 1]
-        # self.imviewer.imgdata.chanstats.pop(mask)
-        
-
-    # def jumpToDialog(self):
-        # selroi = self.imviewer.imgdata.selroi
-
-        # form = [('x', selroi.xr.start),
-                # ('y', selroi.yr.start)]
-
-        # results = fedit(form, title='Position')
-        # if results is None: return
-        # x, y = results
-        # self.jumpTo(x, y)
-        
-
-    # def jumpTo(self, x, y):
-        # selroi = self.imviewer.imgdata.selroi
-
-        # selroi.xr.start, selroi.yr.start = x, y
-        # selroi.xr.stop = selroi.xr.start + 1
-        # selroi.xr.step = 1
-        # selroi.yr.stop = selroi.yr.start + 1
-        # selroi.yr.step = 1
-
-        # self.imviewer.roi.clip()
-        # self.imviewer.roi.show()
-        # self.imviewer.zoomToRoi()
-        # self.roiChanged.emit(self.panid)
+        config['image']['pixel_labels'] = not v        
 
 
     def configureRois(self):
@@ -1160,29 +971,8 @@ class ImageViewerBase(BasePanel):
         dialog = RoiConfigDialog(self.imviewer.imgdata)
         dialog.exec_()
         self.roiConfigChanged.emit()
-        self.refresh()
-        
-        
-    # def toggle_mask(self):
-        # imgdata = self.imviewer.imgdata
-        # if imgdata.layers.get('mask', {}).get('visible', False):
-            # imgdata.hide_layer('mask')
-        # else:
-            # imgdata.show_layer('mask')
-        # self.imviewer.refresh()
+        self.refresh()                
 
-
-    # def toggle_roi_mask(self):
-        # imgdata = self.imviewer.imgdata
-        # imgdata.show_roi_mask(not imgdata.roi_mask_visible)
-        # self.imviewer.refresh()
-
-
-    # def setStatMasks(self, mode):
-        # self.imviewer.imgdata.init_channel_statistics(mode)
-        # self.refresh()        
-
-        
 
     ############################
     # Analyse Menu Connections
