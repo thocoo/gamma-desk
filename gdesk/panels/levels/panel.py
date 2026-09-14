@@ -462,12 +462,12 @@ class Levels(QtWidgets.QWidget):
         
         ind = self.levelplot.indicators[0]
         ind.setPos(imagePanel.viewMenu.offset, 0)
-        ind.label.updateText(ind.text % imagePanel.offset)
+        ind.label.updateText(ind.text % imagePanel.viewMenu.offset)
         ind.updates_ylabels()
         
         ind = self.levelplot.indicators[1]
         ind.setPos(imagePanel.viewMenu.white, 0)
-        ind.label.updateText(ind.text % imagePanel.white)
+        ind.label.updateText(ind.text % imagePanel.viewMenu.white)
         ind.updates_ylabels()
 
 

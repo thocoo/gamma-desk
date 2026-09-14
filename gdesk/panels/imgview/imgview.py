@@ -36,14 +36,12 @@ from ...dialogs.formlayout import fedit
 from ...widgets.grid import GridSplitter
 from ...utils import imconvert
 from ...gcore.utils import ActionArguments
-from ...external import client
 
 from .profile import ProfilerPanel
 
 from .corner import CornerWidget
 from .regoi import RoiConfigDialog
 
-from .fileio import import_raw_image, open_image, save_image_dialog, open_image_dialog, open_image_and_show
 from .view_widgets import StatusPanel
 
 from .fileio import FileMenu
@@ -60,45 +58,8 @@ if has_cv2:
     from .opencv import OpenCvMenu
 
 here = Path(__file__).parent.absolute()
-respath = Path(config['respath'])
-channels = ['R', 'G', 'B', 'A']
-    
+respath = Path(config['respath'])             
 
-# class OpenImage(object):
-    # def __init__(self, imgpanel, path):
-        # self.imgpanel = imgpanel
-        # self.path = path
-
-    # def __call__(self):
-        # self.imgpanel.openImage(self.path)
-        
-
-# class RecentMenu(QMenu):
-    # def __init__(self, parent=None):
-        # super().__init__('Recent', parent)
-        # self.imgpanel = self.parent()
-        # self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'images.png')))
-
-    # def showEvent(self, event):
-        # self.initactions()
-
-    # def initactions(self):
-        # self.clear()
-        # self.actions = []
-
-        # for rowid, timestamp, path in gui.qapp.history.yield_recent_paths():
-            # action = QAction(path, self)
-            # action.triggered.connect(OpenImage(self.imgpanel, path))
-            # self.addAction(action)
-            # self.actions.append(action)
-
-
-def wrap(func, *args, **kwargs):
-    def wrapper():
-        func(*args, **kwargs)
-        
-    return wrapper              
-    
 
 from .imgpaint import ImageViewerWidget
 
@@ -119,16 +80,6 @@ class ImageViewerBase(BasePanel):
     def __init__(self, parent=None, panid=None, **kwargs):
         super().__init__(parent, panid, type(self).panelCategory)
 
-        self.offset = 0
-        self.white = 256
-        self.gamma = 1
-        self.colormap = config['image color map']
-
-        self.defaults = dict()
-        self.defaults['offset'] = 0
-        self.defaults['gain'] = 1
-        self.defaults['gamma'] = 1
-
         self.createMenus()
         self.createStatusBar()
 
@@ -146,31 +97,6 @@ class ImageViewerBase(BasePanel):
             self.openCvMenu = OpenCvMenu("Open CV", self.menuBar(), self)
         
         self.operationMenu = OperationMenu("Operation", self.menuBar(), self)
-
-        ############
-        # File
-        # self.addMenuItem(self.fileMenu, 'New...'            , self.newImage,
-            # statusTip="Make a new image in this image viewer",
-            # icon = 'picture_empty.png')
-        # self.addMenuItem(self.fileMenu, 'Duplicate'         , self.duplicate,
-            # statusTip="Duplicate the image to a new image viewer",
-            # icon = 'application_double.png')
-        # self.addMenuItem(self.fileMenu, 'Open Image...' , self.openImageDialog,
-            # statusTip="Open an image",
-            # icon = 'folder_image.png')
-        # self.addMenuItem(self.fileMenu, 'Import Raw Image...', self.importRawImage,
-            # statusTip="Import Raw Image",
-            # icon = 'picture_go.png')
-        # self.fileMenu.addMenu(RecentMenu(self))
-        # self.addMenuItem(self.fileMenu, 'Save Image...' , self.saveImageDialog,
-            # statusTip="Save the image",
-            # icon = 'picture_save.png')
-            
-        # self.addMenuItem(self.fileMenu, 'Send to other GDesk' , self.send_array_to_gdesk)
-            
-        # self.addMenuItem(self.fileMenu, 'Close' , self.close_panel,
-            # statusTip="Close this image panel",
-            # icon = 'cross.png')
 
         self.addBaseMenu(['levels', 'values', 'image', 'statistics'])                                
         
@@ -266,75 +192,11 @@ class ImageViewerBase(BasePanel):
 
     ############################
     # File Menu Connections
-    # def newImage(self):
-
-        # with ActionArguments(self) as args:
-            # args['width'] = 1920*2
-            # args['height'] = 1080*2
-            # args['channels'] = 1
-            # args['dtype'] = 'uint8'
-            # args['mean'] = 128
-
-        # if args.isNotSet():
-            # dtypes = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
-
-            # options_form = [('Width', args['width']),
-                       # ('Height', args['height']),
-                       # ('Channels', args['channels']),
-                       # ('dtype', [1] + dtypes),
-                       # ('mean', args['mean'])]
-
-            # result = fedit(options_form, title='New Image')
-            # if result is None: return
-            # args['width'], args['height'], args['channels'], dtype_ind, args['mean'] = result
-            # args['dtype'] = dtypes[dtype_ind-1]
-
-        # shape = [args['height'], args['width']]
-        # if args['channels'] > 1: shape = shape + [args['channels']]
-
-        # arr = np.ndarray(shape, args['dtype'])
-        # arr[:] = args['mean']
-
-        # self.show_array(arr, zoomFitHist=True)
         
-
     def duplicate(self, floating=False):
         newPanel = super().duplicate(floating)
         newPanel.show_array(self.ndarray)
-        return newPanel
-        
-
-    # def openImageDialog(self):
-        # open_image_dialog(self)
-
-
-    # def openImage(self, filepath, format=None, zoom='full'):       
-        # open_image_and_show(self, filepath, format, zoom)                          
-    
-
-    # def importRawImage(self):
-        # arr = import_raw_image()
-        # self.show_array(arr, zoomFitHist=True)
-        # self.zoomFull()
-            
-
-    # def saveImageDialog(self):
-        # save_image_dialog()
-                
-                
-    # def send_array_to_gdesk(self):
-        # port = gui._qapp.cmdserver.port
-        # hostname = 'localhost'
-        
-        # form = [('port', port), ('host', hostname), ('new panel', False)]
-        # results = fedit(form, title='Send Array to Host')
-        # if results is None: return
-        
-        # port = results[0]        
-        # hostname = results[1]
-        # new = results[2]
-        
-        # client.send_array_to_gui(self.ndarray, port, hostname, new)
+        return newPanel       
         
 
     def close_panel(self):
