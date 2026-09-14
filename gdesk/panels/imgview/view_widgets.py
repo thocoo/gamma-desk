@@ -40,9 +40,9 @@ class ZoomWidget(MyStatusBar):
         self.addWidget(self.zoom, 1)
         self.addWidget(self.zoomInBtn)
         
-        self.zoomOutBtn.clicked.connect(self.panel.zoomOut)
-        self.zoomInBtn.clicked.connect(self.panel.zoomIn)     
-        self.zoomEdited.connect(self.panel.setZoomValue)  
+        self.zoomOutBtn.clicked.connect(self.panel.viewMenu.zoomOut)
+        self.zoomInBtn.clicked.connect(self.panel.viewMenu.zoomIn)     
+        self.zoomEdited.connect(self.panel.viewMenu.setZoomValue)  
 
     def set_zoom(self, value):
         self.zoom.setText(f'{value*100:.2f}')          
@@ -53,10 +53,10 @@ class ZoomWidget(MyStatusBar):
 
         statpan = self
         if event.key() == Qt.Key_Up:
-            statpan.panel.zoomIn()
+            statpan.panel.viewMenu.zoomIn()
 
         elif event.key() == Qt.Key_Down:
-            statpan.panel.zoomOut()
+            statpan.panel.viewMenu.zoomOut()
 
         if key_enter:
             statpan.zoomEdited.emit(float(self.zoom.text()) / 100)
@@ -174,8 +174,8 @@ class ContrastPanel(MyStatusBar):
         self.addWidget(self.gammalab, 1, Qt.AlignRight)
         self.addWidget(self.gamma, 1)             
 
-        self.offsetGainEdited.connect(self.panel.changeOffsetGain)
-        self.blackWhiteEdited.connect(self.panel.changeBlackWhite)             
+        self.offsetGainEdited.connect(self.panel.viewMenu.changeOffsetGain)
+        self.blackWhiteEdited.connect(self.panel.viewMenu.changeBlackWhite)             
         
     def chooseBlack(self, sval):
         self.offset.setText(sval)

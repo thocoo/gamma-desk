@@ -122,7 +122,7 @@ def open_image_and_show(imgpanel, filepath, format=None, zoom='full'):
         imgpanel.zoomFull()
         
     else:
-        imgpanel.setZoomValue(zoom)              
+        imgpanel.viewMenu.setZoomValue(zoom)              
 
 
 def open_image(filepath, format=None):

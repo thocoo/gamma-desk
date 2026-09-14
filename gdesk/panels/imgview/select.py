@@ -3,16 +3,6 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-import numpy as np
-
-try:
-    import scipy
-    import scipy.ndimage
-    HAS_SCIPY = True
-
-except:
-    HAS_SCIPY = False
-
 from qtpy import QtCore, QtGui
 from qtpy.QtWidgets import QAction, QMenu
 
@@ -225,7 +215,7 @@ class SelectMenu(CheckMenu):
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
         self.imviewer.zoomToRoi()
-        self.basePanel.roiChanged.emit(self.panid)
+        self.basePanel.roiChanged.emit(self.basePanel.panid)
 
 
     def configureRois(self):

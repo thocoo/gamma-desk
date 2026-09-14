@@ -531,7 +531,7 @@ class ImageGuiProxy(GuiProxyBase):
         Zoom in to the roi
         """
         panel = gui.qapp.panels.selected('image')
-        panel.zoomToRoi()          
+        panel.imviewer.zoomToRoi()          
 
     @StaticGuiCall
     def zoom_region(x, y, width, height):
@@ -539,7 +539,7 @@ class ImageGuiProxy(GuiProxyBase):
         Zoom the image to a certain region.
         """
         panel = gui.qapp.panels.selected('image')
-        panel.zoomToRegion(x, y, width, height) 
+        panel.imviewer.zoomToRegion(x, y, width, height) 
 
     @StaticGuiCall
     def jump_to(x, y):
@@ -547,7 +547,7 @@ class ImageGuiProxy(GuiProxyBase):
         Select a certain pixel and zoom to it
         """ 
         panel = gui.qapp.panels.selected('image')
-        panel.jumpTo(x, y)   
+        panel.selectMenu.jumpTo(x, y)   
 
 
     @StaticGuiCall

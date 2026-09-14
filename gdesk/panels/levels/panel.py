@@ -461,12 +461,12 @@ class Levels(QtWidgets.QWidget):
             imagePanel = qapp.panels['image'][image_panel_id]
         
         ind = self.levelplot.indicators[0]
-        ind.setPos(imagePanel.offset, 0)
+        ind.setPos(imagePanel.viewMenu.offset, 0)
         ind.label.updateText(ind.text % imagePanel.offset)
         ind.updates_ylabels()
         
         ind = self.levelplot.indicators[1]
-        ind.setPos(imagePanel.white, 0)
+        ind.setPos(imagePanel.viewMenu.white, 0)
         ind.label.updateText(ind.text % imagePanel.white)
         ind.updates_ylabels()
 
@@ -769,53 +769,56 @@ class LevelsPanel(BasePanel):
         
         self.statusBar().hide()
     
+    
     @property
     def histSize(self):
         return self.histSizes[self.histSizePolicy]
+        
         
     def addBindingTo(self, category, panid):
         targetPanel = super().addBindingTo(category, panid)
         if targetPanel is None: return None
         
-        self.offsetGainChanged.connect(targetPanel.changeOffsetGain)
-        self.blackWhiteChanged.connect(targetPanel.changeBlackWhite)
+        self.offsetGainChanged.connect(targetPanel.viewMenu.changeOffsetGain)
+        self.blackWhiteChanged.connect(targetPanel.viewMenu.changeBlackWhite)
         
         self.toolbar.selectMasks.connect(targetPanel.imgprof.selectMasks)
         self.toolbar.selectRoi.connect(targetPanel.imgprof.selectRoi)
         
         return targetPanel
         
+        
     def removeBindingTo(self, category, panid):
         targetPanel = super().removeBindingTo(category, panid)
         if targetPanel is None: return None
-        self.offsetGainChanged.disconnect(targetPanel.changeOffsetGain)        
-        self.blackWhiteChanged.disconnect(targetPanel.changeBlackWhite)        
+        self.offsetGainChanged.disconnect(targetPanel.viewMenu.changeOffsetGain)        
+        self.blackWhiteChanged.disconnect(targetPanel.viewMenu.changeBlackWhite)        
         return targetPanel         
+        
         
     def toggle_fitheight(self):
         self.fitheight= not self.fitheight
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()        
         
+        
     def toggle_gaussview(self):
         self.gaussview = not self.gaussview
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()        
         
-    # def toggle_roi(self):
-        # self.roi = not self.roi
-        # self.toolbar.updateButtonStates()
-        # self.levels.updateActiveHist()        
 
     def toggle_log(self):
         self.log = not self.log
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()   
 
+
     def toggle_normalize(self):
         self.normalize = not self.normalize
         self.toolbar.updateButtonStates()
         self.levels.updateActiveHist()          
+
         
     def toggle_cumm(self):
         self.cummulative = not self.cummulative
@@ -844,21 +847,22 @@ class LevelsPanel(BasePanel):
             
             if not sigma is None or 'σ' in text:
                 #panel.gainToSigma(self.sigma, self.roi)             
-                panel.gainToSigma(self.sigma)             
+                panel.viewMenu.gainToSigma(self.sigma)             
             
             elif not bits is None or 'bit' in text:
                 if self.bits == 1:
                     # Special case for boolean: set white level at 1 instead of 2.
                     # Otherwise, value 1 becomes gray instead of white.
-                    panel.changeBlackWhite(0, 1)
+                    panel.viewMenu.changeBlackWhite(0, 1)
                 else:
-                    panel.changeBlackWhite(0, 2**self.bits)
+                    panel.viewMenu.changeBlackWhite(0, 2**self.bits)
             
         if not sigma is None:            
             self.levels.bringIndicVisible(skip_if_visible=True)
           
         if not bits is None:          
             self.levels.bringIndicVisible(skip_if_visible=False)
+
 
     def setHistSizePolicy(self, size_policy: str, count: int):
         """
@@ -872,6 +876,7 @@ class LevelsPanel(BasePanel):
         self.toolbar.histSizePolicyBox.setCurrentText(size_policy)
         self.toolbar.stepcount.setText(str(count))
 
+
     def setScale(self, scale_name: str):
         """
         Configure the vertical scale of the histogram.
@@ -883,23 +888,26 @@ class LevelsPanel(BasePanel):
 
     def gain1(self):
         #self.offsetGainChanged.emit('default', 'default', 'default')
+        
         for panel in self.targetPanels('image'):
-            panel.changeOffsetGain('default', 'default', 'default', True)
-        #self.levels.indicZoom()
+            panel.viewMenu.changeOffsetGain('default', 'default', 'default', True)
+        
         
     def updateBlackPoint(self, value):
         #self.blackWhiteChanged.emit(value, None)
         for panel in self.targetPanels('image'):
-            panel.changeBlackWhite(value, None)        
+            panel.viewMenu.changeBlackWhite(value, None)        
         
     def updateWhitePoint(self, value):
         #self.blackWhiteChanged.emit(None, value)
         for panel in self.targetPanels('image'):
-            panel.changeBlackWhite(None, value) 
+           panel.viewMenu.changeBlackWhite(None, value) 
+
 
     def asUnity(self):
         for panel in self.targetPanels('image'):
-            panel.setCurrentOffsetGainAsDefault()
+            panel.viewMenu.setCurrentOffsetGainAsDefault()
+            
         
     def imageContentChanged(self, image_panel_id, zoomFit=False):
         if self.levels.isVisible():
@@ -907,14 +915,17 @@ class LevelsPanel(BasePanel):
             
         if zoomFit:
             self.levels.fullZoom()
+            
 
     def imageGainChanged(self, image_panel_id, zoomDefault=False):
         self.levels.updateIndicators(image_panel_id)      
         if zoomDefault:
             self.levels.indicZoom()
+            
         
     def roiChanged(self, image_panel_id):
         self.levels.updateHistOfPanel(image_panel_id)
+        
 
     def selectMasks(self, masks):
         if masks == '':
