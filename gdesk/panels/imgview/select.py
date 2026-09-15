@@ -151,24 +151,42 @@ class SelectMenu(CheckMenu):
         
 
     def setRoi(self):
+
         selroi = self.imviewer.imgdata.selroi
 
-        form = [('x start', selroi.xr.start),
-                ('x stop', selroi.xr.stop),
-                ('x step', selroi.xr.step),
-                ('y start', selroi.yr.start),
-                ('y stop', selroi.yr.stop),
-                ('y step', selroi.yr.step)]
+        with ActionArguments(self) as args:
+            args['x_start'] = 0
+            args['x_stop'] = 100
+            args['x_step'] = 1
+            args['y_start'] = 0
+            args['y_stop'] = 100
+            args['y_step'] = 1            
 
-        r = fedit(form, title='Select')
-        if r is None: return
+        if args.isNotSet():            
+            form = [('x start', selroi.xr.start),
+                    ('x stop', selroi.xr.stop),
+                    ('x step', selroi.xr.step),
+                    ('y start', selroi.yr.start),
+                    ('y stop', selroi.yr.stop),
+                    ('y step', selroi.yr.step)]
 
-        selroi.xr.start = r[0]
-        selroi.xr.stop = r[1]
-        selroi.xr.step = r[2]
-        selroi.yr.start = r[3]
-        selroi.yr.stop = r[4]
-        selroi.yr.step = r[5]
+            r = fedit(form, title='Select')
+            if r is None: return
+
+            selroi.xr.start = r[0]
+            selroi.xr.stop = r[1]
+            selroi.xr.step = r[2]
+            selroi.yr.start = r[3]
+            selroi.yr.stop = r[4]
+            selroi.yr.step = r[5]
+
+        else:
+            selroi.xr.start = args['x_start']
+            selroi.xr.stop = args['x_stop']
+            selroi.xr.step = args['x_step']
+            selroi.yr.start = args['y_start']
+            selroi.yr.stop = args['y_stop']
+            selroi.yr.step = args['y_step']
 
         self.imviewer.roi.clip()
         self.imviewer.roi.show()
