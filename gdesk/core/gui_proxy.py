@@ -47,10 +47,12 @@ else:
 def StaticGuiCall(func):
     #Decorator for pushing the function call through a queue
     #func is the function of the decorated method, not the method itself?    
+
     @staticmethod
     @wraps(func)
     def caller(*args, **kwargs):        
         return gui.gui_call(func, *args, **kwargs)
+    
     return caller
     
     
@@ -131,6 +133,18 @@ class GuiProxyBase(object):
         :param ``**kwargs``: Keyword arguments of the menu call
         """
         return gui.menu_trigger(cls.category, None, action_names, *args, **kwargs)
+        
+        
+    @classmethod
+    def menu_emit(cls, action_names, *args, **kwargs):
+        """
+        Call a certain menu item of the panel
+        
+        :param list action_names: Example ['File', 'New...']
+        :param ``*args``: Positional arguments of the menu call
+        :param ``**kwargs``: Keyword arguments of the menu call
+        """
+        return gui.menu_emit(cls.category, None, action_names, *args, **kwargs)        
 
     
     @classmethod
@@ -499,18 +513,52 @@ class GuiProxy(object):
         :param int id: Example 1
         :param list action_names: Example ['File', 'New...']
         """
+        GuiProxy.menu_trigger_and_catch(category, pandid, action_names, False, *args, **kwargs)
+
+
+    @StaticGuiCall
+    def menu_catch(category, pandid, action_names, *args, **kwargs):        
+        GuiProxy.menu_trigger_and_catch(category, pandid, action_names, True, *args, **kwargs)
+
+
+    @staticmethod
+    def menu_trigger_and_catch(category, pandid, action_names, catch, *args, **kwargs):
         try:
             action = gui.qapp.panels.get_menu_action(category, pandid, action_names, refresh=False)                   
+
         except KeyError:    
             logger.error(f'Menu action {action_names} not found')
             return
+        
         if len(args) == len(kwargs) == 0:
             action.setData(None)
         else:
             action.setData({'args':args, 'kwargs': kwargs})
-        retval = action.trigger()
-        action.setData(None)
-        return retval
+
+        caught_exception = []        
+
+        def capture_exception(exc_type, exc_value, traceback):
+            caught_exception.append((exc_value, traceback))
+
+        if catch:
+            previous_excepthook = sys.excepthook
+            sys.excepthook = capture_exception
+
+        try:
+            retval = action.trigger()
+
+        finally:
+            if catch:
+                sys.excepthook = previous_excepthook
+
+            action.setData(None)
+
+        if caught_exception:
+            exc_value, traceback = caught_exception[0]
+            raise exc_value.with_traceback(traceback)
+
+        return retval        
+        
 
     @StaticGuiCall 
     def history(count=20):   
