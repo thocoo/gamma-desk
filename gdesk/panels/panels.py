@@ -142,12 +142,37 @@ class Panels(object):
             if not panel is None:
                 #logger.info(f'Selecting {category}: {panel.panid}')
                 panel.select()
+                
+                
+    def close_but_layout(self, layout_name):        
+        perspective = config['layout'][layout_name]
+        
+        keeps = dict()
+        
+        for panel in perspective['panels']:
+            category = panel['category']
+            
+            if not category in keeps:
+                keeps[category] = []
+                
+            keeps[category].append(panel['id'])
+        
+        for category in list(self.keys()):
+            panels = self[category]
+            for panid in list(panels.keys()):
+                if panid == 0: continue
+                if panid in keeps.get(category, []): continue
+                panel = panels[panid]                
+                if category == 'console': panel.stdio.stdOutputPanel.flush()
+                panel.close_panel()
+            
 
     def restore_state_from_config(self, layout_name):
         if isinstance(layout_name, int):
             layout_name = config['shortcuts']['layout'][str(layout_name)]
         perspective = config['layout'][layout_name]
         self.ezm.set_perspective(perspective)
+        
 
     def classes_of_category(self, category):
         panelClasses = BasePanel.userPanelClasses()

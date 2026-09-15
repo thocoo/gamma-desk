@@ -482,8 +482,11 @@ class GuiProxy(object):
 
 
     @StaticGuiCall    
-    def load_layout(name='console'):
+    def load_layout(name='console', close_others=False):
         gui.qapp.panels.restore_state_from_config(name)        
+        
+        if close_others:
+            gui.qapp.panels.close_but_layout(name)
 
 
     def show(self, *args, **kwargs):
@@ -574,12 +577,8 @@ class GuiProxy(object):
 
     @staticmethod
     def menu_trigger_and_catch(category, pandid, action_names, catch, *args, **kwargs):
-        try:
-            action = gui.qapp.panels.get_menu_action(category, pandid, action_names, refresh=False)                   
-
-        except KeyError:    
-            logger.error(f'Menu action {action_names} not found')
-            return
+        
+        action = gui.qapp.panels.get_menu_action(category, pandid, action_names, refresh=False)
         
         if len(args) == len(kwargs) == 0:
             action.setData(None)
@@ -656,8 +655,8 @@ class GuiMap(object):
     def __init__(self):
         pass        
         
-    def load_layout(self, layout='base'):
-        self._gui_proxy.load_layout(layout)
+    def load_layout(self, layout='base', close_others=False):
+        self._gui_proxy.load_layout(layout, close_others)
         for tid, guiinst in self.gui_proxies.items():
             guiinst.refresh_proxies()        
         
