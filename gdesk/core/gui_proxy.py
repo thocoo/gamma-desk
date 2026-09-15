@@ -54,6 +54,34 @@ def StaticGuiCall(func):
         return gui.gui_call(func, *args, **kwargs)
     
     return caller
+
+
+def StaticGuiCallCatch(func):
+    @staticmethod
+    @wraps(func)
+    def caller(*args, **kwargs):
+        return gui.gui_call_catch(func, *args, **kwargs)
+
+    return caller
+
+
+class EventLoopCallResult:
+    def __init__(self, value=None, exception=None):
+        self.value = value
+        self.exception = exception
+
+
+def _capture_call(func, *args, **kwargs):
+    try:
+        return EventLoopCallResult(value=func(*args, **kwargs))
+    except BaseException as exception:
+        return EventLoopCallResult(exception=exception)
+
+
+def _unwrap_call_result(result):
+    if result.exception is not None:
+        raise result.exception.with_traceback(result.exception.__traceback__)
+    return result.value
     
     
 class RedBull(object):
@@ -373,6 +401,13 @@ class GuiProxy(object):
             #return self._qapp.handover.send(self.block, func, *args, **kwargs)
             
         return self._call(func, *args, **kwargs)        
+
+    def gui_call_catch(self, func, *args, **kwargs):
+        if self.is_main():
+            func = self.decode_func(func)
+            return func(*args, **kwargs)
+
+        return self._call_base_catch(func, *args, **kwargs)
             
     def _call(self, func, *args, **kwargs):                     
         return self._call_base(self.block, func, *args, **kwargs)            
@@ -400,6 +435,17 @@ class GuiProxy(object):
             else:
                 self.call_queue.put((False, func, args, kwargs))
                 return None
+
+    def _call_base_catch(self, func, *args, **kwargs):
+        if self.call_queue is None:
+            func = self.decode_func(func)
+            result = self._qapp.handover.send(True, _capture_call, func, *args, **kwargs)
+        else:
+            func = self.encode_func(func)
+            self.call_queue.put((True, func, args, kwargs, True))
+            result = self.return_queue.get()
+
+        return _unwrap_call_result(result)
         
     def _pass_to_eventloop(self):
         """
@@ -409,9 +455,14 @@ class GuiProxy(object):
         :meta private:
         """
         while True:
-            backval, func, args, kwargs = self.call_queue.get()
+            call = self.call_queue.get()
+            backval, func, args, kwargs = call[:4]
+            catch = len(call) == 5 and call[4]
             func = self.decode_func(func)
-            value = self._qapp.handover.send(True, func, *args, **kwargs)
+            if catch:
+                value = self._qapp.handover.send(True, _capture_call, func, *args, **kwargs)
+            else:
+                value = self._qapp.handover.send(True, func, *args, **kwargs)
             if backval:
                 self.return_queue.put(value)                     
     
@@ -516,9 +567,9 @@ class GuiProxy(object):
         GuiProxy.menu_trigger_and_catch(category, pandid, action_names, False, *args, **kwargs)
 
 
-    @StaticGuiCall
+    @StaticGuiCallCatch
     def menu_catch(category, pandid, action_names, *args, **kwargs):        
-        GuiProxy.menu_trigger_and_catch(category, pandid, action_names, True, *args, **kwargs)
+        return GuiProxy.menu_trigger_and_catch(category, pandid, action_names, True, *args, **kwargs)
 
 
     @staticmethod
