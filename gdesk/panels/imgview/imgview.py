@@ -131,7 +131,7 @@ class ImageViewerBase(BasePanel):
 
     def createStatusBar(self):
         self.statuspanel = StatusPanel(self)
-        self.statusBar().addWidget(self.statuspanel)
+        self.statusBar().addWidget(self.statuspanel, 1)
         
 
     def set_info_xy_val(self, x, y):
