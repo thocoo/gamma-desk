@@ -161,6 +161,7 @@ class ViewMenu(CheckMenu):
     def refresh_offset_gain(self, array=None, zoomFitHist=False, log=True, skip_init=False):
         self.imviewer.imgdata.show_array(array, self.offset, self.white, self.colormap, self.gamma, log, skip_init)
         self.statuspanel.setOffsetGainInfo(self.offset, self.gain, self.white, self.gamma)
+        self.statuspanel.set_image_info(self.imviewer.imgdata.statarr)
         self.basePanel.gainChanged.emit(self.basePanel.panid, zoomFitHist)
         self.refresh()        
 

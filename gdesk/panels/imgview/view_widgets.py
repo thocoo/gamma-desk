@@ -199,6 +199,18 @@ class ContrastPanel(MyStatusBar):
             self.gamma.setText(f'{gamma:8.6g}')
             self.gamma.setCursorPosition(0)
 
+
+class ImageInfoPanel(MyStatusBar):
+
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.info = QLabel()
+        self.addWidget(self.info)
+
+    def set_image_info(self, image):
+        height, width = image.shape[:2]
+        self.info.setText(f'H:{height}  W:{width} {image.dtype}')
+
 def offsetGainKeyPressEvent(self, event=None):
     key_enter = event is None or (event.key() == Qt.Key_Return) or \
         (event.key() == Qt.Key_Enter)
@@ -232,6 +244,8 @@ class StatusPanel(QWidget):
         
         self.addMenuItem(self.chooseWidgetMenu, 'Zoom',
             lambda: self.toggleWidgetVisible(self.zoomWidget), checkcall=lambda: self.zoomWidget.isVisible())        
+        self.addMenuItem(self.chooseWidgetMenu, 'Image Info',
+            lambda: self.toggleWidgetVisible(self.imageInfoPanel), checkcall=lambda: self.imageInfoPanel.isVisible())        
         self.addMenuItem(self.chooseWidgetMenu, 'Values',
             lambda: self.toggleWidgetVisible(self.valuePanel), checkcall=lambda: self.valuePanel.isVisible())
         self.addMenuItem(self.chooseWidgetMenu, 'Contrast',
@@ -243,9 +257,9 @@ class StatusPanel(QWidget):
         self.chooseWidgetBtn.setMenu(self.chooseWidgetMenu)   
         
         self.zoomWidget = ZoomWidget(self)
+        self.imageInfoPanel = ImageInfoPanel(self)
         self.valuePanel = ValuePanel(self)
-        self.contrastPanel = ContrastPanel(self)
-        #self.contrastPanel.hide()                       
+        self.contrastPanel = ContrastPanel(self)        
                 
         hboxlayout = QtWidgets.QHBoxLayout()
         hboxlayout.setContentsMargins(0, 0, 0, 0)
@@ -257,11 +271,12 @@ class StatusPanel(QWidget):
         
         hboxlayout.addWidget(self.chooseWidgetBtn)                       
         splitter = QSplitter(self)        
-        hboxlayout.addWidget(splitter)        
+        hboxlayout.addWidget(splitter)     
         splitter.addWidget(self.zoomWidget)        
+        splitter.addWidget(self.imageInfoPanel)        
         splitter.addWidget(self.valuePanel)        
-        splitter.addWidget(self.contrastPanel)                     
-        splitter.setSizes([102, 183, 308])
+        splitter.addWidget(self.contrastPanel)                             
+        splitter.setSizes([100, 160, 160, 300])
 
     def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
         action = QAction(text, self, enabled=enabled, statusTip=statusTip)
@@ -290,3 +305,6 @@ class StatusPanel(QWidget):
 
     def setOffsetGainInfo(self, offset, gain, white, gamma):
         self.contrastPanel.setOffsetGainInfo(offset, gain, white, gamma)
+
+    def set_image_info(self, image):
+        self.imageInfoPanel.set_image_info(image)
