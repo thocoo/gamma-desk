@@ -233,7 +233,7 @@ class ImageGuiProxy(GuiProxyBase):
             panel = gui.qapp.panels.selected('image')
             if panel is None:
                 panel = gui.qapp.panels.select_or_new('image', defaulttype = 'image-profile', empty=True)
-        panel.openImage(filepath)
+        panel.fileMenu.openImage(filepath)
         window = panel.get_container().parent()
         window.raise_()
         gui.qapp.processEvents()
@@ -515,7 +515,7 @@ class ImageGuiProxy(GuiProxyBase):
         Snap on the default zooming values.
         """
         panel = gui.qapp.panels.selected('image')
-        panel.zoomFit()
+        panel.viewMenu.zoomFit()
 
     @StaticGuiCall
     def zoom_full():
@@ -523,7 +523,7 @@ class ImageGuiProxy(GuiProxyBase):
         Zoom the image to fully fitting the image viewer area.
         """
         panel = gui.qapp.panels.selected('image')
-        panel.zoomFull()  
+        panel.viewMenu.zoomFull()  
         
     @StaticGuiCall
     def zoom_to_roi():
