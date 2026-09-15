@@ -14,6 +14,7 @@ from ... import config, gui
 
 respath = Path(config['respath'])
 
+
 class ImageEditMenu(CheckMenu):
 
     def __init__(self, name, parentMenu=None, basePanel=None):
@@ -77,8 +78,8 @@ class ImageEditMenu(CheckMenu):
         return self.basePanel.gain     
 
 
-    def show_array(self, array):
-        self.basePanel.show_array(array)           
+    def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
+        self.basePanel.show_array(array, zoomFitHist, log, skip_init)
         
         
     def is8bit(self):
