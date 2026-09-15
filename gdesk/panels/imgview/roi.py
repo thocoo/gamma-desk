@@ -44,6 +44,7 @@ class SelRoiWidget(QtWidgets.QWidget):
         for label in (self.label_top_left, self.label_bottom_right, self.label_center):
             label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
             label.setStyleSheet(f"color: #FFFFFF;")
+        self._update_label_visibility()
         
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.newPhase)
@@ -97,6 +98,25 @@ class SelRoiWidget(QtWidgets.QWidget):
 
         self.overscan = 5
         self.createState = False
+
+
+    @property
+    def createState(self):
+        return self._createState
+
+
+    @createState.setter
+    def createState(self, value):
+        self._createState = value
+        self._update_label_visibility()
+
+
+    def _update_label_visibility(self):
+        if not hasattr(self, 'label_top_left'):
+            return
+
+        for label in (self.label_top_left, self.label_bottom_right, self.label_center):
+            label.setVisible(self.createState)
 
 
     def selectAll(self):
@@ -318,8 +338,6 @@ class SelRoiWidget(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event):
         self.createState = False
         
-        #contextMenu = self.get_context_menu()
-
         if event.button() == Qt.RightButton:
             shiftX, shiftY = self.getMouseShifts(event)
             
