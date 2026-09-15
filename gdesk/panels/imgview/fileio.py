@@ -349,9 +349,9 @@ class FileMenu(CheckMenu):
         
         self.basePanel = basePanel
         
-        basePanel.addMenuItem(self, 'New...'            , self.newImage,
-            statusTip="Make a new image in this image viewer",
-            icon = 'picture_empty.png')
+        basePanel.addMenuItem(self, 'New...', self.newImage, icon='picture_empty.png',
+            statusTip="Make a new image in this image viewer")
+            
         basePanel.addMenuItem(self, 'Duplicate'         , self.basePanel.duplicate,
             statusTip="Duplicate the image to a new image viewer",
             icon = 'application_double.png')
