@@ -725,7 +725,7 @@ class ImageViewerWidget(QWidget):
             filename = mimeData.text()
             dropedInFiles.append(filename)
 
-        panel.openImage(dropedInFiles[0])
+        panel.fileMenu.openImage(dropedInFiles[0])
 
         for path in dropedInFiles[1:]:
             gui.img.open(path)
