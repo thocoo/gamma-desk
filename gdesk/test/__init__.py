@@ -1,9 +1,10 @@
+from pathlib import Path
 import unittest
 
 from packaging import version
 import numpy
 
-
+HERE = Path(__file__).parent
 NUMPY_V1 = version.parse(numpy.__version__) < version.parse("2")
 
 
@@ -17,11 +18,12 @@ class GammaDeskSuite(unittest.TestCase):
 
         gui.load_layout('console')
 
-        samplePath = Path(r'./samples')
+        samplePath = Path(HERE / '..' / '..' / 'samples')
 
         gui.img.select(1)
         gui.img.open(samplePath / 'kodim05.png')
         gui.img.zoom_fit()
+        
         plt.plot(gui.vs.mean(2).mean(1))
         plt.title('Column means of image 1')
         plt.xlabel('Column Number')
