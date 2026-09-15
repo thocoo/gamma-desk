@@ -81,238 +81,8 @@ if HAS_IMAFIO:
     except Exception as ex:
         logger.warning('Could not initialize imageio format filters, falling back to PIL save/open dialogs')
         logger.warning(str(ex))
-        HAS_IMAFIO = False
+        HAS_IMAFIO = False            
         
-        
-def open_image_dialog(imgpanel):
-    filepath = HERE / 'images' / 'default.png'
-
-    with ActionArguments(imgpanel) as args:
-        args['filepath'] = HERE / 'images' / 'default.png'
-        args['format'] = None
-
-    if args.isNotSet():
-        if HAS_IMAFIO:
-            args['filepath'], filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(args['filepath']))
-            if args['filepath'] == '': return
-            args['format'] = FILTERS_NAMES[filter]
-
-        else:
-            args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
-            args['format'] = None
-            if args['filepath'] == '': return
-
-    open_image_and_show(imgpanel, args['filepath'], args['format'])
-
-
-def open_image_and_show(imgpanel, filepath, format=None, zoom='full'):
-    
-    if not Path(filepath).exists():
-        gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
-        return            
-        
-    image = open_image(filepath, format)
-    
-    if image is None: return
-
-    gui.qapp.history.storepath(str(filepath))
-    
-    if image.dtype == 'uint8':                
-        imgpanel.offset = 0
-        imgpanel.white = 1 << 8
-        imgpanel.gamma = 1
-        
-    elif image.dtype == 'uint16':
-        imgpanel.offset = 0
-        imgpanel.white = 1 << 16
-        imgpanel.gamma = 1
-        
-    imgpanel.show_array(image, zoomFitHist=True)
-    
-    if zoom == 'full':
-        imgpanel.zoomFull()
-        
-    else:
-        imgpanel.setZoomValue(zoom)              
-
-
-def open_image(filepath, format=None):
-    
-    if not Path(filepath).exists():
-        gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
-        return        
-        
-    if HAS_IMAFIO:
-        arr = open_image_imafio(filepath, format)
-        
-    else:        
-        arr = open_image_pil(filepath)
-
-    return arr    
-    
-
-def open_image_imafio(filepath, format=None):
-    
-    with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
-        logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
-        arr = imageio.imread(str(filepath), format=format)
-        
-    return arr
-    
-    
-def open_image_pil(filepath):
-    
-    with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):        
-        logger.info(f'Using PIL library')
-        image = PilImage.open(str(filepath))
-        arr = np.array(image)
-        
-    return arr    
-
-
-def import_raw_image():        
-
-    filepath = HERE / 'images' / 'default.png'
-    filepath = gui.getfile(file=str(filepath))[0]
-    if filepath == '': return
-
-    fp = open(filepath, 'br')
-    data = fp.read()
-    fp.close()
-
-    #somehwhere in the header, there is the resolution
-    #image studio: 128 bytes header, 4 bytes=width, 4 bytes=height, 120 bytes=???
-    header = 128
-    dtype = 'uint16'
-    width = struct.unpack('<I', data[0:4])[0]
-    height = struct.unpack('<I', data[4:8])[0]
-    
-    print(f'Width x Height: {width} x {height}')
-            
-    dialog = RawImportDialog(data)
-    dialog.form.offset.setText(str(header))
-    dialog.form.dtype.setText(dtype)
-    dialog.form.width.setText(str(width))
-    dialog.form.height.setText(str(height))
-    dialog.exec_()
-    
-    offset = int(dialog.form.offset.text())
-    dtype = dialog.form.dtype.text()
-    byteorder = dialog.form.byteorder.currentText()
-    width = int(dialog.form.width.text())
-    height = int(dialog.form.height.text())
-
-    with gui.qapp.waitCursor():
-        dtype = np.dtype(dtype)
-
-        leftover = len(data) - (width * height  * dtype.itemsize + offset)
-
-        if leftover > 0:
-            print('Too much data found (%d bytes too many)' % leftover)
-
-        elif leftover < 0:
-            print('Not enough data found (missing %d bytes)' % (-leftover))
-
-        arr = np.ndarray(shape=(height, width), dtype=dtype, buffer=data[offset:])
-        
-        if byteorder == 'big endian':
-            arr = arr.byteswap()            
-        
-        gui.qapp.history.storepath(str(filepath))
-        
-    return arr
-    
-    
-def save_image_dialog(self):
-    
-    if HAS_IMAFIO:
-        filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',
-                                defaultfilter=IMAFIO_QT_WRITE_FILTER_DEFAULT)
-        if filepath == '': return
-        format = FILTERS_NAMES[filter]
-        save_image(filepath, format)
-        
-    else:
-        filepath, filter = gui.putfile(title='Save Image using PIL')
-        if filepath == '': return
-        save_image(filepath)
-        
-
-def save_image(self, filepath, format=None):
-    
-    if HAS_IMAFIO:
-        save_image_imafio(self.ndarray, filepath, format)
-        
-    else:
-        save_image_pil(self.ndarray,  filepath)
-
-    gui.qapp.history.storepath(str(filepath))    
-    
-    
-def save_image_imafio(image, filepath, format):
-    
-    if format is None:
-        from imageio.core import Request
-        format = imageio.formats.search_write_format(Request(filepath, 'wi')).name        
-
-    if format == 'JPEG-FI':
-        (quality, progressive, optimize, baseline) = gui.fedit([('quality', 90), ('progressive', False), ('optimize', False), ('baseline', False)], title='JPEG Options')
-
-        with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format,
-                quality=quality, progressive=progressive,
-                optimize=optimize, baseline=baseline)
-
-    elif format == 'TIFF-FI':
-        compression_options = {
-            'none': imageio.plugins.freeimage.IO_FLAGS.TIFF_NONE,
-            'default': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFAULT,
-            'packbits': imageio.plugins.freeimage.IO_FLAGS.TIFF_PACKBITS,
-            'adobe': imageio.plugins.freeimage.IO_FLAGS.TIFF_ADOBE_DEFLATE,
-            'lzw': imageio.plugins.freeimage.IO_FLAGS.TIFF_LZW,
-            'deflate': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFLATE,
-            'logluv': imageio.plugins.freeimage.IO_FLAGS.TIFF_LOGLUV}
-        (compression_index,) = gui.fedit([('compression', [2] + list(compression_options.keys()))], title='TIFF Options')
-        compression = list(compression_options.keys())[compression_index-1]
-        compression_flag = compression_options[compression]
-
-        with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format, flags=compression_flag)            
-
-    elif format == 'PNG-FI':
-        compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-        (compression_index, quantize, interlaced) = gui.fedit([('compression', [2] + [item[0] for item in compression_options]), ('quantize', 0), ('interlaced', True)], title='PNG Options')
-        compression = compression_options[compression_index-1][1]
-
-        print(f'compression: {compression}')
-
-        with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format, compression=compression, quantize=quantize, interlaced=interlaced)
-
-    elif format == 'PNG-PIL':
-        compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
-        (compression_index, quantize, optimize) = gui.fedit([('compression', [4] + [item[0] for item in compression_options]), ('quantize', 0), ('optimize', True)], title='PNG Options')
-        compression = compression_options[compression_index-1][1]
-        if quantize == 0: quantize = None
-
-        print(f'compression: {compression}')
-
-        with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format, compression=compression,
-                quantize=quantize, optimize=optimize, prefer_uint8=False)
-
-    else:
-        with gui.qapp.waitCursor(f'Saving to {filepath}'):
-            imageio.imwrite(filepath, image, format)  
-
-
-def save_image_pil(image, filepath):
-    
-    with gui.qapp.waitCursor():
-        
-        image = PilImage.fromarray(self.ndarray)
-        image.save(str(filepath))                 
-
 
 class OpenImage(object):
     def __init__(self, imgpanel, path):
@@ -375,8 +145,13 @@ class FileMenu(CheckMenu):
             icon = 'cross.png') 
 
 
+    @property
+    def ndarray(self):
+        return self.basePanel.ndarray
+
+        
     def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
-        self.basePanel.show_array(array, zoomFitHist, log, skip_init)        
+        self.basePanel.show_array(array, zoomFitHist, log, skip_init)                       
             
             
     def newImage(self):
@@ -408,25 +183,270 @@ class FileMenu(CheckMenu):
         arr = np.ndarray(shape, args['dtype'])
         arr[:] = args['mean']
 
-        self.show_array(arr, zoomFitHist=True)
+        self.show_array(arr, zoomFitHist=True)                                
         
-
+        
     def openImageDialog(self):
-        open_image_dialog(self)
+        filepath = HERE / 'images' / 'default.png'
+
+        with ActionArguments(self) as args:
+            args['filepath'] = HERE / 'images' / 'default.png'
+            args['format'] = None
+
+        if args.isNotSet():
+            if HAS_IMAFIO:
+                args['filepath'], filter = gui.getfile(filter=IMAFIO_QT_READ_FILTERS, title='Open Image File (Imafio)', file=str(args['filepath']))
+                if args['filepath'] == '': return
+                args['format'] = FILTERS_NAMES[filter]
+
+            else:
+                args['filepath'], filter = gui.getfile(title='Open Image File (PIL)', file=str(args['filepath']))
+                args['format'] = None
+                if args['filepath'] == '': return
+
+        self.openImage(args['filepath'], args['format'])
 
 
-    def openImage(self, filepath, format=None, zoom='full'):       
-        open_image_and_show(self.basePanel.viewMenu, filepath, format, zoom)                          
+    def openImage(self, filepath, format=None, zoom='full'):
+        
+        if not Path(filepath).exists():
+            gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
+            return            
+            
+        if not Path(filepath).exists():
+            gui.msgbox(f'{filepath} not found.', title='File not found', icon='error')
+            return        
+            
+        if HAS_IMAFIO:
+            image = self.open_image_imafio(filepath, format)
+            
+        else:        
+            image = self.open_image_pil(filepath)
+        
+        if image is None: return
+
+        gui.qapp.history.storepath(str(filepath))        
+            
+        self.show_array(image, zoomFitHist=True)
+        
+        if zoom == 'full':
+            self.basePanel.viewMenu.zoomFull()
+            
+        else:
+            self.basePanel.viewMenu.setZoomValue(zoom)         
+
+        #self.basePanel.viewMenu.defaultOffsetGain()
+        self.basePanel.viewMenu.gainToMinMax()                      
+
+
+    def open_image_imafio(self, filepath, format=None):
+        
+        with gui.qapp.waitCursor(f'Opening image using imageio {filepath} {format}'):
+            logger.info(f"Using FormatClass {repr(imageio.imopen(filepath, 'r').__class__)}")
+            arr = imageio.imread(str(filepath), format=format)
+            
+        return arr
+        
+        
+    def open_image_pil(self, filepath):
+        
+        with gui.qapp.waitCursor(f'Opening image using PIL {filepath}'):        
+            logger.info(f'Using PIL library')
+            image = PilImage.open(str(filepath))
+            arr = np.array(image)
+            
+        return arr         
     
 
     def importRawImage(self):
-        arr = import_raw_image()
+
+        with ActionArguments(self) as args:
+            args['filepath'] = 'image.png'
+            args['offset'] = 128
+            args['width'] = 1920
+            args['height'] = 1080
+            args['dtype'] = 'uint8'
+            args['byteorder'] = 'litle endian'
+
+        if args.isNotSet():
+            filepath = HERE / 'images' / 'default.png'
+            filepath = gui.getfile(file=str(filepath))[0]
+            if filepath == '': return
+
+        else:
+            filepath = args['filepath'] 
+
+        fp = open(filepath, 'br')
+        data = fp.read()
+        fp.close()
+
+        #somehwhere in the header, there is the resolution
+        #image studio: 128 bytes header, 4 bytes=width, 4 bytes=height, 120 bytes=???
+        header = 128
+        dtype = 'uint16'
+        width = struct.unpack('<I', data[0:4])[0]
+        height = struct.unpack('<I', data[4:8])[0]
+        
+        print(f'Width x Height: {width} x {height}')
+
+        if args.isNotSet():                
+            dialog = RawImportDialog(data)
+            dialog.form.offset.setText(str(header))
+            dialog.form.dtype.setText(dtype)
+            dialog.form.width.setText(str(width))
+            dialog.form.height.setText(str(height))
+            dialog.exec_()
+            
+            offset = int(dialog.form.offset.text())
+            dtype = dialog.form.dtype.text()
+            byteorder = dialog.form.byteorder.currentText()
+            width = int(dialog.form.width.text())
+            height = int(dialog.form.height.text())
+
+        else:
+            offset = args['offset']
+            width = args['width']
+            height = args['height']
+            dtype = args['dtype']
+            byteorder = args['byteorder']
+
+        with gui.qapp.waitCursor():
+            dtype = np.dtype(dtype)
+
+            leftover = len(data) - (width * height  * dtype.itemsize + offset)
+
+            if leftover > 0:
+                print('Too much data found (%d bytes too many)' % leftover)
+
+            elif leftover < 0:
+                print('Not enough data found (missing %d bytes)' % (-leftover))
+
+            arr = np.ndarray(shape=(height, width), dtype=dtype, buffer=data[offset:])
+            
+            if byteorder == 'big endian':
+                arr = arr.byteswap()            
+            
+            gui.qapp.history.storepath(str(filepath))
+
         self.show_array(arr, zoomFitHist=True)
         self.basePanel.viewMenu.zoomFull()
+        self.basePanel.viewMenu.gainToMinMax()
             
 
     def saveImageDialog(self):
-        save_image_dialog()            
+
+        with ActionArguments(self) as args:
+            args['filepath'] = 'image.png'
+            args['format'] = None
+            args['options'] = None
+        
+        if HAS_IMAFIO:
+            if args.isNotSet():
+                filepath, filter = gui.putfile(filter=IMAFIO_QT_WRITE_FILTERS, title='Save Image using Imafio',
+                                        defaultfilter=IMAFIO_QT_WRITE_FILTER_DEFAULT)
+                if filepath == '': return
+                format = FILTERS_NAMES[filter]
+
+            else:
+                filepath = args['filepath']
+                format = args['format']
+
+            self.save_image(filepath, format, args['options'])
+                
+        else:
+            if args.isNotSet():
+                filepath, filter = gui.putfile(title='Save Image using PIL')
+                if filepath == '': return
+            else:
+                filepath = args['filepath']
+            self.save_image(filepath)
+            
+            
+    def save_image(self, filepath, format=None, options=None):
+        
+        if HAS_IMAFIO:
+            self.save_image_imafio(self.ndarray, filepath, format, options)
+            
+        else:
+            save_image_pil(self.ndarray,  filepath)
+
+        gui.qapp.history.storepath(str(filepath))       
+
+
+    def save_image_imafio(self, image, filepath, format, options=None):
+        
+        if format is None:
+            from imageio.core import Request
+            format = imageio.formats.search_write_format(Request(filepath, 'wi')).name        
+
+        if format == 'JPEG-FI':
+            (quality, progressive, optimize, baseline) = gui.fedit([('quality', 90), ('progressive', False), ('optimize', False), ('baseline', False)], title='JPEG Options')
+
+            with gui.qapp.waitCursor(f'Saving to {filepath}'):
+                imageio.imwrite(filepath, image, format,
+                    quality=quality, progressive=progressive,
+                    optimize=optimize, baseline=baseline)
+
+        elif format == 'TIFF-FI':
+            if options is None:
+                compression_options = {
+                    'none': imageio.plugins.freeimage.IO_FLAGS.TIFF_NONE,
+                    'default': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFAULT,
+                    'packbits': imageio.plugins.freeimage.IO_FLAGS.TIFF_PACKBITS,
+                    'adobe': imageio.plugins.freeimage.IO_FLAGS.TIFF_ADOBE_DEFLATE,
+                    'lzw': imageio.plugins.freeimage.IO_FLAGS.TIFF_LZW,
+                    'deflate': imageio.plugins.freeimage.IO_FLAGS.TIFF_DEFLATE,
+                    'logluv': imageio.plugins.freeimage.IO_FLAGS.TIFF_LOGLUV}
+                (compression_index,) = gui.fedit([('compression', [2] + list(compression_options.keys()))], title='TIFF Options')
+                compression = list(compression_options.keys())[compression_index-1]
+            else:
+                compression = options.get('compression', 'default')
+
+            compression_flag = compression_options[compression]
+
+            with gui.qapp.waitCursor(f'Saving to {filepath}'):
+                imageio.imwrite(filepath, image, format, flags=compression_flag)            
+
+        elif format == 'PNG-FI':
+            if options is None:
+                compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
+                (compression_index, quantize, interlaced) = gui.fedit([('compression', [2] + [item[0] for item in compression_options]), ('quantize', 0), ('interlaced', True)], title='PNG Options')
+                compression = compression_options[compression_index-1][1]
+            else:
+                compression = options.get('compression', 6)
+                quantize = options.get('quantize', 0)
+                interlaced = options.get('interlaced', True)
+
+            with gui.qapp.waitCursor(f'Saving to {filepath}'):
+                imageio.imwrite(filepath, image, format, compression=compression, quantize=quantize, interlaced=interlaced)
+
+        elif format == 'PNG-PIL':
+            if options is None:
+                compression_options = [('None', 0), ('Best Speed', 1), ('Default', 6), ('Best Compression', 9)]
+                (compression_index, quantize, optimize) = gui.fedit([('compression', [4] + [item[0] for item in compression_options]), ('quantize', 0), ('optimize', True)], title='PNG Options')
+                compression = compression_options[compression_index-1][1]
+            else:
+                compression = options.get('compression', 'Default')
+                quantize = options.get('quantize', 0)
+                optimize = options.get('optimize', True)
+
+            if quantize == 0: quantize = None
+
+            with gui.qapp.waitCursor(f'Saving to {filepath}'):
+                imageio.imwrite(filepath, image, format, compression=compression,
+                    quantize=quantize, optimize=optimize, prefer_uint8=False)
+
+        else:
+            with gui.qapp.waitCursor(f'Saving to {filepath}'):
+                imageio.imwrite(filepath, image, format)          
+                
+                
+    def save_image_pil(self, image, filepath):
+        
+        with gui.qapp.waitCursor():
+            
+            image = PilImage.fromarray(self.ndarray)
+            image.save(str(filepath))                                 
         
         
     def send_array_to_gdesk(self):
