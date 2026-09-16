@@ -315,8 +315,6 @@ class ImageProfileWidget(QWidget):
         self.corner = CornerWidget(self)
         self.corner.statistics.roiSelected.connect(self.selectMask)
         self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)
-
-        self.imviewer.imgdata.roi_pattern_visible_changed = self.corner.cornerMenu.setRoiMaskVisible
         
         self.rowPanel = ProfilerPanel(self, 'x', self.imviewer)
         self.colPanel = ProfilerPanel(self, 'y', self.imviewer)
@@ -342,11 +340,11 @@ class ImageProfileWidget(QWidget):
                 
         
     def toggleMask(self):
-        self.parent().toggle_mask()
+        self.parent().selectMenu.toggle_mask()
 
 
     def toggleRoiMask(self):
-        self.parent().toggle_roi_mask()
+        self.parent().selectMenu.toggle_roi_mask()
         
         
     def selectRoi(self, option):
