@@ -74,7 +74,7 @@ class ValuePanel(MyStatusBar):
         console_font = QFont(config['console']['font'], pointSize=config['console']['fontsize'])                      
         
         self.xy = QLabel('0,0')
-        self.vallab = QLabel('val')
+        self.vallab = QLabel('V')
         self.val = QLineEdit('0')
         self.val.setFont(console_font)
         if gui.qapp.color_scheme == "Dark":
@@ -155,12 +155,12 @@ class ContrastPanel(MyStatusBar):
         self.white.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)    
         self.white.customContextMenuRequested.connect(lambda: self.chooseWhiteMenu.exec_(QtGui.QCursor().pos())) 
         
-        self.gainlab = QLabel('gain')
+        self.gainlab = QLabel('G')
         self.gain = QLineEdit('1')
         self.gain.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.gain)
         self.gain.setAlignment(Qt.AlignRight | Qt.AlignVCenter)        
                 
-        self.gammalab = QLabel('gamma')
+        self.gammalab = QLabel('Γ')
         self.gamma = QLineEdit('1')
         self.gamma.keyPressEvent = types.MethodType(offsetGainKeyPressEvent, self.gamma)
         self.gamma.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -209,7 +209,8 @@ class ImageInfoPanel(MyStatusBar):
 
     def set_image_info(self, image):
         height, width = image.shape[:2]
-        self.info.setText(f'H:{height}  W:{width} {image.dtype}')
+        self.info.setText(f'{height}x{width} {image.dtype}')
+        
 
 def offsetGainKeyPressEvent(self, event=None):
     key_enter = event is None or (event.key() == Qt.Key_Return) or \
@@ -270,13 +271,13 @@ class StatusPanel(QWidget):
         self.setFixedHeight(fontheight + 2)  
         
         hboxlayout.addWidget(self.chooseWidgetBtn)                       
-        splitter = QSplitter(self)        
-        hboxlayout.addWidget(splitter)     
-        splitter.addWidget(self.zoomWidget)        
-        splitter.addWidget(self.imageInfoPanel)        
-        splitter.addWidget(self.valuePanel)        
-        splitter.addWidget(self.contrastPanel)                             
-        splitter.setSizes([100, 160, 160, 300])
+        #splitter = QSplitter(self)        
+        #hboxlayout.addWidget(splitter)     
+        hboxlayout.addWidget(self.zoomWidget, 1)        
+        hboxlayout.addWidget(self.imageInfoPanel, 1)        
+        hboxlayout.addWidget(self.valuePanel, 2)        
+        hboxlayout.addWidget(self.contrastPanel, 3)                     
+        #splitter.setSizes([100, 100, 300, 300])
 
     def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
         action = QAction(text, self, enabled=enabled, statusTip=statusTip)
