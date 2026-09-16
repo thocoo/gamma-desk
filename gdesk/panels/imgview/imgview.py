@@ -236,50 +236,6 @@ class ImageViewerBase(BasePanel):
         
         clipboard = self.qapp.clipboard()
         clipboard.setImage(qimg.copy())
-
-
-    def getViewerQImage(self, slices=None, zoom=None, show_masks=True):
-        imgdata = self.imviewer.imgdata
-        
-        if not slices is None or self.imviewer.roi.isVisible():            
-            if slices is None:  
-                slices = imgdata.selroi.getslices()
-            height, width = self.ndarray.shape[:2]
-            start_y, stop_y, step_y = slices[0].indices(imgdata.height)
-            start_x, stop_x, step_x = slices[1].indices(imgdata.width)
-        else:
-            start_x, start_y, width, height = self.imviewer.visibleRegion()
-            start_x = max(0, start_x)
-            start_y = max(0, start_y)
-            stop_y = min(start_y + height, imgdata.height)
-            stop_x = min(start_x + width, imgdata.width)            
-
-        qimg = self.imviewer.paintToQImageCropped(start_y, stop_y, start_x, stop_x, zoom=zoom, show_masks=show_masks)
-
-        lines = []
-        lines.append(f'{self.offset:.1f}→{self.white:.1f}')
-        lines.append(f'{stop_y-start_y:.0f}x{stop_x-start_x:.0f}')   
-
-        if (start_y > 0) or (start_x > 0):
-            lines.append(f'{start_y:.0f},{start_x:.0f}')
-        if self.gamma != 1:
-            lines.append(f'Gamma: {self.gamma:.2f}')        
-
-        # Statistics can be copy to clipboard from the statistcs table
-        # for i, (name, stat) in enumerate(self.imviewer.imgdata.chanstats.items()):
-            # if not name.startswith('roi.'): continue
-            # if not stat.is_valid(): continue
-            # lines.append(f'{name} {stat.slices_repr()}: {stat.Mean():.1f} ± {stat.Std():.1f}')                 
-
-        props = {}
-        
-        props['memo'] = '\n'.join(lines)        
-        props['start_y'] = start_y
-        props['stop_y'] = stop_y
-        props['start_x'] = start_x
-        props['stop_x'] = stop_x
-        
-        return qimg, props
              
 
     def refresh(self):

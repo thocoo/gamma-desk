@@ -94,10 +94,52 @@ class EditMenu(CheckMenu):
         if self.imviewer.imgdata.imghist.next_length() > 0:
             arr = self.imviewer.imgdata.imghist.next(self.ndarray)
             self.show_array(arr, log=False)  
+            
+
+    def getViewerQImage(self, slices=None, zoom=None, show_masks=True):
+        imgdata = self.imviewer.imgdata
+        
+        offset = self.basePanel.viewMenu.offset
+        white = self.basePanel.viewMenu.white
+        gamma = self.basePanel.viewMenu.gamma
+        
+        if not slices is None or self.imviewer.roi.isVisible():            
+            if slices is None:  
+                slices = imgdata.selroi.getslices()
+            height, width = self.ndarray.shape[:2]
+            start_y, stop_y, step_y = slices[0].indices(imgdata.height)
+            start_x, stop_x, step_x = slices[1].indices(imgdata.width)
+        else:
+            start_x, start_y, width, height = self.imviewer.visibleRegion()
+            start_x = max(0, start_x)
+            start_y = max(0, start_y)
+            stop_y = min(start_y + height, imgdata.height)
+            stop_x = min(start_x + width, imgdata.width)            
+
+        qimg = self.imviewer.paintToQImageCropped(start_y, stop_y, start_x, stop_x, zoom=zoom, show_masks=show_masks)
+
+        lines = []
+        lines.append(f'{offset:.1f}→{white:.1f}')
+        lines.append(f'{stop_y-start_y:.0f}x{stop_x-start_x:.0f}')   
+
+        if (start_y > 0) or (start_x > 0):
+            lines.append(f'{start_y:.0f},{start_x:.0f}')
+        if gamma != 1:
+            lines.append(f'Gamma: {gamma:.2f}')
+
+        props = {}
+        
+        props['memo'] = '\n'.join(lines)        
+        props['start_y'] = start_y
+        props['stop_y'] = stop_y
+        props['start_x'] = start_x
+        props['stop_x'] = stop_x
+        
+        return qimg, props            
         
         
     def placeViewerOnClipboard(self):
-        qimg, props = self.basePanel.getViewerQImage()        
+        qimg, props = self.getViewerQImage()        
         clipboard = gui.qapp.clipboard()
         clipboard.setImage(qimg.copy())      
 
