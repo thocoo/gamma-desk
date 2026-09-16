@@ -470,14 +470,14 @@ class ImageGuiProxy(GuiProxyBase):
     @StaticGuiCall
     def set_range(black, white):
         panel = gui.qapp.panels.selected('image')
-        panel.changeBlackWhite(black, white)                   
+        panel.viewMenu.changeBlackWhite(black, white)                   
         
     @StaticGuiCall
     def set_offset_gain(offset=0, gain=1, gamma=1, as_default=False):
         panel = gui.qapp.panels.selected('image')
         panel.changeOffsetGain(offset, gain, gamma, True)
         if as_default:
-            panel.setCurrentOffsetGainAsDefault()
+            panel.viewMenu.setCurrentOffsetGainAsDefault()
             
     @staticmethod
     def read_raw(data, width, height, depth=1, dtype='uint8', offset=0, byteswap=False):
@@ -865,7 +865,7 @@ class ImageGuiProxy(GuiProxyBase):
     def screenshot(slices=None, zoom=None, show_masks=False):
         from ...utils.imconvert import qimage_to_ndarray
         panel = gui.qapp.panels.selected('image')
-        qimg, props = panel.getViewerQImage(slices=slices, zoom=zoom, show_masks=show_masks)
+        qimg, props = panel.editMenu.getViewerQImage(slices=slices, zoom=zoom, show_masks=show_masks)
         arr = qimage_to_ndarray(qimg)
         return arr, props       
         
