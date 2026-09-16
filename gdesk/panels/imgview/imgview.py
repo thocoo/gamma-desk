@@ -158,6 +158,7 @@ class ImageViewerBase(BasePanel):
             
         elif targetPanel.category == 'statistics':
             self.contentChanged.connect(targetPanel.updateStatistics)
+            self.roiChanged.connect(targetPanel.updateStatistics)
             
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.connect(targetPanel.pick)
@@ -246,11 +247,7 @@ class ImageViewerBase(BasePanel):
     # View Menu Connections
 
     def configureRois(self):
-        self.selectMenu.configureRois()
-        dialog = RoiConfigDialog(self.imviewer.imgdata)
-        dialog.exec_()
-        self.roiConfigChanged.emit()
-        self.refresh()                
+        self.selectMenu.configureRois()        
         
 
     #############################
@@ -317,7 +314,7 @@ class ImageProfileWidget(QWidget):
 
         self.corner = CornerWidget(self)
         self.corner.statistics.roiSelected.connect(self.selectMask)
-        self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)        
+        self.parent().roiConfigChanged.connect(self.corner.statistics.formatTable)
 
         self.imviewer.imgdata.roi_pattern_visible_changed = self.corner.cornerMenu.setRoiMaskVisible
         
@@ -592,8 +589,9 @@ class ImageProfilePanel(ImageViewerBase):
         selroi = imgdata.selroi            
         
         self.roiChanged.emit(self.panid)
+        
         self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
-        #self.imgprof.refresh_profile_views()
+        self.imgprof.corner.statistics.updateStatistics()
         self.refresh()
         
         

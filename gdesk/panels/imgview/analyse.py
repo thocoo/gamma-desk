@@ -53,13 +53,14 @@ class AnalyseMenu(CheckMenu):
             return
 
         imgpanel = gui.qapp.panels['image'][self.basePanel.panid]
-        statpanel =  gui.qapp.panels.new('statistics')
+        statpanel =  gui.qapp.panels.new('statistics')        
         
         imgpanel.addBindingTo('statistics', statpanel.panid)
-        statpanel.addBindingTo('image', self.basePanel.panid)
+        statpanel.addBindingTo('image', self.basePanel.panid)        
         
         statpanel.setActiveColumns(["Mean", "Std", "Min", "Max"])
-        self.basePanel.roiConfigChanged.connect(statpanel.statistics.formatTable)
+        
+        imgpanel.roiConfigChanged.connect(statpanel.statistics.formatTable)
         
         
     def showLevelsPanel(self):        

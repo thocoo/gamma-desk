@@ -344,7 +344,7 @@ class Statistics(QtWidgets.QWidget):
                     fmt = props.get('fmt', {})
                     
                     if 'colormap' in fmt:
-                        gui.qapp.panels['image'][panid].colormap = fmt['colormap']
+                        gui.qapp.panels['image'][panid].viewMenu.colormap = fmt['colormap']
                     
                     item = ImageItem(panid)
                     self.table.setItem(i, 1 + j, item)    
@@ -355,7 +355,8 @@ class Statistics(QtWidgets.QWidget):
                 self.table.setItem(i, 1 + j, item)
             
         self.updateRowHeights()
-        self.table.resizeColumnsToContents()
+        self.updateStatistics()
+        self.table.resizeColumnsToContents()        
         
         
     def clearStatistics(self):    
@@ -467,11 +468,11 @@ class Statistics(QtWidgets.QWidget):
                             pass
                         
                         elif gain == 'min-max':
-                            gui.qapp.panels['image'][panid].gainToMinMax()
+                            gui.qapp.panels['image'][panid].viewMenu.gainToMinMax()
                             
                         elif gain.startswith('sigma'):
                             factor = int(gain[5:])
-                            gui.qapp.panels['image'][panid].gainToSigma(factor)
+                            gui.qapp.panels['image'][panid].viewMenu.gainToSigma(factor)
                         
                         gui.img.select(current)
                         continue

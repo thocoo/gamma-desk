@@ -60,12 +60,13 @@ class CornerWidget(QtWidgets.QWidget):
 
     def setMiniLayout(self):
         self.toolbar.hide()
-        self.statistics.hide()
+        self.statistics.hide()        
 
 
     def setNormalLayout(self):
         self.toolbar.show()
         self.statistics.show()
+        self.statistics.updateStatistics()
     
         
         
