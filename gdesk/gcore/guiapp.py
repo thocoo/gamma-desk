@@ -115,8 +115,28 @@ class GuiApplication(QApplication):
 
     def __init__(self, shell, argv):
         self.shell = shell
-        
-        super().__init__(argv)                
+
+        if sys.platform == 'win32':
+            # Declare the process per-monitor-DPI-aware *before* Qt/QApplication
+            # initializes, so Windows stops bitmap-stretching the window when it's
+            # dragged onto a monitor with a different scale factor.
+            # See https://github.com/thocoo/gamma-desk/issues/72
+            try:
+                # PER_MONITOR_AWARE_V2, Windows 10 1703+
+                ctypes.windll.user32.SetProcessDpiAwarenessContext(ctypes.c_void_p(-4))
+            except (AttributeError, OSError):
+                try:
+                    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
+                except (AttributeError, OSError):
+                    try:
+                        ctypes.windll.user32.SetProcessDPIAware()
+                    except (AttributeError, OSError):
+                        pass
+
+        if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+            QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
+        super().__init__(argv)
 
         # Configure app name so that WM_CLASS can be recognized by the desktop environment.
         self.setApplicationName(config.get("application_name", "gdesk"))
@@ -174,7 +194,12 @@ class GuiApplication(QApplication):
         
         
     def screenInfo(self):
-    
+        logger.info(
+            f"Qt API: {API_NAME}, "
+            f"QT_ENABLE_HIGHDPI_SCALING={os.environ.get('QT_ENABLE_HIGHDPI_SCALING')}, "
+            f"QT_SCALE_FACTOR_ROUNDING_POLICY={os.environ.get('QT_SCALE_FACTOR_ROUNDING_POLICY')}"
+        )
+
         for screen in self.screens():
             name = screen.name()
             size = screen.size()
@@ -182,14 +207,10 @@ class GuiApplication(QApplication):
             height = size.height()
             depth = screen.depth()
             scale = screen.devicePixelRatio()
-            
+
             print(f'{name}: {width}x{height}x{depth} scale: {scale}')
-            
-            if scale != 1.0:
-                logger.warning('Screen scale in application is not 1 !!!')
-                logger.warning('Scaling on PySide6 can be disabled by environment variable')
-                logger.warning('QT_ENABLE_HIGHDPI_SCALING= 0')                            
-            
+            logger.info(f'Screen {name}: {width}x{height}x{depth} devicePixelRatio={scale}')
+
 
     def setShortCuts(self):        
         for layid in range(1,10):
@@ -309,6 +330,17 @@ class GuiApplication(QApplication):
             name = f'window {key}'
         self.windows[name] = window = MainWindow(self, name, parentName)
         window.setWindowIcon(self.appIcon)
+
+        # winId() forces creation of the native window handle so windowHandle()
+        # is available immediately, without waiting for show().
+        window.winId()
+        window.windowHandle().screenChanged.connect(
+            lambda screen, w=window: logger.info(
+                f"Window '{w.name}' moved to screen '{screen.name()}' "
+                f"(devicePixelRatio={screen.devicePixelRatio()})"
+            )
+        )
+
         return window
         
     def getActiveWindow(self):

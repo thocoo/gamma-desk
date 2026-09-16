@@ -134,9 +134,14 @@ def configure(**overwrites):
 
     deep_update(config, overwrites)
     
-    if not 'QT_ENABLE_HIGHDPI_SCALING' in os.environ:    
+    if not 'QT_ENABLE_HIGHDPI_SCALING' in os.environ:
         os.environ['QT_ENABLE_HIGHDPI_SCALING'] = '1' if config.get('high_dpiscaling', False) else '0'
-    
+
+    # Fractional monitor scale factors (125%, 150%, ...) get rounded to the nearest
+    # integer by default, which is what typically produces cropped/overflowing widgets.
+    # PassThrough keeps the exact scale factor instead.
+    os.environ.setdefault('QT_SCALE_FACTOR_ROUNDING_POLICY', 'PassThrough')
+
     if 'QT_API' in os.environ.keys():
         pass
     
