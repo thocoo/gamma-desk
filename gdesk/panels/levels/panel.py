@@ -650,18 +650,16 @@ class LevelsToolBar(QtWidgets.QToolBar):
     def histSizePolicyChanged(self, text):
         self.stepcount.setText(str(self.panel.histSizes[text]))
         
+        
     def histSizeChanged(self, text):
         histSizePolicy = self.histSizePolicyBox.currentText()
         self.panel.histSizePolicy = histSizePolicy
         self.panel.histSizes[histSizePolicy] = eval(text)
         
+        
     def updateStepCount(self):
         self.stepcount.setText(str(self.panel.histSizes[self.histSizePolicyBox.currentText()]))        
         
-    # def toggleRoi(self):
-        # sender = self.sender()
-        # self.panel.roi = sender.isChecked()
-        # self.levels.updateActiveHist()
         
     def toggleLogNorm(self):
         self.panel.log = self.logBtn.isChecked()
