@@ -254,6 +254,8 @@ class StatusPanel(QWidget):
 
         self.chooseWidgetBtn = QtWidgets.QToolButton(self)
         self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
+        self.chooseWidgetBtn.setIconSize(QtCore.QSize(16, 16))
+        self.chooseWidgetBtn.setFixedSize(16, 16)
         self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         self.chooseWidgetBtn.setMenu(self.chooseWidgetMenu)   
         
@@ -267,9 +269,9 @@ class StatusPanel(QWidget):
         hboxlayout.setSpacing(0)
         self.setLayout(hboxlayout)
                 
-        self.fitHeightToFont()
-        
+        #self.fitHeightToFont()        
         hboxlayout.addWidget(self.chooseWidgetBtn)                       
+
         #splitter = QSplitter(self)        
         #hboxlayout.addWidget(splitter)     
         hboxlayout.addWidget(self.zoomWidget, 1)        
