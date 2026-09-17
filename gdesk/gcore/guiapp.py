@@ -14,9 +14,9 @@ from qtpy.QtWidgets import QApplication, QShortcut
 
 from ..utils.qt import using_pyqt
 
-if API_NAME in ['PySide6', 'PyQt6']:
-    from qtpy.QtGui import QGuiApplication
+from qtpy.QtGui import QGuiApplication
 
+if API_NAME in ['PySide6', 'PyQt6']:    
     # Workaround for https://github.com/thocoo/gamma-desk/issues/34
     from qtpy.QtGui import QPainterPath
     if not hasattr(QPainterPath, "Element"):
@@ -323,13 +323,13 @@ class GuiApplication(QApplication):
         panel = self.panels[window.activeCategory][window.activePanId]
         panel.close_panel()       
         
-    def newWindow(self, name=None, parentName=None):
+    def newWindow(self, name=None, parentName=None, width=None, height=None):
         if name is None:
             keys = [eval(k.split(' ')[1]) for k in self.windows.keys() if k.startswith('window ')]            
             key = new_id_using_keys(keys)
             name = f'window {key}'
         self.windows[name] = window = MainWindow(self, name, parentName)
-        window.setWindowIcon(self.appIcon)
+        window.setWindowIcon(self.appIcon)        
 
         # winId() forces creation of the native window handle so windowHandle()
         # is available immediately, without waiting for show().
@@ -340,6 +340,9 @@ class GuiApplication(QApplication):
                 f"(devicePixelRatio={screen.devicePixelRatio()})"
             )
         )
+        
+        if not height is None and not width is None:
+            window.resize(width, height)
 
         return window
         
@@ -456,27 +459,25 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
     shell.logdir.find_log_path()
     
     qapp = GuiApplication(shell, sys.argv)           
-    qapp.setShortCuts()
-    qapp.newWindow('main')
-
+    qapp.setShortCuts()    
+    
+    if API_NAME in ['PySide6', 'PyQt6']:
+        qapp.color_scheme = QGuiApplication.styleHints().colorScheme()
+        
+    configure_color_scheme(qapp)
+    
+    desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()        
+    width, height = int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5)
+    
     # To run in a new thread but on the same gui process
     # panid = qapp.mainWindow.newThread()
+    qapp.newWindow('main', None, width, height)
     qapp.mainWindow.show()
-
-    if API_NAME in ['PySide6', 'PyQt6']:
-        desktopGeometry = QGuiApplication.primaryScreen().availableGeometry()
-        qapp.color_scheme = QGuiApplication.styleHints().colorScheme()
-    else:
-        desktopGeometry = QDesktopWidget().availableGeometry()
-
-    configure_color_scheme(qapp)
-
-    qapp.mainWindow.resize(int(desktopGeometry.width()*3/5), int(desktopGeometry.height()*3/5))
     
-    qtRectangle = qapp.mainWindow.frameGeometry()    
-    centerPoint = desktopGeometry.center()
-    qtRectangle.moveCenter(centerPoint)
-    qapp.mainWindow.move(qtRectangle.topLeft())
+    # qtRectangle = qapp.mainWindow.frameGeometry()    
+    # centerPoint = desktopGeometry.center()
+    # qtRectangle.moveCenter(centerPoint)
+    # qapp.mainWindow.move(qtRectangle.topLeft())
     
     # Make sure the gui proxy for the main thread is created
     qapp.panels.restore_state_from_config('base')
@@ -485,10 +486,8 @@ def eventloop(shell, init_code=None, init_file=None, console_id=0, pictures=None
         if config['default_perspective'] != 'base':
             qapp.panels.restore_state_from_config(config['default_perspective'])
     
-    qapp.processEvents()    
-    
-    qapp.screenInfo()
-    
+    qapp.processEvents()        
+    qapp.screenInfo()    
     qapp.cmdserver = CommandServer(shell)
     
     if not init_file is None:
