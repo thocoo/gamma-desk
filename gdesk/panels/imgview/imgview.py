@@ -158,7 +158,7 @@ class ImageViewerBase(BasePanel):
             
         elif targetPanel.category == 'statistics':
             self.contentChanged.connect(targetPanel.updateStatistics)
-            self.roiChanged.connect(targetPanel.updateStatistics)
+            self.roiChanged.connect(targetPanel.formatTable)
             
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.connect(targetPanel.pick)
@@ -180,7 +180,7 @@ class ImageViewerBase(BasePanel):
             
         elif targetPanel.category == 'statistics':
             self.contentChanged.disconnect(targetPanel.updateStatistics)            
-            self.roiChanged.disconnect(targetPanel.updateStatistics)
+            self.roiChanged.disconnect(targetPanel.formatTable)
             
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.disconnect(targetPanel.pick)
@@ -511,8 +511,7 @@ class ImageProfileWidget(QWidget):
     def refresh(self):
         parent = self.parent()        
         parent.contentChanged.emit(parent.panid, False)
-        parent.refresh_profiles_and_stats()
-        
+        parent.refresh_profiles_and_stats()        
         self.imviewer.refresh()
                
         
@@ -585,14 +584,8 @@ class ImageProfilePanel(ImageViewerBase):
 
 
     def passRoiChanged(self):
-        imgdata = self.imviewer.imgdata
-        selroi = imgdata.selroi            
-        
+        self.refresh()                
         self.roiChanged.emit(self.panid)
-        
-        self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
-        self.imgprof.corner.statistics.formatTable()
-        self.refresh()
         
         
     def removeRoiProfile(self):
@@ -623,6 +616,7 @@ class ImageProfilePanel(ImageViewerBase):
     def refresh(self):
         self.imviewer.refresh()
         self.refresh_profiles_and_stats()
+        self.imgprof.corner.statistics.formatTable()
 
 
     def showHideProfiles(self):
