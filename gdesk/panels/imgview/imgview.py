@@ -207,38 +207,6 @@ class ImageViewerBase(BasePanel):
 
         #Deleting self.imviewer doesn't seem to delete the imgdata
         del self.imviewer.imgdata
-
-
-    def placeViewerWithMemoOnClipboard(self):
-        qimg, props = self.getViewerQImage()
-        memo = props.get('memo', '')
-
-        form = gui.fedit([
-            ('Memo', memo + '\n'),
-            ], title='Memo on image to clipboard')        
-        if form is None: return
-
-        memo = form[0]
-        lines = memo.splitlines()        
-
-        if len(lines) > 0:
-            arr = imconvert.qimage_to_ndarray(qimg)
-            avg = arr.mean()
-            qp = QtGui.QPainter(qimg)
-            font = QFont(config["console"]["font"])            
-            font.setPixelSize(14)
-            qp.setFont(font)
-            if avg > 127:
-                qp.setPen(QColor(0,0,0))
-            else:
-                qp.setPen(QColor(255,255,255))
-            for line in lines:
-                qp.drawText(5, 10, line)
-                qp.translate(0, 15)
-            qp.end()
-        
-        clipboard = self.qapp.clipboard()
-        clipboard.setImage(qimg.copy())
              
 
     def refresh(self):
