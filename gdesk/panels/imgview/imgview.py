@@ -175,10 +175,12 @@ class ImageViewerBase(BasePanel):
             
         elif targetPanel.category == 'levels':
             self.contentChanged.disconnect(targetPanel.imageContentChanged)
+            self.roiChanged.disconnect(targetPanel.roiChanged)
             self.gainChanged.disconnect(targetPanel.imageGainChanged)
             
         elif targetPanel.category == 'statistics':
             self.contentChanged.disconnect(targetPanel.updateStatistics)            
+            self.roiChanged.disconnect(targetPanel.updateStatistics)
             
         elif targetPanel.category == 'values':
             self.imviewer.pixelSelected.disconnect(targetPanel.pick)
@@ -589,7 +591,7 @@ class ImageProfilePanel(ImageViewerBase):
         self.roiChanged.emit(self.panid)
         
         self.imgprof.drawRoiProfile(self.imgprof.selected_masks)
-        self.imgprof.corner.statistics.updateStatistics()
+        self.imgprof.corner.statistics.formatTable()
         self.refresh()
         
         

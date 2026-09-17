@@ -580,6 +580,10 @@ class StatisticsPanel(BasePanel):
         self.bindedPanel('image').imgprof.selectRoi('custom visibility')
         
         
+    def formatTable(self):
+        self.statistics.formatTable()
+        
+        
     def updateStatistics(self):
         self.statistics.updateStatistics()
         
