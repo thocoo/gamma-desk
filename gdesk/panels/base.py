@@ -103,17 +103,18 @@ class MyStatusBar(QWidget):
         super().__init__(parent) 
         hboxlayout = QtWidgets.QHBoxLayout()
         hboxlayout.setContentsMargins(0, 0, 0, 0)               
+        hboxlayout.setSpacing(0)             
         self.setLayout(hboxlayout)
-        self.setMinimumWidth(100)             
-        
+
+        #self.setMinimumWidth(100)                     
         fontmetric = QtGui.QFontMetrics(self.font())
         fontheight = fontmetric.height()
         self.setFixedHeight(fontheight + 2)        
 
-        pal = self.palette()  
-        pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,192,192))     
-        self.setPalette(pal)        
-        self.setAutoFillBackground(True)
+        #pal = self.palette()  
+        #pal.setColor(QtGui.QPalette.Base, QtGui.QColor(192,192,192))     
+        #self.setPalette(pal)        
+        #self.setAutoFillBackground(True)
         
     def addWidget(self, widget, stretch=0, alignment=None):
         widget.setParent(self)

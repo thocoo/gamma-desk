@@ -264,11 +264,10 @@ class StatusPanel(QWidget):
                 
         hboxlayout = QtWidgets.QHBoxLayout()
         hboxlayout.setContentsMargins(0, 0, 0, 0)
+        hboxlayout.setSpacing(0)
         self.setLayout(hboxlayout)
-        
-        fontmetric = QtGui.QFontMetrics(self.font())
-        fontheight = fontmetric.height()
-        self.setFixedHeight(fontheight + 2)  
+                
+        self.fitHeightToFont()
         
         hboxlayout.addWidget(self.chooseWidgetBtn)                       
         #splitter = QSplitter(self)        
@@ -278,6 +277,15 @@ class StatusPanel(QWidget):
         hboxlayout.addWidget(self.valuePanel, 2)        
         hboxlayout.addWidget(self.contrastPanel, 3)                     
         #splitter.setSizes([100, 100, 300, 300])
+        
+    
+    def fitHeightToFont(self):
+        # This give problems if screen scaling happens later
+        # Font size is not neccassary remaining the same
+        fontmetric = QtGui.QFontMetrics(self.font())
+        fontheight = fontmetric.height()
+        self.setFixedHeight(fontheight + 2)          
+        
 
     def addMenuItem(self, menu, text, triggered, checkcall=None, enabled=True, statusTip=None, icon=None, enablecall=None):                   
         action = QAction(text, self, enabled=enabled, statusTip=statusTip)
