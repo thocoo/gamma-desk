@@ -340,8 +340,11 @@ class Statistics(QtWidgets.QWidget):
                 
                 if props.get('rtype') == np.ndarray and not name in ['avg', f'{self.ref_metric}/xx']:
                     panid = gui.img.new()
+                    panel = gui.qapp.panels['image'][panid]
                     
                     fmt = props.get('fmt', {})
+                    
+                    panel.long_title = f'{column}@{name}'
                     
                     if 'colormap' in fmt:
                         gui.qapp.panels['image'][panid].viewMenu.colormap = fmt['colormap']
