@@ -13,8 +13,8 @@ from ..base import BasePanel, CheckMenu
 
 from ..imgview.imgdata import MaskPresetButton
 
-
 RESPATH = pathlib.Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 COLORS = {
     'K': QtGui.QColor(0, 0, 0),
@@ -528,7 +528,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         return self.parent().statPanel        
         
     def initUi(self):
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')), 'Refresh', self.levels.updateActiveHist)
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'update.png')), 'Refresh', self.levels.updateActiveHist)
         
         self.histSizePolicyBox = QtWidgets.QComboBox()
         self.histSizePolicyBox.addItem('bins')
@@ -541,46 +541,46 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.stepcount.textChanged.connect(self.histSizeChanged)
         self.addWidget(self.stepcount)        
 
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom) 
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'zoom_fit.png')), 'Zoom to full histogram', self.levels.fullZoom)        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'zoom_actual_equal.png')), 'Zoom Fit Y range', self.levels.zoomFitYRange)
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'zoom_cursors.png')), 'Zoom to black white indicators', self.levels.indicZoom) 
         
         self.gainSigmaMenu = QtWidgets.QMenu('Contrast')
         
         actGainSigma1 = QtWidgets.QAction('Gain to Sigma 1', self, triggered=lambda: self.panel.autoContrast(1))
         actGainSigma1.setText('1σ 68.27%')
-        actGainSigma1.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_high.png')))        
+        actGainSigma1.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_high.png')))        
         self.gainSigmaMenu.addAction(actGainSigma1)    
         
         actGainSigma2 = QtWidgets.QAction('Gain to Sigma 2', self, triggered=lambda: self.panel.autoContrast(2))
         actGainSigma2.setText('2σ 95.45%')
-        actGainSigma2.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast.png')))        
+        actGainSigma2.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast.png')))        
         self.gainSigmaMenu.addAction(actGainSigma2)    
         
         actGainSigma3 = QtWidgets.QAction('Gain to Sigma 3', self, triggered=lambda: self.panel.autoContrast(3))
         actGainSigma3.setText('3σ 99.73%')
-        actGainSigma3.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_low.png')))        
+        actGainSigma3.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_low.png')))        
         self.gainSigmaMenu.addAction(actGainSigma3)       
         
         actGainSigma4 = QtWidgets.QAction('Gain to Sigma 4', self, triggered=lambda: self.panel.autoContrast(4))
         actGainSigma4.setText('4σ 99.99%')
-        actGainSigma4.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_low.png')))        
+        actGainSigma4.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_low.png')))        
         self.gainSigmaMenu.addAction(actGainSigma4)
 
         actGainBinary = QtWidgets.QAction('Gain to binary 0/1', self, triggered=enclose_func_args(self.panel.autoContrast, None, 1))
         actGainBinary.setText('Binary 1 bit')
-        actGainBinary.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_high.png')))
+        actGainBinary.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_high.png')))
         actGainBinary.triggered.connect(self.setHistogramToBinary)
         self.gainSigmaMenu.addAction(actGainBinary)
 
         for word in [8, 10, 12, 14, 16, 20, 22, 24]:
             actGain = QtWidgets.QAction(f'{word} bit', self, triggered=enclose_func_args(self.panel.autoContrast, None, word))
-            actGain.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))        
+            actGain.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'color_adjustment.png')))        
             self.gainSigmaMenu.addAction(actGain)          
         
         self.autoBtn = QtWidgets.QToolButton(self)
         self.autoBtn.setText(f'{self.panel.sigma}σ')
-        self.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast.png')))        
+        self.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast.png')))        
         self.autoBtn.setToolTip('Auto contrast to a certain sigma')
         self.autoBtn.setMenu(self.gainSigmaMenu)
         self.autoBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
@@ -589,19 +589,19 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addWidget(self.autoBtn)
         
         self.applyUnityBtn = QtWidgets.QToolButton(self)
-        self.applyUnityBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_decrease.png')))
+        self.applyUnityBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_decrease.png')))
         self.applyUnityBtn.setToolTip('Apply default offset, gain and gamma')
         self.applyUnityBtn.clicked.connect(self.panel.gain1)
         self.addWidget(self.applyUnityBtn)                
                 
         self.asUnityBtn = QtWidgets.QToolButton(self)
-        self.asUnityBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast_increase.png')))
+        self.asUnityBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast_increase.png')))
         self.asUnityBtn.setToolTip('Set current offset, gain and gamma as default')
         self.asUnityBtn.clicked.connect(self.panel.asUnity)
         self.addWidget(self.asUnityBtn)           
         
         self.eyeBtn = QtWidgets.QToolButton()
-        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))      
+        self.eyeBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layers_map.png')))      
         self.eyeBtn.setToolTip("Configure Roi's")
         self.eyeBtn.clicked.connect(lambda: self.selectRoi.emit('custom visibility'))                  
         self.addWidget(self.eyeBtn)
@@ -629,7 +629,7 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.addWidget(self.scaleBtn)
         
         self.cummBtn = QtWidgets.QToolButton(self)
-        self.cummBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'sum.png')))
+        self.cummBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'sum.png')))
         self.cummBtn.setCheckable(True)
         self.cummBtn.setToolTip('Cummulative')
         self.cummBtn.clicked.connect(self.toggleCummulative)
@@ -638,11 +638,11 @@ class LevelsToolBar(QtWidgets.QToolBar):
         self.cummBtn.setStyleSheet(checkable_style)
         
         self.yLabelBtn = QtWidgets.QToolButton(self)
-        self.yLabelBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'tag_hash.png')))
+        self.yLabelBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'tag_hash.png')))
         self.yLabelBtn.clicked.connect(self.panel.levels.toggleYlabels)
         self.addWidget(self.yLabelBtn)
 
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'dopplr.png')), 'Choose colormap', self.colorMap)        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'dopplr.png')), 'Choose colormap', self.colorMap)        
         
         fontHeight = self.fontMetrics().height()
         self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
@@ -718,7 +718,7 @@ class LevelsPanel(BasePanel):
     offsetGainChanged = QtCore.Signal(object, object, object)    
     blackWhiteChanged = QtCore.Signal(object, object)    
     
-    classIconFile = str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')
+    classIconFile = str(RESPATH / 'icons' / ICP / 'color_adjustment.png')
 
     def __init__(self, parent, panid):    
         super().__init__(parent, panid, 'levels')  
@@ -749,7 +749,7 @@ class LevelsPanel(BasePanel):
         
         self.addMenuItem(self.fileMenu, 'Close', self.close_panel,
             statusTip="Close this levels panel",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cross.png')))
+            icon = QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cross.png')))
         
         self.addMenuItem(self.modeMenu, 'Fit Height', self.toggle_fitheight, checkcall=lambda: self.fitheight)
         self.addMenuItem(self.modeMenu, 'Gaussian', self.toggle_gaussview, checkcall=lambda: self.gaussview)
@@ -833,12 +833,12 @@ class LevelsPanel(BasePanel):
         if not sigma is None:
             self.sigma = sigma
             self.toolbar.autoBtn.setText(f'{sigma}σ')
-            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast.png')))       
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'contrast.png')))       
             
         if not bits is None:
             self.bits = bits
             self.toolbar.autoBtn.setText(f'{bits} bit')            
-            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))
+            self.toolbar.autoBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'color_adjustment.png')))
             
         for panel in self.targetPanels('image'):
             text = self.toolbar.autoBtn.text()
