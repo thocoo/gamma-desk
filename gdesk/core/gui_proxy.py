@@ -177,7 +177,8 @@ class GuiProxyBase(object):
     
     @classmethod
     def new(cls, paneltype=None, windowname=None, *args, **kwargs):
-        return GuiProxyBase._new(cls.category, paneltype, windowname, *args, **kwargs)
+        panel = GuiProxyBase._new(cls.category, paneltype, windowname, *args, **kwargs)
+        return panel.panid
         
         
     @StaticGuiCall        
