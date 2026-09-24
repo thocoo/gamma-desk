@@ -338,15 +338,15 @@ class ImageGuiProxy(GuiProxyBase):
         
         retries = 0
         
-        if not gui.call_queue is None:
-            q = gui.call_queue
+        # if not gui.call_queue is None:
+            # q = gui.call_queue
             
-        else:
-            q = gui._qapp.handover.signal_call_queue
+        # else:
+            # q = gui._qapp.handover.signal_call_queue
             
-        while not q.empty():
-            time.sleep(0.01)
-            retries += 1
+        # while not q.empty():
+            # time.sleep(0.01)
+            # retries += 1
         
         def _gui_show(array, cmap):
             if panid is None:
