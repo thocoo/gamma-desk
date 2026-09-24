@@ -194,7 +194,35 @@ class DockTabBase(DockBase, QTabWidget):
         newpanel = panel.duplicate(floating=True)
         container.insert((newpanel.category, newpanel.panid), 'bottom', (panel.category, panel.panid))        
         return newpanel.panid
-        
+
+    def splitGrid(self, rows=2, cols=2):
+        panel = self.currentWidget()
+        container = panel.get_container()
+        new_panids = []
+
+        # Build the columns of the first row by splitting to the right.
+        column_heads = [panel]
+        for _ in range(rows - 1):
+            prev = column_heads[-1]
+            newpanel = panel.duplicate(floating=True)
+            container.insert((newpanel.category, newpanel.panid), 'bottom', (prev.category, prev.panid))
+            column_heads.append(newpanel)
+            new_panids.append(newpanel.panid)
+
+        if isinstance(cols, int):
+            columns = [cols] * rows        
+
+        # For each column, split the remaining rows downwards.
+        for i, head in enumerate(column_heads):
+            prev = head
+            for _ in range(columns[i] - 1):
+                newpanel = panel.duplicate(floating=True)
+                container.insert((newpanel.category, newpanel.panid), 'right', (prev.category, prev.panid))
+                prev = newpanel
+                new_panids.append(newpanel.panid)
+
+        return new_panids
+
     def moveToOtherArea(self):
         self.get_dock_box().moveToOtherArea(self)
         
