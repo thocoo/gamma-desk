@@ -422,6 +422,9 @@ class Statistics(QtWidgets.QWidget):
                 name = item.text()                                
                 
                 if name == 'avg':
+                    if len(values) == 0:
+                        continue
+                        
                     value = np.mean(values)
                     text = f'{value:.3g}'
                     item = self.table.item(i, j+1)
@@ -482,7 +485,6 @@ class Statistics(QtWidgets.QWidget):
                         
                     else:         
                         if value is None:
-                            values.append(np.nan)
                             continue
                     
                         else:
