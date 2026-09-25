@@ -70,12 +70,12 @@ class ImageEditMenu(CheckMenu):
         
     @property
     def offset(self):
-        return self.basePanel.offset            
+        return self.basePanel.viewMenu.offset            
 
 
     @property
     def gain(self):
-        return self.basePanel.gain     
+        return self.basePanel.viewMenu.gain     
 
 
     def show_array(self, array, zoomFitHist=False, log=True, skip_init=False):
