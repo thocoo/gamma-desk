@@ -166,6 +166,15 @@ class GuiApplication(QApplication):
             myappid = f'{PROGNAME}' # arbitrary string
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)           
             
+        # Style Options
+        # Windows         very old style of buttons
+        # Fusion         
+        # windows11       Some broken, inconsistance aqua style. Default in PySdie6
+        # windowsvista    Tuned well, default of PySide2
+        
+        if config.get('style') is not None:
+            self.setStyle(config.get('style')) 
+            
         self.gc = QGarbageCollector(self)
         self.gc.enable()
 
