@@ -403,7 +403,7 @@ class ViewMenu(CheckMenu):
 
     def gainToMinMax(self):
         black = self.ndarray.min()
-        white = self.ndarray.max() + 1
+        white = float(self.ndarray.max()) + 1
         self.changeBlackWhite(black, white)
         
 
