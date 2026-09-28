@@ -324,15 +324,17 @@ class ImageGuiProxy(GuiProxyBase):
         if panid is None:
             panel = gui.qapp.panels.selected('image')
         else:
-            panel = gui.qapp.panels.select_or_new('image', panid, defaulttype='image-profile')
-            
-        if not title is None:
-            panel.long_title = title
+            panel = gui.qapp.panels.select_or_new('image', panid, defaulttype='image-profile')            
 
         if not cmap is None:
             panel.colormap = cmap        
 
         panel.show_array(array)
+
+        if not title is None:
+            panel.long_title = title
+            panel.set_tab_caption(title)
+
         return panel.panid
 
 

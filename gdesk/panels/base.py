@@ -394,6 +394,17 @@ class BasePanel(QMainWindow):
         while not (candidate is None or isinstance(candidate, DockContainer)):
             candidate = candidate.parent()
         return candidate        
+
+    def set_tab_caption(self, caption):
+        candidate = self.parent()
+        while candidate is not None:
+            if isinstance(candidate, QtWidgets.QTabWidget):
+                index = candidate.indexOf(self)
+                if index >= 0:
+                    candidate.setTabText(index, caption)
+                    return True
+            candidate = candidate.parent()
+        return False
         
     def mousePressEvent(self, event):
         self.select()
