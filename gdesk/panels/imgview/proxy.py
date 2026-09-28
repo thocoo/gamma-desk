@@ -320,11 +320,14 @@ class ImageGuiProxy(GuiProxyBase):
             return shwarr(array.copy(), cmap)
 
     @StaticGuiCall
-    def show_array(array=None, cmap=None, panid=None):
+    def show_array(array=None, cmap=None, panid=None, title=None):
         if panid is None:
             panel = gui.qapp.panels.selected('image')
         else:
             panel = gui.qapp.panels.select_or_new('image', panid, defaulttype='image-profile')
+            
+        if not title is None:
+            panel.long_title = title
 
         if not cmap is None:
             panel.colormap = cmap        
