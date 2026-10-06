@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         self.windowMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layout_edit.png')))
         self.layoutMenu.addMenu(self.windowMenu)                   
             
-        self.toolWinAction = QAction(self.winActionLabel(), self, triggered=self.asToolWindow)
+        self.toolWinAction = QAction(self.winActionLabel(), self, triggered=self.asCheckableToolWindow)
         self.windowMenu.addActionWithCallback(self.toolWinAction, checkcall=self.isToolWindow)
             
         addWindowMenuItem("Distribute", self.container.distribute, 'layouts_six_grid.png')        
@@ -191,6 +191,11 @@ class MainWindow(QMainWindow):
         qimage = pixmap.toImage()
         clipboard =  self.qapp.clipboard()
         clipboard.setImage(qimage)        
+        
+        
+    def asCheckableToolWindow(self, checked=False):
+        self.asToolWindow()
+    
         
     def asToolWindow(self, windowName=None):
     
