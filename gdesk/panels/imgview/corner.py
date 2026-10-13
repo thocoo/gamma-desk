@@ -127,22 +127,9 @@ class CornerToolBar(QtWidgets.QToolButton):
             self.toggleMask.emit
         )
 
-        self.roiMaskAction = QtWidgets.QAction(
+        self.menu.addAction(
             QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')),
             'Show/Hide Roi Pattern',
-            self,
-        )
-        #self.roiMaskAction.setCheckable(True)
-        self.roiMaskAction.toggled.connect(self.toggleShowRoiMask)
-        self.menu.addAction(self.roiMaskAction)
+            self.toggleRoiMask.emit
+            )
 
-
-    # def setRoiMaskVisible(self, visible):
-        # if visible:
-            # self.roiMaskBtn.setChecked(True)
-        # else:
-            # self.roiMaskBtn.setChecked(False)
-
-
-    def toggleShowRoiMask(self):
-        self.toggleRoiMask.emit()
