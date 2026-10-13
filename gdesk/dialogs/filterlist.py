@@ -90,6 +90,14 @@ class FilterList(QtWidgets.QDialog):
                 return self.items[i]
         return None
         
+    def selectedIndex(self):
+        indices = []
+        for i in range(self.selectionlist.count()):
+            uiitem = self.selectionlist.item(i)
+            if uiitem.isSelected():
+                indices.append(i)
+        return indices
+                
     def selectItem(self, item):
         for i in range(self.selectionlist.count()):         
             selection_item = self.selectionlist.item(i)

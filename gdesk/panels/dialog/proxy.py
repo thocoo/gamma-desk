@@ -215,7 +215,7 @@ class DialogGuiProxy(GuiProxyBase):
         return DialogGuiProxy.putfile(filter, title, file, defaultfilter)[0]          
 
     @StaticGuiCall
-    def filterlist(items=None, selection=None, filter=None, title='Items'):
+    def filterlist(items=None, selection=None, filter=None, title='Items', result=None):
         r"""
         Open a items filter dialog.
         The user have to select items from it.
@@ -256,6 +256,9 @@ class DialogGuiProxy(GuiProxyBase):
         
         if dialog_code == QtWidgets.QDialog.DialogCode.Rejected:
             return None
+            
+        if result == 'index':
+            return fl.selectedIndex()
         
         if multiple:
             return fl.checkedItems()
