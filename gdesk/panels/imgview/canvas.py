@@ -114,7 +114,7 @@ class CanvasMenu(CheckMenu):
         self.basePanel.select()
         croped_array = gui.vr.copy()
         gui.img.show(croped_array)
-        self.basePanel.selectNone()
+        self.basePanel.selectMenu.selectNone()
 
 
     def canvasResize(self):
