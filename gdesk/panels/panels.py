@@ -77,14 +77,14 @@ class Panels(object):
         else:
             return panel.panid
 
-    def new(self, category, paneltype=None, windowname=None, size=None, *args, **kwargs):
+    def new(self, category, paneltype=None, windowname=None, floating=False, size=None, *args, **kwargs):
         args, kwargs = self._get_args_kwargs(args, kwargs)
         image_classes = self.classes_of_category(category)
         if paneltype is None:
             ImageClass = next(iter(image_classes.values()))
         else:
             ImageClass = image_classes[paneltype]
-        panel = self.new_panel(ImageClass, windowname, None, size=size, args=args, kwargs=kwargs)
+        panel = self.new_panel(ImageClass, windowname, None, floating=floating, size=size, args=args, kwargs=kwargs)
         return panel
 
     def select_or_new(self, category, panid=None, defaulttype='basic', parentName='main', *args, **kwargs):
