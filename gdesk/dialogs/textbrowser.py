@@ -63,10 +63,10 @@ class TextBrowserContent():
         self.setMinimumHeight(400)
         self.setWindowTitle(title)
 
-        cont = TextEditLinks(self)
-        cont.setReadOnly(True)
-        cont.append(content)
-        cont.scrollToTop()
+        self.cont = TextEditLinks(self)
+        self.cont.setReadOnly(True)
+        self.cont.append(content)
+        self.cont.scrollToTop()
         
         hboxcontent= QtWidgets.QHBoxLayout()
         
@@ -83,7 +83,7 @@ class TextBrowserContent():
         if not iconWidget is None:
             self.setWindowIcon(iconWidget)            
             
-        hboxcontent.addWidget(cont)
+        hboxcontent.addWidget(self.cont)
         
         hboxbut = QtWidgets.QHBoxLayout()
         hboxbut.addStretch(1)
