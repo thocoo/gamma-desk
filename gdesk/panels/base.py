@@ -29,8 +29,9 @@ class CheckMenu(QtWidgets.QMenu):
             parent.addMenu(self)
         self.action_checked_calls = []
         self.action_enable_calls = []
+        self.aboutToShow.connect(self.setActionCheckBoxes)
         
-    def showEvent(self, event):
+    def setActionCheckBoxes(self):
         for action, checked_call in self.action_checked_calls:
             action.setChecked(checked_call())
             
