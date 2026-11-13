@@ -486,7 +486,9 @@ class LiveScriptManager(object):
             print()
                         
         for mod_str, mod_path in found_scripts.items():
-            print(f'use.{mod_str} -> {mod_path}')                        
+            print(f'use.{mod_str} -> {mod_path}')   
+
+        return found_scripts
         
         
     def scan_script_tree_for_function(self, node, part):
