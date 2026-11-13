@@ -17,9 +17,9 @@ from qtpy.QtWidgets import (QApplication, QAction, QMainWindow, QPlainTextEdit, 
 from ...panels import CheckMenu
 from ...panels.base import MyStatusBar
 
-
 here = Path(__file__).parent.absolute()
 respath = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
     
 
 class ZoomWidget(MyStatusBar):
@@ -29,11 +29,11 @@ class ZoomWidget(MyStatusBar):
         super().__init__(parent=parent)
         self.panel = parent.panel
 
-        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_minus.png')), None, self)
+        self.zoomOutBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / ICP / 'bullet_toggle_minus.png')), None, self)
         self.zoomOutBtn.setFixedWidth(20)
         self.zoom = QLineEdit('100')
         self.zoom.keyPressEvent = self.zoomKeyPressEvent
-        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bullet_toggle_plus.png')), None, self)       
+        self.zoomInBtn = QtWidgets.QPushButton(QtGui.QIcon(str(respath / 'icons' / ICP / 'bullet_toggle_plus.png')), None, self)       
         self.zoomInBtn.setFixedWidth(20)
         
         self.addWidget(self.zoomOutBtn)
@@ -253,7 +253,7 @@ class StatusPanel(QWidget):
             lambda: self.toggleWidgetVisible(self.contrastPanel),  checkcall=lambda: self.contrastPanel.isVisible())
 
         self.chooseWidgetBtn = QtWidgets.QToolButton(self)
-        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png')))        
+        self.chooseWidgetBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'menubar.png')))        
         self.chooseWidgetBtn.setIconSize(QtCore.QSize(16, 16))
         self.chooseWidgetBtn.setFixedSize(16, 16)
         self.chooseWidgetBtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
@@ -294,7 +294,7 @@ class StatusPanel(QWidget):
         action.triggered.connect(triggered)        
         
         if isinstance(icon, str):
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / icon))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / icon))
         
         if not icon is None:
             action.setIcon(icon)

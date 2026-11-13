@@ -11,9 +11,8 @@ from gdesk import gui
 
 from gdesk.panels.statistics.panel import Statistics, StatisticsToolBar
 
-
-RESPATH = Path(config['respath'])        
-
+RESPATH = Path(config['respath'])       
+ICP = config.get('icon_px_folder', 'px16') 
 
 class CornerWidget(QtWidgets.QWidget):
 
@@ -91,23 +90,23 @@ class CornerToolBar(QtWidgets.QToolButton):
     def initUi(self):
         fontHeight = self.fontMetrics().height()
         self.setIconSize(QtCore.QSize(int(fontHeight * 3 / 2), int(fontHeight * 3 / 2)))
-        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')))
+        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'chart_stock.png')))
         self.setToolTip('Profile options')
 
         self.menu.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'chart_stock.png')),
             'Show/Hide profiles',
             lambda: self.toggleProfile.emit(),
         )
 
         self.menu.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layers_map.png')),
             "Configure Roi's",
             lambda: self.selectRoi.emit('custom visibility'),
         )
 
         self.menu.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'table_sum.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'table_sum.png')),
             "Statistics Panel",
             self.showPanel.emit,
         )
@@ -122,13 +121,13 @@ class CornerToolBar(QtWidgets.QToolButton):
         self.menu.addAction(preset_action)
 
         self.menu.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_mask.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layer_mask.png')),
             'Show/Hide Mask Layer',
             self.toggleMask.emit
         )
 
         self.menu.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layer_grid.png')),
             'Show/Hide Roi Pattern',
             self.toggleRoiMask.emit
             )

@@ -47,11 +47,11 @@ class EditMenu(CheckMenu):
         self.addSeparator()
 
         basePanel.addMenuItem(self, 'Copy Scaled Selection', self.placeViewerOnClipboard,
-            icon = str(RESPATH / 'icons' / 'px16' /'resize_picture.png'))
+            icon = 'resize_picture.png')
             
         basePanel.addMenuItem(self, 'Copy 100% Zoom', self.placeQimgOnClipboard,
             statusTip="Place the 8bit image on clipboard, offset and gain applied",
-            icon = str(RESPATH / 'icons' / 'px16' / 'two_pictures.png'))            
+            icon = 'two_pictures.png')            
             
         basePanel.addMenuItem(self, 'Paste', self.showFromClipboard,
             statusTip="Paste content of clipboard in this image viewer",

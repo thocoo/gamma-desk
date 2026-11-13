@@ -27,6 +27,7 @@ from ...core import stdinout
 
 respath = Path(config['respath'])
 logger = logging.getLogger(__name__)
+ICP = config.get('icon_px_folder', 'px16')
 
 MAXCHARPERLINE = 10000  #Only for ansi mode
 #PREFIXWIDTH = 30  # width of the left side line numbers
@@ -715,7 +716,7 @@ class Console(BasePanel):
     panelCategory = 'console'
     userVisible = False
 
-    classIconFile = str(respath / 'icons' / 'px16' / 'application_xp_terminal.png')
+    classIconFile = str(respath / 'icons' / ICP / 'application_xp_terminal.png')
 
     def __init__(self, parent, panid, task):
         super().__init__(parent, panid, 'console')
@@ -751,7 +752,7 @@ class Console(BasePanel):
         self.fileMenu.addMenu(RecentMenu(self))
         self.addMenuItem(self.fileMenu, "Close", self.close_panel,
             statusTip = "Close this Thread",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cross.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'cross.png')))
             
         self.historyMenu = self.menuBar().addMenu("&History")
         self.addMenuItem(self.historyMenu, 'Trim History', self.trimHistory)
@@ -764,7 +765,7 @@ class Console(BasePanel):
             statusTip="Disable Tracing"))
         self.addMenuItem(traceMenu, "Enable Timeit", lambda: self.task.set_timeit(True),
             statusTip="Show elapsed time report at end of execution",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'time_red.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'time_red.png')))
         traceMenu.addAction(QAction("Disable Timeit", self, triggered=lambda: self.task.set_timeit(False),
             statusTip="Disable Timeit"))
         traceMenu.addAction(QAction("Enable profiling", self, triggered=lambda: self.task.enable_profiling(),
@@ -774,7 +775,7 @@ class Console(BasePanel):
 
         self.addMenuItem(self.executionMenu, 'Debug Post Mortem', self.startPostMortem,
             statusTip="Start the Post Morten debugger",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'error.png')))            
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'error.png')))            
         self.addMenuItem(self.executionMenu, 'Check Flow Alive', self.checkAlive,
             statusTip="Check if the flow loop is still alive")
         self.addMenuItem(self.executionMenu, 'Print Trace', self.stdio.task.print_trace,
@@ -783,10 +784,10 @@ class Console(BasePanel):
             statusTip="Print the locals of the current namespace")
         self.addMenuItem(self.executionMenu, 'Sync Break', self.syncBreak,
             statusTip="Send a synchronous break, tracing should be active",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cog_stop.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'cog_stop.png')))
         self.addMenuItem(self.executionMenu, 'Async Break', self.asyncBreak,
             statusTip="Send a asynchronous break",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'cog_stop.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'cog_stop.png')))
         self.addMenuItem(self.executionMenu, 'System Exit Thread', self.stdio.task.system_exit,
             statusTip="System Exit")
 
@@ -796,7 +797,7 @@ class Console(BasePanel):
             # statusTip="Suspend this windows process")
         self.addMenuItem(self.executionMenu, 'Kill Process', self.killProcess,
             statusTip="Kill this Python Process and its threads",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'scull.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'scull.png')))
 
         self.viewMenu = CheckMenu("&View", self.menuBar())
         self.menuBar().addMenu(self.viewMenu)
@@ -820,16 +821,16 @@ class Console(BasePanel):
         scripMenu = self.menuBar().addMenu("&Script")
         self.addMenuItem(scripMenu, 'Edit sys.path...', self.editSysPaths,
             statusTip="Edit the search path used to import Python packages",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_view_list.png')))        
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'application_view_list.png')))        
         self.addMenuItem(scripMenu, 'Edit Live paths...', self.editLivePaths,
             statusTip="Edit the search path used to import user live scripts",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'script_gear.png')))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'script_gear.png')))
         self.addMenuItem(scripMenu, 'Reload Scripts', self.reloadScripts,
             statusTip="Reload all the scripts",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'update.png')))            
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'update.png')))            
         self.addMenuItem(scripMenu, 'Search...', self.search,
             statusTip="Search for a script",
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))            
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'find.png')))            
             
 
         self.addBaseMenu()
@@ -837,11 +838,11 @@ class Console(BasePanel):
     def createStatusBar(self):
 
         self.postMortemBtn = QtWidgets.QToolButton()
-        self.postMortemBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'error.png')))
+        self.postMortemBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'error.png')))
         self.postMortemBtn.clicked.connect(self.startPostMortem)
         
         self.searchBtn = QtWidgets.QToolButton()
-        self.searchBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'find.png')))
+        self.searchBtn.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'find.png')))
         self.searchBtn.clicked.connect(self.search)        
 
         self.tasktype = QLabel('')

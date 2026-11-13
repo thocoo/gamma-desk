@@ -13,6 +13,7 @@ from ...utils import imconvert
 from ... import config, gui
 
 respath = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 
 class ImageEditMenu(CheckMenu):
@@ -24,15 +25,15 @@ class ImageEditMenu(CheckMenu):
 
         basePanel.addMenuItem(self, 'Swap RGB | BGR', self.swapRGB,
             statusTip="Swap the blue with red channel",
-            icon = str(respath / 'icons' / 'px16' / 'color.png'))
+            icon = 'color.png')
             
         basePanel.addMenuItem(self, 'to Monochrome', self.toMonochrome,
             statusTip="Convert an RGB image to monochrome grey",
-            icon = str(respath / 'icons' / 'px16' / 'convert_color_to_gray.png'))
+            icon = 'convert_color_to_gray.png')
             
         basePanel.addMenuItem(self, 'to Photometric Monochrome', self.toPhotoMonochrome,
             statusTip="Convert an RGB image to photometric monochrome grey",
-            icon = str(respath / 'icons' / 'px16' / 'convert_color_to_gray.png'))
+            icon = 'convert_color_to_gray.png')
             
         basePanel.addMenuItem(self, 'to 8-bit', self.to8bit,
             enablecall = self.is16bit)
@@ -47,7 +48,7 @@ class ImageEditMenu(CheckMenu):
         
         basePanel.addMenuItem(self, 'Fill...'          , self.fillValue,
             statusTip="Fill the image with the same value",
-            icon = str(respath / 'icons' / 'px16' / 'paintcan.png'))
+            icon = 'paintcan.png')
             
         basePanel.addMenuItem(self, 'Add noise...'     , self.addNoise,
             statusTip="Add Gaussian noise")
@@ -57,7 +58,7 @@ class ImageEditMenu(CheckMenu):
             
         basePanel.addMenuItem(self, 'Adjust Lighting...', self.adjustLighting,
             statusTip="Adjust the pixel values",
-            icon = str(respath / 'icons' / 'px16' / 'contrast.png'))
+            icon = 'contrast.png')
             
         basePanel.addMenuItem(self, 'Adjust Gamma...', self.adjustGamma,
             statusTip="Adjust the gamma")

@@ -21,6 +21,7 @@ from ...utils import imconvert
 from ... import config, gui
 
 respath = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 
 class CanvasMenu(CheckMenu):
@@ -32,19 +33,19 @@ class CanvasMenu(CheckMenu):
 
         basePanel.addMenuItem(self, 'Flip Horizontal', self.flipHorizontal,
             statusTip="Flip the image Horizontal",
-            icon = str(respath / 'icons' / 'px16' / 'shape_flip_horizontal.png'))
+            icon = 'shape_flip_horizontal.png')
             
         basePanel.addMenuItem(self, 'Flip Vertical'  , self.flipVertical,
             statusTip="Flip the image Vertical",
-            icon = str(respath / 'icons' / 'px16' / 'shape_flip_vertical.png'))
+            icon = 'shape_flip_vertical.png')
             
         basePanel.addMenuItem(self, 'Rotate Left 90' , self.rotate90,
             statusTip="Rotate the image 90 degree anti clockwise",
-            icon = str(respath / 'icons' / 'px16' / 'shape_rotate_anticlockwise.png'))
+            icon = 'shape_rotate_anticlockwise.png')
             
         basePanel.addMenuItem(self, 'Rotate Right 90', self.rotate270,
             statusTip="Rotate the image 90 degree clockwise",
-            icon = str(respath / 'icons' / 'px16' / 'shape_rotate_clockwise.png'))
+            icon = 'shape_rotate_clockwise.png')
             
         basePanel.addMenuItem(self, 'Rotate 180'     , self.rotate180,
             statusTip="Rotate the image 180 degree")
@@ -54,15 +55,15 @@ class CanvasMenu(CheckMenu):
             
         basePanel.addMenuItem(self, 'Crop on Selection', self.crop,
             statusTip="Crop the image on the current rectangle selection",
-            icon = str(respath / 'icons' / 'px16' / 'transform_crop.png'))
+            icon = 'transform_crop.png')
             
         basePanel.addMenuItem(self, 'Resize Canvas...', self.canvasResize,
             statusTip="Add or remove borders",
-            icon = str(respath / 'icons' / 'px16' / 'canvas_size.png'))
+            icon = 'canvas_size.png')
             
         basePanel.addMenuItem(self, 'Resize Image', triggered=self.resize, enabled=HAS_SCIPY,
             statusTip="Resize the image by resampling",
-            icon = str(respath / 'icons' / 'px16' / 'scale_image.png'))
+            icon = 'scale_image.png')
             
     @property
     def ndarray(self):

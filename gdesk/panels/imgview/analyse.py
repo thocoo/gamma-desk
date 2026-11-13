@@ -28,22 +28,22 @@ class AnalyseMenu(CheckMenu):
         self.basePanel = basePanel 
 
         basePanel.addMenuItem(self, 'Statistics', self.showStatisticPanel,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'table_sum.png')))            
+            icon='table_sum.png')
             
         basePanel.addMenuItem(self, 'Levels', self.showLevelsPanel,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))
+            icon='color_adjustment.png')
         
         basePanel.addMenuItem(self, 'Horizontal Spectrogram', self.horizontalSpectrogram,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm.png')),
+            icon='diagramm.png',
             statusTip="Horizontal Spectrogram")
             
         basePanel.addMenuItem(self, 'Vertical Spectrogram', self.verticalSpectrogram,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'diagramm_90.png')),
+            icon='diagramm_90.png',
             statusTip="Vertical Spectrogram")
             
         basePanel.addMenuItem(self, 'Measure Distance', self.measureDistance,
             statusTip="Measure Distance",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'geolocation_sight.png')))
+            icon = 'geolocation_sight.png')
             
             
     def showStatisticPanel(self):        

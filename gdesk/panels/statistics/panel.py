@@ -14,6 +14,7 @@ from ... import config
 from ...dialogs.formlayout import fedit
 
 RESPATH = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 if API_NAME == 'PySide6' and hasattr(QtGui, "QAbstractItemView"):
     NOEDITTRIGGERS = QtGui.QAbstractItemView.NoEditTriggers
@@ -148,23 +149,23 @@ class Statistics(QtWidgets.QWidget):
         
         self.contextMenu = QtWidgets.QMenu('Mask')
         act = QtWidgets.QAction('Select', self, triggered=self.setImviewSelection)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_restangular.png')))
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'select_restangular.png')))
         self.contextMenu.addAction(act)
 
         act = QtWidgets.QAction('Show/Hide Levels', self, triggered=self.showHideLevels)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'color_adjustment.png')))
         self.contextMenu.addAction(act)        
 
         act = QtWidgets.QAction('Show/Hide Profiles', self, triggered=self.showHideProfiles)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'chart_stock.png')))
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'chart_stock.png')))
         self.contextMenu.addAction(act)
 
         act = QtWidgets.QAction('Show/Hide Image Viewer', self, triggered=self.showHideViewer)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'picture.png')))
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'picture.png')))
         self.contextMenu.addAction(act)        
 
         act = QtWidgets.QAction('Copy', self, triggered=self.copyTableToClipboard)
-        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
+        act.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'page_copy.png')))
         self.contextMenu.addAction(act)                        
 
 
@@ -540,7 +541,7 @@ class StatisticsPanel(BasePanel):
     
     panelCategory = 'statistics'
     panelShortName = 'basic'
-    classIconFile = str(RESPATH / 'icons' / 'px16' / 'table_sum.png')
+    classIconFile = str(RESPATH / 'icons' / ICP / 'table_sum.png')
 
     def __init__(self, parent, panid):
         super().__init__(parent, panid, type(self).panelCategory)
@@ -562,18 +563,18 @@ class StatisticsPanel(BasePanel):
         self.editMenu = CheckMenu("Edit", self.menuBar())
         
         self.addMenuItem(self.editMenu, "Copy", self.statistics.copyTableToClipboard,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')))
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'page_copy.png')))
         
         self.addMenuItem(self.editMenu, "Fit Content", self.statistics.fitContent,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_width.png')))
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'page_width.png')))
         
         self.statsMenu = CheckMenu("Statistics", self.menuBar())
         
         self.addMenuItem(self.statsMenu, "Clear", self.statistics.clearStatistics,
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')))            
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cell_clear.png')))            
             
         self.addMenuItem(self.statsMenu, "Choose Metrics", self.statistics.chooseStatistics,            
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')))
+            icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'calculator.png')))
                         
         self.addMenuItem(self.statsMenu, "Image Feed Rate", self.setImageFeedRate)            
             
@@ -627,36 +628,36 @@ class StatisticsToolBar(QtWidgets.QToolBar):
         super().__init__(*args, **kwargs)
         
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'update.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'update.png')),
             'Refresh',
             self.refresh.emit)        
         
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layers_map.png')),
             "Configure Roi's",
             self.configureRois.emit,
         )  
         
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_copy.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'page_copy.png')),
             'Copy',
             self.copy.emit,
         )
 
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'page_width.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'page_width.png')),
             'Fit Content',
             self.fitContent.emit,
         )
         
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cell_clear.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cell_clear.png')),
             'Clear',
             self.clearStats.emit,
         )             
 
         self.addAction(
-            QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'calculator.png')),
+            QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'calculator.png')),
             "Choose Statstics",
             self.chooseStatistics.emit,
         )         

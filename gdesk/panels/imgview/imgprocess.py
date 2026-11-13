@@ -30,17 +30,17 @@ class ProcessMenu(CheckMenu):
         
         basePanel.addMenuItem(self, 'Bayer Split', self.bayer_split_tiles,
             statusTip="Split to 4 images based on the Bayer kernel",
-            icon = str(respath / 'icons' / 'px16' / 'pictures_thumbs.png'))
+            icon = 'pictures_thumbs.png')
             
         basePanel.addMenuItem(self, 'Colored Bayer', self.colored_bayer)
         
         basePanel.addMenuItem(self, 'Demosaic', self.demosaic, enabled=HAS_SCIPY,
             statusTip="Demosaic",
-            icon = str(respath / 'icons' / 'px16' / 'things_digital.png'))
+            icon = 'things_digital.png')
             
         basePanel.addMenuItem(self, 'Make Blueprint', self.makeBlueprint,
             statusTip="Make a thumbnail (8x smaller) with blowup high frequencies",
-            icon = str(respath / 'icons' / 'px16' / 'map_blue.png'))
+            icon = 'map_blue.png')
             
             
     @property

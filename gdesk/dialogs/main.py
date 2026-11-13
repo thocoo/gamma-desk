@@ -16,6 +16,7 @@ from ..dicttree.widgets import DictionaryTreeDialog
 
 logger = logging.getLogger(__name__)
 respath = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 
 class NewPanelMenu(QtWidgets.QMenu):
@@ -24,7 +25,7 @@ class NewPanelMenu(QtWidgets.QMenu):
         super().__init__('New', parent)
         self.showpos = None
         if showIcon:
-            self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_add.png')))
+            self.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'application_add.png')))
 
         self.initactions()
 
@@ -78,7 +79,7 @@ class PanelMenu(QtWidgets.QMenu):
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Panel', parent)
         if showIcon:
-            self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_get.png')))
+            self.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'application_get.png')))
         self.initactions()
 
     def showEvent(self, event):
@@ -141,7 +142,7 @@ class WindowMenu(QtWidgets.QMenu):
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Window', parent)
         if showIcon:
-            self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_double.png')))
+            self.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'application_double.png')))
         self.initactions()
 
     @property
@@ -200,7 +201,7 @@ class LayoutMenu(QtWidgets.QMenu):
     def __init__(self, parent=None, showIcon=False):
         super().__init__('Layout', parent)
         if showIcon:
-            self.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layout_content.png')))
+            self.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'layout_content.png')))
 
         self.initactions()
 
@@ -277,13 +278,13 @@ class MainDialog(QtWidgets.QMainWindow):
         act = QtWidgets.QAction("Restart", self,
             triggered=self.restart,
             statusTip=f"Restart {PROGNAME}",
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'recycle.png')))
+            icon=QtGui.QIcon(str(respath / 'icons' / ICP / 'recycle.png')))
         self.appMenu.addAction(act)
 
         act = QtWidgets.QAction("Exit", self, shortcut=QtGui.QKeySequence.Quit,
             statusTip=f"Exit {PROGNAME}",
             triggered=self.qapp.quit,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'door_out.png')))
+            icon=QtGui.QIcon(str(respath / 'icons' / ICP / 'door_out.png')))
 
         self.appMenu.addAction(act)
 
@@ -301,7 +302,7 @@ class MainDialog(QtWidgets.QMainWindow):
 
         self.configMenu = self.menuBar().addMenu("Config")
         self.configMenu.addAction(QtWidgets.QAction("View Config", self, triggered=self.showConfig,
-            icon=QtGui.QIcon(str(respath / 'icons' / 'px16' / 'page_gear.png'))))
+            icon=QtGui.QIcon(str(respath / 'icons' / ICP / 'page_gear.png'))))
 
         self.configMenu.addAction(QtWidgets.QAction("Save Config", self, triggered=self.saveConfig))
         
@@ -311,11 +312,11 @@ class MainDialog(QtWidgets.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
 
         helpAct = QtWidgets.QAction("&Help", self, triggered=self.help)
-        helpAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'help.png')))
+        helpAct.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'help.png')))
         self.helpMenu.addAction(helpAct)
         
         reportIssueAct = QtWidgets.QAction(f"Report Issue", self, triggered=self.reportIssue)
-        reportIssueAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'bug.png')))
+        reportIssueAct.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'bug.png')))
         self.helpMenu.addAction(reportIssueAct)
 
         aboutGhQtAct = QtWidgets.QAction(f"About {PROGNAME}", self, triggered=self.about)
@@ -324,7 +325,7 @@ class MainDialog(QtWidgets.QMainWindow):
         self.helpMenu.addAction(QtWidgets.QAction("License", self, triggered=self.license))
 
         infoGhQtAct = QtWidgets.QAction("Instance Info", self, triggered=self.info)
-        infoGhQtAct.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'information.png')))
+        infoGhQtAct.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'information.png')))
         self.helpMenu.addAction(infoGhQtAct)
 
         aboutQtAct = QtWidgets.QAction("About Qt", self, triggered=self.qapp.aboutQt)

@@ -58,8 +58,8 @@ if has_cv2:
     from .opencv import OpenCvMenu
 
 here = Path(__file__).parent.absolute()
-respath = Path(config['respath'])             
-
+respath = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 from .imgpaint import ImageViewerWidget
 
@@ -75,7 +75,7 @@ class ImageViewerBase(BasePanel):
     roiChanged = Signal(int)
     roiConfigChanged = Signal()
 
-    classIconFile = str(respath / 'icons' / 'px16' / 'picture.png')
+    classIconFile = str(respath / 'icons' / ICP / 'picture.png')
 
     def __init__(self, parent=None, panid=None, **kwargs):
         super().__init__(parent, panid, type(self).panelCategory)
@@ -514,7 +514,7 @@ class ImageProfilePanel(ImageViewerBase):
 
         self.addMenuItem(self.viewMenu, 'Show/Hide Profiles'    , self.showHideProfiles,
             checkcall = lambda: self.imgprof.profilesVisible,
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'chart_stock.png')),
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'chart_stock.png')),
             statusTip="Show or Hide the image column and row profiles")
             
         self.addMenuItem(self.viewMenu, 'Show Only Image', self.imgprof.hideRulers)

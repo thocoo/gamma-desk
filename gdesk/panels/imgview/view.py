@@ -19,7 +19,7 @@ from ...utils import imconvert
 from ... import config, gui
 
 RESPATH = Path(config['respath'])
-
+ICP = config.get('icon_px_folder', 'px16')
 
 class ViewMenu(CheckMenu):
     
@@ -48,34 +48,34 @@ class ViewMenu(CheckMenu):
             statusTip="Zoom out 1 step", icon = 'zoom_out.png')
 
         zoomMenu = QMenu('Zoom')
-        zoomMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom.png')))
+        zoomMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'zoom.png')))
         self.addMenu(zoomMenu)
         
         basePanel.addMenuItem(zoomMenu, 'Zoom 100%', self.setZoom100,
             statusTip="Zoom to a actual size (100%)",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_actual.png')))
+            icon = 'zoom_actual.png')
         basePanel.addMenuItem(zoomMenu, 'Zoom 800%', lambda: self.setZoomValue(8),
             statusTip="Zoom to 800%")
         basePanel.addMenuItem(zoomMenu, 'Zoom 12500%', lambda: self.setZoomValue(125),
             statusTip="Zoom to 12500%")                        
         basePanel.addMenuItem(zoomMenu, 'Zoom Fit'     , self.zoomFit,
             statusTip="Zoom to fit the image in the image viewer, snap on predefined zoom value",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_fit.png')))
+            icon = 'zoom_fit.png')
         basePanel.addMenuItem(zoomMenu, 'Zoom Full'    , self.zoomFull,
             statusTip="Zoom to fit the image in the image viewer",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_extend.png')))
+            icon = 'zoom_extend.png')
         basePanel.addMenuItem(zoomMenu, 'Zoom Auto'    , self.zoomAuto,
             statusTip="Toggle between to to selection and full image",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_refresh.png')))
+            icon = 'zoom_refresh.png')
         basePanel.addMenuItem(zoomMenu, 'Zoom exact...'     , self.setZoom,
             statusTip="Zoom to a defined value",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'zoom_actual_equal.png')))
+            icon = 'zoom_actual_equal.png')
 
         self.addSeparator()
 
         basePanel.addMenuItem(self, 'Default Offset && Gain', self.defaultOffsetGain,
             statusTip="Apply default offset, gain and gamma",
-            icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'unmark_to_download.png')))
+            icon='unmark_to_download.png')
             
         self.defaultGainMenu = QMenu('Set Default Gain')
         self.addMenu(self.defaultGainMenu)
@@ -86,13 +86,13 @@ class ViewMenu(CheckMenu):
             
         basePanel.addMenuItem(self, 'Offset && Gain...', self.offsetGainDialog,
             statusTip="Set offset and gain",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'weather_cloudy.png')))
+            icon = 'weather_cloudy.png')
         basePanel.addMenuItem(self, 'Black && White...', self.blackWhiteDialog,
             statusTip="Set the black and white point",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_adjustment.png')))
+            icon = 'color_adjustment.png')
         basePanel.addMenuItem(self, 'Grey && Gain...', self.changeGreyGainDialog,
             statusTip="Set the mid grey level and gain",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'contrast.png')))
+            icon = 'contrast.png')
         basePanel.addMenuItem(self, 'Gain to Min-Max', self.gainToMinMax,
             statusTip="Auto level to min and max")
         self.gainSigmaMenu = QMenu('Gain to Sigma')
@@ -108,7 +108,7 @@ class ViewMenu(CheckMenu):
             statusTip = "Use high quality resampling on zoom levels < 100%")
             
         self.bindMenu = CheckMenu("Bind", self)
-        self.bindMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'image_link.png')))
+        self.bindMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'image_link.png')))
         basePanel.addMenuItem(self.bindMenu, 'Bind All Image Viewers', self.bindImageViewers)
         basePanel.addMenuItem(self.bindMenu, 'Unbind All Image Viewers', self.unbindImageViewers)        
         basePanel.addMenuItem(self.bindMenu, 'Absolute Zoom Link', self.toggle_zoombind,
@@ -117,21 +117,19 @@ class ViewMenu(CheckMenu):
         
         basePanel.addMenuItem(self, 'Colormap...'    , self.setColorMap,
             statusTip="Set the color map for monochrome images",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'dopplr.png')))
+            icon = 'dopplr.png')
         basePanel.addMenuItem(self, 'Background Color...'    , self.setBackground,
             statusTip="Set the background color...",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'document_background.png')))
-        
+            icon = 'document_background.png')        
         basePanel.addMenuItem(self, 'Mask Appearance...'    , self.setMaskApperance,
             statusTip="Set the mask appearance...",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'mask.png')))
-
+            icon = 'mask.png')
         basePanel.addMenuItem(self, 'Selection Color...'    , self.setRoiColor,
             statusTip="Set the Selection color...",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_swatch.png')))
+            icon = 'color_swatch.png')
 
         self.chooseValFormat = QMenu('Value Format')
-        self.chooseValFormat.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'pilcrow.png')))
+        self.chooseValFormat.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'pilcrow.png')))
         self.chooseValFormat.addAction(QAction("Decimal", self, triggered=lambda: self.statuspanel.set_val_format('dec')))
         self.chooseValFormat.addAction(QAction("Hex", self, triggered=lambda: self.statuspanel.set_val_format('hex')))
         self.chooseValFormat.addAction(QAction("Binary", self, triggered=lambda: self.statuspanel.set_val_format('bin')))

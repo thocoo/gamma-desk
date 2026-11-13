@@ -29,11 +29,14 @@ from ..dialogs.formlayout import fedit
 from ..dialogs.about import AboutScreen
 
 respath = Path(config['respath'])
-logger = logging.getLogger(__name__)         
+logger = logging.getLogger(__name__)
+ICP = config.get('icon_px_folder', 'px16')
+
         
 def debug_print(message):
     sys.__stdout__.write(f'{message}\n')
     sys.__stdout__.flush()        
+    
     
 class DragState(enum.Enum):
     placed = enum.auto()
@@ -106,7 +109,7 @@ class MainWindow(QMainWindow):
         self.layoutMenu = QtWidgets.QMenu()        
         
         panDiaAct = QAction("Panels Dialog", self, triggered=self.qapp.showDialog)
-        panDiaAct.setIcon(QIcon(str(respath / 'icons' / 'px16' / 'application_view_gallery.png')))
+        panDiaAct.setIcon(QIcon(str(respath / 'icons' / ICP / 'application_view_gallery.png')))
         self.layoutMenu.addAction(panDiaAct)
         self.newPanelMenu = NewPanelMenu(self, showIcon=True)
         self.layoutMenu.addMenu(self.newPanelMenu)  
@@ -120,7 +123,7 @@ class MainWindow(QMainWindow):
             if not keySequence is None:
                 caption = f'{caption}\t{keySequence}'
             if isinstance(icon, str):
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / icon))
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / icon))
             if not icon is None:
                 action = QAction(caption, self.windowMenu, triggered=function, icon=icon)
             else:
@@ -128,7 +131,7 @@ class MainWindow(QMainWindow):
             self.windowMenu.addAction(action)
         
         self.windowMenu = CheckMenu("&Layout Edit")
-        self.windowMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layout_edit.png')))
+        self.windowMenu.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'layout_edit.png')))
         self.layoutMenu.addMenu(self.windowMenu)                   
             
         self.toolWinAction = QAction(self.winActionLabel(), self, triggered=self.asCheckableToolWindow)
@@ -151,18 +154,18 @@ class MainWindow(QMainWindow):
         act = QAction("E&xit", self, shortcut=QKeySequence.Quit,
             statusTip="Exit the application",
             triggered=QApplication.instance().quit)
-        act.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'door_out.png')))
+        act.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'door_out.png')))
         self.layoutMenu.addAction(act)        
         
         self.panelsDialogBtn = QtWidgets.QToolButton(self)
-        self.panelsDialogBtn.setIcon(QIcon(str(respath / 'icons' / 'px16' / 'application_view_gallery.png')))
+        self.panelsDialogBtn.setIcon(QIcon(str(respath / 'icons' / ICP / 'application_view_gallery.png')))
         self.panelsDialogBtn.clicked.connect(self.qapp.showDialog)   
         self.panelsDialogBtn.setMenu(self.layoutMenu)
         self.panelsDialogBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup) 
         self.menuBar().setCornerWidget(self.panelsDialogBtn, corner= Qt.TopLeftCorner)
         
         self.cycleTabBtn = QtWidgets.QToolButton(self)
-        self.cycleTabBtn.setIcon(QIcon(str(respath / 'icons' / 'px16' / 'layout_content.png')))
+        self.cycleTabBtn.setIcon(QIcon(str(respath / 'icons' / ICP / 'layout_content.png')))
         self.cycleTabBtn.clicked.connect(self.cycle_tag_level)
         self.cycleTabBtn.setMenu(self.windowMenu)
         self.cycleTabBtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)        

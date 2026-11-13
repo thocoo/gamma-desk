@@ -28,6 +28,7 @@ here = pathlib.Path(__file__).absolute().parent
 
 PLOT_COLORS = mpl.colormaps['tab10_r'](np.linspace(0, 1, 10)) * 255
 AGGS_FACTORY = None 
+ICP = config.get('icon_px_folder', 'px16')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -98,14 +99,14 @@ class MaskPresetButton(QtWidgets.QToolButton):
         super().__init__(*args, **kwargs)
         
         self.masksSelectMenu = QtWidgets.QMenu("Select Roi's")
-        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'color.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.maskPreset.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.maskPreset.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))))
-        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("mono", self, triggered=lambda: self.maskPreset.emit('mono'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'color_gradient.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rgb",  self, triggered=lambda: self.maskPreset.emit('rgb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'color.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("bg",   self, triggered=lambda: self.maskPreset.emit('bg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cfa_bg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gb",   self, triggered=lambda: self.maskPreset.emit('gb'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cfa_gb.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("rg",   self, triggered=lambda: self.maskPreset.emit('rg'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cfa_rg.png'))))
+        self.masksSelectMenu.addAction(QtWidgets.QAction("gr",   self, triggered=lambda: self.maskPreset.emit('gr'), icon=QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'cfa_gr.png'))))
         
-        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))      
+        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'select_by_color.png')))      
         self.setToolTip("Roi Presets")
         self.setMenu(self.masksSelectMenu)
         self.setPopupMode(QtWidgets.QToolButton.InstantPopup)                

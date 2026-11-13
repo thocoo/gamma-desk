@@ -14,6 +14,7 @@ from gdesk import gui
 
 
 RESPATH = Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 RESERVED_MASK_FULL = []
 RESERVED_MASK_ROI = []    
@@ -78,19 +79,19 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.masksPresetBtn.maskPreset.connect(lambda mask: self.maskPreset.emit(mask))
         self.addWidget(self.masksPresetBtn)         
         
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'add.png')), "Add mask",  lambda: self.addMask.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'delete.png')), "Remove mask",  lambda: self.removeMask.emit())
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'application_form_edit.png')), "Edit mask",  lambda: self.editMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'add.png')), "Add mask",  lambda: self.addMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'delete.png')), "Remove mask",  lambda: self.removeMask.emit())
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'application_form_edit.png')), "Edit mask",  lambda: self.editMask.emit())
         
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down')) 
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'arrow_up.png')), "Move Up",  lambda: self.moveItem.emit('up'))        
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'arrow_down.png')), "Move Down",   lambda: self.moveItem.emit('down')) 
         
         self.addAction('All', lambda: self.selectRoi.emit('all'))
-        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
+        self.addAction(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'region_of_interest.png')), 'Show Only Roi', lambda: self.selectRoi.emit('show roi only'))
         self.addAction("Hide ROI",  lambda: self.selectRoi.emit('hide roi'))        
         
         self.maskBtn = QtWidgets.QToolButton(self)
-        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_mask.png')))
+        self.maskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layer_mask.png')))
         #self.maskBtn.setText('Mask Layer')
         self.maskBtn.setCheckable(True)
         
@@ -104,7 +105,7 @@ class VisibilityToolBar(QtWidgets.QToolBar):
         self.addWidget(self.maskBtn)      
 
         self.roiMaskBtn = QtWidgets.QToolButton(self)
-        self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_grid.png')))
+        self.roiMaskBtn.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'layer_grid.png')))
         #self.roiMaskBtn.setText('Roi Mask')
         self.roiMaskBtn.setCheckable(True)
 

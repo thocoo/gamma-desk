@@ -14,7 +14,7 @@ from .regoi import RoiConfigDialog
 from ... import config, gui
 
 RESPATH = Path(config['respath'])
-
+ICP = config.get('icon_px_folder', 'px16')
 
 def wrap(func, *args, **kwargs):
     def wrapper():
@@ -38,7 +38,7 @@ class CustomMaskMenu(QMenu):
     def __init__(self, parent=None):
         super().__init__('Select Roi', parent)
         self.imgpanel = self.parent()
-        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'selection_pane.png')))
+        self.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'selection_pane.png')))
 
 
     def showEvent(self, event):
@@ -70,38 +70,38 @@ class SelectMenu(CheckMenu):
     
         basePanel.addMenuItem(self, 'Reselect', self.reselect,
             statusTip="Select or reselect a region of interest",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_restangular.png')))
+            icon = 'select_restangular.png')
             
         basePanel.addMenuItem(self, 'Deselect', self.selectNone,
             statusTip="Deselect, select nothing")
             
         basePanel.addMenuItem(self, 'Select Dialog...', self.setRoi,
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layer_select.png')),
+            icon = 'layer_select.png',
             statusTip="Select with input numbers dialog")
             
         basePanel.addMenuItem(self, 'Select 1 Pixel...'   , self.jumpToDialog,
             statusTip="Select 1 pixel and zoom to it",
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'canvas.png')))
+            icon = 'canvas.png')
         
         self.addSeparator()
             
         basePanel.addMenuItem(self, 'Add Roi Statistics...', self.addMaskStatistics,
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'create_from_selection.png')))
+            icon = 'create_from_selection.png')
             
         basePanel.addMenuItem(self, 'Remove Roi Statistics...', self.removeMaskStatistics)            
                     
         basePanel.addMenuItem(self, "Configure Roi's...", self.configureRois,
-            icon = QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'layers_map.png')))
+            icon = 'layers_map.png')
                     
         dataSplitMenu = QMenu("Roi Presets")
-        dataSplitMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / 'px16' / 'select_by_color.png')))        
+        dataSplitMenu.setIcon(QtGui.QIcon(str(RESPATH / 'icons' / ICP / 'select_by_color.png')))        
         
-        basePanel.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon=str(RESPATH / 'icons' / 'px16' / 'color_gradient.png'))
-        basePanel.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon=str(RESPATH / 'icons' / 'px16' / 'color.png'))            
-        basePanel.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon=str(RESPATH / 'icons' / 'px16' / 'cfa_bg.png'))
-        basePanel.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon=str(RESPATH / 'icons' / 'px16' / 'cfa_gb.png'))
-        basePanel.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon=str(RESPATH / 'icons' / 'px16' / 'cfa_rg.png'))
-        basePanel.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon=str(RESPATH / 'icons' / 'px16' / 'cfa_gr.png'))
+        basePanel.addMenuItem(dataSplitMenu, 'mono', lambda: self.setStatMasks('mono'), icon='color_gradient.png')
+        basePanel.addMenuItem(dataSplitMenu, 'rgb', lambda: self.setStatMasks('rgb'), icon='color.png')
+        basePanel.addMenuItem(dataSplitMenu, 'bg', lambda: self.setStatMasks('bg'), icon='cfa_bg.png')
+        basePanel.addMenuItem(dataSplitMenu, 'gb', lambda: self.setStatMasks('gb'), icon='cfa_gb.png')
+        basePanel.addMenuItem(dataSplitMenu, 'rg', lambda: self.setStatMasks('rg'), icon='cfa_rg.png')
+        basePanel.addMenuItem(dataSplitMenu, 'gr', lambda: self.setStatMasks('gr'), icon='cfa_gr.png')
                         
         self.addMenu(dataSplitMenu)                                            
         self.addMenu(CustomMaskMenu(self.basePanel))

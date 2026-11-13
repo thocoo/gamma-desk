@@ -18,9 +18,9 @@ from .laystruct import LayoutStruct
 from .docks import DockBase
 from .boxes import DockHBox, DockVBox, DockBox
 
-respath = pathlib.Path(config['respath'])
 logger = logging.getLogger(__name__)
-
+respath = pathlib.Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 DEBUG = {'Use_ScrollBox': True}
 
 
@@ -129,7 +129,7 @@ class DockTabBase(DockBase, QTabWidget):
         
         if DEBUG['Use_ScrollBox']:
             self.toprightbtn = QtWidgets.QToolButton(self)
-            self.toprightbtn.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_split.png')))
+            self.toprightbtn.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'application_split.png')))
             #self.toprightbtn.setText('...')
             self.toprightbtn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
             self.setCornerWidget(self.toprightbtn, Qt.TopRightCorner)
@@ -137,19 +137,19 @@ class DockTabBase(DockBase, QTabWidget):
             if config.get("scroll_area", False):
                 self.pinMenu.addAction(QtWidgets.QAction('Move to Pinned/Scroll Area', self, triggered=self.moveToOtherArea))            
             self.pinMenu.addAction(QtWidgets.QAction('Duplicate', self, triggered=self.duplicate,
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'application_double.png'))))
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'application_double.png'))))
             self.pinMenu.addAction(QtWidgets.QAction('Split Horizontal', self, triggered=self.splitHorizontal,
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layouts_split.png'))))           
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'layouts_split.png'))))           
             self.pinMenu.addAction(QtWidgets.QAction('Split Vertical', self, triggered=self.splitVertical,
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'layouts_split_vertical.png'))))
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'layouts_split_vertical.png'))))
             self.pinMenu.addSeparator()
             action = QtWidgets.QAction('Screenshot to Clipboard', self, triggered=self.screenShot)
-            action.setIcon(QtGui.QIcon(str(respath / 'icons' / 'px16' / 'lcd_tv_image.png')))
+            action.setIcon(QtGui.QIcon(str(respath / 'icons' / ICP / 'lcd_tv_image.png')))
             self.pinMenu.addAction(action)            
             self.pinMenu.addAction(QtWidgets.QAction('Toggle global Menu usage', self, triggered=self.toggleMenu,
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'menubar.png'))))
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'menubar.png'))))
             self.pinMenu.addAction(QtWidgets.QAction('Show/Hide Status Bar', self, triggered=self.toggleStatusBar,
-                icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / 'status_bar.png'))))
+                icon = QtGui.QIcon(str(respath / 'icons' / ICP / 'status_bar.png'))))
             self.toprightbtn.setMenu(self.pinMenu)
         
         if collapse == 'h':

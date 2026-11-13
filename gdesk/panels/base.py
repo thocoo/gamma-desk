@@ -13,6 +13,7 @@ from ..gcore.utils import getMenuTrace, relax_menu_text, relax_menu_trace
 
 logger = logging.getLogger(__name__)
 respath = pathlib.Path(config['respath'])
+ICP = config.get('icon_px_folder', 'px16')
 
 class FuncToPanel(object):
     def __init__(self, func, *args):
@@ -231,7 +232,7 @@ class BasePanel(QMainWindow):
             action.setShortcutContext(Qt.WidgetShortcut)
         
         if isinstance(icon, str):
-            icon = QtGui.QIcon(str(respath / 'icons' / 'px16' / icon))
+            icon = QtGui.QIcon(str(respath / 'icons' / ICP / icon))
         
         if not icon is None:
             action.setIcon(icon)
