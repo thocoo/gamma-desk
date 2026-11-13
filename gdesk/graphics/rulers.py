@@ -1,11 +1,16 @@
 from qtpy import QtCore, QtGui, QtWidgets
 from ..utils.ticks import tickValues, Ticks
-      
+
+from gdesk import config
+
+ruler_font = config.get('ruler_font_size', 8)
+ruler_font_sizes = [ruler_font, ruler_font-2, ruler_font-3]
+
 FONTS = [
-    QtGui.QFont('Arial', 8),
-    QtGui.QFont('Arial', 7),
-    QtGui.QFont('Arial', 5),
-]
+    QtGui.QFont('Arial', ruler_font_sizes[0]),
+    QtGui.QFont('Arial', ruler_font_sizes[1]),
+    QtGui.QFont('Arial', ruler_font_sizes[2]),
+    ]
 
 GRID_PENS = {
     "Light": [
