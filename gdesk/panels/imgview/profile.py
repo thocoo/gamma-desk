@@ -6,7 +6,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QPen, QColor
 
 from ...graphics.plotview import PlotView
-from ...graphics.rulers import TickedRuler, Axis
+from ...graphics.rulers import TickedRuler, Axis, FONTS
 from ...graphics.items import createCurve
 
 from ...utils.ticks import tickValues
@@ -221,11 +221,15 @@ class ProfilerPanel(QtWidgets.QWidget):
         
         
     def repositionRuler(self):
-        tr = self.view.mapToScene(self.width()-20, self.height()-20)
+        tr = self.view.mapToScene(self.width() - self.ruler_extent, self.height() - self.ruler_extent)
         if self.direction == 0:
             self.ruler.setY(tr.y())
         elif self.direction == 90:
             self.ruler.setX(tr.x())
+
+    @property
+    def ruler_extent(self):
+        return max(22, QtGui.QFontMetrics(FONTS[0]).height() + 2)
             
                   
     def repositionYAxis(self):
@@ -340,9 +344,9 @@ class ProfilerPanel(QtWidgets.QWidget):
         
     def showOnlyRuler(self):
         if self.direction == 0:
-            self.setFixedHeight(20)
+            self.setFixedHeight(self.ruler_extent)
         elif self.direction == 90:
-            self.setFixedWidth(20)          
+            self.setFixedWidth(self.ruler_extent)
         self.gridEnabled = False
         self.yAxisEnabled = False
         self.plotsEnabled = False

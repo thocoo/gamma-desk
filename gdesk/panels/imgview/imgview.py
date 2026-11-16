@@ -329,9 +329,9 @@ class ImageProfileWidget(QWidget):
         
 
     def showOnlyRuler(self):
-            
-        self.corner.setFixedWidth(20)
-        self.corner.setFixedHeight(20)
+        ruler_extent = self.rowPanel.ruler_extent
+        self.corner.setFixedSize(ruler_extent, ruler_extent)
+
         self.rowPanel.showOnlyRuler()
         self.colPanel.showOnlyRuler()
         self._profilesVisible = False
