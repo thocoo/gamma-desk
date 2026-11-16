@@ -583,7 +583,7 @@ class ImageProfilePanel(ImageViewerBase):
     def refresh(self):
         self.imviewer.refresh()
         self.refresh_profiles_and_stats()
-        self.imgprof.corner.statistics.formatTable()
+        #self.imgprof.corner.statistics.formatTable()
 
 
     def showHideProfiles(self):
