@@ -600,19 +600,7 @@ class StatisticsPanel(BasePanel):
         
     def setImageFeedRate(self):
         rate = int(gui.dialog.getstring('Set Image Feed Rate'))
-        self.statistics.feed_rate = rate        
-        
-        
-    # def addBindingTo(self, category, panid):
-        # targetPanel = super().addBindingTo(category, panid)
-        # if targetPanel is None: return None
-        # return targetPanel
-        
-        
-    # def removeBindingTo(self, category, panid):
-        # targetPanel = super().removeBindingTo(category, panid)
-        # if targetPanel is None: return None
-        # return targetPanel           
+        self.statistics.feed_rate = rate
 
 
 class StatisticsToolBar(QtWidgets.QToolBar):
