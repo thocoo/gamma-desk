@@ -142,7 +142,10 @@ def configure(**overwrites):
     # PassThrough keeps the exact scale factor instead.
     os.environ.setdefault('QT_SCALE_FACTOR_ROUNDING_POLICY', 'PassThrough')
 
-    if 'QT_API' in os.environ.keys():
+    if not config.get('qapp', True):
+        pass
+        
+    elif 'QT_API' in os.environ.keys():
         pass
     
     elif 'qt_api' in config.keys():
