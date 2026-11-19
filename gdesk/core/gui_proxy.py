@@ -12,7 +12,6 @@ import time
 import numpy as np
 
 from .conf import config
-
 from ..utils.funccom import find_nested_func
 
 if config.get('qapp'):
@@ -123,10 +122,33 @@ class RedBull(object):
         ReleaseKey(self.keycode)       
         
         
-class FakeGui(object):
+class TinyGui(object):
+    
+    def __init__(self, port=None):
+        
+        if port is None:
+            self.client = None
+            
+        elif port < 0:
+            from gdesk.external.channel import get_cmd_server_ports
+            ports = get_cmd_server_ports()
+            
+            if len(ports) == 0:
+                self.client = None
+                
+            else:
+                from .watcher import CommandClient
+                self.client = CommandClient(ports[port])
+            
+        else:
+            from .watcher import CommandClient            
+            self.client = CommandClient(port)
     
     def show(self, *args, **kwargs):
-        print(*args)
+        if self.client is None:
+            print(*args)
+        else:
+            self.client.send({'cmd': 'open_array', 'args': args})
     
         
 class GuiProxyBase(object):
@@ -646,7 +668,7 @@ class GuiProxy(object):
         """
         Exit Gamma Desk.
         """
-        gui.qapp.quit()        
+        gui.qapp.quit()
         
 
 class GuiMap(object):

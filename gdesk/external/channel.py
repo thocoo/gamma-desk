@@ -36,7 +36,13 @@ def python_executable():
         return str(executable)
 
 
-def connect_by_logdir(logdir=None):    
+def connect_by_logdir(logdir=None):  
+    ports = get_cmd_server_ports(logdir)
+    connect_to_gui(ports[0])
+    
+    
+def get_cmd_server_ports(logdir=None):
+    
     if logdir is None:
         logdir = pathlib.Path(os.environ['USERPROFILE']) / 'AppData' / 'Local' / 'Gamma-Desk'
         
@@ -53,8 +59,7 @@ def connect_by_logdir(logdir=None):
             content = json.load(fp)
         ports.append(content['port'])
             
-    connect_to_gui(ports[0])
-    #time.sleep(3) 
+    return ports
 
 
 def connect_to_gui(port=None, host='localhost',

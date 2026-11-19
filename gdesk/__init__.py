@@ -29,7 +29,7 @@ DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 
 __release__ = __version__
 
-def init_tiny_gdesk(workspace=None, logdir=False):
+def init_tiny_gdesk(workspace=None, logdir=False, port=None):
     """
     Init the most minimal gdesk environment.
     Load no gui components.
@@ -47,7 +47,7 @@ def init_tiny_gdesk(workspace=None, logdir=False):
     shell = shellmod.Shell(workspace, redirect=False, logdir=logdir)
     refer_shell_instance(shell)
         
-    gui = gui_proxy.FakeGui()
+    gui = gui_proxy.TinyGui(port=port)
     shell.wsdict['gui'] = gui    
     refer_gui_instance(gui)    
 

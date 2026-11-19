@@ -194,24 +194,28 @@ class CommandServer(object):
         
 class CommandClient(object):
 
-    def __init__(self, port=None, host='localhost'):
+    def __init__(self, port=None, host='localhost', keep_connected=False):
         self.timeout = 10000
         self.retries = 1
         self.port = port or config.get('watcher_port', 5998)
-        self.host = host       
+        self.host = host   
+        self.socket = None
+        self.keep_connected = keep_connected
     
     def send(self, message, timeout=None, retries=None):
+        
+        if self.socket is None:
+            server_endpoint = f"tcp://{self.host}:{self.port}"
+            logging.info(f"Connecting to server {server_endpoint}...")        
+            self.socket = context.socket(zmq.REQ)
+        
+            try:
+                self.socket.connect(server_endpoint)
+            except:
+                raise
+            
         timeout = timeout or self.timeout
-        retries_left = retries or self.retries
-        server_endpoint = f"tcp://{self.host}:{self.port}"
-        logging.info(f"Connecting to server {server_endpoint}...")
-        
-        self.socket = context.socket(zmq.REQ)
-        
-        try:
-            self.socket.connect(server_endpoint)
-        except:
-            raise
+        retries_left = retries or self.retries            
 
         request = message
         logging.debug(f"Sending {request}")
@@ -238,4 +242,6 @@ class CommandClient(object):
             logging.info("Resending (%s)", request)
             self.socket.send_pyobj(request)
 
-        self.socket.close()
+        if not self.keep_connected:
+            self.socket.close()
+            self.socket = None
