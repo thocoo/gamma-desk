@@ -190,7 +190,8 @@ class CommandServer(object):
             return handover.send(True, CommandServer.execute_file, *args)
             
         elif cmd == 'execute_code':
-            return handover.send(True, CommandServer.execute_code, *args)            
+            return handover.send(True, CommandServer.execute_code, *args)
+            
         
 class CommandClient(object):
 
@@ -245,3 +246,15 @@ class CommandClient(object):
         if not self.keep_connected:
             self.socket.close()
             self.socket = None
+        
+        
+    def start_print_loop(self):
+        t = threading.Thead(target = self.print_receive_loop)
+        t.start()        
+        
+        
+    def print_receive_loop(self):        
+        while True:
+            obj = self.socket.recv_pyobj()
+            print(obj)
+        

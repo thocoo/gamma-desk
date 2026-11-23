@@ -78,13 +78,13 @@ class Shell(object):
         self.logdir = LogDir(logdir)
         
     def redirect_stdout(self):
-        if not config['debug']['skip_main_stdout_redirect']:
+        if not config.get('debug', {}).get('skip_main_stdout_redirect', False):
             current_stdout = sys.stdout
             sys.stdout = self.stdout = stdinout.StdOutRouter()
             sys.stdout.backup_stream = current_stdout
             stdinout.enable_ghstream_handler()
             
-        if not config['debug']['skip_main_stderr_redirect']:
+        if not config.get('debug', {}).get('skip_main_stderr_redirect', False):
             current_stderr = sys.stderr
             sys.stderr = self.stderr = stdinout.StdErrRouter()
             sys.stderr.backup_stream = current_stderr
