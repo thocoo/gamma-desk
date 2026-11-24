@@ -119,14 +119,26 @@ class CommandServer(object):
         
         return json.dumps(d)
         
+        
+    def init_zmq_queue(self, console_id=1):
+        from .tasks import ZmqQueues               
+        cqs = ZmqQueues()        
+        cqs.setup_as_server()        
+        self.shell.ws.cqs = cqs
+        
+        return cqs.to_json()
+        
+        
     @staticmethod        
     def execute_file(init_file, console_id, local=True):
         gui.console.execute_file(init_file, console_id, local)     
+        
 
     @staticmethod        
     def execute_code(init_code, console_id):        
         from .. import gui
         gui.console.execute_code(init_code, console_id)          
+        
 
     @staticmethod
     def start_kernel(kerneltype='ipykernel', connectfile='', rundir=None, child=True, threaded=False):
@@ -183,6 +195,9 @@ class CommandServer(object):
         elif cmd == 'connect_process':
             return handover.send(True, CommandServer.connect_process, *args)
             
+        elif cmd == 'init_zmq_queue':            
+            return handover.send(True, self.init_zmq_queue, *args)            
+            
         elif cmd == 'connect_zmq_process':
             return handover.send(True, CommandServer.connect_zmq_process, *args)            
             
@@ -191,6 +206,8 @@ class CommandServer(object):
             
         elif cmd == 'execute_code':
             return handover.send(True, CommandServer.execute_code, *args)
+            
+
             
         
 class CommandClient(object):
@@ -246,15 +263,5 @@ class CommandClient(object):
         if not self.keep_connected:
             self.socket.close()
             self.socket = None
-        
-        
-    def start_print_loop(self):
-        t = threading.Thead(target = self.print_receive_loop)
-        t.start()        
-        
-        
-    def print_receive_loop(self):        
-        while True:
-            obj = self.socket.recv_pyobj()
-            print(obj)
+
         
