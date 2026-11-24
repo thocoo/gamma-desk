@@ -30,7 +30,7 @@ DOC_HTML_EXTRA = ['https://test.pypi.org/project/gamma-desk']
 __release__ = __version__
 
 
-def init_tiny_gdesk(workspace=None, logdir=False, redirect=False):
+def init_tiny_gdesk(workspace=None, logdir=False):
     """
     Init the most minimal gdesk environment.
     Load no gui components.
@@ -45,16 +45,49 @@ def init_tiny_gdesk(workspace=None, logdir=False, redirect=False):
         frame = sys._getframe(1)
         workspace = frame.f_globals
         
-    shell = shellmod.Shell(workspace, redirect=redirect, logdir=logdir)
+    shell = shellmod.Shell(workspace, redirect=False, logdir=logdir)
     refer_shell_instance(shell)
+        
+    gui = gui_proxy.FakeGui()
+    shell.wsdict['gui'] = gui    
+    refer_gui_instance(gui)
+
+
+def init_remote_gdesk(workspace=None, logdir=False, mode='simple'):
+    """
+    Init the most minimal gdesk environment.
+    Load no gui components.
+    Init a shell object but leave the stdout and input as is.
+    Do not initialize the logging.
+    Init a fake gui object.
+    """
+    from gdesk.core import shellmod
+    from gdesk.core import remote
+    from gdesk.core import gui_proxy
+        
+    if mode in ['simple', 'client']:
+        if workspace is None:
+            frame = sys._getframe(1)
+            workspace = frame.f_globals        
+            
+        shell = shellmod.Shell(workspace, redirect=(mode == 'client'), logdir=logdir)
+        refer_shell_instance(shell)
     
-    gui = gui_proxy.TinyGui()
-    
-    if not redirect:           
-        gui.connect(gui_redirect=False)
+    if mode == 'client':
+        gui_client = remote.GuiClient(shell)
+        gui_client.connect()
+        gui = gui_proxy.gui        
+        
+    elif mode == 'interactive':
+        client = remote.InteractiveClient()
+        client.connect()
+        client.interact()
+        return
+        
     else:
-        gui.connect(shell=shell, gui_redirect=True)
-        gui = gui_proxy.gui
+        gui = remote.TinyGui()        
+        gui.connect()        
+
         
     shell.wsdict['gui'] = gui    
     refer_gui_instance(gui)        

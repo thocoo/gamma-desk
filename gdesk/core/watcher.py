@@ -11,9 +11,11 @@ import zmq
 from . import conf
 from .conf import config
 from .gui_proxy import gui
+from gdesk import use
 
 logger = logging.getLogger(__name__)
 context = zmq.Context()
+
 
 class CommandServer(object):
 
@@ -121,10 +123,15 @@ class CommandServer(object):
         
         
     def init_zmq_queue(self, console_id=1):
-        from .tasks import ZmqQueues               
+        from .tasks import ZmqQueues
+        from .cmdserver import serve
+        
         cqs = ZmqQueues()        
         cqs.setup_as_server()        
         self.shell.ws.cqs = cqs
+        
+        #gui.console.thread_exec(use.soft.cmdserver.serve, cqs)
+        gui.console.thread_exec(serve, cqs)
         
         return cqs.to_json()
         

@@ -121,6 +121,9 @@ class ConsoleGuiProxy(GuiProxyBase):
 
     @StaticGuiCall       
     def _gui_set_console_mode(mode='input', panid=None):
+        if not panid in gui.qapp.panels['console']:
+            return
+            
         console = gui.qapp.panels['console'][panid]  
         old_mode = console.stdio.stdInputPanel.mode      
         console.set_mode(mode) 

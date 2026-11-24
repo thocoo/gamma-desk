@@ -8,13 +8,11 @@ import pickle
 import logging
 import pathlib
 import time
-import json
-import pprint
-import code
 
 import numpy as np
 
 from .conf import config
+
 from ..utils.funccom import find_nested_func
 
 if config.get('qapp'):
@@ -125,72 +123,10 @@ class RedBull(object):
         ReleaseKey(self.keycode)       
         
         
-class TinyGui(object):
-    
-    def __init__(self):
-        self.client = None
-        
-        
-    def connect(self, port=None, host='localhost', shell=None, gui_redirect=True):        
-            
-        if port == None:
-            from gdesk.external.channel import get_cmd_server_ports
-            ports = get_cmd_server_ports()            
-            
-            if len(ports) == 0:
-                raise FileNotFoundError()
-                
-            else:
-                port = ports[-1]
-                
-        from .watcher import CommandClient            
-        self.client = CommandClient(port, host, keep_connected=True)
-        
-        if shell is None:
-            return
-            
-        from gdesk.core.tasks import ZmqQueues
-            
-        cqs_config = self.client.send({'cmd': 'connect_zmq_process',
-            'args': ()}, timeout=5000, retries=1)
-            
-        pprint.pprint(cqs_config)
-        
-        cqs = ZmqQueues.from_json(cqs_config)
-        cqs.setup_as_client(host)
-        
-        console_id = json.loads(cqs_config)['console_id']
-        self.init_gui(shell, cqs, gui_redirect=gui_redirect, client=False, console_id=console_id)
-            
+class FakeGui(object):
     
     def show(self, *args, **kwargs):
-        if self.client is None:
-            print(*args)
-        else:
-            self.client.send({'cmd': 'open_array', 'args': args})
-            
-            
-    def interact(self, console_id=1):
-        console = code.InteractiveConsole()
-        console.runsource = lambda source, filename="<input>", symbol="single": self.execute(source, console_id)
-        console.interact()
-            
-            
-    def execute(self, *args):
-        self.client.send({'cmd': 'execute_code', 'args': args})            
-            
-            
-    def init_gui(self, shell, commqueues, gui_redirect=True, client=True, console_id=None):
-        name, tid = shell.new_interactive_thread(commqueues, client=client, console_id=console_id)
-
-        if gui_redirect:
-            this_tid = threading.get_ident()
-            gui.redirects[this_tid] = tid
-            
-            while not tid in sys.stdout.streams:
-                time.sleep(0.1)
-
-        return tid            
+        print(*args)
     
         
 class GuiProxyBase(object):
@@ -710,7 +646,7 @@ class GuiProxy(object):
         """
         Exit Gamma Desk.
         """
-        gui.qapp.quit()
+        gui.qapp.quit()        
         
 
 class GuiMap(object):
