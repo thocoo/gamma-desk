@@ -49,7 +49,7 @@ class EditMenu(CheckMenu):
         basePanel.addMenuItem(self, 'Copy Scaled Selection', self.placeViewerOnClipboard,
             icon = 'resize_picture.png')
             
-        basePanel.addMenuItem(self, 'Copy 100% Zoom', self.placeQimgOnClipboard,
+        basePanel.addMenuItem(self, 'Copy Full 100% Zoom', self.placeQimgOnClipboard,
             statusTip="Place the 8bit image on clipboard, offset and gain applied",
             icon = 'two_pictures.png')            
             
