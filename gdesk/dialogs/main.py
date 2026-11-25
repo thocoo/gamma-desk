@@ -274,6 +274,8 @@ class MainDialog(QtWidgets.QMainWindow):
             self.menuBar().setNativeMenuBar(False)
 
         self.appMenu = self.menuBar().addMenu("&Application")
+        
+        self.appMenu.addAction(QtWidgets.QAction("Start Command Server", self, triggered=self.startCommandServer))
 
         act = QtWidgets.QAction("Restart", self,
             triggered=self.restart,
@@ -304,7 +306,7 @@ class MainDialog(QtWidgets.QMainWindow):
         self.configMenu.addAction(QtWidgets.QAction("View Config", self, triggered=self.showConfig,
             icon=QtGui.QIcon(str(respath / 'icons' / ICP / 'page_gear.png'))))
 
-        self.configMenu.addAction(QtWidgets.QAction("Save Config", self, triggered=self.saveConfig))
+        self.configMenu.addAction(QtWidgets.QAction("Save Config", self, triggered=self.saveConfig))        
         
         #matplotlib.rcsetup.all_backends
         #'module://gdesk.matplotbe'
@@ -342,6 +344,18 @@ class MainDialog(QtWidgets.QMainWindow):
 
     def accept(self):
         self.showMinimized()
+
+
+    def startCommandServer(self):
+        qapp = self.qapp
+
+        if qapp.cmdserver.socket_loop:
+            gui.msgbox(f'Already running on TCP port {qapp.cmdserver.port}')
+            pass
+            
+        else:
+            qapp.cmdserver.start(qapp)
+            gui.msgbox(f'Started on TCP port {qapp.cmdserver.port }')        
 
     def restart(self):
         restart()
