@@ -314,21 +314,18 @@ class FileLayout(QHBoxLayout):
             defaultFilter = None
                                                
             if QT_LIB in ['PySide', 'PySide2', 'PySide6']:
-                name = QFileDialog.getSaveFileName(
+                name, _filter = QFileDialog.getSaveFileName(
                     caption = 'Give new file name',
                     filter = self.value[5:],
                     dir = defaultDir,
                     selectedFilter = defaultFilter)
                     
             else:
-                name = QFileDialog.getSaveFileNameAndFilter(
+                name, _filter = QFileDialog.getSaveFileNameAndFilter(
                     caption = title,
                     filter = self.value[5:],
                     directory = defaultDir,
-                    selectedFilter = defaultFilter)
-            
-            if QT_LIB in ['PyQt5', 'PySide2']:            
-                name, _filter = name
+                    selectedFilter = defaultFilter)            
                 
         if name:
             self.lineedit.setText(name)        
@@ -351,18 +348,13 @@ class FileLayout(QHBoxLayout):
                 if not p.parent is None:
                     defaultDir = str(p.parent)
                                
-            name = QFileDialog.getOpenFileName(None, 'Select file', dir=defaultDir, filter=defaultFilter)
-                
-            if QT_LIB in ['PyQt5', 'PySide2']:
-                name, _filter = name
+            name, _filter = QFileDialog.getOpenFileName(None, 'Select file', dir=defaultDir, filter=defaultFilter)                
                 
         elif self.value.startswith('dir'):
             name = QFileDialog.getExistingDirectory(None, 'Select directory', dir=self.text())
             
         else:
-            name = QFileDialog.getOpenFileName(None, 'Select file')
-            if QT_LIB in ['PyQt5', 'PySide2']:
-                name, _filter = name                    
+            name, _filter = QFileDialog.getOpenFileName(None, 'Select file')          
             
         if name:
             self.lineedit.setText(name)
@@ -665,7 +657,7 @@ class FormWidget(QWidget):
                     field = PushLayout(value, self)
                     self.formlayout.addRow(field)
                 else:
-                    img_fmt = tuple(['.'+str(bytes(ext.data() if QT_LIB == "PySide" or QT_LIB == "PySide2" else ext).decode()) 
+                    img_fmt = tuple(['.'+str(bytes(ext.data() if QT_LIB == "PySide" or QT_LIB == "PySide2" or QT_LIB == "PySide6" else ext).decode()) 
                                     for ext in QImageReader.supportedImageFormats()])
                     if value.endswith(img_fmt):
                         # Image
