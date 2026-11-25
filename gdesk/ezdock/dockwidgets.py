@@ -49,7 +49,7 @@ class DockTabBar(QTabBar):
         container = widget.get_container()        
         globalpos = widget.mapToGlobal(self.pos())
         
-        if event.modifiers() == 0:            
+        if event.modifiers() == Qt.NoModifier:            
             window, node = self.detach()
             if not window is container.parent():
                 window.move(globalpos)
