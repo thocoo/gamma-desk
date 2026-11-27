@@ -376,6 +376,53 @@ class MainWindow(QMainWindow):
         self.setWindowOpacity(1.0)
         self.dragState = DragState.placed         
         self.priorHoverButton = None
+
+    
+    def dock_to_panel(self, category, panid, position='tab', container=None):
+        """
+        Programmatically dock this window to a specific panel or position.
+        
+        Args:
+            category: Panel category
+            panid: Panel ID
+            position: Where to dock relative to the panel: 'tab', 'top', 'bottom', 'left', 'right'
+            container: Optional container to get buttons from (defaults to container with the panel)
+            allWindows: If True, docks to all windows; if False, docks to tool window only
+            
+        Example:
+            # Dock to the same tabgroup as a specific panel
+            main_window.dock_to_panel('myCategory', 'myPanelId', position='tab')
+            
+            # Dock to the left of a specific panel
+            main_window.dock_to_panel('myCategory', 'myPanelId', position='left')
+        """
+        # Find container with the panel if not provided
+        if container is None:
+            container = self.qapp.panels.ezm.get_container(category, panid)
+        
+        if container is None or not container.isVisible():
+            raise ValueError(f"Panel '{panid}' in category '{category}' not found or not visible")        
+        
+        panqualid = (position, (category, panid))        
+        
+        # Get the layout structure for insertion
+        layout = self.container.get_layout_struct()
+        layout.compact()
+        
+        # Create overlay for the target container to perform the actual dock
+        dock_overlay = overlay.DockOverlay(container, tool=False)
+        dock_overlay.insert_window = self
+        dock_overlay.insert_node = layout.root
+        
+        # Place the node using the overlay's place_node method
+        dock_overlay.place_node(*panqualid)
+        
+        self.qapp.panels.ezm.hide_overlays()
+        self.qapp.deleteEmptyWindows()
+        
+        self.dragState = DragState.placed
+        self.priorHoverButton = None
+        
         
     def closeEvent(self, event):
         self.qapp.hideWindow(self)
