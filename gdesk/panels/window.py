@@ -23,6 +23,7 @@ from .. import config, gui
 
 from .base import CheckMenu
 from ..ezdock import overlay
+from ..ezdock.laystruct import LayoutStruct
 from ..gcore.utils import getMenuAction, relax_menu_trace, relax_menu_text
 from ..dialogs.main import NewPanelMenu, PanelMenu, WindowMenu
 from ..dialogs.formlayout import fedit
@@ -391,10 +392,10 @@ class MainWindow(QMainWindow):
             
         Example:
             # Dock to the same tabgroup as a specific panel
-            main_window.dock_to_panel('myCategory', 'myPanelId', position='tab')
+            main_window.dock_to_panel('myCategory', 1, position='tab')
             
             # Dock to the left of a specific panel
-            main_window.dock_to_panel('myCategory', 'myPanelId', position='left')
+            main_window.dock_to_panel('myCategory', 3, position='left')
         """
         # Find container with the panel if not provided
         if container is None:
@@ -407,21 +408,16 @@ class MainWindow(QMainWindow):
         
         # Get the layout structure for insertion
         layout = self.container.get_layout_struct()
-        layout.compact()
+        layout.compact()        
+
+        relative_pos, refpanqualid = panqualid
+        ls = container.get_layout_struct()
+        ls.compact()
+        ls.insert_branch(layout.root, relative_pos, refpanqualid)
+        self.container.update_layout(LayoutStruct())
+        container.update_layout(ls)
         
-        # Create overlay for the target container to perform the actual dock
-        dock_overlay = overlay.DockOverlay(container, tool=False)
-        dock_overlay.insert_window = self
-        dock_overlay.insert_node = layout.root
-        
-        # Place the node using the overlay's place_node method
-        dock_overlay.place_node(*panqualid)
-        
-        self.qapp.panels.ezm.hide_overlays()
-        self.qapp.deleteEmptyWindows()
-        
-        self.dragState = DragState.placed
-        self.priorHoverButton = None
+        self.qapp.deleteEmptyWindows()        
         
         
     def closeEvent(self, event):
