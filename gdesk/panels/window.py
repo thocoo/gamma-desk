@@ -377,47 +377,6 @@ class MainWindow(QMainWindow):
         self.setWindowOpacity(1.0)
         self.dragState = DragState.placed         
         self.priorHoverButton = None
-
-    
-    def dock_to_panel(self, category, panid, position='tab', container=None):
-        """
-        Programmatically dock this window to a specific panel or position.
-        
-        Args:
-            category: Panel category
-            panid: Panel ID
-            position: Where to dock relative to the panel: 'tab', 'top', 'bottom', 'left', 'right'
-            container: Optional container to get buttons from (defaults to container with the panel)
-            allWindows: If True, docks to all windows; if False, docks to tool window only
-            
-        Example:
-            # Dock to the same tabgroup as a specific panel
-            main_window.dock_to_panel('myCategory', 1, position='tab')
-            
-            # Dock to the left of a specific panel
-            main_window.dock_to_panel('myCategory', 3, position='left')
-        """
-        # Find container with the panel if not provided
-        if container is None:
-            container = self.qapp.panels.ezm.get_container(category, panid)
-        
-        if container is None or not container.isVisible():
-            raise ValueError(f"Panel '{panid}' in category '{category}' not found or not visible")        
-        
-        panqualid = (position, (category, panid))        
-        
-        # Get the layout structure for insertion
-        layout = self.container.get_layout_struct()
-        layout.compact()        
-
-        relative_pos, refpanqualid = panqualid
-        ls = container.get_layout_struct()
-        ls.compact()
-        ls.insert_branch(layout.root, relative_pos, refpanqualid)
-        self.container.update_layout(LayoutStruct())
-        container.update_layout(ls)
-        
-        self.qapp.deleteEmptyWindows()        
         
         
     def closeEvent(self, event):

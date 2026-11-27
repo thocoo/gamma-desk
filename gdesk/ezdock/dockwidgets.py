@@ -646,4 +646,22 @@ class DockContainer(QWidget):
             self.taglevel = (self.taglevel + 1) % 2
         else:
             self.taglevel = (self.taglevel + 1) % 3
-        self.compact()        
+        self.compact()
+
+
+    def dock_to_panel(self, category, panid, position='tab'):
+        other_container = self.manager.get_container(category, panid)
+
+        panqualid = (position,)  
+
+        # Get the layout structure for insertion
+        layout = self.get_layout_struct()
+        layout.compact()        
+
+        ls = other_container.get_layout_struct()
+        ls.compact()
+        ls.insert_branch(layout.root, position,  (category, panid))
+        self.update_layout(LayoutStruct())
+        other_container.update_layout(ls)
+        
+        gui.qapp.deleteEmptyWindows()      
