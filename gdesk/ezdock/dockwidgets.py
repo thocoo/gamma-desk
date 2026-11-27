@@ -650,9 +650,7 @@ class DockContainer(QWidget):
 
 
     def dock_to_panel(self, category, panid, position='tab'):
-        other_container = self.manager.get_container(category, panid)
-
-        panqualid = (position,)  
+        other_container = self.manager.get_container(category, panid)    
 
         # Get the layout structure for insertion
         layout = self.get_layout_struct()
