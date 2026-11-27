@@ -52,7 +52,7 @@ To avoid the most problems, starting from Python 3.12, we move to numpy v2 and r
 
 For very recent Python releases, numba may be unavailable for a while.
 
-In this case, we drop the requirement for numba until it's out, but only for that recent Python version.
+So numba is excluded for all Python releases above the one numba supports.
 
 
 ## Pooch
